@@ -17,7 +17,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->timestamps();
 
-            $table->index(['instructor_profile_id', 'day_of_week']);
+            $table->index(['instructor_profile_id', 'day_of_week'], 'inst_avail_slots_profile_dow');
         });
 
         // Specific date overrides: blocked or extra available
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->boolean('is_available')->default(false); // false = blocked, true = extra slot
             $table->timestamps();
 
-            $table->index(['instructor_profile_id', 'date']);
+            $table->index(['instructor_profile_id', 'date'], 'inst_avail_blocks_profile_date');
         });
     }
 
