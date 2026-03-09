@@ -18,13 +18,17 @@ Route::get('/find-instructor', function () {
 })->name('find-instructor');
 
 Route::get('/find-instructor/results', function (\Illuminate\Http\Request $request) {
-    $suburbId = $request->query('suburb_id');
-    if (empty($suburbId)) {
+    $suburbId = (string) $request->query('suburb_id', '');
+    $q = trim((string) $request->query('q', ''));
+
+    // If absolutely nothing was provided, send back to the search form.
+    if ($suburbId === '' && $q === '') {
         return redirect()->route('find-instructor');
     }
+
     return view('find-instructor-results', [
         'suburb_id' => $suburbId,
-        'q' => $request->query('q', ''),
+        'q' => $q,
         'transmission' => $request->query('transmission', ''),
         'test_pre_booked' => $request->boolean('test_pre_booked'),
     ]);

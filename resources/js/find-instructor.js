@@ -11,6 +11,7 @@ function init() {
   if (!suburbInput) return;
 
   initSuburbAutocomplete(suburbInput, (id, label) => {
+    suburbInput.dataset.selected = '1';
     if (formSuburbId) formSuburbId.value = id || '';
     if (formQ) formQ.value = label || suburbInput.value.trim();
   });

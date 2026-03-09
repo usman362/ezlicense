@@ -47,12 +47,12 @@ export function initSuburbAutocomplete(inputEl, onSelect) {
     listEl.querySelectorAll('li').forEach((li) => {
       li.addEventListener('click', () => {
         const id = li.dataset.id;
-        const label = li.dataset.label;
-        inputEl.value = label || li.textContent;
-        inputEl.dataset.suburbId = id;
+        const label = (li.dataset.label || li.textContent || '').replace(/&quot;/g, '"');
         listEl.innerHTML = '';
         listEl.hidden = true;
         onSelect?.(id, label);
+        inputEl.value = label;
+        inputEl.dataset.suburbId = id;
       });
     });
   }, 250);

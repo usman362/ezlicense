@@ -139,12 +139,7 @@ function init() {
   const moreSection = document.getElementById('more-section');
   const moreResults = document.getElementById('more-results');
 
-  const suburbId = params.suburbId || '';
-  if (!suburbId) {
-    window.location.href = '/find-instructor';
-    return;
-  }
-
+  const suburbId = params.suburbId || null;
   const transmission = params.transmission || null;
   const testPreBooked = params.testPreBooked === true;
 

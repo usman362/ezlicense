@@ -159,6 +159,10 @@
             var formQ = document.getElementById('form-q');
             if (form && formSuburbId && formQ && suburbInput) {
                 suburbInput.addEventListener('input', function() {
+                    if (suburbInput.dataset.selected) {
+                        delete suburbInput.dataset.selected;
+                        return;
+                    }
                     formSuburbId.value = '';
                     formQ.value = suburbInput.value;
                 });
