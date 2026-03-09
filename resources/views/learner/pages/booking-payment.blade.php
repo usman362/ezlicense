@@ -1,0 +1,167 @@
+@extends('layouts.learner')
+
+@section('title', 'Make a Booking')
+@section('heading', 'Make a Booking')
+
+@section('content')
+<nav aria-label="breadcrumb" class="mb-2">
+    <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item"><a href="{{ route('learner.dashboard') }}"><i class="bi bi-house"></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $order['instructor_profile_id'] ?? '']) }}">Make a Booking</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Payment</li>
+    </ol>
+</nav>
+
+<h5 class="mb-4">Make a Booking</h5>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form id="payment-form" action="#" method="post">
+            @csrf
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Payment Method</h6>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="pay-card" value="card" checked>
+                            <label class="form-check-label fw-bold" for="pay-card">Credit/Debit card</label>
+                        </div>
+                        <div id="card-fields" class="ps-4 mt-2">
+                            <div class="mb-2">
+                                <label class="form-label small">Card number</label>
+                                <input type="text" class="form-control" name="card_number" placeholder="1234 1234 1234 1234" maxlength="19" autocomplete="cc-number">
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label small">Expiry</label>
+                                    <input type="text" class="form-control" name="card_expiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">CVC</label>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input type="text" class="form-control" name="card_cvc" placeholder="CVC" maxlength="4" autocomplete="cc-csc">
+                                        <span class="small text-muted"><i class="bi bi-credit-card-2-front"></i> VISA</span>
+                                        <span class="small text-muted">Mastercard</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" name="save_payment_method" id="save-card" value="1" checked>
+                                <label class="form-check-label small" for="save-card">Save this payment method</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment_method" id="pay-paypal" value="paypal">
+                        <label class="form-check-label" for="pay-paypal">
+                            <span class="d-inline-block align-middle">PayPal</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <button type="button" class="btn btn-link p-0 d-flex align-items-center justify-content-between w-100 text-dark text-decoration-none" data-bs-toggle="collapse" data-bs-target="#billing-details" aria-expanded="true">
+                        <span class="fw-bold">Billing Details</span>
+                        <i class="bi bi-chevron-up"></i>
+                    </button>
+                    <div class="collapse show mt-3" id="billing-details">
+                        <div class="mb-2">
+                            <label class="form-label small">Billing name</label>
+                            <input type="text" class="form-control" name="billing_name" value="{{ $billingName }}" placeholder="Full name">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">* Billing address</label>
+                            <input type="text" class="form-control" name="billing_address" placeholder="Street address">
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label small">* Suburb</label>
+                                <select class="form-select form-select-sm" name="billing_suburb_id" id="billing_suburb">
+                                    <option value="">Select suburb</option>
+                                    @foreach($states as $state)
+                                        @foreach($suburbsByState[$state->id] ?? [] as $sub)
+                                            <option value="{{ $sub['id'] }}" data-state="{{ $state->id }}">{{ $sub['name'] }}, {{ $sub['postcode'] }}</option>
+                                        @endforeach
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">* State</label>
+                                <select class="form-select form-select-sm" name="billing_state_id" id="billing_state">
+                                    <option value="">Select state</option>
+                                    @foreach($states as $state)
+                                        <option value="{{ $state->id }}">{{ $state->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning border-0 d-flex align-items-start gap-2 mb-4">
+                <i class="bi bi-shield-check fs-4"></i>
+                <p class="mb-0 small">To protect your payment, never transfer money or communicate about lesson payments outside of the EzLicence website.</p>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm sticky-top">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Order Summary</h6>
+                @foreach($order['items'] as $item)
+                    @php
+                        $label = ($item['booking_type'] ?? '') === 'test_package' ? 'Test Package' : 'Lesson';
+                        $dateShort = '';
+                        if (!empty($item['date_iso'])) {
+                            try {
+                                $d = \Carbon\Carbon::parse($item['date_iso']);
+                                $dateShort = $d->format('j M');
+                            } catch (\Exception $e) {
+                                $dateShort = $item['dateLabel'] ?? '';
+                            }
+                        }
+                        $lineLabel = $label . ' - ' . $dateShort . ', ' . ($item['timeLabel'] ?? '');
+                        $price = $item['price'] ?? 0;
+                    @endphp
+                    <div class="d-flex justify-content-between align-items-start py-2 border-bottom small">
+                        <span><i class="bi bi-calendar3 me-1 text-muted"></i>{{ $lineLabel }}</span>
+                        <span>${{ number_format((float) $price, 2) }}</span>
+                    </div>
+                @endforeach
+                <div class="d-flex justify-content-between small mb-1 mt-2">
+                    <span>Platform Processing Fee</span>
+                    <span>${{ number_format((float) ($order['fee'] ?? 0), 2) }}</span>
+                    <i class="bi bi-info-circle text-muted ms-1" title="4% processing fee" style="cursor: help;"></i>
+                </div>
+                <div class="d-flex justify-content-between fw-bold pt-2 border-top mt-2">
+                    <span>Total Payment Due</span>
+                    <span id="order-total">${{ number_format((float) ($order['total'] ?? 0), 2) }}</span>
+                </div>
+                <p class="small text-muted mb-3 mt-1">Or 4 payments of <span id="order-instalment">${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</span></p>
+                <button type="submit" form="payment-form" class="btn btn-warning w-100" id="btn-pay">
+                    Pay ${{ number_format((float) ($order['total'] ?? 0), 2) }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+(function() {
+  document.getElementById('billing_suburb').addEventListener('change', function() {
+    var opt = this.selectedOptions[0];
+    if (opt && opt.getAttribute('data-state')) document.getElementById('billing_state').value = opt.getAttribute('data-state');
+  });
+  document.getElementById('payment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Payment integration can be connected here. For now this is a placeholder.');
+  });
+})();
+</script>
+@endpush
+@endsection
