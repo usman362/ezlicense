@@ -59,6 +59,8 @@ class InstructorProfile extends Model
         'bank_bsb',
         'bank_account_number',
         'bank_details_submitted_at',
+        'verification_status',
+        'admin_notes',
     ];
 
     protected function casts(): array

@@ -157,9 +157,49 @@
     var opt = this.selectedOptions[0];
     if (opt && opt.getAttribute('data-state')) document.getElementById('billing_state').value = opt.getAttribute('data-state');
   });
+
   document.getElementById('payment-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Payment integration can be connected here. For now this is a placeholder.');
+    var btn = document.getElementById('btn-pay');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Processing...';
+
+    var method = document.querySelector('input[name="payment_method"]:checked').value;
+    var csrf = document.querySelector('meta[name="csrf-token"]');
+
+    fetch('/api/learner/bookings/pay', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrf ? csrf.content : '',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        payment_method: method,
+        billing_name: document.querySelector('[name="billing_name"]').value,
+        billing_address: document.querySelector('[name="billing_address"]').value
+      })
+    })
+    .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+    .then(function(result) {
+      if (result.ok) {
+        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Booking Confirmed!';
+        btn.classList.remove('btn-warning');
+        btn.classList.add('btn-success');
+        setTimeout(function() { window.location.href = '{{ route("learner.dashboard") }}'; }, 2000);
+      } else {
+        alert(result.data.message || 'Payment failed. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Pay ${{ number_format((float) ($order["total"] ?? 0), 2) }}';
+      }
+    })
+    .catch(function() {
+      alert('Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Pay ${{ number_format((float) ($order["total"] ?? 0), 2) }}';
+    });
   });
 })();
 </script>

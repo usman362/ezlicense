@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\Learner;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\InstructorProfile;
+use App\Models\LearnerTransaction;
+use App\Models\LearnerWallet;
 use App\Models\State;
+use App\Notifications\BookingConfirmed;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class BookingController extends Controller
@@ -105,5 +111,97 @@ class BookingController extends Controller
             'suburbsByState' => $suburbsByState,
             'billingName' => $user->name ?? '',
         ]);
+    }
+
+    /**
+     * Process the booking payment.
+     * Creates booking records, deducts from wallet or processes payment, records transactions.
+     */
+    public function processPayment(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $order = session('learner_booking_order');
+
+        if (! $order || empty($order['items'])) {
+            return response()->json(['message' => 'No booking in progress.'], 422);
+        }
+
+        $validated = $request->validate([
+            'payment_method' => 'required|in:card,paypal,wallet',
+            'billing_name' => 'nullable|string|max:255',
+            'billing_address' => 'nullable|string|max:500',
+        ]);
+
+        $total = (float) ($order['total'] ?? 0);
+        $useWallet = $validated['payment_method'] === 'wallet';
+
+        return DB::transaction(function () use ($user, $order, $total, $useWallet, $validated) {
+            // If paying with wallet, check balance
+            if ($useWallet) {
+                $wallet = LearnerWallet::where('user_id', $user->id)->first();
+                if (! $wallet || (float) $wallet->balance < $total) {
+                    return response()->json(['message' => 'Insufficient wallet balance. Please add credit or use a card.'], 422);
+                }
+            }
+
+            $bookings = [];
+            $instructorProfile = InstructorProfile::find($order['instructor_profile_id']);
+
+            foreach ($order['items'] as $item) {
+                $booking = Booking::create([
+                    'learner_id' => $user->id,
+                    'instructor_id' => $instructorProfile ? $instructorProfile->user_id : null,
+                    'instructor_profile_id' => $order['instructor_profile_id'],
+                    'suburb_id' => $item['suburb_id'] ?? null,
+                    'type' => $item['booking_type'] ?? 'lesson',
+                    'transmission' => $item['transmission'] ?? 'auto',
+                    'scheduled_at' => $item['scheduled_at'],
+                    'duration_minutes' => $item['duration_minutes'] ?? 60,
+                    'price' => $item['price'] ?? 0,
+                    'platform_fee' => round(($item['price'] ?? 0) * 0.04, 2),
+                    'status' => 'confirmed',
+                    'payment_method' => $validated['payment_method'],
+                    'payment_status' => 'paid',
+                ]);
+                $bookings[] = $booking;
+            }
+
+            // Process wallet deduction
+            if ($useWallet) {
+                $wallet = LearnerWallet::where('user_id', $user->id)->first();
+                $wallet->balance = (float) $wallet->balance - $total;
+                $wallet->save();
+
+                LearnerTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => LearnerTransaction::TYPE_LESSON_PAYMENT,
+                    'description' => 'Booking payment — ' . count($bookings) . ' booking(s)',
+                    'amount' => -$total,
+                    'balance_after' => $wallet->balance,
+                    'booking_id' => $bookings[0]->id ?? null,
+                ]);
+            }
+
+            // Send confirmation notification for each booking
+            foreach ($bookings as $booking) {
+                try {
+                    $user->notify(new BookingConfirmed($booking));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Booking notification failed: ' . $e->getMessage());
+                }
+            }
+
+            // Clear session order
+            session()->forget('learner_booking_order');
+
+            return response()->json([
+                'message' => 'Booking confirmed!',
+                'data' => [
+                    'booking_ids' => collect($bookings)->pluck('id')->toArray(),
+                    'total_charged' => $total,
+                    'payment_method' => $validated['payment_method'],
+                ],
+            ]);
+        });
     }
 }

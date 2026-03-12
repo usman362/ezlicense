@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\InstructorProfile;
+use App\Models\User;
+use App\Notifications\BookingProposed;
 use App\Services\BookingAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -72,6 +74,16 @@ class BookingProposalController extends Controller
             ]);
             $booking->load(['learner:id,name,email,phone', 'suburb']);
             $created[] = $booking;
+
+            // Notify the learner about the proposal
+            try {
+                $learner = User::find($p['learner_id']);
+                if ($learner) {
+                    $learner->notify(new BookingProposed($booking, Auth::user()->name));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Proposal notification failed: ' . $e->getMessage());
+            }
         }
 
         return response()->json([

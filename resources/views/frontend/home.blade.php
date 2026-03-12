@@ -4,44 +4,41 @@
 
 @section('content')
 {{-- Hero: Discover Top Driving Instructors + Search --}}
-<section class="ez-hero py-5" style="background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);">
-    <div class="container">
-        <div class="text-center mb-4">
-            <h1 class="display-5 fw-bold mb-2">Discover Top Driving Instructors Near You</h1>
+<section class="ez-hero position-relative overflow-hidden" style="background: linear-gradient(rgba(27,33,44,0.75), rgba(27,33,44,0.8)), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80') center/cover no-repeat; min-height: 420px;">
+    <div class="container position-relative py-5">
+        <div class="text-center mb-4 pt-3">
+            <h1 class="display-4 fw-bold text-white mb-3">Discover Top Driving Instructors Near You</h1>
             <p class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-0">
-                <span class="text-warning"><i class="bi bi-star-fill"></i> Rated 4.9</span>
-                <span class="text-muted">(10,000+)</span>
+                <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20" style="border-radius:50%;">
+                <span class="text-white fw-bold">Rated 4.9</span>
+                <span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
+                <span class="text-white-50">(10,000+)</span>
             </p>
         </div>
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+            <div class="col-lg-10">
+                <div class="card shadow border-0 rounded-3 overflow-hidden">
                     <div class="card-body p-4">
-                        <h2 class="h5 fw-bold mb-3">Find driving instructor</h2>
                         <form action="{{ route('find-instructor') }}" method="get" class="row g-3 align-items-end">
-                            <div class="col-md-4">
-                                <label class="form-label">Pick-up Location <span class="text-danger">*</span> Suburb or postcode</label>
-                                <input type="text" name="q" class="form-control" placeholder="e.g. Sydney 2000" value="{{ request('q') }}">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Pick-up Location <span class="text-danger">*</span></label>
+                                <input type="text" name="q" class="form-control form-control-lg" placeholder="Enter your suburb" value="{{ request('q') }}">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Transmission <span class="text-danger">*</span></label>
-                                <select name="transmission" class="form-select">
-                                    <option value="">Any</option>
+                                <label class="form-label fw-semibold">Transmission <span class="text-danger">*</span></label>
+                                <select name="transmission" class="form-select form-select-lg">
                                     <option value="auto" {{ request('transmission') === 'auto' ? 'selected' : '' }}>Auto</option>
                                     <option value="manual" {{ request('transmission') === 'manual' ? 'selected' : '' }}>Manual</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <div class="form-check mt-4">
-                                    <input class="form-check-input" type="checkbox" name="test_pre_booked" value="1" id="hero-test-booked" {{ request('test_pre_booked') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="hero-test-booked">Test pre-booked?</label>
-                                </div>
+                                <label class="form-label fw-semibold">Test pre-booked?</label>
+                                <input type="date" name="test_date" class="form-control form-control-lg" placeholder="Select date">
                             </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-warning w-100 fw-bold">Search</button>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-lg w-100 fw-bold" style="background: var(--ez-accent); color: #333; height: 48px;"><i class="bi bi-search me-1"></i> Search</button>
                             </div>
                         </form>
-                        <p class="small text-muted mt-2 mb-0"><a href="{{ route('find-instructor') }}">Find an instructor</a></p>
                     </div>
                 </div>
             </div>
@@ -52,53 +49,31 @@
 {{-- We are Australia's #1 --}}
 <section class="py-5 bg-white">
     <div class="container">
-        <h2 class="text-center fw-bold mb-4">We are Australia's #1 booking platform for driving lessons</h2>
-        <div class="row mb-4">
-            <div class="col-12 text-center mb-4">
-                <span class="display-4 fw-bold text-warning">100k+</span>
-                <p class="lead text-muted mb-0">Learners trusted us to get them road-ready</p>
+        <h2 class="text-center fw-bold mb-5" style="color: var(--ez-dark);">We are Australia's #1 booking platform for driving lessons</h2>
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-4 col-lg-2">
+                <span class="display-5 fw-bold text-warning d-block">100k+</span>
+                <p class="small text-muted mb-0">Learners trusted us to get them road-ready</p>
             </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex gap-3">
-                    <span class="text-warning fs-4"><i class="bi bi-clock"></i></span>
-                    <div>
-                        <h5 class="fw-bold">Book lessons 24/7 online in real time</h5>
-                    </div>
-                </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <i class="bi bi-clock" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
+                <p class="small text-muted mt-2 mb-0">Book lessons 24/7 online in real time</p>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex gap-3">
-                    <span class="text-warning fs-4"><i class="bi bi-shield-check"></i></span>
-                    <div>
-                        <h5 class="fw-bold">Have a valid Working with Children Check</h5>
-                    </div>
-                </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <i class="bi bi-shield-check" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
+                <p class="small text-muted mt-2 mb-0">Have a valid Working with Children Check</p>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex gap-3">
-                    <span class="text-warning fs-4"><i class="bi bi-arrow-left-right"></i></span>
-                    <div>
-                        <h5 class="fw-bold">Change your instructor anytime</h5>
-                    </div>
-                </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <i class="bi bi-people" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
+                <p class="small text-muted mt-2 mb-0">Change your instructor anytime</p>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex gap-3">
-                    <span class="text-warning fs-4"><i class="bi bi-calendar-check"></i></span>
-                    <div>
-                        <h5 class="fw-bold">Manage your lesson bookings online</h5>
-                    </div>
-                </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <i class="bi bi-calendar-check" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
+                <p class="small text-muted mt-2 mb-0">Manage your lesson bookings online</p>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex gap-3">
-                    <span class="text-warning fs-4"><i class="bi bi-currency-dollar"></i></span>
-                    <div>
-                        <h5 class="fw-bold">Buy confidently with hassle-free refunds</h5>
-                    </div>
-                </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <i class="bi bi-cart-check" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
+                <p class="small text-muted mt-2 mb-0">Purchase with peace of mind. Flexible rebooking.</p>
             </div>
         </div>
     </div>

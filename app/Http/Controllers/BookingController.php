@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\InstructorProfile;
+use App\Models\User;
+use App\Notifications\BookingCancelled;
 use App\Services\BookingAvailabilityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -174,6 +176,18 @@ class BookingController extends Controller
             'cancellation_reason' => $request->input('cancellation_reason'),
             'cancelled_at' => now(),
         ]);
+
+        // Notify the other party about cancellation
+        $reason = $request->input('cancellation_reason', '');
+        try {
+            $otherUserId = ($user->id === $booking->learner_id) ? $booking->instructor_id : $booking->learner_id;
+            $otherUser = User::find($otherUserId);
+            if ($otherUser) {
+                $otherUser->notify(new BookingCancelled($booking, $reason));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Cancel notification failed: ' . $e->getMessage());
+        }
 
         return response()->json(['data' => $this->formatBooking($booking->fresh())]);
     }

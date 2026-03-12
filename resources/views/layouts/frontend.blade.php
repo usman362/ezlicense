@@ -42,7 +42,7 @@
         <div class="container">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex flex-wrap align-items-center gap-1">
-                    <a href="#">Support</a>
+                    <a href="{{ route('support') }}">Support</a>
                     <span class="divider">|</span>
                     <a href="#">Instruct with EzLicence</a>
                     <span class="divider">|</span>
@@ -105,7 +105,7 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navResources" role="button" data-bs-toggle="dropdown" aria-expanded="false">Free Learner Resources</a>
                             <ul class="dropdown-menu" aria-labelledby="navResources">
                                 <li><a class="dropdown-item" href="{{ url('/') }}#faqAccordion">FAQs</a></li>
-                                <li><a class="dropdown-item" href="#">Blog</a></li>
+                                <li><a class="dropdown-item" href="{{ route('blog.index') }}">Blog</a></li>
                                 <li><a class="dropdown-item" href="#">Industry Insights</a></li>
                                 <li><a class="dropdown-item" href="#">Free Practice Learners Test</a></li>
                             </ul>
@@ -124,43 +124,85 @@
         @yield('content')
     </main>
 
-    <footer class="frontend-footer">
+    <footer style="background: #f4f5f7; color: #333; padding: 3rem 0 1.5rem; margin-top: auto;">
         <div class="container">
             <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <h6 class="text-white mb-3">Learn to Drive</h6>
-                    <ul class="list-unstyled small mb-0">
-                        <li><a href="{{ route('find-instructor') }}">Driving Lessons</a></li>
-                        <li><a href="{{ route('find-instructor') }}">Test Packages</a></li>
-                        <li><a href="#">Refresher Driving Lessons</a></li>
-                        <li><a href="#">International Licence Conversions</a></li>
+                <div class="col-lg-3 col-md-6">
+                    <a class="d-inline-flex align-items-center mb-3 text-decoration-none" href="{{ url('/') }}">
+                        <span style="font-size:1.4rem;font-weight:700;color:#333;">Ez</span><span style="width:28px;height:28px;background:var(--ez-accent);color:#333;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin:0 1px;font-size:1rem;">L</span><span style="font-size:1.4rem;font-weight:700;color:#333;">icence</span>
+                    </a>
+                    <p class="small" style="color:#555;"><strong>EzLicence takes the hassle out of choosing a driving school</strong> by helping learner drivers find, compare and book verified driving instructors online.</p>
+                    <p class="small" style="color:#777;">The EzLicence online platform brings transparency, choice and efficiency to booking and managing driving instructors and driving lessons across Australia.</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Learner Tests Online</h6>
+                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">FREE Practice Learners Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">NSW Driver Knowledge Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">VIC Learner Permit Knowledge Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">QLD Road Rules Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">WA Road Rules Theory Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">SA Learner Theory Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">TAS Driver Knowledge Test</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">ACT Road Rules Knowledge Test</a></li>
+                    </ul>
+                    <h6 class="fw-bold mt-3 mb-2" style="color: var(--ez-dark);">Driving Instructors by State</h6>
+                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
+                        <li><a href="{{ route('find-instructor') }}?q=NSW" class="text-decoration-none" style="color:#555;">NSW Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=VIC" class="text-decoration-none" style="color:#555;">VIC Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=QLD" class="text-decoration-none" style="color:#555;">QLD Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=WA" class="text-decoration-none" style="color:#555;">WA Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=SA" class="text-decoration-none" style="color:#555;">SA Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=TAS" class="text-decoration-none" style="color:#555;">TAS Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=ACT" class="text-decoration-none" style="color:#555;">ACT Driving Instructors</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4">
-                    <h6 class="text-white mb-3">Resources</h6>
-                    <ul class="list-unstyled small mb-0">
-                        <li><a href="#">Support</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">About</a></li>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Resources</h6>
+                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
+                        <li><a href="{{ route('support') }}" class="text-decoration-none" style="color:#555;">Support</a></li>
+                        <li><a href="{{ route('blog.index') }}" class="text-decoration-none" style="color:#555;">Blog</a></li>
+                        <li><a href="{{ route('contact') }}" class="text-decoration-none" style="color:#555;">Contact</a></li>
+                        <li><a href="{{ route('about') }}" class="text-decoration-none" style="color:#555;">About</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Learn more about EzLicence</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Instruct with EzLicence</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Become an instructor</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Driving Instructor User policies</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Learner User policies</a></li>
+                    </ul>
+                    <h6 class="fw-bold mt-3 mb-2" style="color: var(--ez-dark);">Driving Instructors by City</h6>
+                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
+                        <li><a href="{{ route('find-instructor') }}?q=Sydney" class="text-decoration-none" style="color:#555;">Sydney Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Melbourne" class="text-decoration-none" style="color:#555;">Melbourne Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Brisbane" class="text-decoration-none" style="color:#555;">Brisbane Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Perth" class="text-decoration-none" style="color:#555;">Perth Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Adelaide" class="text-decoration-none" style="color:#555;">Adelaide Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Hobart" class="text-decoration-none" style="color:#555;">Hobart Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Canberra" class="text-decoration-none" style="color:#555;">Canberra Driving Instructors</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4">
-                    <h6 class="text-white mb-3">Policies</h6>
-                    <ul class="list-unstyled small mb-0">
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms &amp; Conditions</a></li>
-                        <li><a href="#">Learner User policies</a></li>
-                        <li><a href="#">Instructor User policies</a></li>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Learn to Drive</h6>
+                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
+                        <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Driving Lessons</a></li>
+                        <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Test Packages</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Gift Vouchers</a></li>
+                        <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Refresher Driving Lessons</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">International Licence Conversions</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">UK Driving Lessons</a></li>
                     </ul>
                 </div>
             </div>
-            <hr style="border-color: rgba(255,255,255,0.2);">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 small">
-                <span>EzLicence Pty Ltd © {{ date('Y') }}</span>
-                <div class="d-flex flex-wrap align-items-center gap-1">
-                    <a href="#">Privacy Policy</a><span class="divider">|</span>
-                    <a href="#">Terms and Conditions</a>
+            <hr style="border-color: rgba(0,0,0,0.1);">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 small" style="color:#777;">
+                <span>Ez Licence Pty Ltd &copy; {{ date('Y') }}</span>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <a href="{{ route('privacy') }}" class="text-decoration-none" style="color:#555;">Privacy Policy</a>
+                    <a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Terms and Conditions</a>
+                </div>
+                <div class="d-flex gap-3">
+                    <a href="#" style="color:#555;" title="Facebook"><i class="bi bi-facebook fs-5"></i></a>
+                    <a href="#" style="color:#555;" title="Instagram"><i class="bi bi-instagram fs-5"></i></a>
                 </div>
             </div>
         </div>

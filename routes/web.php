@@ -39,6 +39,17 @@ Route::get('/instructors/{instructorProfile}', function (App\Models\InstructorPr
     return view('instructor-public-show', ['instructorProfile' => $instructorProfile]);
 })->name('instructors.show');
 
+// Static pages
+Route::get('/about', fn () => view('frontend.pages.about'))->name('about');
+Route::get('/contact', fn () => view('frontend.pages.contact'))->name('contact');
+Route::get('/terms-and-conditions', fn () => view('frontend.pages.terms'))->name('terms');
+Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('privacy');
+Route::get('/support', fn () => redirect('/contact'))->name('support');
+
+// Blog (public)
+Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
 Auth::routes();
 
 // Dedicated login URLs for top bar (split-screen UI)
@@ -51,13 +62,37 @@ Route::get('/instructor/login', function () {
 
 Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
-// Admin panel: /login is for admin; after login admins go to /admin
+// Admin panel
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    // Users management
     Route::get('/users', [App\Http\Controllers\Admin\UsersController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/json', [App\Http\Controllers\Admin\UsersController::class, 'show'])->name('users.show');
+    Route::patch('/users/{user}/toggle-active', [App\Http\Controllers\Admin\UsersController::class, 'toggleActive'])->name('users.toggle-active');
+    Route::patch('/users/{user}/update-role', [App\Http\Controllers\Admin\UsersController::class, 'updateRole'])->name('users.update-role');
+
+    // Instructors management
     Route::get('/instructors', [App\Http\Controllers\Admin\InstructorsController::class, 'index'])->name('instructors.index');
+    Route::patch('/instructors/{instructorProfile}/update-verification', [App\Http\Controllers\Admin\InstructorsController::class, 'updateVerification'])->name('instructors.update-verification');
+    Route::patch('/instructors/{instructorProfile}/toggle-active', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleActive'])->name('instructors.toggle-active');
+
+    // Bookings management
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
-    Route::get('/settings', fn () => view('admin.settings'))->name('settings');
+    Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
+
+    // Blog management
+    Route::get('/blog', [App\Http\Controllers\Admin\BlogController::class, 'index'])->name('blog.index');
+    Route::get('/blog/create', [App\Http\Controllers\Admin\BlogController::class, 'create'])->name('blog.create');
+    Route::post('/blog', [App\Http\Controllers\Admin\BlogController::class, 'store'])->name('blog.store');
+    Route::get('/blog/{blogPost}/edit', [App\Http\Controllers\Admin\BlogController::class, 'edit'])->name('blog.edit');
+    Route::put('/blog/{blogPost}', [App\Http\Controllers\Admin\BlogController::class, 'update'])->name('blog.update');
+    Route::get('/blog/categories', [App\Http\Controllers\Admin\BlogController::class, 'categories'])->name('blog.categories');
+
+    // Settings
+    Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
+    Route::put('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/seed', [App\Http\Controllers\Admin\SettingsController::class, 'seed'])->name('settings.seed');
 });
 Route::put('/user/profile', function (\Illuminate\Http\Request $request) {
     $user = $request->user();
@@ -130,6 +165,17 @@ Route::prefix('api')->middleware('web')->group(function () {
     Route::get('instructors/{instructorProfile}/availability/dates', [AvailabilityController::class, 'dates'])->name('api.availability.dates');
     Route::get('instructors/{instructorProfile}/availability/slots', [AvailabilityController::class, 'slots'])->name('api.availability.slots');
 
+    // Admin blog API routes
+    Route::middleware(['auth', 'role:admin'])->prefix('admin/blog')->group(function () {
+        Route::get('list', [App\Http\Controllers\Admin\BlogController::class, 'list']);
+        Route::delete('{blogPost}', [App\Http\Controllers\Admin\BlogController::class, 'destroy']);
+        Route::patch('{blogPost}/toggle-featured', [App\Http\Controllers\Admin\BlogController::class, 'toggleFeatured']);
+        Route::get('categories/list', [App\Http\Controllers\Admin\BlogController::class, 'categoryList']);
+        Route::post('categories', [App\Http\Controllers\Admin\BlogController::class, 'categoryStore']);
+        Route::put('categories/{blogCategory}', [App\Http\Controllers\Admin\BlogController::class, 'categoryUpdate']);
+        Route::delete('categories/{blogCategory}', [App\Http\Controllers\Admin\BlogController::class, 'categoryDestroy']);
+    });
+
     Route::middleware('auth')->group(function () {
         Route::get('bookings', [BookingController::class, 'index'])->name('api.bookings.index');
         Route::post('bookings', [BookingController::class, 'store'])->name('api.bookings.store');
@@ -142,12 +188,16 @@ Route::prefix('api')->middleware('web')->group(function () {
             Route::get('dashboard', [App\Http\Controllers\Learner\DashboardController::class, 'index'])->name('dashboard');
             Route::get('wallet', [App\Http\Controllers\Learner\WalletController::class, 'show'])->name('wallet.show');
             Route::get('wallet/transactions', [App\Http\Controllers\Learner\WalletController::class, 'transactions'])->name('wallet.transactions');
+            Route::post('wallet/add-credit', [App\Http\Controllers\Learner\WalletController::class, 'addCredit'])->name('wallet.add-credit');
+            Route::post('bookings/pay', [App\Http\Controllers\Learner\BookingController::class, 'processPayment'])->name('bookings.pay');
         });
 
         Route::middleware('role:instructor')->prefix('instructor')->name('api.instructor.')->group(function () {
             Route::get('profile', [InstructorDashboard::class, 'profile'])->name('profile');
             Route::put('profile', [InstructorDashboard::class, 'updateProfile'])->name('profile.update');
             Route::get('learners', [App\Http\Controllers\Instructor\LearnersController::class, 'index'])->name('learners');
+            Route::get('learners/{user}', [App\Http\Controllers\Instructor\LearnersController::class, 'show'])->name('learners.show');
+            Route::post('learners/invite', [App\Http\Controllers\Instructor\LearnersController::class, 'invite'])->name('learners.invite');
             Route::post('booking-proposals', [App\Http\Controllers\Instructor\BookingProposalController::class, 'store'])->name('booking-proposals.store');
             Route::put('profile/service-areas', [InstructorDashboard::class, 'updateServiceAreas'])->name('profile.service-areas');
             Route::put('profile/availability', [InstructorDashboard::class, 'updateAvailability'])->name('profile.availability');

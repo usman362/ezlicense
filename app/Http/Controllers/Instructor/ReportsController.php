@@ -90,8 +90,43 @@ class ReportsController extends Controller
         $fortnightlyCurrent = $this->fortnightlyReports($instructorId, $fyStartCurrent, $fyEndCurrent);
         $fortnightlyPrevious = $this->fortnightlyReports($instructorId, $fyStartPrevious, $fyEndPrevious);
 
-        $nextPayoutDate = $now->copy()->next('Monday'); // placeholder
-        $nextPayoutAmount = $earnings90 > 0 ? round($earnings90 / max(1, (int) ($now->diffInDays($ninetyDaysAgo) / 14)), 2) : 0;
+        // Calculate real payout schedule based on instructor's payout_frequency
+        $payoutFreq = $profile->payout_frequency ?? 'fortnightly';
+        $nextPayoutDate = match ($payoutFreq) {
+            'weekly'            => $now->copy()->next('Monday'),
+            'every_four_weeks'  => $now->copy()->next('Monday')->addWeeks(max(0, 3 - ($now->weekOfYear % 4))),
+            default             => $now->copy()->next('Monday')->addWeeks($now->weekOfYear % 2 === 0 ? 0 : 1),
+        };
+
+        // Estimate next payout from recent completed bookings since last payout date
+        $lastPayoutDate = match ($payoutFreq) {
+            'weekly'            => $now->copy()->previous('Monday'),
+            'every_four_weeks'  => $now->copy()->subWeeks(4)->startOfWeek(),
+            default             => $now->copy()->subWeeks(2)->startOfWeek(),
+        };
+        $nextPayoutAmount = (float) Booking::where('instructor_id', $instructorId)
+            ->where('status', Booking::STATUS_COMPLETED)
+            ->where('scheduled_at', '>=', $lastPayoutDate)
+            ->where('scheduled_at', '<=', $now)
+            ->sum('amount');
+
+        // Previous payout: the period before lastPayoutDate
+        $prevPayoutStart = match ($payoutFreq) {
+            'weekly'            => $lastPayoutDate->copy()->subWeek(),
+            'every_four_weeks'  => $lastPayoutDate->copy()->subWeeks(4),
+            default             => $lastPayoutDate->copy()->subWeeks(2),
+        };
+        $previousPayoutAmount = (float) Booking::where('instructor_id', $instructorId)
+            ->where('status', Booking::STATUS_COMPLETED)
+            ->where('scheduled_at', '>=', $prevPayoutStart)
+            ->where('scheduled_at', '<', $lastPayoutDate)
+            ->sum('amount');
+
+        // Credits held: from learner wallets with bookings to this instructor
+        $creditsHeld = (float) Booking::where('instructor_id', $instructorId)
+            ->whereIn('status', [Booking::STATUS_CONFIRMED, Booking::STATUS_PROPOSED])
+            ->where('scheduled_at', '>', $now)
+            ->sum('amount');
 
         return response()->json([
             'data' => [
@@ -105,15 +140,15 @@ class ReportsController extends Controller
                     'learner_rating' => round($avgRating, 1),
                     'earnings_by_month' => $earningsByMonth,
                     'next_payout' => $nextPayoutAmount,
-                    'previous_payout' => $nextPayoutAmount,
+                    'previous_payout' => $previousPayoutAmount,
                     'fytd_payout' => $fytdCurrent,
                     'fytd_fy' => ($fyCurrent - 1).'-'.substr((string) $fyCurrent, 2),
                     'all_time_earnings' => $totalEarnings,
                     'ave_weekly_earnings_90' => $completedCount90 > 0 ? round($earnings90 / 13, 2) : 0,
                     'ave_earnings_per_hour_90' => $hours90 > 0 ? round($earnings90 / $hours90, 2) : 0,
                     'upcoming_bookings' => $upcomingAmount,
-                    'credits_held' => 0,
-                    'searches_in_area' => 0,
+                    'credits_held' => $creditsHeld,
+                    'searches_in_area' => 0, // Requires search tracking implementation
                     'test_packages' => (clone $bookings)->where('type', Booking::TYPE_TEST_PACKAGE)->where('status', Booking::STATUS_COMPLETED)->count(),
                     'total_booking_hrs' => (int) $completed->sum(DB::raw('COALESCE(duration_minutes, 60)')) / 60,
                     'learners_count' => (clone $bookings)->distinct('learner_id')->count('learner_id'),

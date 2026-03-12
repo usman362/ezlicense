@@ -14,7 +14,7 @@
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <h5 class="mb-0">Bookings</h5>
     <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-outline-secondary" id="dashboard-invite-learner-btn" title="Coming soon">
+        <button type="button" class="btn btn-outline-secondary" id="dashboard-invite-learner-btn">
             <i class="bi bi-person-plus me-1"></i> Invite Learner
         </button>
         <a href="{{ route('instructor.learners') }}?open=propose" class="btn btn-warning" id="dashboard-propose-booking-btn">
@@ -125,6 +125,57 @@
     </div>
 </div>
 
+{{-- Booking Detail Modal --}}
+<div class="modal fade" id="booking-detail-modal" tabindex="-1" aria-labelledby="booking-detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="booking-detail-title">Booking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="booking-detail-body">
+                <div class="text-center text-muted py-3">Loading…</div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger btn-sm" id="booking-cancel-btn" style="display:none;">Cancel Booking</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Invite Learner Modal --}}
+<div class="modal fade" id="invite-learner-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Invite a Learner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">Send an email invitation to a learner to join EzLicence and book lessons with you.</p>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Email Address *</label>
+                    <input type="email" class="form-control" id="invite-email" placeholder="learner@example.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Name (optional)</label>
+                    <input type="text" class="form-control" id="invite-name" placeholder="Learner's name">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Personal Message (optional)</label>
+                    <textarea class="form-control" id="invite-message" rows="3" placeholder="Hi! I'd love to help you get your licence..."></textarea>
+                </div>
+                <div id="invite-result" style="display:none;"></div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="invite-send-btn"><i class="bi bi-send me-1"></i>Send Invitation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 .nav-tabs .nav-link { color: #333; }
 .nav-tabs .nav-link.active { border-bottom: 2px solid #f0ad4e; font-weight: 500; color: #333; }
@@ -217,7 +268,7 @@
         '<div class="card-body">' +
           '<div class="d-flex justify-content-between align-items-start flex-wrap gap-2">' +
             '<div><span class="text-muted">Booking #' + b.id + '</span> ' + statusBadge + newBadge + '</div>' +
-            '<a href="#" class="small">See more / Manage</a>' +
+            '<a href="#" class="small booking-manage-link" data-booking-id="' + b.id + '">See more / Manage</a>' +
           '</div>' +
           '<div class="row mt-2 small">' +
             '<div class="col-md-4"><i class="bi bi-calendar3 me-1 text-muted"></i>' + formatDate(b.scheduled_at) + '</div>' +
@@ -273,7 +324,7 @@
         '<div class="card-body">' +
           '<div class="d-flex justify-content-between align-items-start">' +
             '<span class="text-muted">Booking #' + b.id + '</span>' +
-            '<a href="#" class="small">See more / Manage</a>' +
+            '<a href="#" class="small booking-manage-link" data-booking-id="' + b.id + '">See more / Manage</a>' +
           '</div>' +
           '<div class="mt-2 small">' + formatDate(b.scheduled_at) + ' · ' + formatTime(b.scheduled_at, b.duration_minutes) + ' · ' + esc(location) + ' · ' + learnerName + '</div>' +
         '</div></div>';
@@ -371,6 +422,124 @@
       });
     });
   }
+
+  // ——— Booking Detail Modal ———
+  function showBookingDetail(bookingId) {
+    var body = document.getElementById('booking-detail-body');
+    var cancelBtn = document.getElementById('booking-cancel-btn');
+    body.innerHTML = '<div class="text-center text-muted py-3">Loading…</div>';
+    cancelBtn.style.display = 'none';
+    var modal = new bootstrap.Modal(document.getElementById('booking-detail-modal'));
+    modal.show();
+    document.getElementById('booking-detail-title').textContent = 'Booking #' + bookingId;
+
+    fetch('/api/bookings/' + bookingId, opts)
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        var b = res.data || res;
+        var statusClass = b.status === 'cancelled' ? 'bg-danger' : (b.status === 'confirmed' ? 'bg-success' : 'bg-warning');
+        body.innerHTML =
+          '<div class="mb-3"><span class="badge ' + statusClass + ' text-white text-uppercase">' + esc(b.status) + '</span></div>' +
+          '<div class="row g-2 small">' +
+            '<div class="col-6"><strong>Date</strong><br>' + formatDate(b.scheduled_at) + '</div>' +
+            '<div class="col-6"><strong>Time</strong><br>' + formatTime(b.scheduled_at, b.duration_minutes) + '</div>' +
+            '<div class="col-6"><strong>Learner</strong><br>' + esc(b.learner ? b.learner.name : '—') + '</div>' +
+            '<div class="col-6"><strong>Phone</strong><br>' + (b.learner && b.learner.phone ? '<a href="tel:' + esc(b.learner.phone) + '">' + esc(b.learner.phone) + '</a>' : '—') + '</div>' +
+            '<div class="col-6"><strong>Type</strong><br>' + esc(b.type === 'test_package' ? 'Test Package' : 'Driving Lesson') + '</div>' +
+            '<div class="col-6"><strong>Duration</strong><br>' + (b.duration_minutes || 60) + ' min</div>' +
+            '<div class="col-6"><strong>Transmission</strong><br>' + esc(b.transmission || 'Auto') + '</div>' +
+            '<div class="col-6"><strong>Location</strong><br>' + esc(b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—') + '</div>' +
+            '<div class="col-6"><strong>Price</strong><br>$' + (b.price ? parseFloat(b.price).toFixed(2) : '0.00') + '</div>' +
+            '<div class="col-6"><strong>Payment</strong><br>' + esc(b.payment_status || '—') + '</div>' +
+          '</div>';
+
+        // Show cancel button for future bookings
+        if (b.status === 'confirmed' || b.status === 'pending') {
+          cancelBtn.style.display = 'inline-block';
+          cancelBtn.onclick = function() {
+            if (!confirm('Are you sure you want to cancel this booking?')) return;
+            cancelBtn.disabled = true;
+            cancelBtn.textContent = 'Cancelling...';
+            fetch('/api/bookings/' + bookingId + '/cancel', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '', 'X-Requested-With': 'XMLHttpRequest' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ reason: 'Cancelled by instructor' })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function() {
+              bootstrap.Modal.getInstance(document.getElementById('booking-detail-modal')).hide();
+              loadUpcoming(1);
+              loadPending(1);
+            })
+            .catch(function() { cancelBtn.disabled = false; cancelBtn.textContent = 'Cancel Booking'; });
+          };
+        }
+      })
+      .catch(function() { body.innerHTML = '<p class="text-danger">Failed to load booking details.</p>'; });
+  }
+
+  // Delegate click on "See more / Manage" links
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('booking-manage-link')) {
+      e.preventDefault();
+      var id = e.target.getAttribute('data-booking-id');
+      if (id) showBookingDetail(id);
+    }
+  });
+
+  // ——— Invite Learner ———
+  document.getElementById('dashboard-invite-learner-btn').addEventListener('click', function() {
+    document.getElementById('invite-email').value = '';
+    document.getElementById('invite-name').value = '';
+    document.getElementById('invite-message').value = '';
+    document.getElementById('invite-result').style.display = 'none';
+    document.getElementById('invite-send-btn').disabled = false;
+    document.getElementById('invite-send-btn').innerHTML = '<i class="bi bi-send me-1"></i>Send Invitation';
+    var modal = new bootstrap.Modal(document.getElementById('invite-learner-modal'));
+    modal.show();
+  });
+
+  document.getElementById('invite-send-btn').addEventListener('click', function() {
+    var email = document.getElementById('invite-email').value.trim();
+    if (!email) { alert('Please enter an email address.'); return; }
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Sending...';
+    fetch('/api/instructor/learners/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        email: email,
+        name: document.getElementById('invite-name').value.trim(),
+        message: document.getElementById('invite-message').value.trim()
+      })
+    })
+    .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+    .then(function(result) {
+      var resultEl = document.getElementById('invite-result');
+      if (result.ok) {
+        resultEl.className = 'alert alert-success small';
+        resultEl.textContent = result.data.message || 'Invitation sent!';
+        resultEl.style.display = 'block';
+        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Sent!';
+        btn.classList.remove('btn-warning');
+        btn.classList.add('btn-success');
+      } else {
+        resultEl.className = 'alert alert-danger small';
+        resultEl.textContent = result.data.message || 'Failed to send invitation.';
+        resultEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send me-1"></i>Send Invitation';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-send me-1"></i>Send Invitation';
+      alert('Failed to send invitation.');
+    });
+  });
 
   document.getElementById('tab-upcoming').addEventListener('shown.bs.tab', function() { loadUpcoming(1); });
   document.getElementById('tab-pending').addEventListener('shown.bs.tab', function() { loadPending(1); });

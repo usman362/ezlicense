@@ -35,6 +35,10 @@
     <div class="admin-wrapper">
         <aside class="admin-sidebar">
             <a href="{{ route('admin.dashboard') }}" class="logo d-block text-decoration-none">Ez<span>L</span>icence Admin</a>
+            @php
+                $sidebarPendingVerify = \App\Models\InstructorProfile::where('verification_status', 'pending')->count();
+                $sidebarPendingBookings = \App\Models\Booking::where('status', 'pending')->count();
+            @endphp
             <nav class="nav flex-column">
                 <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <i class="bi bi-speedometer2"></i> Dashboard
@@ -44,9 +48,18 @@
                 </a>
                 <a class="nav-link {{ request()->routeIs('admin.instructors*') ? 'active' : '' }}" href="{{ route('admin.instructors.index') }}">
                     <i class="bi bi-person-badge"></i> Instructors
+                    @if($sidebarPendingVerify > 0)
+                        <span class="badge bg-warning text-dark ms-auto" style="font-size:0.7rem">{{ $sidebarPendingVerify }}</span>
+                    @endif
                 </a>
                 <a class="nav-link {{ request()->routeIs('admin.bookings*') ? 'active' : '' }}" href="{{ route('admin.bookings.index') }}">
                     <i class="bi bi-calendar-check"></i> Bookings
+                    @if($sidebarPendingBookings > 0)
+                        <span class="badge bg-info ms-auto" style="font-size:0.7rem">{{ $sidebarPendingBookings }}</span>
+                    @endif
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}" href="{{ route('admin.blog.index') }}">
+                    <i class="bi bi-journal-richtext"></i> Blog
                 </a>
                 <a class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
                     <i class="bi bi-gear"></i> Settings
