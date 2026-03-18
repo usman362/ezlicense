@@ -79,12 +79,15 @@
                                     <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#userModal{{ $user->id }}" title="View">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    <form method="POST" action="{{ route('admin.users.toggle-active', $user) }}" class="d-inline">
-                                        @csrf @method('PATCH')
-                                        <button type="submit" class="btn btn-outline-{{ $user->is_active ? 'warning' : 'success' }} btn-sm" title="{{ $user->is_active ? 'Deactivate' : 'Activate' }}">
-                                            <i class="bi bi-{{ $user->is_active ? 'person-slash' : 'person-check' }}"></i>
+                                    @if($user->is_active)
+                                        <button class="btn btn-outline-warning btn-sm deactivate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Deactivate">
+                                            <i class="bi bi-person-slash"></i>
                                         </button>
-                                    </form>
+                                    @else
+                                        <button class="btn btn-outline-success btn-sm activate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Activate">
+                                            <i class="bi bi-person-check"></i>
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -143,6 +146,12 @@
                         <label class="form-label text-muted small mb-0">Last Login</label>
                         <div class="small">{{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->format('d M Y, H:i') : 'Never' }}</div>
                     </div>
+                    @if(!$user->is_active && $user->deactivation_reason)
+                    <div class="col-12">
+                        <label class="form-label text-muted small mb-0">Deactivation Reason</label>
+                        <div class="small text-danger">{{ $user->deactivation_reason }}</div>
+                    </div>
+                    @endif
                 </div>
                 <hr>
                 <form method="POST" action="{{ route('admin.users.update-role', $user) }}" class="d-flex align-items-center gap-2">
@@ -157,17 +166,129 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <form method="POST" action="{{ route('admin.users.toggle-active', $user) }}">
-                    @csrf @method('PATCH')
-                    <button type="submit" class="btn btn-sm btn-{{ $user->is_active ? 'warning' : 'success' }}">
-                        <i class="bi bi-{{ $user->is_active ? 'person-slash' : 'person-check' }} me-1"></i>
-                        {{ $user->is_active ? 'Deactivate User' : 'Activate User' }}
+                @if($user->is_active)
+                    <button class="btn btn-sm btn-warning deactivate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}">
+                        <i class="bi bi-person-slash me-1"></i>Deactivate User
                     </button>
-                </form>
+                @else
+                    <button class="btn btn-sm btn-success activate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}">
+                        <i class="bi bi-person-check me-1"></i>Activate User
+                    </button>
+                @endif
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 @endforeach
+
+{{-- Deactivation Reason Modal --}}
+<div class="modal fade" id="deactivateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning bg-opacity-10">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Deactivate User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to deactivate <strong id="deactivate-user-name"></strong>. This will prevent them from logging in and using the platform.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Reason for deactivation <span class="text-danger">*</span></label>
+                    <select class="form-select mb-2" id="deactivate-reason-select">
+                        <option value="">Select a reason...</option>
+                        <option value="Violation of terms of service">Violation of terms of service</option>
+                        <option value="Fraudulent activity">Fraudulent activity</option>
+                        <option value="Multiple complaints from users">Multiple complaints from users</option>
+                        <option value="Inactive account">Inactive account</option>
+                        <option value="User requested deactivation">User requested deactivation</option>
+                        <option value="other">Other (specify below)</option>
+                    </select>
+                    <textarea class="form-control d-none" id="deactivate-reason-text" rows="3" placeholder="Enter the reason for deactivation..."></textarea>
+                </div>
+                <input type="hidden" id="deactivate-user-id">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="confirm-deactivate-btn"><i class="bi bi-person-slash me-1"></i>Deactivate</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+    // Deactivate
+    document.querySelectorAll('.deactivate-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('deactivate-user-id').value = btn.dataset.id;
+            document.getElementById('deactivate-user-name').textContent = btn.dataset.name;
+            document.getElementById('deactivate-reason-select').value = '';
+            document.getElementById('deactivate-reason-text').value = '';
+            document.getElementById('deactivate-reason-text').classList.add('d-none');
+            new bootstrap.Modal(document.getElementById('deactivateModal')).show();
+        });
+    });
+
+    // Show/hide textarea for "Other"
+    document.getElementById('deactivate-reason-select').addEventListener('change', function() {
+        const ta = document.getElementById('deactivate-reason-text');
+        if (this.value === 'other') {
+            ta.classList.remove('d-none');
+            ta.required = true;
+        } else {
+            ta.classList.add('d-none');
+            ta.required = false;
+        }
+    });
+
+    // Confirm deactivation
+    document.getElementById('confirm-deactivate-btn').addEventListener('click', function() {
+        const userId = document.getElementById('deactivate-user-id').value;
+        const sel = document.getElementById('deactivate-reason-select').value;
+        const reason = sel === 'other' ? document.getElementById('deactivate-reason-text').value.trim() : sel;
+
+        if (!reason) {
+            alert('Please select or enter a reason for deactivation.');
+            return;
+        }
+
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Processing...';
+
+        fetch(`/admin/users/${userId}/toggle-active`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json'},
+            body: JSON.stringify({reason: reason})
+        })
+        .then(r => r.json())
+        .then(data => {
+            bootstrap.Modal.getInstance(document.getElementById('deactivateModal')).hide();
+            location.reload();
+        })
+        .catch(() => {
+            this.disabled = false;
+            this.innerHTML = '<i class="bi bi-person-slash me-1"></i>Deactivate';
+            alert('Something went wrong. Please try again.');
+        });
+    });
+
+    // Activate (no reason needed)
+    document.querySelectorAll('.activate-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!confirm('Activate ' + btn.dataset.name + '?')) return;
+            fetch(`/admin/users/${btn.dataset.id}/toggle-active`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json'},
+                body: JSON.stringify({})
+            })
+            .then(r => r.json())
+            .then(() => location.reload());
+        });
+    });
+});
+</script>
+@endpush

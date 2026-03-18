@@ -7,7 +7,7 @@
 <section class="ez-hero position-relative overflow-hidden" style="background: linear-gradient(rgba(27,33,44,0.75), rgba(27,33,44,0.8)), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80') center/cover no-repeat; min-height: 420px;">
     <div class="container position-relative py-5">
         <div class="text-center mb-4 pt-3">
-            <h1 class="display-4 fw-bold text-white mb-3">Discover Top Driving Instructors Near You</h1>
+            <h1 class="display-4 fw-bold text-white mb-3">Find the Best Driving Instructors Near You</h1>
             <p class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-0">
                 <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20" style="border-radius:50%;">
                 <span class="text-white fw-bold">Rated 4.9</span>
@@ -17,23 +17,28 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="card shadow border-0 rounded-3 overflow-hidden">
-                    <div class="card-body p-4">
-                        <form action="{{ route('find-instructor') }}" method="get" class="row g-3 align-items-end">
+                <div class="card shadow border-0 rounded-3" style="overflow:visible;">
+                    <div class="card-body p-4" style="overflow:visible;">
+                        <form action="{{ route('find-instructor.results') }}" method="get" id="home-search-form" class="row g-3 align-items-end">
+                            <input type="hidden" name="suburb_id" id="home-suburb-id" value="">
+                            <input type="hidden" name="q" id="home-q" value="">
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold">Pick-up Location <span class="text-danger">*</span></label>
-                                <input type="text" name="q" class="form-control form-control-lg" placeholder="Enter your suburb" value="{{ request('q') }}">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control form-control-lg" id="home-suburb-input" placeholder="Enter your suburb" autocomplete="off" data-list-id="home-suburb-list">
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold">Transmission <span class="text-danger">*</span></label>
                                 <select name="transmission" class="form-select form-select-lg">
-                                    <option value="auto" {{ request('transmission') === 'auto' ? 'selected' : '' }}>Auto</option>
-                                    <option value="manual" {{ request('transmission') === 'manual' ? 'selected' : '' }}>Manual</option>
+                                    <option value="">Any</option>
+                                    <option value="auto">Auto</option>
+                                    <option value="manual">Manual</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold">Test pre-booked?</label>
-                                <input type="date" name="test_date" class="form-control form-control-lg" placeholder="Select date">
+                                <input type="date" name="test_date" class="form-control form-control-lg">
                             </div>
                             <div class="col-md-3">
                                 <button type="submit" class="btn btn-lg w-100 fw-bold" style="background: var(--ez-accent); color: #333; height: 48px;"><i class="bi bi-search me-1"></i> Search</button>
@@ -79,10 +84,10 @@
     </div>
 </section>
 
-{{-- How EzLicence works --}}
+{{-- How Secure Licences works --}}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center fw-bold mb-2">How EzLicence works</h2>
+        <h2 class="text-center fw-bold mb-2">How Secure Licences works</h2>
         <p class="text-center text-muted mb-4">Simple, Trusted & Flexible Booking System</p>
         <div class="row g-4">
             <div class="col-md-4 text-center">
@@ -111,7 +116,7 @@
 <section class="py-5 bg-white">
     <div class="container">
         <h2 class="text-center fw-bold mb-2">What more than 100,000 learners say</h2>
-        <p class="text-center text-muted mb-4">Hear from learners about their EzLicence experience</p>
+        <p class="text-center text-muted mb-4">Hear from learners about their Secure Licences experience</p>
         <div id="testimonialsCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 @php
@@ -217,7 +222,7 @@
                 </h3>
                 <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body text-muted">
-                        Driving lesson prices on EzLicence are set by each instructor, so they can vary depending on where you're located, your chosen transmission (manual or auto), and the instructor you select. Enter your suburb in our search tool and compare lesson costs instantly. You'll see available instructors, their pricing, ratings, and car details — all in one spot. Bonus: Save when you book a lesson package.
+                        Driving lesson prices on Secure Licences are set by each instructor, so they can vary depending on where you're located, your chosen transmission (manual or auto), and the instructor you select. Enter your suburb in our search tool and compare lesson costs instantly. You'll see available instructors, their pricing, ratings, and car details — all in one spot. Bonus: Save when you book a lesson package.
                     </div>
                 </div>
             </div>
@@ -253,11 +258,11 @@
             </div>
             <div class="accordion-item">
                 <h3 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">Is EzLicence a Driving School?</button>
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">Is Secure Licences a Driving School?</button>
                 </h3>
                 <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body text-muted">
-                        EzLicence is an online platform that connects you with verified, independent driving instructors across Australia. Unlike a traditional driving school, you can find and compare instructors, view real-time availability, book online 24/7, and change your instructor anytime. Each instructor runs their own business — all in one place.
+                        Secure Licences is an online platform that connects you with verified, independent driving instructors across Australia. Unlike a traditional driving school, you can find and compare instructors, view real-time availability, book online 24/7, and change your instructor anytime. Each instructor runs their own business — all in one place.
                     </div>
                 </div>
             </div>
@@ -275,7 +280,7 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <h3 class="h5 card-title fw-bold">11 Tips for Choosing a Good Driving Instructor</h3>
-                        <p class="small text-muted mb-0">EzLicence · 7 November 2018</p>
+                        <p class="small text-muted mb-0">Secure Licences · 7 November 2018</p>
                         <a href="#" class="btn btn-outline-warning btn-sm mt-2">Read more</a>
                     </div>
                 </div>
@@ -285,11 +290,11 @@
     </div>
 </section>
 
-{{-- Why choose EzLicence --}}
+{{-- Why choose Secure Licences --}}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center fw-bold mb-2">Why choose EzLicence?</h2>
-        <p class="text-center text-muted mb-4">Unlike a typical driving school, EzLicence is an Australian first platform that allows learner drivers & parents to find, compare and book verified driving instructors online.</p>
+        <h2 class="text-center fw-bold mb-2">Why choose Secure Licences?</h2>
+        <p class="text-center text-muted mb-4">Unlike a typical driving school, Secure Licences is an Australian first platform that allows learner drivers & parents to find, compare and book verified driving instructors online.</p>
         <div class="row g-4 mb-4">
             <div class="col-md-4 text-center">
                 <span class="display-5 fw-bold text-warning d-block">1000+</span>
@@ -320,11 +325,11 @@
     </div>
 </section>
 
-{{-- The EzLicence advantage (accordion) --}}
+{{-- The Secure Licences advantage (accordion) --}}
 <section class="py-5 bg-white">
     <div class="container">
-        <h2 class="text-center fw-bold mb-4">The EzLicence advantage</h2>
-        <p class="text-center text-muted mb-4">Enjoy a seamless, flexible, and convenient way to book and manage your driving lessons with EzLicence.</p>
+        <h2 class="text-center fw-bold mb-4">The Secure Licences advantage</h2>
+        <p class="text-center text-muted mb-4">Enjoy a seamless, flexible, and convenient way to book and manage your driving lessons with Secure Licences.</p>
         <div class="accordion col-lg-8 mx-auto" id="advantageAccordion">
             <div class="accordion-item">
                 <h3 class="accordion-header">
@@ -332,7 +337,7 @@
                 </h3>
                 <div id="adv1" class="accordion-collapse collapse show" data-bs-parent="#advantageAccordion">
                     <div class="accordion-body">
-                        Booking driving lessons through EzLicence is a quick and hassle free process that gives you all the choice and control. Why deal with traditional Driving Schools over the phone or by email when you can manage your driving instructor choice & book driving lessons yourself anywhere, and at any time through our secure online platform?
+                        Booking driving lessons through Secure Licences is a quick and hassle free process that gives you all the choice and control. Why deal with traditional Driving Schools over the phone or by email when you can manage your driving instructor choice & book driving lessons yourself anywhere, and at any time through our secure online platform?
                     </div>
                 </div>
             </div>
@@ -362,7 +367,7 @@
                 </h3>
                 <div id="adv4" class="accordion-collapse collapse" data-bs-parent="#advantageAccordion">
                     <div class="accordion-body">
-                        EzLicence provides access to more than 1000+ fully qualified driving instructors across Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart and beyond. All driving instructors are required to have a current, valid clearance for working with children, and vehicles equipped with dual control pedals for added safety.
+                        Secure Licences provides access to more than 1000+ fully qualified driving instructors across Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart and beyond. All driving instructors are required to have a current, valid clearance for working with children, and vehicles equipped with dual control pedals for added safety.
                     </div>
                 </div>
             </div>
@@ -372,11 +377,14 @@
                 </h3>
                 <div id="adv5" class="accordion-collapse collapse" data-bs-parent="#advantageAccordion">
                     <div class="accordion-body">
-                        Thanks to our comprehensive driving instructor service area coverage, you can choose your pickup location from anywhere in Sydney, Melbourne, Brisbane, Adelaide, Perth, Hobart and surrounding areas. EzLicence proudly services over 3700+ suburbs across NSW, VIC, QLD, SA, TAS, WA and ACT.
+                        Thanks to our comprehensive driving instructor service area coverage, you can choose your pickup location from anywhere in Sydney, Melbourne, Brisbane, Adelaide, Perth, Hobart and surrounding areas. Secure Licences proudly services over 3700+ suburbs across NSW, VIC, QLD, SA, TAS, WA and ACT.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+@push('scripts')
+    @vite('resources/js/home-search.js')
+@endpush
 @endsection

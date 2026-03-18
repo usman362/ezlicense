@@ -58,7 +58,7 @@
     {{-- Learn to drive today CTA --}}
     <section class="py-4 text-center">
         <h2 class="h5 fw-bold mb-2">Learn to drive today!</h2>
-        <p class="text-muted small mb-3">Join over 100,000+ learners driving with EzLicence.</p>
+        <p class="text-muted small mb-3">Join over 100,000+ learners driving with Secure Licences.</p>
         <a href="{{ route('find-instructor') }}" class="btn btn-warning fw-bold">Find an Instructor</a>
     </section>
 </div>

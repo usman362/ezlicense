@@ -45,6 +45,11 @@ Route::get('/contact', fn () => view('frontend.pages.contact'))->name('contact')
 Route::get('/terms-and-conditions', fn () => view('frontend.pages.terms'))->name('terms');
 Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('privacy');
 Route::get('/support', fn () => redirect('/contact'))->name('support');
+Route::get('/driving-test-packages', fn () => view('frontend.pages.driving-test-packages'))->name('driving-test-packages');
+Route::get('/international-licence-conversions', fn () => view('frontend.pages.international-licence'))->name('international-licence');
+Route::get('/refresher-lessons', fn () => view('frontend.pages.refresher-lessons'))->name('refresher-lessons');
+Route::get('/prices-and-packages', fn () => view('frontend.pages.prices-packages'))->name('prices-packages');
+Route::get('/industry-insights', fn () => view('frontend.pages.industry-insights'))->name('industry-insights');
 
 // Blog (public)
 Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
@@ -76,6 +81,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/instructors', [App\Http\Controllers\Admin\InstructorsController::class, 'index'])->name('instructors.index');
     Route::patch('/instructors/{instructorProfile}/update-verification', [App\Http\Controllers\Admin\InstructorsController::class, 'updateVerification'])->name('instructors.update-verification');
     Route::patch('/instructors/{instructorProfile}/toggle-active', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleActive'])->name('instructors.toggle-active');
+    Route::patch('/instructors/documents/{instructorDocument}/status', [App\Http\Controllers\Admin\InstructorsController::class, 'updateDocumentStatus'])->name('instructors.update-document-status');
 
     // Bookings management
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
@@ -154,6 +160,7 @@ Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('inst
         Route::get('/pricing', fn () => view('instructor.settings.pricing'))->name('pricing');
         Route::get('/documents', fn () => view('instructor.settings.documents'))->name('documents');
         Route::get('/banking', fn () => view('instructor.settings.banking'))->name('banking');
+        Route::get('/guide', fn () => view('instructor.settings.guide'))->name('guide');
     });
 });
 
@@ -195,6 +202,8 @@ Route::prefix('api')->middleware('web')->group(function () {
         Route::middleware('role:instructor')->prefix('instructor')->name('api.instructor.')->group(function () {
             Route::get('profile', [InstructorDashboard::class, 'profile'])->name('profile');
             Route::put('profile', [InstructorDashboard::class, 'updateProfile'])->name('profile.update');
+            Route::post('profile/photo', [InstructorDashboard::class, 'uploadProfilePhoto'])->name('profile.photo');
+            Route::post('profile/vehicle-photo', [InstructorDashboard::class, 'uploadVehiclePhoto'])->name('profile.vehicle-photo');
             Route::get('learners', [App\Http\Controllers\Instructor\LearnersController::class, 'index'])->name('learners');
             Route::get('learners/{user}', [App\Http\Controllers\Instructor\LearnersController::class, 'show'])->name('learners.show');
             Route::post('learners/invite', [App\Http\Controllers\Instructor\LearnersController::class, 'invite'])->name('learners.invite');

@@ -28,7 +28,7 @@ class WalletCredited extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = SiteSetting::get('site_name', 'EzLicence');
+        $siteName = SiteSetting::get('site_name', 'Secure Licences');
 
         return (new MailMessage)
             ->subject('Wallet Top-up Successful')

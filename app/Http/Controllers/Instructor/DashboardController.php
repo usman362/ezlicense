@@ -33,6 +33,9 @@ class DashboardController extends Controller
             'data' => [
                 'id' => $profile->id,
                 'bio' => $profile->bio,
+                'profile_photo' => $profile->profile_photo,
+                'profile_photo_url' => $profile->profile_photo ? asset('storage/' . $profile->profile_photo) : null,
+                'profile_description' => $profile->profile_description,
                 'languages' => $profile->languages ?? [],
                 'association_member' => $profile->association_member ?? false,
                 'instructing_start_month' => $profile->instructing_start_month,
@@ -47,6 +50,8 @@ class DashboardController extends Controller
                 'vehicle_model' => $profile->vehicle_model,
                 'vehicle_year' => $profile->vehicle_year,
                 'vehicle_safety_rating' => $profile->vehicle_safety_rating,
+                'vehicle_photo' => $profile->vehicle_photo,
+                'vehicle_photo_url' => $profile->vehicle_photo ? asset('storage/' . $profile->vehicle_photo) : null,
                 'wwcc_number' => $profile->wwcc_number,
                 'wwcc_verified_at' => $profile->wwcc_verified_at?->toIso8601String(),
                 'accreditation_details' => $profile->accreditation_details,
@@ -135,6 +140,68 @@ class DashboardController extends Controller
         $profile->update($validated);
 
         return response()->json(['data' => ['message' => 'Profile updated.']]);
+    }
+
+    /**
+     * Upload profile photo.
+     */
+    public function uploadProfilePhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'profile_photo' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+        ]);
+
+        $user = Auth::user();
+        $profile = $user->instructorProfile;
+        if (! $profile) {
+            return response()->json(['message' => 'Instructor profile not found.'], 404);
+        }
+
+        // Delete old photo
+        if ($profile->profile_photo && \Storage::disk('public')->exists($profile->profile_photo)) {
+            \Storage::disk('public')->delete($profile->profile_photo);
+        }
+
+        $path = $request->file('profile_photo')->store('instructor-photos', 'public');
+        $profile->update(['profile_photo' => $path]);
+
+        return response()->json([
+            'data' => [
+                'message' => 'Profile photo uploaded.',
+                'profile_photo_url' => asset('storage/' . $path),
+            ],
+        ]);
+    }
+
+    /**
+     * Upload vehicle photo.
+     */
+    public function uploadVehiclePhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'vehicle_photo' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+        ]);
+
+        $user = Auth::user();
+        $profile = $user->instructorProfile;
+        if (! $profile) {
+            return response()->json(['message' => 'Instructor profile not found.'], 404);
+        }
+
+        // Delete old photo
+        if ($profile->vehicle_photo && \Storage::disk('public')->exists($profile->vehicle_photo)) {
+            \Storage::disk('public')->delete($profile->vehicle_photo);
+        }
+
+        $path = $request->file('vehicle_photo')->store('vehicle-photos', 'public');
+        $profile->update(['vehicle_photo' => $path]);
+
+        return response()->json([
+            'data' => [
+                'message' => 'Vehicle photo uploaded.',
+                'vehicle_photo_url' => asset('storage/' . $path),
+            ],
+        ]);
     }
 
     /**

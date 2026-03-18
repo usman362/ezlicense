@@ -31,7 +31,7 @@ class BookingConfirmed extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = SiteSetting::get('site_name', 'EzLicence');
+        $siteName = SiteSetting::get('site_name', 'Secure Licences');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
         $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';

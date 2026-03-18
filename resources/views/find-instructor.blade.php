@@ -20,8 +20,9 @@
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-5">
                                     <label class="form-label small text-muted">Pick-up Location <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="suburb-input" placeholder="Suburb or postcode" autocomplete="off" data-list-id="suburb-list" value="{{ request('q', '') }}">
-                                    <ul id="suburb-list" class="list-group position-absolute w-100" style="display: none; z-index: 1000;"></ul>
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control" id="suburb-input" placeholder="Suburb or postcode" autocomplete="off" data-list-id="suburb-list" value="{{ request('q', '') }}">
+                                    </div>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small text-muted">Transmission <span class="text-danger">*</span></label>
@@ -56,7 +57,7 @@
     </div>
 </section>
 
-{{-- Why book through EzLicence-style platform --}}
+{{-- Why book through Secure Licences-style platform --}}
 <section class="py-4 py-lg-5 bg-light">
     <div class="container">
         <h2 class="h4 fw-bold mb-3">Book driving lessons with confidence</h2>
@@ -122,10 +123,10 @@
     </div>
 </section>
 
-{{-- Why learners choose EzLicence-style platform --}}
+{{-- Why learners choose Secure Licences-style platform --}}
 <section class="py-4 py-lg-5">
     <div class="container">
-        <h2 class="h4 fw-bold mb-3">Why learners choose Ez Licence</h2>
+        <h2 class="h4 fw-bold mb-3">Why learners choose Secure Licences</h2>
         <div class="row g-4 mb-3">
             <div class="col-md-4">
                 <span class="display-6 fw-bold text-warning d-block">1000+</span>

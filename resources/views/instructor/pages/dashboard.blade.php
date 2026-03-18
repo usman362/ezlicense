@@ -153,7 +153,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small">Send an email invitation to a learner to join EzLicence and book lessons with you.</p>
+                <p class="text-muted small">Send an email invitation to a learner to join Secure Licences and book lessons with you.</p>
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Email Address *</label>
                     <input type="email" class="form-control" id="invite-email" placeholder="learner@example.com" required>

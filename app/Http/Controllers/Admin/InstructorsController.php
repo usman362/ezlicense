@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\InstructorDocument;
 use App\Models\InstructorProfile;
 use Illuminate\Http\Request;
 
@@ -10,7 +11,7 @@ class InstructorsController extends Controller
 {
     public function index(Request $request)
     {
-        $query = InstructorProfile::with('user');
+        $query = InstructorProfile::with(['user', 'documents']);
 
         if ($search = $request->input('search')) {
             $query->whereHas('user', function ($q) use ($search) {
@@ -57,5 +58,26 @@ class InstructorsController extends Controller
 
         $name = $instructorProfile->user->name ?? 'Instructor';
         return redirect()->back()->with('message', "{$name}'s profile has been " . ($instructorProfile->is_active ? 'activated' : 'deactivated') . ".");
+    }
+
+    /**
+     * Update a document's verification status (verify or reject).
+     */
+    public function updateDocumentStatus(Request $request, InstructorDocument $instructorDocument)
+    {
+        $request->validate([
+            'status' => 'required|in:verified,rejected',
+        ]);
+
+        $data = ['status' => $request->input('status')];
+        if ($request->input('status') === 'verified') {
+            $data['verified_at'] = now();
+        } else {
+            $data['verified_at'] = null;
+        }
+
+        $instructorDocument->update($data);
+
+        return redirect()->back()->with('message', 'Document ' . $request->input('status') . ' successfully.');
     }
 }

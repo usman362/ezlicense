@@ -15,7 +15,7 @@
 
                 <div class="mb-4">
                     <h4 class="fw-bold">1. Introduction</h4>
-                    <p>EzLicence is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services. We comply with the Australian Privacy Principles (APPs) contained in the Privacy Act 1988 (Cth).</p>
+                    <p>Secure Licences is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services. We comply with the Australian Privacy Principles (APPs) contained in the Privacy Act 1988 (Cth).</p>
                 </div>
 
                 <div class="mb-4">
@@ -100,9 +100,9 @@
                     <h4 class="fw-bold">11. Contact Us</h4>
                     <p>If you have any questions or concerns about this Privacy Policy or our data practices, please contact us:</p>
                     <ul class="list-unstyled ms-3">
-                        <li><strong>Email:</strong> privacy@ezlicence.com.au</li>
+                        <li><strong>Email:</strong> privacy@securelicences.com.au</li>
                         <li><strong>Web:</strong> <a href="{{ url('/contact') }}">Contact page</a></li>
-                        <li><strong>Post:</strong> EzLicence Privacy Officer, Sydney, NSW, Australia</li>
+                        <li><strong>Post:</strong> Secure Licences Privacy Officer, Sydney, NSW, Australia</li>
                     </ul>
                 </div>
             </div>

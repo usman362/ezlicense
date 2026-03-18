@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Login') – EzLicence</title>
+    <title>@yield('title', 'Login') – Secure Licences</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito:400,600,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -44,7 +44,7 @@
     <div class="auth-split">
         <div class="auth-split-left">
             <a href="{{ url('/') }}" class="auth-logo text-decoration-none">
-                <span class="text-dark">Ez</span><span class="ez-l">L</span><span class="text-dark">icence</span>
+                <span class="text-dark">Secure</span><span class="ez-l">L</span><span class="text-dark">icences</span>
             </a>
             <p class="auth-tagline">Learn safe. Learn easy.</p>
             <a href="#" class="auth-contacts">Contacts</a>

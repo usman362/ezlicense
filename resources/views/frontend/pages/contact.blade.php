@@ -14,7 +14,7 @@
                 <p class="lead mb-4">Have a question or need help? We'd love to hear from you.</p>
                 <div class="mb-4">
                     <h5 class="fw-bold"><i class="bi bi-envelope text-warning me-2"></i>Email</h5>
-                    <p>support@ezlicence.com.au</p>
+                    <p>support@securelicences.com.au</p>
                 </div>
                 <div class="mb-4">
                     <h5 class="fw-bold"><i class="bi bi-clock text-warning me-2"></i>Support Hours</h5>
@@ -26,7 +26,7 @@
                 </div>
                 <div class="card bg-light border-0 p-4">
                     <h5 class="fw-bold mb-2">For Instructors</h5>
-                    <p class="small mb-0">If you're a driving instructor and want to join the EzLicence platform, visit our <a href="#">Instruct with EzLicence</a> page or email us at <strong>instructors@ezlicence.com.au</strong></p>
+                    <p class="small mb-0">If you're a driving instructor and want to join the Secure Licences platform, visit our <a href="#">Instruct with Secure Licences</a> page or email us at <strong>instructors@securelicences.com.au</strong></p>
                 </div>
             </div>
             <div class="col-lg-6">

@@ -82,7 +82,7 @@
     <div class="instructor-wrapper">
         <aside class="instructor-sidebar">
             <div class="logo">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;background:#f0ad4e;color:#333;font-weight:700;font-size:0.85rem;margin-right:4px;">L</span> EzLicense
+                <span class="ez">Secure</span><span class="ez-l">L</span><span class="icence">icences</span>
             </div>
             <nav class="nav flex-column">
                 <a class="nav-link {{ request()->routeIs('instructor.dashboard') ? 'active' : '' }}" href="{{ route('instructor.dashboard') }}">

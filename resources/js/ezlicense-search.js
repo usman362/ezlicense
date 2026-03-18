@@ -25,10 +25,10 @@ export function initSuburbAutocomplete(inputEl, onSelect) {
   if (!listEl) {
     listEl = document.createElement('ul');
     listEl.id = listId;
-    listEl.className = 'list-group position-absolute w-100';
-    listEl.style.zIndex = 1000;
     inputEl.parentNode?.appendChild(listEl);
   }
+  listEl.className = 'list-group position-absolute w-100 shadow-lg';
+  listEl.style.cssText = 'z-index:1050; max-height:260px; overflow-y:auto; border-radius:0 0 8px 8px; top:100%; left:0;';
 
   const search = debounce(async (q) => {
     if (!q || q.length < 2) {

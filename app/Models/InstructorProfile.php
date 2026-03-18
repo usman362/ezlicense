@@ -15,6 +15,8 @@ class InstructorProfile extends Model
     protected $fillable = [
         'user_id',
         'bio',
+        'profile_photo',
+        'profile_description',
         'languages',
         'association_member',
         'instructing_start_month',
@@ -24,6 +26,7 @@ class InstructorProfile extends Model
         'vehicle_model',
         'vehicle_year',
         'vehicle_safety_rating',
+        'vehicle_photo',
         'wwcc_number',
         'wwcc_verified_at',
         'accreditation_details',

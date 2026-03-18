@@ -22,6 +22,7 @@
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
+    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
 </ul>
 
 <div class="card border-0 shadow-sm mb-4">
@@ -119,7 +120,7 @@
             <div class="mb-4">
                 <h6 class="fw-bold mb-1">Attach calendar event to booking emails</h6>
                 <p class="small text-muted mb-2">Would you like us to attach a calendar event (.ics) to your booking emails?</p>
-                <p class="small text-warning mb-2">If your email app already adds events automatically — or if your calendar is connected to EzLicence — you may get duplicate events.</p>
+                <p class="small text-warning mb-2">If your email app already adds events automatically — or if your calendar is connected to Secure Licences — you may get duplicate events.</p>
                 <div class="d-flex gap-3">
                     <div class="form-check">
                         <input type="radio" name="attach_ics_to_emails" class="form-check-input" id="attach-ics-yes" value="1">

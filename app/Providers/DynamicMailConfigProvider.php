@@ -30,7 +30,7 @@ class DynamicMailConfigProvider extends ServiceProvider
             Config::set('mail.mailers.smtp.encryption', SiteSetting::get('smtp_encryption', 'tls'));
 
             $fromAddress = SiteSetting::get('mail_from_address');
-            $fromName = SiteSetting::get('mail_from_name', SiteSetting::get('site_name', 'EzLicence'));
+            $fromName = SiteSetting::get('mail_from_name', SiteSetting::get('site_name', 'Secure Licences'));
             if ($fromAddress) {
                 Config::set('mail.from.address', $fromAddress);
                 Config::set('mail.from.name', $fromName);

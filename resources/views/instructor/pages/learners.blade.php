@@ -156,7 +156,7 @@
                 <p class="small text-muted mb-0">Booking proposals will 'hold' the selected time slot(s) until confirmed by the learner. Proposals remain valid for 24 hours OR the proposed booking start time (whichever arrives first).</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
-                <span class="text-muted small">EzLicense</span>
+                <span class="text-muted small">Secure Licences</span>
             </div>
         </div>
     </div>
@@ -190,7 +190,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small">Send an email invitation to a learner to join EzLicence and book with you.</p>
+                <p class="text-muted small">Send an email invitation to a learner to join Secure Licences and book with you.</p>
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Email Address *</label>
                     <input type="email" class="form-control" id="invite-email" placeholder="learner@example.com" required>

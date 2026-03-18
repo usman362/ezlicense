@@ -76,7 +76,7 @@
     <div class="learner-wrapper">
         <aside class="learner-sidebar">
             <div class="logo">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;background:#f0ad4e;color:#333;font-weight:700;font-size:0.85rem;margin-right:4px;">L</span> Ez Licence
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;background:#f0ad4e;color:#333;font-weight:700;font-size:0.85rem;margin-right:4px;">L</span> Secure Licences
             </div>
             <nav class="nav flex-column">
                 <a class="nav-link {{ request()->routeIs('learner.dashboard') ? 'active' : '' }}" href="{{ route('learner.dashboard') }}">

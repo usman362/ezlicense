@@ -7,7 +7,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <h1 class="display-5 fw-bold mb-2">EzLicence Blog</h1>
+                <h1 class="display-5 fw-bold mb-2">Secure Licences Blog</h1>
                 <p class="lead mb-0" style="opacity:.85;">Driving tips, industry news, learner resources and expert advice to help you on the road.</p>
             </div>
             <div class="col-lg-4">

@@ -15,12 +15,12 @@
 
                 <div class="mb-4">
                     <h4 class="fw-bold">1. Acceptance of Terms</h4>
-                    <p>By accessing and using the EzLicence website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
+                    <p>By accessing and using the Secure Licences website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
                 </div>
 
                 <div class="mb-4">
                     <h4 class="fw-bold">2. Description of Service</h4>
-                    <p>EzLicence provides an online platform connecting learner drivers with qualified driving instructors. Our services include booking driving lessons, managing lesson schedules, processing payments, and facilitating communication between learners and instructors.</p>
+                    <p>Secure Licences provides an online platform connecting learner drivers with qualified driving instructors. Our services include booking driving lessons, managing lesson schedules, processing payments, and facilitating communication between learners and instructors.</p>
                 </div>
 
                 <div class="mb-4">
@@ -35,12 +35,12 @@
 
                 <div class="mb-4">
                     <h4 class="fw-bold">5. Cancellation and Refund Policy</h4>
-                    <p>Learners may cancel or reschedule a booking subject to the cancellation policy displayed at the time of booking. Cancellations made with less than 24 hours notice may incur a cancellation fee. Refunds, where applicable, will be processed to the original payment method or credited to the learner's EzLicence wallet.</p>
+                    <p>Learners may cancel or reschedule a booking subject to the cancellation policy displayed at the time of booking. Cancellations made with less than 24 hours notice may incur a cancellation fee. Refunds, where applicable, will be processed to the original payment method or credited to the learner's Secure Licences wallet.</p>
                 </div>
 
                 <div class="mb-4">
                     <h4 class="fw-bold">6. Instructor Obligations</h4>
-                    <p>Instructors on the platform are independent contractors, not employees of EzLicence. Instructors must maintain valid licences, insurance, and accreditations required by their state or territory. EzLicence reserves the right to verify instructor credentials and remove any instructor who fails to meet platform standards.</p>
+                    <p>Instructors on the platform are independent contractors, not employees of Secure Licences. Instructors must maintain valid licences, insurance, and accreditations required by their state or territory. Secure Licences reserves the right to verify instructor credentials and remove any instructor who fails to meet platform standards.</p>
                 </div>
 
                 <div class="mb-4">
@@ -50,22 +50,22 @@
 
                 <div class="mb-4">
                     <h4 class="fw-bold">8. Limitation of Liability</h4>
-                    <p>EzLicence acts as a marketplace platform connecting learners with instructors. We do not provide driving instruction directly and are not liable for the quality of instruction, outcomes of driving tests, or any incidents that may occur during lessons. To the maximum extent permitted by law, EzLicence's liability is limited to the service fees paid by the user.</p>
+                    <p>Secure Licences acts as a marketplace platform connecting learners with instructors. We do not provide driving instruction directly and are not liable for the quality of instruction, outcomes of driving tests, or any incidents that may occur during lessons. To the maximum extent permitted by law, Secure Licences's liability is limited to the service fees paid by the user.</p>
                 </div>
 
                 <div class="mb-4">
                     <h4 class="fw-bold">9. Intellectual Property</h4>
-                    <p>All content on the EzLicence platform, including logos, text, graphics, and software, is the property of EzLicence or its licensors and is protected by Australian and international copyright laws. You may not reproduce, distribute, or create derivative works from any content without prior written consent.</p>
+                    <p>All content on the Secure Licences platform, including logos, text, graphics, and software, is the property of Secure Licences or its licensors and is protected by Australian and international copyright laws. You may not reproduce, distribute, or create derivative works from any content without prior written consent.</p>
                 </div>
 
                 <div class="mb-4">
                     <h4 class="fw-bold">10. Privacy</h4>
-                    <p>Your use of the platform is also governed by our <a href="{{ url('/privacy-policy') }}">Privacy Policy</a>. By using EzLicence, you consent to the collection and use of your information as described in the Privacy Policy.</p>
+                    <p>Your use of the platform is also governed by our <a href="{{ url('/privacy-policy') }}">Privacy Policy</a>. By using Secure Licences, you consent to the collection and use of your information as described in the Privacy Policy.</p>
                 </div>
 
                 <div class="mb-4">
                     <h4 class="fw-bold">11. Modifications to Terms</h4>
-                    <p>EzLicence reserves the right to modify these terms at any time. Changes will be effective immediately upon posting to the website. Your continued use of the platform after changes are posted constitutes your acceptance of the modified terms.</p>
+                    <p>Secure Licences reserves the right to modify these terms at any time. Changes will be effective immediately upon posting to the website. Your continued use of the platform after changes are posted constitutes your acceptance of the modified terms.</p>
                 </div>
 
                 <div class="mb-4">
@@ -75,7 +75,7 @@
 
                 <div class="mb-4">
                     <h4 class="fw-bold">13. Contact Us</h4>
-                    <p>If you have any questions about these Terms and Conditions, please contact us at <a href="{{ url('/contact') }}">our contact page</a> or email <strong>support@ezlicence.com.au</strong>.</p>
+                    <p>If you have any questions about these Terms and Conditions, please contact us at <a href="{{ url('/contact') }}">our contact page</a> or email <strong>support@securelicences.com.au</strong>.</p>
                 </div>
             </div>
         </div>

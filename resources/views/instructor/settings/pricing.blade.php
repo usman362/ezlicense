@@ -22,6 +22,7 @@
     <li class="nav-item"><a class="nav-link active" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
+    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
 </ul>
 
 <div class="card border-0 shadow-sm mb-4">
@@ -29,8 +30,8 @@
         <div id="pricing-loading" class="text-muted">Loading…</div>
         <div id="pricing-content" style="display: none;">
             <p class="small text-muted mb-3">
-                <strong>EzLicence Learners:</strong> from EzLicence marketplace.<br>
-                <strong>Private Learners:</strong> invited to EzLicence by you.
+                <strong>Secure Licences Learners:</strong> from Secure Licences marketplace.<br>
+                <strong>Private Learners:</strong> invited to Secure Licences by you.
             </p>
 
             <div class="mb-4">
@@ -39,14 +40,14 @@
                 <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
                     <span class="d-inline-flex align-items-center gap-2">
                         <span class="rounded-circle bg-warning" style="width:10px;height:10px;"></span>
-                        <span>EzLicence</span>
+                        <span>Secure Licences</span>
                     </span>
-                    <span id="lesson-ezlicence-display" class="fw-medium">$0.00</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-primary lesson-ezlicence-edit">Edit</button>
-                    <span id="lesson-ezlicence-edit-wrap" class="d-none align-items-center gap-2">
-                        <input type="number" id="lesson-ezlicence-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
-                        <button type="button" class="btn btn-sm btn-primary lesson-ezlicence-save">Save</button>
-                        <button type="button" class="btn btn-sm btn-link p-0 lesson-ezlicence-cancel">Cancel</button>
+                    <span id="lesson-securelicences-display" class="fw-medium">$0.00</span>
+                    <button type="button" class="btn btn-sm btn-link p-0 text-primary lesson-securelicences-edit">Edit</button>
+                    <span id="lesson-securelicences-edit-wrap" class="d-none align-items-center gap-2">
+                        <input type="number" id="lesson-securelicences-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
+                        <button type="button" class="btn btn-sm btn-primary lesson-securelicences-save">Save</button>
+                        <button type="button" class="btn btn-sm btn-link p-0 lesson-securelicences-cancel">Cancel</button>
                     </span>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
@@ -70,14 +71,14 @@
                 <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
                     <span class="d-inline-flex align-items-center gap-2">
                         <span class="rounded-circle bg-warning" style="width:10px;height:10px;"></span>
-                        <span>EzLicence</span>
+                        <span>Secure Licences</span>
                     </span>
-                    <span id="test-ezlicence-display" class="fw-medium">$0.00</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-primary test-ezlicence-edit">Edit</button>
-                    <span id="test-ezlicence-edit-wrap" class="d-none align-items-center gap-2">
-                        <input type="number" id="test-ezlicence-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
-                        <button type="button" class="btn btn-sm btn-primary test-ezlicence-save">Save</button>
-                        <button type="button" class="btn btn-sm btn-link p-0 test-ezlicence-cancel">Cancel</button>
+                    <span id="test-securelicences-display" class="fw-medium">$0.00</span>
+                    <button type="button" class="btn btn-sm btn-link p-0 text-primary test-securelicences-edit">Edit</button>
+                    <span id="test-securelicences-edit-wrap" class="d-none align-items-center gap-2">
+                        <input type="number" id="test-securelicences-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
+                        <button type="button" class="btn btn-sm btn-primary test-securelicences-save">Save</button>
+                        <button type="button" class="btn btn-sm btn-link p-0 test-securelicences-cancel">Cancel</button>
                     </span>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-3 mb-2">

@@ -87,9 +87,9 @@ class SiteSetting extends Model
     {
         $defaults = [
             // General
-            ['group' => 'general', 'key' => 'site_name', 'value' => 'EzLicence', 'type' => 'text', 'label' => 'Site Name', 'hint' => 'The name displayed across the platform'],
+            ['group' => 'general', 'key' => 'site_name', 'value' => 'Secure Licences', 'type' => 'text', 'label' => 'Site Name', 'hint' => 'The name displayed across the platform'],
             ['group' => 'general', 'key' => 'site_tagline', 'value' => 'Find a driving instructor near you', 'type' => 'text', 'label' => 'Tagline', 'hint' => 'Short tagline shown on homepage'],
-            ['group' => 'general', 'key' => 'support_email', 'value' => 'support@ezlicence.com.au', 'type' => 'text', 'label' => 'Support Email', 'hint' => 'Displayed in footer and emails'],
+            ['group' => 'general', 'key' => 'support_email', 'value' => 'support@securelicences.com.au', 'type' => 'text', 'label' => 'Support Email', 'hint' => 'Displayed in footer and emails'],
             ['group' => 'general', 'key' => 'support_phone', 'value' => '1300 399 542', 'type' => 'text', 'label' => 'Support Phone', 'hint' => 'Customer support phone number'],
             ['group' => 'general', 'key' => 'timezone', 'value' => 'Australia/Sydney', 'type' => 'text', 'label' => 'Default Timezone', 'hint' => 'e.g. Australia/Sydney, Australia/Melbourne'],
             ['group' => 'general', 'key' => 'currency', 'value' => 'AUD', 'type' => 'text', 'label' => 'Currency', 'hint' => 'ISO currency code (AUD, USD, etc.)'],
@@ -112,8 +112,8 @@ class SiteSetting extends Model
             ['group' => 'commission', 'key' => 'min_wallet_topup', 'value' => '50', 'type' => 'number', 'label' => 'Minimum Wallet Top-up ($)', 'hint' => 'Minimum amount for wallet credit purchase'],
 
             // Email
-            ['group' => 'email', 'key' => 'mail_from_name', 'value' => 'EzLicence', 'type' => 'text', 'label' => 'From Name', 'hint' => 'Sender name in outgoing emails'],
-            ['group' => 'email', 'key' => 'mail_from_address', 'value' => 'noreply@ezlicence.com.au', 'type' => 'text', 'label' => 'From Address', 'hint' => 'Sender email address'],
+            ['group' => 'email', 'key' => 'mail_from_name', 'value' => 'Secure Licences', 'type' => 'text', 'label' => 'From Name', 'hint' => 'Sender name in outgoing emails'],
+            ['group' => 'email', 'key' => 'mail_from_address', 'value' => 'noreply@securelicences.com.au', 'type' => 'text', 'label' => 'From Address', 'hint' => 'Sender email address'],
             ['group' => 'email', 'key' => 'smtp_host', 'value' => '', 'type' => 'text', 'label' => 'SMTP Host', 'hint' => 'e.g. smtp.gmail.com, smtp.mailtrap.io'],
             ['group' => 'email', 'key' => 'smtp_port', 'value' => '587', 'type' => 'number', 'label' => 'SMTP Port', 'hint' => '587 for TLS, 465 for SSL'],
             ['group' => 'email', 'key' => 'smtp_username', 'value' => '', 'type' => 'secret', 'label' => 'SMTP Username', 'hint' => 'Your SMTP login'],

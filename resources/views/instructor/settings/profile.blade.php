@@ -22,6 +22,7 @@
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
+    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
 </ul>
 
 <div class="card border-0 shadow-sm">
@@ -31,9 +32,21 @@
             <h6 class="fw-bold mb-1">My Profile</h6>
             <p class="small text-muted mb-3">This is the public profile information viewable by learners as they choose their instructor.</p>
 
-            <div class="mb-3">
-                <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white mb-2" style="width:80px;height:80px;">
-                    <i class="bi bi-person fs-2"></i>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Profile Photo</label>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="profile-photo-preview" class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white overflow-hidden" style="width:100px;height:100px;">
+                        <i class="bi bi-person fs-2" id="profile-photo-icon"></i>
+                        <img id="profile-photo-img" src="" alt="Profile" class="d-none" style="width:100px;height:100px;object-fit:cover;">
+                    </div>
+                    <div>
+                        <input type="file" id="profile-photo-input" accept="image/jpeg,image/png,image/webp" class="form-control form-control-sm" style="max-width:260px;">
+                        <small class="text-muted d-block mt-1">JPG, PNG or WebP. Max 5MB.</small>
+                        <button type="button" id="profile-photo-upload-btn" class="btn btn-sm btn-outline-primary mt-1 d-none">
+                            <i class="bi bi-upload me-1"></i>Upload Photo
+                        </button>
+                        <span id="profile-photo-message" class="small ms-2"></span>
+                    </div>
                 </div>
             </div>
 
@@ -120,8 +133,8 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label">EzLicence Marketplace</label>
-                <p class="small text-muted mb-2">Your profile is discoverable by Learners on EzLicence marketplace search results.</p>
+                <label class="form-label">Secure Licences Marketplace</label>
+                <p class="small text-muted mb-2">Your profile is discoverable by Learners on Secure Licences marketplace search results.</p>
                 <div class="form-check form-switch">
                     <input type="checkbox" name="is_active" class="form-check-input" id="profile-marketplace" value="1">
                     <label class="form-check-label" for="profile-marketplace">Discoverable on marketplace</label>

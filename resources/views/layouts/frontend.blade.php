@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Driving School | Driving Lessons | Book Learners Driving Test Online') – EzLicence</title>
+    <title>@yield('title', 'Driving School | Driving Lessons | Book Learners Driving Test Online') – Secure Licences</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito:400,600,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -37,16 +37,16 @@
     </style>
 </head>
 <body>
-    {{-- Top bar: left = Support | Instruct with EzLicence | EzLicence Instructor Academy; right = Learner Login | Instructor Login (or Dashboard when logged in) --}}
+    {{-- Top bar: left = Support | Instruct with Secure Licences | Secure Licences Instructor Academy; right = Learner Login | Instructor Login (or Dashboard when logged in) --}}
     <div class="frontend-topbar py-2">
         <div class="container">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     <a href="{{ route('support') }}">Support</a>
                     <span class="divider">|</span>
-                    <a href="#">Instruct with EzLicence</a>
+                    <a href="#">Instruct with Secure Licences</a>
                     <span class="divider">|</span>
-                    <a href="#">EzLicence Instructor Academy</a>
+                    <a href="#">Secure Licences Instructor Academy</a>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -70,7 +70,7 @@
         <nav class="navbar navbar-expand-lg navbar-light py-2 py-lg-3">
             <div class="container">
                 <a class="navbar-brand logo" href="{{ url('/') }}">
-                    <span class="ez">Ez</span><span class="ez-l">L</span><span class="icence">icence</span>
+                    <span class="ez">Secure</span><span class="ez-l">L</span><span class="icence">icences</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#frontendNav" aria-controls="frontendNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -80,9 +80,9 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navDrivingLessons" role="button" data-bs-toggle="dropdown" aria-expanded="false">Driving Lessons</a>
                             <ul class="dropdown-menu" aria-labelledby="navDrivingLessons">
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}">Driving Test Packages</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}">International Licence Conversions</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}">Refresher Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('driving-test-packages') }}">Driving Test Packages</a></li>
+                                <li><a class="dropdown-item" href="{{ route('international-licence') }}">International Licence Conversions</a></li>
+                                <li><a class="dropdown-item" href="{{ route('refresher-lessons') }}">Refresher Lessons</a></li>
                                 <li><a class="dropdown-item" href="#">Gift Vouchers</a></li>
                             </ul>
                         </li>
@@ -99,14 +99,14 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('find-instructor') }}">Prices &amp; Packages</a>
+                            <a class="nav-link" href="{{ route('prices-packages') }}">Prices &amp; Packages</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navResources" role="button" data-bs-toggle="dropdown" aria-expanded="false">Free Learner Resources</a>
                             <ul class="dropdown-menu" aria-labelledby="navResources">
                                 <li><a class="dropdown-item" href="{{ url('/') }}#faqAccordion">FAQs</a></li>
                                 <li><a class="dropdown-item" href="{{ route('blog.index') }}">Blog</a></li>
-                                <li><a class="dropdown-item" href="#">Industry Insights</a></li>
+                                <li><a class="dropdown-item" href="{{ route('industry-insights') }}">Industry Insights</a></li>
                                 <li><a class="dropdown-item" href="#">Free Practice Learners Test</a></li>
                             </ul>
                         </li>
@@ -129,10 +129,10 @@
             <div class="row g-4 mb-4">
                 <div class="col-lg-3 col-md-6">
                     <a class="d-inline-flex align-items-center mb-3 text-decoration-none" href="{{ url('/') }}">
-                        <span style="font-size:1.4rem;font-weight:700;color:#333;">Ez</span><span style="width:28px;height:28px;background:var(--ez-accent);color:#333;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin:0 1px;font-size:1rem;">L</span><span style="font-size:1.4rem;font-weight:700;color:#333;">icence</span>
+                        <span style="font-size:1.4rem;font-weight:700;color:#333;">Secure</span><span style="width:28px;height:28px;background:var(--ez-accent);color:#333;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin:0 1px;font-size:1rem;">L</span><span style="font-size:1.4rem;font-weight:700;color:#333;">icences</span>
                     </a>
-                    <p class="small" style="color:#555;"><strong>EzLicence takes the hassle out of choosing a driving school</strong> by helping learner drivers find, compare and book verified driving instructors online.</p>
-                    <p class="small" style="color:#777;">The EzLicence online platform brings transparency, choice and efficiency to booking and managing driving instructors and driving lessons across Australia.</p>
+                    <p class="small" style="color:#555;"><strong>Secure Licences takes the hassle out of choosing a driving school</strong> by helping learner drivers find, compare and book verified driving instructors online.</p>
+                    <p class="small" style="color:#777;">The Secure Licences online platform brings transparency, choice and efficiency to booking and managing driving instructors and driving lessons across Australia.</p>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Learner Tests Online</h6>
@@ -164,8 +164,8 @@
                         <li><a href="{{ route('blog.index') }}" class="text-decoration-none" style="color:#555;">Blog</a></li>
                         <li><a href="{{ route('contact') }}" class="text-decoration-none" style="color:#555;">Contact</a></li>
                         <li><a href="{{ route('about') }}" class="text-decoration-none" style="color:#555;">About</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Learn more about EzLicence</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Instruct with EzLicence</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Learn more about Secure Licences</a></li>
+                        <li><a href="#" class="text-decoration-none" style="color:#555;">Instruct with Secure Licences</a></li>
                         <li><a href="#" class="text-decoration-none" style="color:#555;">Become an instructor</a></li>
                         <li><a href="#" class="text-decoration-none" style="color:#555;">Driving Instructor User policies</a></li>
                         <li><a href="#" class="text-decoration-none" style="color:#555;">Learner User policies</a></li>
@@ -189,13 +189,12 @@
                         <li><a href="#" class="text-decoration-none" style="color:#555;">Gift Vouchers</a></li>
                         <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Refresher Driving Lessons</a></li>
                         <li><a href="#" class="text-decoration-none" style="color:#555;">International Licence Conversions</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">UK Driving Lessons</a></li>
                     </ul>
                 </div>
             </div>
             <hr style="border-color: rgba(0,0,0,0.1);">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 small" style="color:#777;">
-                <span>Ez Licence Pty Ltd &copy; {{ date('Y') }}</span>
+                <span>Secure Licences Pty Ltd &copy; {{ date('Y') }}</span>
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <a href="{{ route('privacy') }}" class="text-decoration-none" style="color:#555;">Privacy Policy</a>
                     <a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Terms and Conditions</a>

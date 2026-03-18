@@ -25,9 +25,13 @@
                     <div class="d-flex gap-4 flex-wrap">
                         {{-- Avatar --}}
                         <div class="flex-shrink-0">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:100px;height:100px;background:var(--ez-accent);font-size:2.5rem;font-weight:700;color:#333;">
-                                {{ strtoupper(substr($instructorProfile->user->first_name ?? $instructorProfile->user->name ?? 'I', 0, 1)) }}
-                            </div>
+                            @if($instructorProfile->profile_photo)
+                                <img src="{{ asset('storage/' . $instructorProfile->profile_photo) }}" alt="{{ $instructorProfile->user->name }}" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+                            @else
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:100px;height:100px;background:var(--ez-accent);font-size:2.5rem;font-weight:700;color:#333;">
+                                    {{ strtoupper(substr($instructorProfile->user->first_name ?? $instructorProfile->user->name ?? 'I', 0, 1)) }}
+                                </div>
+                            @endif
                         </div>
                         <div class="flex-grow-1">
                             <h1 class="h3 fw-bold mb-1">{{ $instructorProfile->user->name ?? 'Instructor' }}</h1>
@@ -67,6 +71,11 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
                     <h2 class="h5 fw-bold mb-3"><i class="bi bi-car-front me-2 text-warning"></i>Vehicle Details</h2>
+                    @if($instructorProfile->vehicle_photo)
+                        <div class="mb-3">
+                            <img src="{{ asset('storage/' . $instructorProfile->vehicle_photo) }}" alt="Vehicle" class="rounded" style="max-width:100%;max-height:240px;object-fit:cover;">
+                        </div>
+                    @endif
                     <div class="row g-3">
                         @if($instructorProfile->vehicle_make)
                         <div class="col-6 col-md-3">
@@ -184,7 +193,7 @@
                             <a href="{{ route('learner.login') }}" class="btn btn-warning btn-lg w-100 fw-bold mb-2">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Log in to Book
                             </a>
-                            <p class="small text-muted text-center mb-0">New to EzLicence? <a href="{{ route('register') }}">Create an account</a></p>
+                            <p class="small text-muted text-center mb-0">New to Secure Licences? <a href="{{ route('register') }}">Create an account</a></p>
                         @endauth
                     </div>
                 </div>

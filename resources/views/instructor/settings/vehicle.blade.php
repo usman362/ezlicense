@@ -22,6 +22,7 @@
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
+    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
 </ul>
 
 <div class="card border-0 shadow-sm">
@@ -70,6 +71,24 @@
                         <option value="1 Star">1 Star</option>
                         <option value="Not rated">Not rated</option>
                     </select>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h6 class="fw-bold mb-3">Vehicle Photo</h6>
+            <div class="d-flex align-items-start gap-3 mb-3">
+                <div id="vehicle-photo-preview" class="border rounded bg-light d-flex align-items-center justify-content-center overflow-hidden" style="width:200px;height:140px;min-width:200px;">
+                    <i class="bi bi-car-front fs-1 text-muted" id="vehicle-photo-icon"></i>
+                    <img id="vehicle-photo-img" src="" alt="Vehicle" class="d-none" style="width:200px;height:140px;object-fit:cover;">
+                </div>
+                <div>
+                    <p class="small text-muted mb-2">Upload a photo of your vehicle. This will be shown on your public profile.</p>
+                    <input type="file" id="vehicle-photo-input" accept="image/jpeg,image/png,image/webp" class="form-control form-control-sm" style="max-width:260px;">
+                    <small class="text-muted d-block mt-1">JPG, PNG or WebP. Max 5MB.</small>
+                    <button type="button" id="vehicle-photo-upload-btn" class="btn btn-sm btn-outline-primary mt-2 d-none">
+                        <i class="bi bi-upload me-1"></i>Upload Photo
+                    </button>
+                    <span id="vehicle-photo-message" class="small ms-2"></span>
                 </div>
             </div>
 

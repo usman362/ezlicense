@@ -53,12 +53,27 @@ class UsersController extends Controller
         ]);
     }
 
-    public function toggleActive(User $user)
+    public function toggleActive(Request $request, User $user)
     {
-        $user->is_active = ! $user->is_active;
+        $newStatus = ! $user->is_active;
+
+        // If deactivating, require a reason
+        if (! $newStatus) {
+            $request->validate(['reason' => 'required|string|max:500']);
+            $user->deactivation_reason = $request->input('reason');
+            $user->deactivated_at = now();
+        } else {
+            $user->deactivation_reason = null;
+            $user->deactivated_at = null;
+        }
+
+        $user->is_active = $newStatus;
         $user->save();
 
-        return redirect()->back()->with('message', $user->name . ' has been ' . ($user->is_active ? 'activated' : 'deactivated') . '.');
+        return response()->json([
+            'message' => $user->name . ' has been ' . ($user->is_active ? 'activated' : 'deactivated') . '.',
+            'is_active' => $user->is_active,
+        ]);
     }
 
     public function updateRole(Request $request, User $user)

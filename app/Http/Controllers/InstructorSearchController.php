@@ -10,7 +10,7 @@ class InstructorSearchController extends Controller
 {
     /**
      * Search instructors by suburb/postcode, transmission, test pre-booked.
-     * Same logic as EzLicence: find instructors who service the area.
+     * Same logic as Secure Licences: find instructors who service the area.
      */
     public function index(Request $request): JsonResponse
     {

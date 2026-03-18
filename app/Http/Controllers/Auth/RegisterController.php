@@ -32,8 +32,12 @@ class RegisterController extends Controller
 
     protected function redirectTo(): string
     {
-        if (auth()->user()?->isInstructor()) {
+        $user = auth()->user();
+        if ($user?->isInstructor()) {
             return '/instructor/dashboard';
+        }
+        if ($user?->isLearner()) {
+            return '/learner/dashboard';
         }
         return '/home';
     }
@@ -59,7 +63,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['required', 'string', 'max:20'],
             'role' => ['required', 'in:learner,instructor'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);

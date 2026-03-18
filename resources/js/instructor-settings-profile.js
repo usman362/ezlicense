@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorProfile } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorProfile, uploadInstructorProfilePhoto } from './ezlicense-api.js';
 
 let profileLanguages = [];
 
@@ -8,7 +8,7 @@ function renderLanguageTags() {
   container.innerHTML = profileLanguages.map((lang, i) =>
     '<span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">' +
     escapeHtml(lang) +
-    ' <button type="button" class="btn btn-link p-0 border-0 ms-1 text-danger" data-lang-index="' + i + '" aria-label="Remove">×</button></span>'
+    ' <button type="button" class="btn btn-link p-0 border-0 ms-1 text-danger" data-lang-index="' + i + '" aria-label="Remove">&times;</button></span>'
   ).join('');
   container.querySelectorAll('[data-lang-index]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -31,6 +31,19 @@ function updateBioCount() {
   if (bio && countEl) countEl.textContent = (bio.value || '').length;
 }
 
+function showProfilePhoto(url) {
+  const icon = document.getElementById('profile-photo-icon');
+  const img = document.getElementById('profile-photo-img');
+  if (url) {
+    img.src = url;
+    img.classList.remove('d-none');
+    if (icon) icon.classList.add('d-none');
+  } else {
+    img.classList.add('d-none');
+    if (icon) icon.classList.remove('d-none');
+  }
+}
+
 async function load() {
   const data = await getInstructorDashboardProfile();
   document.getElementById('profile-loading').style.display = 'none';
@@ -40,6 +53,9 @@ async function load() {
   form.bio.value = data.bio || '';
   updateBioCount();
   form.bio.addEventListener('input', updateBioCount);
+
+  // Show existing profile photo
+  showProfilePhoto(data.profile_photo_url);
 
   const baseUrl = window.location.origin;
   const profileUrl = data.id ? baseUrl + '/instructors/' + data.id : '';
@@ -73,8 +89,45 @@ async function load() {
   form.notification_email_marketing.checked = data.notification_email_marketing !== false;
   form.notification_sms_marketing.checked = data.notification_sms_marketing !== false;
   form.is_active.checked = data.is_active !== false;
-
 }
+
+// Profile photo upload
+const profilePhotoInput = document.getElementById('profile-photo-input');
+const profilePhotoUploadBtn = document.getElementById('profile-photo-upload-btn');
+
+profilePhotoInput?.addEventListener('change', () => {
+  if (profilePhotoInput.files.length > 0) {
+    profilePhotoUploadBtn.classList.remove('d-none');
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => showProfilePhoto(e.target.result);
+    reader.readAsDataURL(profilePhotoInput.files[0]);
+  } else {
+    profilePhotoUploadBtn.classList.add('d-none');
+  }
+});
+
+profilePhotoUploadBtn?.addEventListener('click', async () => {
+  const file = profilePhotoInput.files[0];
+  if (!file) return;
+  const msg = document.getElementById('profile-photo-message');
+  profilePhotoUploadBtn.disabled = true;
+  profilePhotoUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+  try {
+    const result = await uploadInstructorProfilePhoto(file);
+    showProfilePhoto(result.profile_photo_url);
+    msg.textContent = 'Photo uploaded!';
+    msg.className = 'small ms-2 text-success';
+    profilePhotoUploadBtn.classList.add('d-none');
+    profilePhotoInput.value = '';
+  } catch (err) {
+    msg.textContent = err.response?.data?.message || 'Upload failed.';
+    msg.className = 'small ms-2 text-danger';
+  } finally {
+    profilePhotoUploadBtn.disabled = false;
+    profilePhotoUploadBtn.innerHTML = '<i class="bi bi-upload me-1"></i>Upload Photo';
+  }
+});
 
 document.getElementById('profile-copy-link')?.addEventListener('click', () => {
   const input = document.getElementById('profile-link-input');

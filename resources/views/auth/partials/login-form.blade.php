@@ -29,4 +29,9 @@
             <a class="auth-forgot" href="{{ route('password.request') }}">Forgot password?</a>
         </div>
     @endif
+
+    <div class="text-center mt-4 pt-3" style="border-top: 1px solid #eee;">
+        <p class="text-muted mb-2">Don't have an account?</p>
+        <a href="{{ route('register') }}" class="btn btn-outline-dark w-100">Create Account</a>
+    </div>
 </form>

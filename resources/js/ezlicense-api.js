@@ -100,6 +100,24 @@ export async function updateInstructorProfile(payload) {
   await api.put('/instructor/profile', payload);
 }
 
+export async function uploadInstructorProfilePhoto(file) {
+  const formData = new FormData();
+  formData.append('profile_photo', file);
+  const { data } = await api.post('/instructor/profile/photo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data.data;
+}
+
+export async function uploadInstructorVehiclePhoto(file) {
+  const formData = new FormData();
+  formData.append('vehicle_photo', file);
+  const { data } = await api.post('/instructor/profile/vehicle-photo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data.data;
+}
+
 export async function updateInstructorServiceAreas(suburb_ids) {
   await api.put('/instructor/profile/service-areas', { suburb_ids });
 }

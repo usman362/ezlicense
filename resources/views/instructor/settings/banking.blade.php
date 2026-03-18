@@ -22,6 +22,7 @@
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
     <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
     <li class="nav-item"><a class="nav-link active" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
+    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
 </ul>
 
 <div class="alert alert-light border mb-4">
@@ -112,7 +113,7 @@
                 <p class="mb-1"><strong>Account name:</strong> <span id="bank-account-name">—</span></p>
                 <p class="mb-1"><strong>BSB:</strong> <span id="bank-bsb">—</span></p>
                 <p class="mb-1"><strong>Account number:</strong> <span id="bank-account-masked">—</span></p>
-                <p class="small text-muted mb-0 mt-2">Please note that bank account details cannot be edited after submission. Please visit our support centre at <a href="https://support.ezlicence.com.au/au" target="_blank" rel="noopener">support.ezlicence.com.au/au</a> to request an update.</p>
+                <p class="small text-muted mb-0 mt-2">Please note that bank account details cannot be edited after submission. Please visit our support centre at <a href="https://support.securelicences.com.au/au" target="_blank" rel="noopener">support.securelicences.com.au/au</a> to request an update.</p>
             </div>
             <form id="bank-form" class="d-none">
                 <div class="mb-2"><label class="form-label">Account name</label><input type="text" name="bank_account_name" class="form-control"></div>

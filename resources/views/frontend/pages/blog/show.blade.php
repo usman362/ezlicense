@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', ($post->meta_title ?: $post->title) . ' – EzLicence Blog')
+@section('title', ($post->meta_title ?: $post->title) . ' – Secure Licences Blog')
 
 @section('content')
 {{-- Breadcrumb --}}

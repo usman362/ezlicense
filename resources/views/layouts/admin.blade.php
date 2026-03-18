@@ -34,7 +34,7 @@
 <body>
     <div class="admin-wrapper">
         <aside class="admin-sidebar">
-            <a href="{{ route('admin.dashboard') }}" class="logo d-block text-decoration-none">Ez<span>L</span>icence Admin</a>
+            <a href="{{ route('admin.dashboard') }}" class="logo d-block text-decoration-none">Secure<span>L</span>icences Admin</a>
             @php
                 $sidebarPendingVerify = \App\Models\InstructorProfile::where('verification_status', 'pending')->count();
                 $sidebarPendingBookings = \App\Models\Booking::where('status', 'pending')->count();

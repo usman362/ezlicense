@@ -103,7 +103,7 @@
 
             <div class="alert alert-warning border-0 d-flex align-items-start gap-2 mb-4">
                 <i class="bi bi-shield-check fs-4"></i>
-                <p class="mb-0 small">To protect your payment, never transfer money or communicate about lesson payments outside of the EzLicence website.</p>
+                <p class="mb-0 small">To protect your payment, never transfer money or communicate about lesson payments outside of the Secure Licences website.</p>
             </div>
         </form>
     </div>

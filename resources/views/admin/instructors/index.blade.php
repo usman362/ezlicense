@@ -135,6 +135,87 @@
                         </p>
                     </div>
                 </div>
+
+                {{-- Profile & Vehicle Photos --}}
+                @if($ip->profile_photo || $ip->vehicle_photo)
+                <hr>
+                <h6 class="text-muted">Photos</h6>
+                <div class="d-flex gap-3 flex-wrap mb-3">
+                    @if($ip->profile_photo)
+                        <div>
+                            <div class="small text-muted mb-1">Profile Photo</div>
+                            <img src="{{ asset('storage/' . $ip->profile_photo) }}" class="rounded" style="max-height:100px;" alt="Profile">
+                        </div>
+                    @endif
+                    @if($ip->vehicle_photo)
+                        <div>
+                            <div class="small text-muted mb-1">Vehicle Photo</div>
+                            <img src="{{ asset('storage/' . $ip->vehicle_photo) }}" class="rounded" style="max-height:100px;" alt="Vehicle">
+                        </div>
+                    @endif
+                </div>
+                @endif
+
+                {{-- Documents --}}
+                <hr>
+                <h6 class="text-muted">Uploaded Documents</h6>
+                @if($ip->documents->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered mb-3">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="small">Type</th>
+                                    <th class="small">Side</th>
+                                    <th class="small">Expires</th>
+                                    <th class="small">Status</th>
+                                    <th class="small">File</th>
+                                    <th class="small text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ip->documents as $doc)
+                                    @php
+                                        $docStatusColors = ['pending'=>'warning','verified'=>'success','rejected'=>'danger'];
+                                    @endphp
+                                    <tr>
+                                        <td class="small">{{ ucfirst(str_replace('_', ' ', $doc->type)) }}</td>
+                                        <td class="small">{{ $doc->side ? ucfirst($doc->side) : '—' }}</td>
+                                        <td class="small">{{ $doc->expires_at ? $doc->expires_at->format('d M Y') : '—' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ $docStatusColors[$doc->status] ?? 'secondary' }}">{{ ucfirst($doc->status) }}</span>
+                                        </td>
+                                        <td class="small">
+                                            @if($doc->file_path)
+                                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-primary"><i class="bi bi-file-earmark me-1"></i>View</a>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                        <td class="text-end">
+                                            @if($doc->status !== 'verified')
+                                                <form method="POST" action="{{ route('admin.instructors.update-document-status', $doc) }}" class="d-inline">
+                                                    @csrf @method('PATCH')
+                                                    <input type="hidden" name="status" value="verified">
+                                                    <button type="submit" class="btn btn-success btn-sm py-0 px-1" title="Verify"><i class="bi bi-check-lg"></i></button>
+                                                </form>
+                                            @endif
+                                            @if($doc->status !== 'rejected')
+                                                <form method="POST" action="{{ route('admin.instructors.update-document-status', $doc) }}" class="d-inline">
+                                                    @csrf @method('PATCH')
+                                                    <input type="hidden" name="status" value="rejected">
+                                                    <button type="submit" class="btn btn-danger btn-sm py-0 px-1" title="Reject"><i class="bi bi-x-lg"></i></button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="small text-muted">No documents uploaded yet.</p>
+                @endif
+
                 <hr>
                 <form method="POST" action="{{ route('admin.instructors.update-verification', $ip) }}">
                     @csrf @method('PATCH')

@@ -7,13 +7,48 @@ const DAY_NAMES = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: '
 let slots = [];
 let initialSlots = [];
 
+// Generate time options in 15-minute increments (05:00 to 22:00)
+function generateTimeOptions() {
+  const options = [];
+  for (let h = 5; h <= 22; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      if (h === 22 && m > 0) break; // Stop at 22:00
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      const value = `${hh}:${mm}`;
+      // Format for display: 05:00am, 01:30pm, etc.
+      const hour12 = h % 12 || 12;
+      const ampm = h < 12 ? 'am' : 'pm';
+      const label = `${String(hour12).padStart(2, '0')}:${mm}${ampm}`;
+      options.push({ value, label });
+    }
+  }
+  return options;
+}
+
+const TIME_OPTIONS = generateTimeOptions();
+
+function buildTimeSelect(selectedValue, cssClass) {
+  const normalized = toTimeStr(selectedValue);
+  return `<select class="form-select form-select-sm ${cssClass}">` +
+    TIME_OPTIONS.map(opt =>
+      `<option value="${opt.value}"${opt.value === normalized ? ' selected' : ''}>${opt.label}</option>`
+    ).join('') +
+    `</select>`;
+}
+
 function toTimeStr(hhmm) {
   if (!hhmm || hhmm.length < 5) return '09:00';
   return hhmm.substring(0, 5);
 }
 
-function formatTimeForInput(hhmm) {
-  return toTimeStr(hhmm);
+// Snap a time value to nearest 15-minute increment
+function snapTo15(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const snapped = Math.round(m / 15) * 15;
+  const finalH = snapped >= 60 ? h + 1 : h;
+  const finalM = snapped >= 60 ? 0 : snapped;
+  return `${String(finalH).padStart(2, '0')}:${String(finalM).padStart(2, '0')}`;
 }
 
 function slotDurationMinutes(start, end) {
@@ -82,52 +117,51 @@ function render() {
     const daySlots = byDay[dayKey];
     const dayName = DAY_NAMES[dayKey];
     const rows = (daySlots.length || 0) === 0
-      ? `<tr><td colspan="4" class="text-muted small">No slots. Click + to add.</td></tr>`
+      ? `<div class="text-muted small py-2">No availability set for this day.</div>`
       : daySlots.map((slot, slotIdx) => {
           const tip = getTip(slot.start_time, slot.end_time);
-          return `<tr class="slot-row" data-day="${dayKey}" data-slot-index="${slotIdx}">
-            <td><input type="time" class="form-control form-control-sm slot-start" value="${formatTimeForInput(slot.start_time)}"></td>
-            <td><input type="time" class="form-control form-control-sm slot-end" value="${formatTimeForInput(slot.end_time)}"></td>
-            <td class="text-nowrap">
-              <button type="button" class="btn btn-sm btn-link p-0 text-danger slot-remove" aria-label="Remove">×</button>
-              <button type="button" class="btn btn-sm btn-link p-0 slot-add" aria-label="Add slot">+</button>
-              <button type="button" class="btn btn-sm btn-link p-0 slot-copy-all" aria-label="Copy to all days" title="Copy to all">⎘</button>
-            </td>
-            <td class="small text-muted">${tip || ''}</td>
-          </tr>`;
+          return `<div class="slot-row d-flex align-items-center gap-2 mb-2" data-day="${dayKey}" data-slot-index="${slotIdx}">
+            <div style="width:150px;">${buildTimeSelect(slot.start_time, 'slot-start')}</div>
+            <span class="text-muted small">to</span>
+            <div style="width:150px;">${buildTimeSelect(slot.end_time, 'slot-end')}</div>
+            <div class="d-flex gap-1 ms-2">
+              <button type="button" class="btn btn-sm btn-outline-danger slot-remove" aria-label="Remove" title="Remove slot"><i class="bi bi-trash"></i></button>
+              <button type="button" class="btn btn-sm btn-outline-secondary slot-copy-all" aria-label="Copy to all days" title="Copy to all days"><i class="bi bi-files"></i></button>
+            </div>
+            ${tip ? '<span class="small text-muted ms-2"><i class="bi bi-lightbulb me-1"></i>' + tip + '</span>' : ''}
+          </div>`;
         }).join('');
-    return `<div class="mb-4">
-      <h6 class="mb-2">${dayName}</h6>
-      <table class="table table-sm table-borderless mb-0">
-        <thead><tr><th>Start</th><th>End</th><th></th><th></th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <button type="button" class="btn btn-sm btn-outline-secondary add-day-slot mt-1" data-day="${dayKey}">+ Add slot</button>
+    return `<div class="mb-4 pb-3 border-bottom">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0 fw-semibold">${dayName}</h6>
+        <button type="button" class="btn btn-sm btn-outline-primary add-day-slot" data-day="${dayKey}"><i class="bi bi-plus-lg me-1"></i>Add Slot</button>
+      </div>
+      ${rows}
     </div>`;
   }).join('');
 
-  container.querySelectorAll('.slot-start').forEach((input) => {
-    input.addEventListener('change', () => {
-      const row = input.closest('.slot-row');
+  container.querySelectorAll('.slot-start').forEach((select) => {
+    select.addEventListener('change', () => {
+      const row = select.closest('.slot-row');
       const day = parseInt(row.getAttribute('data-day'), 10);
       const slotIndex = parseInt(row.getAttribute('data-slot-index'), 10);
       const byDay = slots.filter((s) => s.day_of_week === day);
       const slot = byDay[slotIndex];
       if (slot) {
-        slot.start_time = input.value ? toTimeStr(input.value) : '09:00';
+        slot.start_time = select.value;
         render();
       }
     });
   });
-  container.querySelectorAll('.slot-end').forEach((input) => {
-    input.addEventListener('change', () => {
-      const row = input.closest('.slot-row');
+  container.querySelectorAll('.slot-end').forEach((select) => {
+    select.addEventListener('change', () => {
+      const row = select.closest('.slot-row');
       const day = parseInt(row.getAttribute('data-day'), 10);
       const slotIndex = parseInt(row.getAttribute('data-slot-index'), 10);
       const byDay = slots.filter((s) => s.day_of_week === day);
       const slot = byDay[slotIndex];
       if (slot) {
-        slot.end_time = input.value ? toTimeStr(input.value) : '17:00';
+        slot.end_time = select.value;
         render();
       }
     });
@@ -138,13 +172,6 @@ function render() {
       const day = parseInt(row.getAttribute('data-day'), 10);
       const slotIndex = parseInt(row.getAttribute('data-slot-index'), 10);
       removeSlot(day, slotIndex);
-    });
-  });
-  container.querySelectorAll('.slot-add').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const row = btn.closest('.slot-row');
-      const day = parseInt(row.getAttribute('data-day'), 10);
-      addSlot(day);
     });
   });
   container.querySelectorAll('.slot-copy-all').forEach((btn) => {
@@ -195,8 +222,8 @@ document.getElementById('save-availability-btn')?.addEventListener('click', asyn
   if (data.availability_slots?.length) {
     slots = data.availability_slots.map((s) => ({
       day_of_week: s.day_of_week,
-      start_time: toTimeStr(s.start_time),
-      end_time: toTimeStr(s.end_time),
+      start_time: snapTo15(toTimeStr(s.start_time)),
+      end_time: snapTo15(toTimeStr(s.end_time)),
     }));
   } else {
     slots = [];

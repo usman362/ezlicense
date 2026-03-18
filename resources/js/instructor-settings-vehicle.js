@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorProfile } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorProfile, uploadInstructorVehiclePhoto } from './ezlicense-api.js';
 import { getMakes, getModelsForMake } from './vehicle-makes-models.js';
 
 let profileData = null;
@@ -25,6 +25,19 @@ function escapeHtml(s) {
   return div.innerHTML;
 }
 
+function showVehiclePhoto(url) {
+  const icon = document.getElementById('vehicle-photo-icon');
+  const img = document.getElementById('vehicle-photo-img');
+  if (url) {
+    img.src = url;
+    img.classList.remove('d-none');
+    if (icon) icon.classList.add('d-none');
+  } else {
+    img.classList.add('d-none');
+    if (icon) icon.classList.remove('d-none');
+  }
+}
+
 async function load() {
   profileData = await getInstructorDashboardProfile();
   document.getElementById('vehicle-loading').style.display = 'none';
@@ -46,11 +59,52 @@ async function load() {
   if (yearSelect) yearSelect.value = profileData.vehicle_year || '';
   if (safetySelect) safetySelect.value = profileData.vehicle_safety_rating || '';
 
+  // Show existing vehicle photo
+  showVehiclePhoto(profileData.vehicle_photo_url);
+
   makeSelect.addEventListener('change', () => {
     const make = makeSelect.value;
     populateModelDropdown(modelSelect, make, '');
   });
 }
+
+// Vehicle photo upload
+const vehiclePhotoInput = document.getElementById('vehicle-photo-input');
+const vehiclePhotoUploadBtn = document.getElementById('vehicle-photo-upload-btn');
+
+vehiclePhotoInput?.addEventListener('change', () => {
+  if (vehiclePhotoInput.files.length > 0) {
+    vehiclePhotoUploadBtn.classList.remove('d-none');
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => showVehiclePhoto(e.target.result);
+    reader.readAsDataURL(vehiclePhotoInput.files[0]);
+  } else {
+    vehiclePhotoUploadBtn.classList.add('d-none');
+  }
+});
+
+vehiclePhotoUploadBtn?.addEventListener('click', async () => {
+  const file = vehiclePhotoInput.files[0];
+  if (!file) return;
+  const msg = document.getElementById('vehicle-photo-message');
+  vehiclePhotoUploadBtn.disabled = true;
+  vehiclePhotoUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+  try {
+    const result = await uploadInstructorVehiclePhoto(file);
+    showVehiclePhoto(result.vehicle_photo_url);
+    msg.textContent = 'Photo uploaded!';
+    msg.className = 'small ms-2 text-success';
+    vehiclePhotoUploadBtn.classList.add('d-none');
+    vehiclePhotoInput.value = '';
+  } catch (err) {
+    msg.textContent = err.response?.data?.message || 'Upload failed.';
+    msg.className = 'small ms-2 text-danger';
+  } finally {
+    vehiclePhotoUploadBtn.disabled = false;
+    vehiclePhotoUploadBtn.innerHTML = '<i class="bi bi-upload me-1"></i>Upload Photo';
+  }
+});
 
 document.getElementById('vehicle-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();

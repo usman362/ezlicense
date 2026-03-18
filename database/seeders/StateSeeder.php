@@ -17,6 +17,7 @@ class StateSeeder extends Seeder
             ['name' => 'South Australia', 'code' => 'SA'],
             ['name' => 'Tasmania', 'code' => 'TAS'],
             ['name' => 'Australian Capital Territory', 'code' => 'ACT'],
+            ['name' => 'Northern Territory', 'code' => 'NT'],
         ];
 
         foreach ($states as $state) {
