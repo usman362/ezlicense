@@ -148,6 +148,7 @@ class BookingController extends Controller
             $instructorProfile = InstructorProfile::find($order['instructor_profile_id']);
 
             foreach ($order['items'] as $item) {
+                $itemPrice = (float) ($item['price'] ?? 0);
                 $booking = Booking::create([
                     'learner_id' => $user->id,
                     'instructor_id' => $instructorProfile ? $instructorProfile->user_id : null,
@@ -157,11 +158,11 @@ class BookingController extends Controller
                     'transmission' => $item['transmission'] ?? 'auto',
                     'scheduled_at' => $item['scheduled_at'],
                     'duration_minutes' => $item['duration_minutes'] ?? 60,
-                    'price' => $item['price'] ?? 0,
-                    'platform_fee' => round(($item['price'] ?? 0) * 0.04, 2),
-                    'status' => 'confirmed',
+                    'amount' => $itemPrice,
+                    'platform_fee' => round($itemPrice * 0.04, 2),
+                    'status' => Booking::STATUS_CONFIRMED,
                     'payment_method' => $validated['payment_method'],
-                    'payment_status' => 'paid',
+                    'payment_status' => Booking::PAYMENT_PAID,
                 ]);
                 $bookings[] = $booking;
             }

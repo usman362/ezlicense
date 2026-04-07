@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::get('bookings/{booking}', [BookingController::class, 'show'])->name('api.bookings.show');
     Route::put('bookings/{booking}/reschedule', [BookingController::class, 'reschedule'])->name('api.bookings.reschedule');
     Route::put('bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('api.bookings.cancel');
+    Route::get('bookings/{booking}/modification-context', [BookingController::class, 'modificationContext'])->name('api.bookings.modification-context');
     Route::post('reviews', [ReviewController::class, 'store'])->name('api.reviews.store');
 
     // Instructor dashboard

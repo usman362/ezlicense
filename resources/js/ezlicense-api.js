@@ -86,7 +86,16 @@ export async function cancelBooking(bookingId, cancellation_reason) {
 
 export async function submitReview({ booking_id, rating, comment }) {
   const { data } = await api.post('/reviews', { booking_id, rating, comment });
-  return data.data;
+  return data; // Returns { data, message, google_review_url, google_review_prefill }
+}
+
+export async function markGoogleReviewPrompted(reviewId) {
+  await api.patch(`/reviews/${reviewId}/google-prompted`);
+}
+
+export async function completeBooking(bookingId) {
+  const { data } = await api.put(`/bookings/${bookingId}/complete`);
+  return data;
 }
 
 // ——— Instructor ———

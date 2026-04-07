@@ -126,13 +126,35 @@ class InstructorProfile extends Model
         return $this->hasMany(Review::class, 'instructor_id', 'user_id');
     }
 
+    /**
+     * Average rating from approved, visible reviews only.
+     */
     public function averageRating(): float
     {
-        return (float) $this->reviews()->avg('rating');
+        return (float) $this->reviews()->public()->avg('rating');
     }
 
+    /**
+     * Count of approved, visible reviews only.
+     */
     public function reviewsCount(): int
     {
+        return $this->reviews()->public()->count();
+    }
+
+    /**
+     * All reviews including pending (for admin views).
+     */
+    public function allReviewsCount(): int
+    {
         return $this->reviews()->count();
+    }
+
+    /**
+     * Pending reviews count (for admin badge).
+     */
+    public function pendingReviewsCount(): int
+    {
+        return $this->reviews()->pending()->count();
     }
 }

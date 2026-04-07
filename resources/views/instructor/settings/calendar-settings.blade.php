@@ -155,6 +155,39 @@
     </div>
 </div>
 
+{{-- Calendar Sync Card --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-2"><i class="bi bi-phone me-2"></i>Sync with your phone</h5>
+        <p class="text-muted small mb-3">Subscribe to your booking calendar on your phone. New bookings, reschedules, and cancellations will automatically appear in your phone's calendar app.</p>
+
+        <div id="calendar-sync-section">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="#" id="apple-cal-btn" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="bi bi-apple me-1"></i>Apple Calendar
+                </a>
+                <a href="#" id="google-cal-btn" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="bi bi-google me-1"></i>Google Calendar
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" id="copy-cal-url-btn">
+                    <i class="bi bi-clipboard me-1"></i>Copy URL
+                </button>
+            </div>
+
+            <div class="bg-light rounded p-2 mb-3">
+                <code class="small text-break" id="calendar-feed-url">Loading...</code>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-warning btn-sm" id="regenerate-cal-btn">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Regenerate URL
+                </button>
+                <span class="small text-muted">This will invalidate any previously subscribed calendars.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
         <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" id="discard-calendar-btn" style="display: none;">Discard Changes</button>

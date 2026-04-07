@@ -127,18 +127,160 @@
 
 {{-- Booking Detail Modal --}}
 <div class="modal fade" id="booking-detail-modal" tabindex="-1" aria-labelledby="booking-detail-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="booking-detail-title">Booking Details</h5>
+                <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="breadcrumb-item" id="modal-breadcrumb-booking">Booking</li>
+                </ol></nav>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="booking-detail-body">
                 <div class="text-center text-muted py-3">Loading…</div>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger btn-sm" id="booking-cancel-btn" style="display:none;">Cancel Booking</button>
+        </div>
+    </div>
+</div>
+
+{{-- Cancel Booking Modal --}}
+<div class="modal fade" id="cancel-booking-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-trash"></i></span>
+                    <h5 class="modal-title fw-bold mb-0">Are you sure you want to cancel this booking?</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{-- 24-hour restriction warning (hidden by default) --}}
+                <div id="cancel-24hr-warning" class="alert alert-warning" style="display:none;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    <strong>This booking starts within 24 hours.</strong>
+                    Instructors are not permitted to modify bookings within 24 hours unless it is an emergency.
+                </div>
+
+                {{-- Cancellation rate warning --}}
+                <div class="mb-3">
+                    <h6 class="fw-bold">This may count towards your cancellation rate</h6>
+                    <p class="text-muted small mb-0">We measure your cancellation rate to ensure that learners enjoy a consistent experience on our platform.</p>
+                </div>
+
+                {{-- Reason dropdown --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-warning">Reason for cancel <span class="text-danger">*</span></label>
+                    <select class="form-select" id="cancel-reason-code">
+                        <option value="">Please provide a reason</option>
+                        <option value="illness_family_emergency">Illness/Family Emergency</option>
+                        <option value="double_booked">Double booked</option>
+                        <option value="car_trouble">Car trouble</option>
+                        <option value="weather_conditions">Weather conditions</option>
+                        <option value="requested_by_learner">Cancellation was requested by learner</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <small class="text-muted">This will be shared with your learner.</small>
+                </div>
+
+                {{-- Free text for "Other" reason --}}
+                <div class="mb-3" id="cancel-reason-other-wrap" style="display:none;">
+                    <label class="form-label fw-semibold">Reason details</label>
+                    <textarea class="form-control" id="cancel-reason-text" rows="2" maxlength="500" placeholder="Please explain..."></textarea>
+                </div>
+
+                {{-- Message for learner --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Message for Learner</label>
+                    <textarea class="form-control" id="cancel-message" rows="3" maxlength="1000" placeholder="Please provide any additional context..."></textarea>
+                </div>
+
+                {{-- Cancellation policy checkbox --}}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="cancel-policy-check">
+                    <label class="form-check-label" for="cancel-policy-check">
+                        I understand and agree to the <a href="#" class="text-decoration-underline">Cancellation Policy</a>
+                    </label>
+                </div>
+
+                <div id="cancel-error" class="alert alert-danger small" style="display:none;"></div>
+            </div>
+            <div class="modal-footer border-0 flex-column gap-2">
+                <button type="button" class="btn btn-danger w-100" id="cancel-confirm-btn" disabled>
+                    <i class="bi bi-trash me-1"></i> Cancel Booking
+                </button>
+                <button type="button" class="btn btn-success w-100" id="cancel-reschedule-btn">
+                    Reschedule Booking
+                </button>
+                <button type="button" class="btn btn-outline-secondary w-100 btn-sm" data-bs-dismiss="modal">Go back</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Reschedule Booking Modal --}}
+<div class="modal fade" id="reschedule-booking-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="breadcrumb-item">Modify Booking</li>
+                </ol></nav>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4 class="fw-bold mb-3">Reschedule Booking</h4>
+
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-secondary" id="reschedule-discard-btn"><i class="bi bi-x me-1"></i>Discard Changes</button>
+                    <button type="button" class="btn btn-success" id="reschedule-propose-btn" disabled>Propose Booking →</button>
+                </div>
+
+                {{-- Warning --}}
+                <div class="alert alert-danger border-danger small">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    <strong>This action will CANCEL the current booking and propose a NEW booking</strong>
+                    <p class="mb-0 mt-1" id="reschedule-notify-text">The learner will be notified that the current booking is cancelled and can either accept or decline the new booking proposal.</p>
+                </div>
+
+                {{-- Old booking (struck through) --}}
+                <div class="card border-danger mb-3" id="reschedule-old-booking">
+                    <div class="card-body" id="reschedule-old-details">Loading...</div>
+                </div>
+
+                {{-- New booking form --}}
+                <div class="card border-success mb-3">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-success">NEW</span>
+                            <strong>Booking</strong>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">New Date</label>
+                            <input type="date" class="form-control" id="reschedule-date" min="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Available Time Slots</label>
+                            <div id="reschedule-slots-loading" style="display:none;" class="text-muted small">Loading available slots...</div>
+                            <select class="form-select" id="reschedule-time" disabled>
+                                <option value="">Select a date first</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Message (optional)</label>
+                            <textarea class="form-control" id="reschedule-message" rows="2" placeholder="Reason for rescheduling..."></textarea>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="reschedule-policy-check">
+                            <label class="form-check-label" for="reschedule-policy-check">
+                                I understand and agree to the <a href="#" class="text-decoration-underline">Cancellation Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reschedule-error" class="alert alert-danger small" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -423,61 +565,298 @@
     });
   }
 
-  // ——— Booking Detail Modal ———
+  // ——— Current active booking for modals ———
+  var activeBooking = null;
+  var activeBookingInstructorProfileId = null;
+
+  // ——— Booking Detail Modal (matching live site) ———
   function showBookingDetail(bookingId) {
     var body = document.getElementById('booking-detail-body');
-    var cancelBtn = document.getElementById('booking-cancel-btn');
     body.innerHTML = '<div class="text-center text-muted py-3">Loading…</div>';
-    cancelBtn.style.display = 'none';
+    document.getElementById('modal-breadcrumb-booking').textContent = 'Booking #' + bookingId;
     var modal = new bootstrap.Modal(document.getElementById('booking-detail-modal'));
     modal.show();
-    document.getElementById('booking-detail-title').textContent = 'Booking #' + bookingId;
 
     fetch('/api/bookings/' + bookingId, opts)
       .then(function(r) { return r.json(); })
       .then(function(res) {
         var b = res.data || res;
-        var statusClass = b.status === 'cancelled' ? 'bg-danger' : (b.status === 'confirmed' ? 'bg-success' : 'bg-warning');
-        body.innerHTML =
-          '<div class="mb-3"><span class="badge ' + statusClass + ' text-white text-uppercase">' + esc(b.status) + '</span></div>' +
-          '<div class="row g-2 small">' +
-            '<div class="col-6"><strong>Date</strong><br>' + formatDate(b.scheduled_at) + '</div>' +
-            '<div class="col-6"><strong>Time</strong><br>' + formatTime(b.scheduled_at, b.duration_minutes) + '</div>' +
-            '<div class="col-6"><strong>Learner</strong><br>' + esc(b.learner ? b.learner.name : '—') + '</div>' +
-            '<div class="col-6"><strong>Phone</strong><br>' + (b.learner && b.learner.phone ? '<a href="tel:' + esc(b.learner.phone) + '">' + esc(b.learner.phone) + '</a>' : '—') + '</div>' +
-            '<div class="col-6"><strong>Type</strong><br>' + esc(b.type === 'test_package' ? 'Test Package' : 'Driving Lesson') + '</div>' +
-            '<div class="col-6"><strong>Duration</strong><br>' + (b.duration_minutes || 60) + ' min</div>' +
-            '<div class="col-6"><strong>Transmission</strong><br>' + esc(b.transmission || 'Auto') + '</div>' +
-            '<div class="col-6"><strong>Location</strong><br>' + esc(b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—') + '</div>' +
-            '<div class="col-6"><strong>Price</strong><br>$' + (b.price ? parseFloat(b.price).toFixed(2) : '0.00') + '</div>' +
-            '<div class="col-6"><strong>Payment</strong><br>' + esc(b.payment_status || '—') + '</div>' +
-          '</div>';
+        activeBooking = b;
+        var statusClass = b.status === 'cancelled' ? 'bg-danger' : (b.status === 'confirmed' ? 'bg-success' : (b.status === 'proposed' ? 'bg-warning' : 'bg-secondary'));
+        var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
 
-        // Show cancel button for future bookings
-        if (b.status === 'confirmed' || b.status === 'pending') {
-          cancelBtn.style.display = 'inline-block';
-          cancelBtn.onclick = function() {
-            if (!confirm('Are you sure you want to cancel this booking?')) return;
-            cancelBtn.disabled = true;
-            cancelBtn.textContent = 'Cancelling...';
-            fetch('/api/bookings/' + bookingId + '/cancel', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '', 'X-Requested-With': 'XMLHttpRequest' },
-              credentials: 'same-origin',
-              body: JSON.stringify({ reason: 'Cancelled by instructor' })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function() {
-              bootstrap.Modal.getInstance(document.getElementById('booking-detail-modal')).hide();
-              loadUpcoming(1);
-              loadPending(1);
-            })
-            .catch(function() { cancelBtn.disabled = false; cancelBtn.textContent = 'Cancel Booking'; });
-          };
+        var html = '<h4 class="fw-bold mb-3">Booking #' + b.id + '</h4>';
+
+        // Modify booking dropdown (matching live site)
+        if (b.can_cancel || b.can_reschedule) {
+          html += '<div class="dropdown mb-3">' +
+            '<button class="btn btn-outline-secondary w-100 text-start d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">' +
+            '<i class="bi bi-pencil"></i> Modify Booking</button>' +
+            '<ul class="dropdown-menu">';
+          if (b.can_reschedule) {
+            html += '<li><a class="dropdown-item" href="#" id="detail-reschedule-btn"><i class="bi bi-calendar me-2"></i>Reschedule booking</a></li>';
+          }
+          if (b.can_cancel) {
+            html += '<li><a class="dropdown-item" href="#" id="detail-cancel-btn"><i class="bi bi-trash me-2"></i>Cancel without new booking</a></li>';
+          }
+          html += '</ul></div>';
+        }
+
+        // 24-hour warning
+        if (b.is_within_24_hours) {
+          html += '<div class="alert alert-warning small"><i class="bi bi-exclamation-triangle me-1"></i>' +
+            '<strong>This booking starts within 24 hours.</strong> Instructors are not permitted to modify bookings within 24 hours unless it is an emergency.</div>';
+        }
+
+        // Booking details card
+        html += '<div class="card border-0 shadow-sm mb-3"><div class="card-body">' +
+          '<div class="d-flex align-items-center gap-2 mb-2"><span class="text-muted">Booking #' + b.id + '</span><span class="badge ' + statusClass + ' text-white text-uppercase">' + esc(b.status) + '</span></div>' +
+          '<div class="row g-2 small">' +
+            '<div class="col-12"><i class="bi bi-calendar3 me-1 text-muted"></i>' + formatDate(b.scheduled_at) + '</div>' +
+            '<div class="col-12"><i class="bi bi-clock me-1 text-muted"></i>' + formatTime(b.scheduled_at, b.duration_minutes) + '</div>' +
+            '<div class="col-12"><i class="bi bi-car-front me-1 text-muted"></i>' + esc(b.transmission === 'manual' ? 'Manual' : 'Auto') + '</div>' +
+            '<div class="col-12"><i class="bi bi-book me-1 text-muted"></i>' + esc(lessonLabel(b)) + '</div>' +
+            '<div class="col-12"><i class="bi bi-person me-1 text-muted"></i><span class="text-success">Learner</span> ' + esc(b.learner ? b.learner.name : '—') + (b.learner && b.learner.phone ? ' <a href="tel:' + esc(b.learner.phone) + '">' + esc(b.learner.phone) + '</a>' : '') + '</div>' +
+            '<div class="col-12"><i class="bi bi-geo-alt me-1 text-muted"></i><a href="#">' + esc(location) + '</a></div>' +
+          '</div></div></div>';
+
+        // Payment info
+        html += '<div class="card border-0 shadow-sm"><div class="card-body">' +
+          '<div class="d-flex align-items-center gap-2"><strong>Payment</strong> <span class="badge ' + (b.payment_status === 'paid' ? 'bg-success' : 'bg-warning') + ' text-uppercase">' + esc(b.payment_status || 'PENDING') + '</span></div>' +
+          '<div class="mt-2 small">Amount: $' + (b.amount ? parseFloat(b.amount).toFixed(2) : '0.00') + '</div>' +
+          '</div></div>';
+
+        body.innerHTML = html;
+
+        // Attach event listeners for modify buttons
+        var cancelLink = document.getElementById('detail-cancel-btn');
+        if (cancelLink) {
+          cancelLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('booking-detail-modal')).hide();
+            openCancelModal(b);
+          });
+        }
+        var rescheduleLink = document.getElementById('detail-reschedule-btn');
+        if (rescheduleLink) {
+          rescheduleLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('booking-detail-modal')).hide();
+            openRescheduleModal(b);
+          });
         }
       })
       .catch(function() { body.innerHTML = '<p class="text-danger">Failed to load booking details.</p>'; });
   }
+
+  // ——— Cancel Booking Modal ———
+  function openCancelModal(booking) {
+    activeBooking = booking;
+    // Reset form
+    document.getElementById('cancel-reason-code').value = '';
+    document.getElementById('cancel-reason-text').value = '';
+    document.getElementById('cancel-message').value = '';
+    document.getElementById('cancel-policy-check').checked = false;
+    document.getElementById('cancel-reason-other-wrap').style.display = 'none';
+    document.getElementById('cancel-error').style.display = 'none';
+    document.getElementById('cancel-confirm-btn').disabled = true;
+    document.getElementById('cancel-confirm-btn').innerHTML = '<i class="bi bi-trash me-1"></i> Cancel Booking';
+
+    // Show 24-hour warning if applicable
+    var w = document.getElementById('cancel-24hr-warning');
+    w.style.display = booking.is_within_24_hours ? 'block' : 'none';
+
+    var modal = new bootstrap.Modal(document.getElementById('cancel-booking-modal'));
+    modal.show();
+  }
+
+  // Toggle "Other" reason text field
+  document.getElementById('cancel-reason-code').addEventListener('change', function() {
+    document.getElementById('cancel-reason-other-wrap').style.display = this.value === 'other' ? 'block' : 'none';
+    updateCancelBtnState();
+  });
+  document.getElementById('cancel-policy-check').addEventListener('change', updateCancelBtnState);
+
+  function updateCancelBtnState() {
+    var hasReason = document.getElementById('cancel-reason-code').value !== '';
+    var hasPolicy = document.getElementById('cancel-policy-check').checked;
+    document.getElementById('cancel-confirm-btn').disabled = !(hasReason && hasPolicy);
+  }
+
+  // Confirm cancel
+  document.getElementById('cancel-confirm-btn').addEventListener('click', function() {
+    if (!activeBooking) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Cancelling...';
+    document.getElementById('cancel-error').style.display = 'none';
+
+    var payload = {
+      cancellation_reason_code: document.getElementById('cancel-reason-code').value,
+      cancellation_reason: document.getElementById('cancel-reason-text').value,
+      cancellation_message: document.getElementById('cancel-message').value,
+      cancellation_policy_accepted: true
+    };
+
+    fetch('/api/bookings/' + activeBooking.id + '/cancel', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+      if (res.ok) {
+        bootstrap.Modal.getInstance(document.getElementById('cancel-booking-modal')).hide();
+        loadUpcoming(1);
+        loadPending(1);
+        loadHistory(1);
+      } else {
+        document.getElementById('cancel-error').textContent = res.data.message || 'Failed to cancel booking.';
+        document.getElementById('cancel-error').style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-trash me-1"></i> Cancel Booking';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-trash me-1"></i> Cancel Booking';
+      document.getElementById('cancel-error').textContent = 'Network error. Please try again.';
+      document.getElementById('cancel-error').style.display = 'block';
+    });
+  });
+
+  // Switch to reschedule from cancel modal
+  document.getElementById('cancel-reschedule-btn').addEventListener('click', function() {
+    bootstrap.Modal.getInstance(document.getElementById('cancel-booking-modal')).hide();
+    if (activeBooking) openRescheduleModal(activeBooking);
+  });
+
+  // ——— Reschedule Booking Modal ———
+  function openRescheduleModal(booking) {
+    activeBooking = booking;
+    document.getElementById('reschedule-date').value = '';
+    document.getElementById('reschedule-time').innerHTML = '<option value="">Select a date first</option>';
+    document.getElementById('reschedule-time').disabled = true;
+    document.getElementById('reschedule-message').value = '';
+    document.getElementById('reschedule-policy-check').checked = false;
+    document.getElementById('reschedule-propose-btn').disabled = true;
+    document.getElementById('reschedule-error').style.display = 'none';
+    document.getElementById('reschedule-propose-btn').textContent = 'Propose Booking →';
+
+    var location = (booking.suburb && booking.suburb.location) ? booking.suburb.location : (booking.suburb ? (booking.suburb.name + ' ' + (booking.suburb.postcode || '')) : '—');
+    var learnerName = booking.learner ? booking.learner.name : '—';
+    var learnerPhone = (booking.learner && booking.learner.phone) ? booking.learner.phone : '';
+
+    document.getElementById('reschedule-notify-text').textContent = learnerName + ' will be notified that the current booking is cancelled and can either accept or decline the new booking proposal.';
+
+    // Show old booking with strikethrough
+    document.getElementById('reschedule-old-details').innerHTML =
+      '<div class="d-flex align-items-center gap-2 mb-2"><span class="text-muted"><s>Booking #' + booking.id + '</s></span><span class="badge bg-success text-uppercase"><s>CONFIRMED</s></span></div>' +
+      '<div class="small" style="text-decoration:line-through;color:#999;">' +
+        '<div><i class="bi bi-calendar3 me-1"></i>' + formatDate(booking.scheduled_at) + '</div>' +
+        '<div><i class="bi bi-clock me-1"></i>' + formatTime(booking.scheduled_at, booking.duration_minutes) + '</div>' +
+        '<div><i class="bi bi-car-front me-1"></i>' + esc(lessonLabel(booking)) + '</div>' +
+        '<div><i class="bi bi-geo-alt me-1"></i>' + esc(location) + '</div>' +
+      '</div>' +
+      '<div class="mt-1 small"><span class="text-success">Learner</span> ' + esc(learnerName) + (learnerPhone ? ' <a href="tel:' + esc(learnerPhone) + '">' + esc(learnerPhone) + '</a>' : '') + '</div>';
+
+    // Get instructor profile ID for availability API
+    fetch('/api/instructor/profile', opts)
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        activeBookingInstructorProfileId = (res.data && res.data.id) ? res.data.id : null;
+      })
+      .catch(function() {});
+
+    var modal = new bootstrap.Modal(document.getElementById('reschedule-booking-modal'));
+    modal.show();
+  }
+
+  // Load available slots when date changes
+  document.getElementById('reschedule-date').addEventListener('change', function() {
+    var date = this.value;
+    var sel = document.getElementById('reschedule-time');
+    var loading = document.getElementById('reschedule-slots-loading');
+    if (!date || !activeBookingInstructorProfileId) { sel.innerHTML = '<option value="">Select a date first</option>'; sel.disabled = true; return; }
+    loading.style.display = 'block';
+    sel.disabled = true;
+    sel.innerHTML = '<option value="">Loading...</option>';
+
+    fetch('/api/instructors/' + activeBookingInstructorProfileId + '/availability/slots?date=' + date, opts)
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        loading.style.display = 'none';
+        var slots = res.data || res || [];
+        if (slots.length === 0) {
+          sel.innerHTML = '<option value="">No available slots</option>';
+          sel.disabled = true;
+          return;
+        }
+        sel.innerHTML = '<option value="">Select a time</option>' + slots.map(function(s) {
+          return '<option value="' + esc(s.datetime || s.time) + '">' + esc(s.time) + '</option>';
+        }).join('');
+        sel.disabled = false;
+        updateRescheduleBtnState();
+      })
+      .catch(function() { loading.style.display = 'none'; sel.innerHTML = '<option value="">Error loading slots</option>'; });
+  });
+
+  document.getElementById('reschedule-time').addEventListener('change', updateRescheduleBtnState);
+  document.getElementById('reschedule-policy-check').addEventListener('change', updateRescheduleBtnState);
+
+  function updateRescheduleBtnState() {
+    var hasTime = document.getElementById('reschedule-time').value !== '';
+    var hasPolicy = document.getElementById('reschedule-policy-check').checked;
+    document.getElementById('reschedule-propose-btn').disabled = !(hasTime && hasPolicy);
+  }
+
+  // Discard reschedule
+  document.getElementById('reschedule-discard-btn').addEventListener('click', function() {
+    bootstrap.Modal.getInstance(document.getElementById('reschedule-booking-modal')).hide();
+  });
+
+  // Propose reschedule
+  document.getElementById('reschedule-propose-btn').addEventListener('click', function() {
+    if (!activeBooking) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Proposing...';
+    document.getElementById('reschedule-error').style.display = 'none';
+
+    var payload = {
+      scheduled_at: document.getElementById('reschedule-time').value,
+      cancellation_message: document.getElementById('reschedule-message').value,
+      cancellation_policy_accepted: true
+    };
+
+    fetch('/api/bookings/' + activeBooking.id + '/reschedule', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+      if (res.ok) {
+        bootstrap.Modal.getInstance(document.getElementById('reschedule-booking-modal')).hide();
+        loadUpcoming(1);
+        loadPending(1);
+        loadHistory(1);
+      } else {
+        document.getElementById('reschedule-error').textContent = res.data.message || 'Failed to reschedule booking.';
+        document.getElementById('reschedule-error').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Propose Booking →';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Propose Booking →';
+      document.getElementById('reschedule-error').textContent = 'Network error. Please try again.';
+      document.getElementById('reschedule-error').style.display = 'block';
+    });
+  });
 
   // Delegate click on "See more / Manage" links
   document.addEventListener('click', function(e) {

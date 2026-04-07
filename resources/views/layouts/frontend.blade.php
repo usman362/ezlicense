@@ -44,9 +44,9 @@
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     <a href="{{ route('support') }}">Support</a>
                     <span class="divider">|</span>
-                    <a href="#">Instruct with Secure Licences</a>
+                    <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licences</a>
                     <span class="divider">|</span>
-                    <a href="#">Secure Licences Instructor Academy</a>
+                    <a href="{{ route('instructor-academy') }}">Secure Licences Instructor Academy</a>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -83,7 +83,7 @@
                                 <li><a class="dropdown-item" href="{{ route('driving-test-packages') }}">Driving Test Packages</a></li>
                                 <li><a class="dropdown-item" href="{{ route('international-licence') }}">International Licence Conversions</a></li>
                                 <li><a class="dropdown-item" href="{{ route('refresher-lessons') }}">Refresher Lessons</a></li>
-                                <li><a class="dropdown-item" href="#">Gift Vouchers</a></li>
+                                <li><a class="dropdown-item" href="{{ route('gift-vouchers') }}">Gift Vouchers</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -107,7 +107,7 @@
                                 <li><a class="dropdown-item" href="{{ url('/') }}#faqAccordion">FAQs</a></li>
                                 <li><a class="dropdown-item" href="{{ route('blog.index') }}">Blog</a></li>
                                 <li><a class="dropdown-item" href="{{ route('industry-insights') }}">Industry Insights</a></li>
-                                <li><a class="dropdown-item" href="#">Free Practice Learners Test</a></li>
+                                <li><a class="dropdown-item" href="{{ route('practice-test') }}">Free Practice Learners Test</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -137,14 +137,14 @@
                 <div class="col-lg-3 col-md-6">
                     <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Learner Tests Online</h6>
                     <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">FREE Practice Learners Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">NSW Driver Knowledge Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">VIC Learner Permit Knowledge Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">QLD Road Rules Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">WA Road Rules Theory Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">SA Learner Theory Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">TAS Driver Knowledge Test</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">ACT Road Rules Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test') }}" class="text-decoration-none" style="color:#555;">FREE Practice Learners Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'nsw') }}" class="text-decoration-none" style="color:#555;">NSW Driver Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'vic') }}" class="text-decoration-none" style="color:#555;">VIC Learner Permit Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'qld') }}" class="text-decoration-none" style="color:#555;">QLD Road Rules Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'wa') }}" class="text-decoration-none" style="color:#555;">WA Road Rules Theory Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'sa') }}" class="text-decoration-none" style="color:#555;">SA Learner Theory Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'tas') }}" class="text-decoration-none" style="color:#555;">TAS Driver Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test.state', 'act') }}" class="text-decoration-none" style="color:#555;">ACT Road Rules Knowledge Test</a></li>
                     </ul>
                     <h6 class="fw-bold mt-3 mb-2" style="color: var(--ez-dark);">Driving Instructors by State</h6>
                     <ul class="list-unstyled small mb-0" style="line-height:1.8;">
@@ -164,11 +164,11 @@
                         <li><a href="{{ route('blog.index') }}" class="text-decoration-none" style="color:#555;">Blog</a></li>
                         <li><a href="{{ route('contact') }}" class="text-decoration-none" style="color:#555;">Contact</a></li>
                         <li><a href="{{ route('about') }}" class="text-decoration-none" style="color:#555;">About</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Learn more about Secure Licences</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Instruct with Secure Licences</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Become an instructor</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Driving Instructor User policies</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Learner User policies</a></li>
+                        <li><a href="{{ route('about') }}" class="text-decoration-none" style="color:#555;">Learn more about Secure Licences</a></li>
+                        <li><a href="{{ route('instruct-with-us') }}" class="text-decoration-none" style="color:#555;">Instruct with Secure Licences</a></li>
+                        <li><a href="{{ route('instruct-with-us') }}" class="text-decoration-none" style="color:#555;">Become an instructor</a></li>
+                        <li><a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Driving Instructor User policies</a></li>
+                        <li><a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Learner User policies</a></li>
                     </ul>
                     <h6 class="fw-bold mt-3 mb-2" style="color: var(--ez-dark);">Driving Instructors by City</h6>
                     <ul class="list-unstyled small mb-0" style="line-height:1.8;">
@@ -186,9 +186,9 @@
                     <ul class="list-unstyled small mb-0" style="line-height:1.8;">
                         <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Driving Lessons</a></li>
                         <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Test Packages</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">Gift Vouchers</a></li>
-                        <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Refresher Driving Lessons</a></li>
-                        <li><a href="#" class="text-decoration-none" style="color:#555;">International Licence Conversions</a></li>
+                        <li><a href="{{ route('gift-vouchers') }}" class="text-decoration-none" style="color:#555;">Gift Vouchers</a></li>
+                        <li><a href="{{ route('refresher-lessons') }}" class="text-decoration-none" style="color:#555;">Refresher Driving Lessons</a></li>
+                        <li><a href="{{ route('international-licence') }}" class="text-decoration-none" style="color:#555;">International Licence Conversions</a></li>
                     </ul>
                 </div>
             </div>

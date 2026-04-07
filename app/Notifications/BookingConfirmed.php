@@ -3,7 +3,9 @@
 namespace App\Notifications;
 
 use App\Models\Booking;
+use App\Models\InstructorProfile;
 use App\Models\SiteSetting;
+use App\Services\IcsGenerator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -37,7 +39,7 @@ class BookingConfirmed extends Notification
         $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Driving Lesson';
 
-        return (new MailMessage)
+        $message = (new MailMessage)
             ->subject("Booking Confirmed — {$type} on {$date}")
             ->greeting("Hi {$notifiable->first_name}!")
             ->line("Your booking has been confirmed.")
@@ -45,6 +47,17 @@ class BookingConfirmed extends Notification
             ->line("Duration: {$b->duration_minutes} minutes")
             ->action('View My Bookings', url('/learner/dashboard'))
             ->line("Thank you for choosing {$siteName}!");
+
+        // Attach ICS if the instructor has enabled it
+        if ($b->instructor_id) {
+            $instructorProfile = InstructorProfile::where('user_id', $b->instructor_id)->first();
+            if ($instructorProfile && $instructorProfile->attach_ics_to_emails) {
+                $ics = IcsGenerator::forBooking($b);
+                $message->attachData($ics, 'lesson.ics', ['mime' => 'text/calendar']);
+            }
+        }
+
+        return $message;
     }
 
     public function toArray(object $notifiable): array

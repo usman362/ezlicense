@@ -27,17 +27,39 @@ function renderCard(inst) {
   const rating = inst.average_rating ?? '—';
   const reviews = inst.reviews_count ?? 0;
   const transLabel = (inst.transmission || '').toLowerCase() === 'manual' ? 'Manual' : 'Auto';
+
+  // Avatar initials from name
+  const nameParts = (inst.name || '?').split(' ');
+  const initials = nameParts.length >= 2
+    ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    : (nameParts[0][0] || '?').toUpperCase();
+
+  // Star display
+  const fullStars = Math.floor(Number(rating) || 0);
+  const halfStar = (Number(rating) || 0) - fullStars >= 0.3;
+  let starsHtml = '';
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) starsHtml += '<i class="bi bi-star-fill text-warning"></i>';
+    else if (i === fullStars && halfStar) starsHtml += '<i class="bi bi-star-half text-warning"></i>';
+    else starsHtml += '<i class="bi bi-star text-warning"></i>';
+  }
+
   return `
     <div class="col-md-6 col-lg-4 col-xl-3">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="card-title mb-0">${escapeHtml(inst.name)}</h5>
-            <span class="small text-muted text-end">★ ${rating} <span class="d-block">${reviews} ratings</span></span>
+      <div class="card h-100 shadow-sm border-0 instructor-card" style="cursor:pointer;" data-profile-id="${inst.id}">
+        <div class="card-body d-flex flex-column p-3">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0" style="width:48px;height:48px;font-weight:600;font-size:1rem;color:#555;">${initials}</div>
+            <div class="flex-grow-1 min-w-0">
+              <h6 class="card-title mb-0 fw-bold text-truncate">${escapeHtml(inst.name)}</h6>
+              <div class="d-flex align-items-center gap-1 small">${starsHtml}<span class="text-muted ms-1">${reviews} ratings</span></div>
+            </div>
           </div>
-          <p class="card-text small text-muted mb-1">${escapeHtml(transLabel)}${price ? ' · $' + price + '.00/hr' : ''}</p>
-          ${location ? `<p class="card-text small text-muted mb-2">${escapeHtml(location)}</p>` : ''}
-          <p class="card-text small flex-grow-1 mb-3">${escapeHtml(inst.bio || '—')}</p>
+          <div class="d-flex flex-wrap gap-2 small text-muted mb-2">
+            <span><i class="bi bi-car-front me-1"></i>${escapeHtml(transLabel)}</span>
+            ${price ? `<span><i class="bi bi-tag me-1"></i>$${price}.00/hr</span>` : ''}
+          </div>
+          ${location ? `<p class="card-text small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>${escapeHtml(location)}</p>` : ''}
           <div class="d-grid gap-2 mt-auto">
             <button type="button" class="btn btn-warning btn-sm fw-bold book-now-btn" data-id="${inst.id}">Book Online Now</button>
             <div class="d-flex gap-2">
@@ -56,9 +78,19 @@ function attachCardHandlers(col, inst) {
   const bookBtn = col.querySelector('.book-now-btn');
   const viewBtn = col.querySelector('.view-profile-btn');
   const availBtn = col.querySelector('.availability-btn');
+  const card = col.querySelector('.instructor-card');
+
+  // Clicking the card itself goes to profile (except when clicking buttons)
+  if (card) {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return; // Don't navigate when button clicked
+      window.location.href = `/instructors/${id}`;
+    });
+  }
 
   if (bookBtn) {
-    bookBtn.addEventListener('click', () => {
+    bookBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (isLearner && learnerBookingNewUrl) {
         window.location.href = `${learnerBookingNewUrl}?instructor_profile_id=${id}`;
       } else {
@@ -67,10 +99,10 @@ function attachCardHandlers(col, inst) {
     });
   }
   if (viewBtn) {
-    viewBtn.addEventListener('click', () => { window.location.href = `/instructors/${id}`; });
+    viewBtn.addEventListener('click', (e) => { e.stopPropagation(); window.location.href = `/instructors/${id}`; });
   }
   if (availBtn) {
-    availBtn.addEventListener('click', () => openAvailability(inst));
+    availBtn.addEventListener('click', (e) => { e.stopPropagation(); openAvailability(inst); });
   }
 }
 

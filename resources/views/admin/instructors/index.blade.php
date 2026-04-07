@@ -70,6 +70,9 @@
                             <td class="small text-muted">{{ $ip->created_at->format('d M Y') }}</td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm">
+                                    <a href="{{ route('admin.instructors.show', $ip) }}" class="btn btn-outline-info btn-sm" title="View Full Profile">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#instrModal{{ $ip->id }}" title="Manage">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>

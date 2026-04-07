@@ -94,6 +94,9 @@ class SiteSetting extends Model
             ['group' => 'general', 'key' => 'timezone', 'value' => 'Australia/Sydney', 'type' => 'text', 'label' => 'Default Timezone', 'hint' => 'e.g. Australia/Sydney, Australia/Melbourne'],
             ['group' => 'general', 'key' => 'currency', 'value' => 'AUD', 'type' => 'text', 'label' => 'Currency', 'hint' => 'ISO currency code (AUD, USD, etc.)'],
             ['group' => 'general', 'key' => 'maintenance_mode', 'value' => '0', 'type' => 'boolean', 'label' => 'Maintenance Mode', 'hint' => 'Show maintenance page to visitors'],
+            ['group' => 'general', 'key' => 'google_place_id', 'value' => '', 'type' => 'text', 'label' => 'Google Place ID', 'hint' => 'Google Business Place ID for review redirect (find it at https://developers.google.com/maps/documentation/places/web-service/place-id)'],
+            ['group' => 'general', 'key' => 'facebook_url', 'value' => 'https://www.facebook.com/EzLicence', 'type' => 'text', 'label' => 'Facebook URL', 'hint' => 'Facebook page URL for emails and footer'],
+            ['group' => 'general', 'key' => 'instagram_url', 'value' => 'https://www.instagram.com/ezlicence', 'type' => 'text', 'label' => 'Instagram URL', 'hint' => 'Instagram profile URL for emails and footer'],
 
             // Payment
             ['group' => 'payment', 'key' => 'stripe_enabled', 'value' => '0', 'type' => 'boolean', 'label' => 'Enable Stripe', 'hint' => 'Toggle Stripe payment gateway'],

@@ -5,6 +5,11 @@ let serviceAreaLabels = [];
 let initialIds = [];
 let initialLabels = [];
 
+const stateColors = {
+  'NSW': 'primary', 'VIC': 'info', 'QLD': 'danger', 'WA': 'success',
+  'SA': 'warning', 'TAS': 'secondary', 'ACT': 'dark', 'NT': 'primary'
+};
+
 function escapeHtml(s) {
   if (s == null || s === '') return '';
   const div = document.createElement('div');
@@ -12,10 +17,28 @@ function escapeHtml(s) {
   return div.innerHTML;
 }
 
+function extractState(label) {
+  if (!label) return '';
+  const parts = label.split(/[\s,]+/);
+  return parts[parts.length - 1] || '';
+}
+
+function updateStats() {
+  const stateSet = new Set();
+  serviceAreaLabels.forEach(label => {
+    const state = extractState(label);
+    if (state) stateSet.add(state);
+  });
+  const suburbsEl = document.getElementById('stat-suburbs');
+  const statesEl = document.getElementById('stat-states');
+  if (suburbsEl) suburbsEl.textContent = serviceAreaIds.length;
+  if (statesEl) statesEl.textContent = stateSet.size;
+}
+
 function updateSummary() {
   const n = serviceAreaIds.length;
   const el = document.getElementById('service-area-summary');
-  if (el) el.innerHTML = 'You are servicing <strong>' + n + '</strong> suburb' + (n === 1 ? '' : 's') + '.';
+  if (el) el.innerHTML = 'You are servicing <strong>' + n + '</strong> suburb' + (n === 1 ? '' : 's') + ' across Australia';
 }
 
 function updateViewAllDropdown() {
@@ -25,7 +48,21 @@ function updateViewAllDropdown() {
     list.innerHTML = '<li><span class="dropdown-item text-muted">No suburbs selected</span></li>';
     return;
   }
-  list.innerHTML = serviceAreaLabels.map((label) => '<li><span class="dropdown-item">' + escapeHtml(label) + '</span></li>').join('');
+  // Group by state
+  const grouped = {};
+  serviceAreaLabels.forEach((label) => {
+    const state = extractState(label);
+    if (!grouped[state]) grouped[state] = [];
+    grouped[state].push(label);
+  });
+  let html = '';
+  Object.keys(grouped).sort().forEach((state) => {
+    html += '<li><h6 class="dropdown-header">' + escapeHtml(state) + '</h6></li>';
+    grouped[state].forEach((label) => {
+      html += '<li><span class="dropdown-item small">' + escapeHtml(label) + '</span></li>';
+    });
+  });
+  list.innerHTML = html;
 }
 
 function hasChanges() {
@@ -37,23 +74,33 @@ function hasChanges() {
   return false;
 }
 
+function toggleUnsavedBanner() {
+  const banner = document.getElementById('unsaved-banner');
+  if (banner) {
+    banner.style.display = hasChanges() ? 'flex' : 'none';
+    banner.style.setProperty('display', hasChanges() ? 'flex' : 'none', 'important');
+  }
+}
+
 function renderChips() {
   const container = document.getElementById('service-area-chips');
   const emptyEl = document.getElementById('service-area-chips-empty');
-  const discardBtn = document.getElementById('discard-areas-btn');
   if (!container) return;
 
   container.innerHTML = serviceAreaIds.map((id, i) => {
     const label = serviceAreaLabels[i] || 'ID ' + id;
-    return '<span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 px-2 py-2">' +
+    const state = extractState(label);
+    const color = stateColors[state] || 'secondary';
+    return '<span class="badge bg-' + color + ' bg-opacity-10 text-' + color + ' border border-' + color + ' border-opacity-25 d-inline-flex align-items-center gap-1 px-2 py-2" style="font-weight:500;">' +
       escapeHtml(label) +
-      ' <button type="button" class="btn btn-link p-0 border-0 ms-1 text-danger remove-area" data-id="' + id + '" aria-label="Remove">×</button></span>';
+      ' <button type="button" class="btn-close btn-close-sm ms-1 remove-area" data-id="' + id + '" aria-label="Remove" style="font-size:0.6rem;"></button></span>';
   }).join('');
 
   if (emptyEl) emptyEl.style.display = serviceAreaIds.length ? 'none' : 'block';
   updateSummary();
   updateViewAllDropdown();
-  if (discardBtn) discardBtn.style.display = hasChanges() ? 'inline' : 'none';
+  updateStats();
+  toggleUnsavedBanner();
 
   container.querySelectorAll('.remove-area').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -74,6 +121,26 @@ function discardChanges() {
   renderChips();
 }
 
+async function saveChanges() {
+  const msg = document.getElementById('areas-message');
+  try {
+    await updateInstructorServiceAreas(serviceAreaIds);
+    initialIds = serviceAreaIds.slice();
+    initialLabels = serviceAreaLabels.slice();
+    toggleUnsavedBanner();
+    if (msg) {
+      msg.textContent = 'Changes saved successfully!';
+      msg.className = 'small text-success fw-semibold';
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+    }
+  } catch (err) {
+    if (msg) {
+      msg.textContent = err.response?.data?.message || 'Error saving changes.';
+      msg.className = 'small text-danger fw-semibold';
+    }
+  }
+}
+
 const suburbAddInput = document.getElementById('suburb-add-input');
 const suburbSuggestions = document.getElementById('suburb-suggestions');
 
@@ -81,7 +148,11 @@ function showSuggestions(items) {
   if (!suburbSuggestions) return;
   suburbSuggestions.innerHTML = (items || []).map((s) => {
     const label = s.label || (s.name + ', ' + (s.postcode || '') + ' ' + (s.state || ''));
-    return '<li class="list-group-item list-group-item-action suburb-suggestion" data-id="' + s.id + '" data-label="' + escapeHtml(label).replace(/"/g, '&quot;') + '">' + escapeHtml(label) + '</li>';
+    const already = serviceAreaIds.includes(s.id);
+    return '<li class="list-group-item list-group-item-action suburb-suggestion d-flex justify-content-between align-items-center' + (already ? ' bg-light' : '') + '" data-id="' + s.id + '" data-label="' + escapeHtml(label).replace(/"/g, '&quot;') + '">' +
+      '<span>' + escapeHtml(label) + '</span>' +
+      (already ? '<span class="badge bg-success-subtle text-success">Added</span>' : '<span class="badge bg-primary-subtle text-primary">Add</span>') +
+      '</li>';
   }).join('');
   suburbSuggestions.style.display = (items && items.length) ? 'block' : 'none';
   suburbSuggestions.querySelectorAll('.suburb-suggestion').forEach((li) => {
@@ -121,24 +192,36 @@ document.getElementById('suburb-add-btn')?.addEventListener('click', async () =>
   showSuggestions([]);
 });
 
+// Quick add by postcode
+document.getElementById('postcode-add-btn')?.addEventListener('click', async () => {
+  const postcode = (document.getElementById('postcode-add-input')?.value || '').trim();
+  if (postcode.length < 3) return;
+  const data = await searchSuburbs(postcode);
+  let added = 0;
+  (data || []).forEach((s) => {
+    if (!serviceAreaIds.includes(s.id)) {
+      const label = s.label || (s.name + ', ' + (s.postcode || '') + ' ' + (s.state || ''));
+      serviceAreaIds.push(s.id);
+      serviceAreaLabels.push(label);
+      added++;
+    }
+  });
+  if (added > 0) renderChips();
+  const msg = document.getElementById('areas-message');
+  if (msg) {
+    msg.textContent = added > 0 ? added + ' suburb' + (added > 1 ? 's' : '') + ' added for postcode ' + postcode : 'No new suburbs found for ' + postcode;
+    msg.className = 'small ' + (added > 0 ? 'text-success' : 'text-muted');
+    setTimeout(() => { msg.textContent = ''; }, 3000);
+  }
+  document.getElementById('postcode-add-input').value = '';
+});
+
 document.getElementById('discard-areas-btn')?.addEventListener('click', () => {
   discardChanges();
 });
 
-document.getElementById('save-areas-btn')?.addEventListener('click', async () => {
-  const msg = document.getElementById('areas-message');
-  try {
-    await updateInstructorServiceAreas(serviceAreaIds);
-    initialIds = serviceAreaIds.slice();
-    initialLabels = serviceAreaLabels.slice();
-    document.getElementById('discard-areas-btn').style.display = 'none';
-    msg.textContent = 'Saved.';
-    msg.className = 'ms-3 text-success';
-  } catch (err) {
-    msg.textContent = err.response?.data?.message || 'Error saving.';
-    msg.className = 'ms-3 text-danger';
-  }
-});
+document.getElementById('save-areas-btn')?.addEventListener('click', saveChanges);
+document.getElementById('save-areas-btn-top')?.addEventListener('click', saveChanges);
 
 (async () => {
   const data = await getInstructorDashboardProfile();

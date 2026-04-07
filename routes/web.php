@@ -50,10 +50,19 @@ Route::get('/international-licence-conversions', fn () => view('frontend.pages.i
 Route::get('/refresher-lessons', fn () => view('frontend.pages.refresher-lessons'))->name('refresher-lessons');
 Route::get('/prices-and-packages', fn () => view('frontend.pages.prices-packages'))->name('prices-packages');
 Route::get('/industry-insights', fn () => view('frontend.pages.industry-insights'))->name('industry-insights');
+Route::get('/instruct-with-us', fn () => view('frontend.pages.instruct-with-us'))->name('instruct-with-us');
+Route::get('/instructor-academy', fn () => view('frontend.pages.instructor-academy'))->name('instructor-academy');
+Route::get('/gift-vouchers', fn () => view('frontend.pages.gift-vouchers'))->name('gift-vouchers');
+Route::get('/practice-test', [App\Http\Controllers\PracticeTestController::class, 'index'])->name('practice-test');
+Route::get('/practice-test/{state}', [App\Http\Controllers\PracticeTestController::class, 'state'])->name('practice-test.state');
 
 // Blog (public)
 Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
+// Calendar ICS feeds (token-authenticated, no login needed)
+Route::get('/calendar/instructor/{token}/feed.ics', [App\Http\Controllers\CalendarFeedController::class, 'instructorFeed'])->name('calendar.instructor.feed');
+Route::get('/calendar/learner/{token}/feed.ics', [App\Http\Controllers\CalendarFeedController::class, 'learnerFeed'])->name('calendar.learner.feed');
 
 Auth::routes();
 
@@ -79,9 +88,20 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Instructors management
     Route::get('/instructors', [App\Http\Controllers\Admin\InstructorsController::class, 'index'])->name('instructors.index');
+    Route::get('/instructors/{instructorProfile}', [App\Http\Controllers\Admin\InstructorsController::class, 'show'])->name('instructors.show');
     Route::patch('/instructors/{instructorProfile}/update-verification', [App\Http\Controllers\Admin\InstructorsController::class, 'updateVerification'])->name('instructors.update-verification');
     Route::patch('/instructors/{instructorProfile}/toggle-active', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleActive'])->name('instructors.toggle-active');
     Route::patch('/instructors/documents/{instructorDocument}/status', [App\Http\Controllers\Admin\InstructorsController::class, 'updateDocumentStatus'])->name('instructors.update-document-status');
+    Route::patch('/instructors/reviews/{review}/approve', [App\Http\Controllers\Admin\InstructorsController::class, 'approveReview'])->name('instructors.approve-review');
+    Route::patch('/instructors/reviews/{review}/reject', [App\Http\Controllers\Admin\InstructorsController::class, 'rejectReview'])->name('instructors.reject-review');
+    Route::delete('/instructors/reviews/{review}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteReview'])->name('instructors.delete-review');
+    Route::patch('/instructors/reviews/{review}/toggle-visibility', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleReviewVisibility'])->name('instructors.toggle-review-visibility');
+
+    // Gift Vouchers management
+    Route::get('/gift-vouchers', [App\Http\Controllers\Admin\GiftVouchersController::class, 'index'])->name('gift-vouchers.index');
+    Route::get('/gift-vouchers/create', [App\Http\Controllers\Admin\GiftVouchersController::class, 'create'])->name('gift-vouchers.create');
+    Route::post('/gift-vouchers', [App\Http\Controllers\Admin\GiftVouchersController::class, 'store'])->name('gift-vouchers.store');
+    Route::patch('/gift-vouchers/{giftVoucher}/cancel', [App\Http\Controllers\Admin\GiftVouchersController::class, 'cancel'])->name('gift-vouchers.cancel');
 
     // Bookings management
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
@@ -190,6 +210,19 @@ Route::prefix('api')->middleware('web')->group(function () {
         Route::put('bookings/{booking}/reschedule', [BookingController::class, 'reschedule'])->name('api.bookings.reschedule');
         Route::put('bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('api.bookings.cancel');
         Route::post('reviews', [ReviewController::class, 'store'])->name('api.reviews.store');
+        Route::patch('reviews/{review}/google-prompted', [ReviewController::class, 'markGooglePrompted'])->name('api.reviews.google-prompted');
+        Route::put('bookings/{booking}/complete', [BookingController::class, 'complete'])->name('api.bookings.complete');
+
+        // Gift Vouchers API
+        Route::post('gift-vouchers/purchase', [App\Http\Controllers\GiftVoucherController::class, 'purchase'])->name('api.gift-vouchers.purchase');
+        Route::post('gift-vouchers/{giftVoucher}/confirm-payment', [App\Http\Controllers\GiftVoucherController::class, 'confirmPayment'])->name('api.gift-vouchers.confirm-payment');
+        Route::post('gift-vouchers/redeem', [App\Http\Controllers\GiftVoucherController::class, 'redeem'])->name('api.gift-vouchers.redeem');
+        Route::post('gift-vouchers/check', [App\Http\Controllers\GiftVoucherController::class, 'check'])->name('api.gift-vouchers.check');
+
+        // Calendar sync
+        Route::get('calendar/subscribe-urls', [App\Http\Controllers\CalendarFeedController::class, 'generateToken'])->name('api.calendar.subscribe');
+        Route::post('calendar/regenerate-token', [App\Http\Controllers\CalendarFeedController::class, 'regenerateToken'])->name('api.calendar.regenerate');
+        Route::get('bookings/{booking}/download-ics', [App\Http\Controllers\CalendarFeedController::class, 'downloadBooking'])->name('api.bookings.download-ics');
 
         Route::middleware('role:learner')->prefix('learner')->name('api.learner.')->group(function () {
             Route::get('dashboard', [App\Http\Controllers\Learner\DashboardController::class, 'index'])->name('dashboard');

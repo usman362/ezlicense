@@ -14,9 +14,11 @@ class InstructorProfileController extends Controller
     public function show(InstructorProfile $instructorProfile): JsonResponse
     {
         $instructorProfile->load(['user', 'serviceAreas.state', 'availabilitySlots']);
-        $instructorProfile->loadCount('reviews');
+        // Only count approved, visible reviews for public display
+        $instructorProfile->loadCount(['reviews' => fn ($q) => $q->public()]);
 
         $reviews = $instructorProfile->reviews()
+            ->public()
             ->with('learner:id,name')
             ->latest()
             ->limit(10)

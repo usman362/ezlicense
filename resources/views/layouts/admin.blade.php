@@ -61,6 +61,9 @@
                 <a class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}" href="{{ route('admin.blog.index') }}">
                     <i class="bi bi-journal-richtext"></i> Blog
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.gift-vouchers*') ? 'active' : '' }}" href="{{ route('admin.gift-vouchers.index') }}">
+                    <i class="bi bi-gift"></i> Gift Vouchers
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
                     <i class="bi bi-gear"></i> Settings
                 </a>

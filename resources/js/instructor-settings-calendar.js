@@ -107,3 +107,58 @@ document.getElementById('save-calendar-btn')?.addEventListener('click', async ()
 });
 
 load();
+
+// Calendar sync section
+(async function loadCalendarUrls() {
+    try {
+        const resp = await fetch('/api/calendar/subscribe-urls', {
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        const appleBtn = document.getElementById('apple-cal-btn');
+        const googleBtn = document.getElementById('google-cal-btn');
+        const feedUrl = document.getElementById('calendar-feed-url');
+
+        if (appleBtn) appleBtn.href = data.webcal_url || '#';
+        if (googleBtn) googleBtn.href = data.google_url || '#';
+        if (feedUrl) feedUrl.textContent = data.https_url || 'Not available';
+    } catch (e) {
+        console.log('Calendar sync not loaded:', e);
+    }
+})();
+
+document.getElementById('copy-cal-url-btn')?.addEventListener('click', function() {
+    const url = document.getElementById('calendar-feed-url')?.textContent;
+    if (url && url !== 'Loading...' && url !== 'Not available') {
+        navigator.clipboard.writeText(url).then(() => {
+            this.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
+            setTimeout(() => { this.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy URL'; }, 2000);
+        });
+    }
+});
+
+document.getElementById('regenerate-cal-btn')?.addEventListener('click', async function() {
+    if (!confirm('Regenerating will invalidate any previously subscribed calendars. Continue?')) return;
+    try {
+        const resp = await fetch('/api/calendar/regenerate-token', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        const appleBtn = document.getElementById('apple-cal-btn');
+        const googleBtn = document.getElementById('google-cal-btn');
+        const feedUrl = document.getElementById('calendar-feed-url');
+
+        if (appleBtn) appleBtn.href = data.webcal_url || '#';
+        if (googleBtn) googleBtn.href = data.google_url || '#';
+        if (feedUrl) feedUrl.textContent = data.https_url || 'Not available';
+
+        alert('Calendar URL regenerated. You will need to re-subscribe on your devices.');
+    } catch (e) {
+        alert('Error regenerating URL.');
+    }
+});

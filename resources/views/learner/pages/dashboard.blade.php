@@ -88,6 +88,32 @@
     </div>
 </div>
 
+{{-- Calendar Sync Card --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h6 class="fw-bold mb-2"><i class="bi bi-phone me-2"></i>Sync with your phone</h6>
+        <p class="text-muted small mb-3">Subscribe to your booking calendar on your phone. New bookings, reschedules, and cancellations will automatically appear in your phone's calendar app.</p>
+
+        <div id="learner-calendar-sync-section">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="#" id="learner-apple-cal-btn" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="bi bi-apple me-1"></i>Apple Calendar
+                </a>
+                <a href="#" id="learner-google-cal-btn" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="bi bi-google me-1"></i>Google Calendar
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" id="learner-copy-cal-url-btn">
+                    <i class="bi bi-clipboard me-1"></i>Copy URL
+                </button>
+            </div>
+
+            <div class="bg-light rounded p-2 mb-3">
+                <code class="small text-break" id="learner-calendar-feed-url">Loading...</code>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Bookings --}}
 <div class="card border-0 shadow-sm">
     <div class="card-body">
@@ -356,6 +382,37 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
       });
   }
   document.getElementById('tab-history').addEventListener('shown.bs.tab', function() { loadHistory(1); });
+
+  // Calendar sync section for learner
+  (async function loadLearnerCalendarUrls() {
+    try {
+      const resp = await fetch('/api/calendar/subscribe-urls', {
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '' }
+      });
+      if (!resp.ok) return;
+      const data = await resp.json();
+
+      const appleBtn = document.getElementById('learner-apple-cal-btn');
+      const googleBtn = document.getElementById('learner-google-cal-btn');
+      const feedUrl = document.getElementById('learner-calendar-feed-url');
+
+      if (appleBtn) appleBtn.href = data.webcal_url || '#';
+      if (googleBtn) googleBtn.href = data.google_url || '#';
+      if (feedUrl) feedUrl.textContent = data.https_url || 'Not available';
+    } catch (e) {
+      console.log('Learner calendar sync not loaded:', e);
+    }
+  })();
+
+  document.getElementById('learner-copy-cal-url-btn')?.addEventListener('click', function() {
+    const url = document.getElementById('learner-calendar-feed-url')?.textContent;
+    if (url && url !== 'Loading...' && url !== 'Not available') {
+      navigator.clipboard.writeText(url).then(() => {
+        this.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
+        setTimeout(() => { this.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy URL'; }, 2000);
+      });
+    }
+  });
 })();
 </script>
 @endpush
