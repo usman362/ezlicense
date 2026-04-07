@@ -87,6 +87,14 @@
                     <i class="bi bi-wallet2"></i>
                     <span>Wallet</span>
                 </a>
+                <a class="nav-link {{ request()->routeIs('service-bookings.*') ? 'active' : '' }}" href="{{ route('service-bookings.index') }}">
+                    <i class="bi bi-tools"></i>
+                    <span>My Service Bookings</span>
+                </a>
+                <a class="nav-link" href="{{ route('services.categories') }}">
+                    <i class="bi bi-search"></i>
+                    <span>Find Services</span>
+                </a>
                 <div class="nav-divider"></div>
                 <a class="nav-link" href="#">
                     <i class="bi bi-gift"></i>

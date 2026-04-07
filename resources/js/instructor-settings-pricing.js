@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorProfile } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorProfile } from './securelicence-api.js';
 
 let profileData = null;
 
@@ -30,9 +30,9 @@ function renderPrices() {
   const tp = profileData.test_package_price ?? 0;
   const tpp = profileData.test_package_price_private ?? tp;
 
-  document.getElementById('lesson-ezlicence-display').textContent = formatPrice(lp);
+  document.getElementById('lesson-securelicences-display').textContent = formatPrice(lp);
   document.getElementById('lesson-private-display').textContent = formatPrice(lpp);
-  document.getElementById('test-ezlicence-display').textContent = formatPrice(tp);
+  document.getElementById('test-securelicences-display').textContent = formatPrice(tp);
   document.getElementById('test-private-display').textContent = formatPrice(tpp);
 }
 
@@ -68,14 +68,14 @@ async function load() {
   document.getElementById('pricing-content').style.display = 'block';
   renderPrices();
 
-  document.querySelector('.lesson-ezlicence-edit').addEventListener('click', () => {
-    showEdit('lesson-ezlicence-display', 'lesson-ezlicence-edit-wrap', 'lesson-ezlicence-input', profileData.lesson_price);
+  document.querySelector('.lesson-securelicences-edit').addEventListener('click', () => {
+    showEdit('lesson-securelicences-display', 'lesson-securelicences-edit-wrap', 'lesson-securelicences-input', profileData.lesson_price);
   });
-  document.querySelector('.lesson-ezlicence-save').addEventListener('click', () => {
-    savePrice('lesson_price', document.getElementById('lesson-ezlicence-input').value, 'lesson-ezlicence-display', 'lesson-ezlicence-edit-wrap', 'lesson-ezlicence-input');
+  document.querySelector('.lesson-securelicences-save').addEventListener('click', () => {
+    savePrice('lesson_price', document.getElementById('lesson-securelicences-input').value, 'lesson-securelicences-display', 'lesson-securelicences-edit-wrap', 'lesson-securelicences-input');
   });
-  document.querySelector('.lesson-ezlicence-cancel').addEventListener('click', () => {
-    hideEdit('lesson-ezlicence-display', 'lesson-ezlicence-edit-wrap');
+  document.querySelector('.lesson-securelicences-cancel').addEventListener('click', () => {
+    hideEdit('lesson-securelicences-display', 'lesson-securelicences-edit-wrap');
   });
 
   document.querySelector('.lesson-private-edit').addEventListener('click', () => {
@@ -88,14 +88,14 @@ async function load() {
     hideEdit('lesson-private-display', 'lesson-private-edit-wrap');
   });
 
-  document.querySelector('.test-ezlicence-edit').addEventListener('click', () => {
-    showEdit('test-ezlicence-display', 'test-ezlicence-edit-wrap', 'test-ezlicence-input', profileData.test_package_price);
+  document.querySelector('.test-securelicences-edit').addEventListener('click', () => {
+    showEdit('test-securelicences-display', 'test-securelicences-edit-wrap', 'test-securelicences-input', profileData.test_package_price);
   });
-  document.querySelector('.test-ezlicence-save').addEventListener('click', () => {
-    savePrice('test_package_price', document.getElementById('test-ezlicence-input').value, 'test-ezlicence-display', 'test-ezlicence-edit-wrap', 'test-ezlicence-input');
+  document.querySelector('.test-securelicences-save').addEventListener('click', () => {
+    savePrice('test_package_price', document.getElementById('test-securelicences-input').value, 'test-securelicences-display', 'test-securelicences-edit-wrap', 'test-securelicences-input');
   });
-  document.querySelector('.test-ezlicence-cancel').addEventListener('click', () => {
-    hideEdit('test-ezlicence-display', 'test-ezlicence-edit-wrap');
+  document.querySelector('.test-securelicences-cancel').addEventListener('click', () => {
+    hideEdit('test-securelicences-display', 'test-securelicences-edit-wrap');
   });
 
   document.querySelector('.test-private-edit').addEventListener('click', () => {

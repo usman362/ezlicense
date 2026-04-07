@@ -1,12 +1,12 @@
 import './bootstrap';
 
-// EzLicence-style API and search (use from your pages or components)
-export { default as api } from './ezlicense-api.js';
+// SecureLicence-style API and search (use from your pages or components)
+export { default as api } from './securelicence-api.js';
 export {
   initSuburbAutocomplete,
   runInstructorSearch,
   loadAvailabilityForInstructor,
-} from './ezlicense-search.js';
+} from './securelicence-search.js';
 export {
   searchSuburbs,
   searchInstructors,
@@ -23,4 +23,4 @@ export {
   updateInstructorProfile,
   updateInstructorServiceAreas,
   updateInstructorAvailability,
-} from './ezlicense-api.js';
+} from './securelicence-api.js';

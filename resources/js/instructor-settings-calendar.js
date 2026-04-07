@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorCalendarSettings } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorCalendarSettings } from './securelicence-api.js';
 
 let initialData = null;
 

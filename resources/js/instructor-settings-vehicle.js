@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorProfile, uploadInstructorVehiclePhoto } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorProfile, uploadInstructorVehiclePhoto } from './securelicence-api.js';
 import { getMakes, getModelsForMake } from './vehicle-makes-models.js';
 
 let profileData = null;

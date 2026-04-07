@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorAvailability } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorAvailability } from './securelicence-api.js';
 
 // Display order: Monday (1) ... Sunday (0) to match backend day_of_week 0-6
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];

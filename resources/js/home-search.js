@@ -1,7 +1,7 @@
 /**
  * Homepage search: suburb autocomplete + form submission to find-instructor results.
  */
-import { initSuburbAutocomplete } from './ezlicense-search.js';
+import { initSuburbAutocomplete } from './securelicence-search.js';
 
 function init() {
   const suburbInput = document.getElementById('home-suburb-input');

@@ -47,6 +47,10 @@
                     <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licences</a>
                     <span class="divider">|</span>
                     <a href="{{ route('instructor-academy') }}">Secure Licences Instructor Academy</a>
+                    <span class="divider">|</span>
+                    <a href="{{ route('services.categories') }}">Find Services</a>
+                    <span class="divider">|</span>
+                    <a href="{{ route('services.become-provider') }}">Become a Provider</a>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -100,6 +104,18 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('prices-packages') }}">Prices &amp; Packages</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navServices" role="button" data-bs-toggle="dropdown" aria-expanded="false">Home Services</a>
+                            <ul class="dropdown-menu" aria-labelledby="navServices">
+                                <li><a class="dropdown-item" href="{{ route('services.categories') }}">Browse all categories</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                @foreach(\App\Models\ServiceCategory::active()->orderBy('display_order')->orderBy('name')->limit(8)->get() as $navCat)
+                                    <li><a class="dropdown-item" href="{{ route('services.browse', $navCat->slug) }}">{{ $navCat->name }}</a></li>
+                                @endforeach
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item fw-semibold text-success" href="{{ route('services.become-provider') }}">Become a Provider →</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navResources" role="button" data-bs-toggle="dropdown" aria-expanded="false">Free Learner Resources</a>
@@ -189,6 +205,15 @@
                         <li><a href="{{ route('gift-vouchers') }}" class="text-decoration-none" style="color:#555;">Gift Vouchers</a></li>
                         <li><a href="{{ route('refresher-lessons') }}" class="text-decoration-none" style="color:#555;">Refresher Driving Lessons</a></li>
                         <li><a href="{{ route('international-licence') }}" class="text-decoration-none" style="color:#555;">International Licence Conversions</a></li>
+                    </ul>
+
+                    <h6 class="fw-bold mt-4 mb-3" style="color: var(--ez-dark);">Home Services</h6>
+                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
+                        <li><a href="{{ route('services.categories') }}" class="text-decoration-none" style="color:#555;">Browse all services</a></li>
+                        @foreach(\App\Models\ServiceCategory::active()->orderBy('display_order')->orderBy('name')->limit(6)->get() as $footerCat)
+                            <li><a href="{{ route('services.browse', $footerCat->slug) }}" class="text-decoration-none" style="color:#555;">{{ $footerCat->name }}s</a></li>
+                        @endforeach
+                        <li><a href="{{ route('services.become-provider') }}" class="text-decoration-none fw-semibold" style="color:#198754;">Become a Provider →</a></li>
                     </ul>
                 </div>
             </div>

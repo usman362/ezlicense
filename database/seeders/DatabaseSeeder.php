@@ -21,11 +21,12 @@ class DatabaseSeeder extends Seeder
             SiteSettingsSeeder::class,
             DemoInstructorSeeder::class,
             DemoLearnerSeeder::class,
+            ServiceCategorySeeder::class,
         ]);
 
         // Admin user
         User::firstOrCreate(
-            ['email' => 'admin@ezlicence.com.au'],
+            ['email' => 'admin@securelicence.com'],
             [
                 'name' => 'Admin',
                 'first_name' => 'Site',

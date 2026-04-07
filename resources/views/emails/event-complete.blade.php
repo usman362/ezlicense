@@ -128,7 +128,7 @@
                             <tr>
                                 <td style="padding: 16px;">
                                     <p style="font-size: 15px; font-weight: 700; color: #333333; margin: 0 0 8px;">Benefits of remaining on the platform</p>
-                                    <p style="font-size: 13px; color: #666666; margin: 0 0 12px;">Booking through EzLicence ensures you receive a consistent, high-quality lesson experience.</p>
+                                    <p style="font-size: 13px; color: #666666; margin: 0 0 12px;">Booking through SecureLicences ensures you receive a consistent, high-quality lesson experience.</p>
                                     <table role="presentation" cellpadding="0" cellspacing="0">
                                         <tr>
                                             <td style="padding: 3px 0; font-size: 13px; color: #555555;">
@@ -204,7 +204,7 @@
                             </tr>
                             <tr>
                                 <td colspan="2" style="padding-top: 12px; font-size: 11px; color: #999999;">
-                                    &copy; Copyright &copy; {{ date('Y') }} EzLicence Pty Ltd. All rights reserved.
+                                    &copy; Copyright &copy; {{ date('Y') }} SecureLicences Pty Ltd. All rights reserved.
                                 </td>
                             </tr>
                         </table>

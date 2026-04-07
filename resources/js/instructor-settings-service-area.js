@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorServiceAreas, searchSuburbs } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorServiceAreas, searchSuburbs } from './securelicence-api.js';
 
 let serviceAreaIds = [];
 let serviceAreaLabels = [];

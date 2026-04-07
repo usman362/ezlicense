@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Add missing Sydney suburbs that were identified from client demo.
-     * These suburbs exist on the EzLicence platform but were missing from our seed data.
+     * These suburbs exist on the SecureLicences platform but were missing from our seed data.
      */
     public function up(): void
     {

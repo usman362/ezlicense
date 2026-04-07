@@ -8,7 +8,7 @@ import {
   searchInstructors,
   getAvailabilityDates,
   getAvailabilitySlots,
-} from './ezlicense-api.js';
+} from './securelicence-api.js';
 
 function debounce(fn, ms) {
   let t;

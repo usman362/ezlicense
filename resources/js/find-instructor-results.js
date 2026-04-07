@@ -4,7 +4,7 @@
 import {
   runInstructorSearch,
   loadAvailabilityForInstructor,
-} from './ezlicense-search.js';
+} from './securelicence-search.js';
 
 const params = window.findInstructorResultsParams || {};
 const isLearner = !!window.isLearner;

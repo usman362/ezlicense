@@ -1,5 +1,5 @@
 /**
- * EzLicence-style API client for same-origin requests (session auth).
+ * SecureLicence-style API client for same-origin requests (session auth).
  * All routes are under /api and use GET/POST/PUT with CSRF token for mutations.
  */
 

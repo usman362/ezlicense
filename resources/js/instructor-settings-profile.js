@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorProfile, uploadInstructorProfilePhoto } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorProfile, uploadInstructorProfilePhoto } from './securelicence-api.js';
 
 let profileLanguages = [];
 

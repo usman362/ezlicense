@@ -251,3 +251,44 @@ Route::prefix('api')->middleware('web')->group(function () {
         });
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Service Provider Marketplace (Plumber, Electrician, etc.)
+|--------------------------------------------------------------------------
+*/
+
+// Public browse
+Route::get('/become-a-provider', [App\Http\Controllers\ServiceController::class, 'becomeProvider'])->name('services.become-provider');
+Route::get('/services', [App\Http\Controllers\ServiceController::class, 'categories'])->name('services.categories');
+Route::get('/services/{slug}', [App\Http\Controllers\ServiceController::class, 'browse'])->name('services.browse');
+Route::get('/services/{slug}/{provider}', [App\Http\Controllers\ServiceController::class, 'show'])->name('services.show');
+
+// Customer bookings (auth required)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/services/{provider}/book', [App\Http\Controllers\ServiceBookingController::class, 'create'])->name('service-bookings.create');
+    Route::post('/services/{provider}/book', [App\Http\Controllers\ServiceBookingController::class, 'store'])->name('service-bookings.store');
+    Route::get('/my-service-bookings', [App\Http\Controllers\ServiceBookingController::class, 'index'])->name('service-bookings.index');
+    Route::get('/service-bookings/{serviceBooking}', [App\Http\Controllers\ServiceBookingController::class, 'show'])->name('service-bookings.show');
+});
+
+// Service provider dashboard
+Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.')->group(function () {
+    Route::get('/onboarding', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'onboardingCreate'])->name('onboarding.create');
+    Route::post('/onboarding', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'onboardingStore'])->name('onboarding.store');
+    Route::get('/dashboard', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/availability', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'index'])->name('availability.index');
+    Route::post('/availability/slots', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'storeSlot'])->name('availability.slots.store');
+    Route::delete('/availability/slots/{slot}', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'destroySlot'])->name('availability.slots.destroy');
+});
+
+// Admin
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('service-categories', App\Http\Controllers\Admin\ServiceCategoryController::class)->except(['show']);
+    Route::get('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'index'])->name('service-providers.index');
+    Route::get('service-providers/create', [App\Http\Controllers\Admin\ServiceProviderController::class, 'create'])->name('service-providers.create');
+    Route::post('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'store'])->name('service-providers.store');
+    Route::get('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'show'])->name('service-providers.show');
+    Route::post('service-providers/{serviceProvider}/approve', [App\Http\Controllers\Admin\ServiceProviderController::class, 'approve'])->name('service-providers.approve');
+    Route::post('service-providers/{serviceProvider}/reject', [App\Http\Controllers\Admin\ServiceProviderController::class, 'reject'])->name('service-providers.reject');
+});

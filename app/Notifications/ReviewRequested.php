@@ -33,7 +33,7 @@ class ReviewRequested extends Notification
         $b = $this->booking;
         $b->loadMissing(['instructor', 'suburb.state']);
 
-        $siteName = SiteSetting::get('site_name', 'EzLicence');
+        $siteName = SiteSetting::get('site_name', 'SecureLicences');
         $instructorName = $b->instructor->name ?? 'your instructor';
 
         // Format lesson details
@@ -72,8 +72,8 @@ class ReviewRequested extends Notification
         $findInstructorUrl = $baseUrl . '/find-instructor';
         $supportUrl = $baseUrl . '/contact';
         $websiteUrl = $baseUrl;
-        $facebookUrl = SiteSetting::get('facebook_url', 'https://www.facebook.com/EzLicence');
-        $instagramUrl = SiteSetting::get('instagram_url', 'https://www.instagram.com/ezlicence');
+        $facebookUrl = SiteSetting::get('facebook_url', 'https://www.facebook.com/SecureLicences');
+        $instagramUrl = SiteSetting::get('instagram_url', 'https://www.instagram.com/securelicences');
 
         return (new MailMessage)
             ->subject('How was your booking?')

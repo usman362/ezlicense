@@ -1,4 +1,4 @@
-import { getInstructorDashboardProfile, updateInstructorBanking } from './ezlicense-api.js';
+import { getInstructorDashboardProfile, updateInstructorBanking } from './securelicence-api.js';
 
 let profileData = null;
 

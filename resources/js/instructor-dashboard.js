@@ -8,7 +8,7 @@ import api, {
   updateInstructorAvailability,
   getBookings,
   searchSuburbs,
-} from './ezlicense-api.js';
+} from './securelicence-api.js';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
