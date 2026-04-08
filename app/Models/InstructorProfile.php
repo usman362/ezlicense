@@ -126,6 +126,56 @@ class InstructorProfile extends Model
         return $this->hasMany(Review::class, 'instructor_id', 'user_id');
     }
 
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(InstructorBlock::class)->orderByDesc('started_at');
+    }
+
+    public function warnings(): HasMany
+    {
+        return $this->hasMany(InstructorWarning::class)->orderByDesc('created_at');
+    }
+
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(InstructorComplaint::class)->orderByDesc('created_at');
+    }
+
+    public function adminNotes(): HasMany
+    {
+        return $this->hasMany(InstructorAdminNote::class)
+            ->orderByDesc('pinned')
+            ->orderByDesc('created_at');
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(InstructorAuditLog::class)->orderByDesc('created_at');
+    }
+
+    public function correspondences(): HasMany
+    {
+        return $this->hasMany(InstructorCorrespondence::class)->orderByDesc('communicated_at');
+    }
+
+    /**
+     * The currently-active block, if any.
+     */
+    public function currentBlock(): ?InstructorBlock
+    {
+        return $this->blocks()
+            ->whereNull('lifted_at')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->first();
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->currentBlock() !== null;
+    }
+
     /**
      * Average rating from approved, visible reviews only.
      */

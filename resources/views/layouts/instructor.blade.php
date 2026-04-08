@@ -6,71 +6,121 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Instructor') – {{ config('app.name') }}</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
+        body { background: var(--sl-gray-50); }
         .instructor-wrapper { display: flex; min-height: 100vh; }
         .instructor-sidebar {
             width: 260px;
             min-width: 260px;
             background: #fff;
-            border-right: 1px solid #eee;
+            border-right: 1px solid var(--sl-gray-200);
             position: relative;
             flex-shrink: 0;
-        }
-        .instructor-sidebar::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: #f0ad4e;
+            box-shadow: var(--sl-shadow-xs);
         }
         .instructor-sidebar .logo {
-            padding: 1.25rem 1.5rem;
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #333;
-            border-bottom: 1px solid #eee;
+            padding: 1.5rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--sl-gray-900);
+            border-bottom: 1px solid var(--sl-gray-200);
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
         }
-        .instructor-sidebar .logo i { color: #f0ad4e; }
-        .instructor-sidebar .nav { padding: 0.75rem 0; }
+        .instructor-sidebar .logo .ez-l {
+            width: 30px; height: 30px;
+            background: var(--sl-accent-500);
+            color: var(--sl-gray-900);
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+            font-size: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+        }
+        .instructor-sidebar .nav { padding: 1rem 0.75rem; }
         .instructor-sidebar .nav-link {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.6rem 1.5rem;
-            color: #333;
+            padding: 0.7rem 0.875rem;
+            color: var(--sl-gray-700);
             text-decoration: none;
-            font-size: 0.95rem;
-            border-left: 3px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--sl-radius);
+            margin-bottom: 2px;
+            transition: all var(--sl-transition);
         }
-        .instructor-sidebar .nav-link:hover { background: #f8f9fa; color: #333; }
-        .instructor-sidebar .nav-link.active { background: #f0f0f0; border-left-color: #f0ad4e; font-weight: 500; }
-        .instructor-sidebar .nav-link i { font-size: 1.1rem; width: 1.25rem; text-align: center; }
-        .instructor-sidebar .nav-link .caret { margin-left: auto; font-size: 0.7rem; transition: transform 0.2s; }
+        .instructor-sidebar .nav-link:hover {
+            background: var(--sl-primary-50);
+            color: var(--sl-primary-700);
+        }
+        .instructor-sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--sl-primary-600), var(--sl-primary-700));
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+        }
+        .instructor-sidebar .nav-link i {
+            font-size: 1.1rem;
+            width: 1.25rem;
+            text-align: center;
+        }
+        .instructor-sidebar .nav-link .caret {
+            margin-left: auto;
+            font-size: 0.7rem;
+            transition: transform var(--sl-transition);
+        }
         .instructor-sidebar .nav-link[aria-expanded="true"] .caret { transform: rotate(180deg); }
-        .instructor-sidebar .submenu { list-style: none; padding: 0; margin: 0; }
-        .instructor-sidebar .submenu .nav-link { padding-left: 2.5rem; font-size: 0.9rem; }
+        .instructor-sidebar .submenu {
+            list-style: none;
+            padding: 0;
+            margin: 0.25rem 0 0.25rem 0.5rem;
+            border-left: 2px solid var(--sl-gray-200);
+        }
+        .instructor-sidebar .submenu .nav-link {
+            padding-left: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--sl-gray-600);
+        }
+        .instructor-sidebar .submenu .nav-link.active {
+            background: var(--sl-primary-50);
+            color: var(--sl-primary-700);
+            box-shadow: none;
+        }
         .instructor-main {
             flex: 1;
             overflow: auto;
-            background: #f5f5f5;
+            background: var(--sl-gray-50);
         }
         .instructor-main .topbar {
             background: #fff;
-            padding: 0.75rem 1.5rem;
-            border-bottom: 1px solid #eee;
+            padding: 0.875rem 1.75rem;
+            border-bottom: 1px solid var(--sl-gray-200);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--sl-shadow-xs);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .instructor-main .content { padding: 1.5rem; }
+        .instructor-main .topbar h5 {
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--sl-gray-900);
+        }
+        .instructor-main .content { padding: 2rem 1.75rem; }
         @media (max-width: 991.98px) {
             .instructor-sidebar { width: 72px; min-width: 72px; }
-            .instructor-sidebar .logo span:not(.logo-icon),
+            .instructor-sidebar .logo span:not(.ez-l),
             .instructor-sidebar .nav-link span:not(.nav-icon),
             .instructor-sidebar .submenu,
             .instructor-sidebar .nav-link .caret { display: none !important; }

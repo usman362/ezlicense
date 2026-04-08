@@ -58,7 +58,7 @@
                         <tr>
                             <td class="small text-muted">{{ $user->id }}</td>
                             <td>
-                                <div class="fw-semibold small">{{ $user->name }}</div>
+                                <a href="{{ route('admin.users.show', $user) }}" class="fw-semibold small text-decoration-none">{{ $user->name }}</a>
                                 <div class="text-muted small">{{ $user->email }}</div>
                             </td>
                             <td class="small">{{ $user->phone ?? '—' }}</td>
@@ -76,9 +76,9 @@
                             <td class="small text-muted">{{ $user->created_at->format('d M Y') }}</td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#userModal{{ $user->id }}" title="View">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-primary btn-sm" title="Open profile">
+                                        <i class="bi bi-person-badge"></i>
+                                    </a>
                                     @if($user->is_active)
                                         <button class="btn btn-outline-warning btn-sm deactivate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Deactivate">
                                             <i class="bi bi-person-slash"></i>

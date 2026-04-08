@@ -140,11 +140,31 @@ class DashboardController extends Controller
                 ];
             });
 
+        // KPI stats
+        $completedCount = Booking::where('learner_id', $user->id)
+            ->where('status', Booking::STATUS_COMPLETED)
+            ->count();
+        $upcomingCount = Booking::where('learner_id', $user->id)
+            ->whereIn('status', [Booking::STATUS_CONFIRMED, Booking::STATUS_PROPOSED])
+            ->where('scheduled_at', '>', $now)
+            ->count();
+        $totalMinutes = (int) Booking::where('learner_id', $user->id)
+            ->where('status', Booking::STATUS_COMPLETED)
+            ->sum('duration_minutes');
+        $totalHours = round($totalMinutes / 60, 1);
+
+        $stats = [
+            'upcoming_count'  => $upcomingCount,
+            'completed_count' => $completedCount,
+            'total_hours'     => $totalHours,
+        ];
+
         return response()->json([
             'data' => [
-                'my_instructor' => $myInstructor,
-                'wallet' => $walletSummary,
+                'my_instructor'     => $myInstructor,
+                'wallet'            => $walletSummary,
                 'upcoming_bookings' => $upcomingBookings,
+                'stats'             => $stats,
             ],
         ]);
     }

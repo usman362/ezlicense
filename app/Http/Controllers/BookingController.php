@@ -58,7 +58,7 @@ class BookingController extends Controller
             $query->orderBy('scheduled_at', 'desc');
         }
 
-        $bookings = $query->with(['learner:id,name,email,phone', 'instructor:id,name,email,phone', 'suburb.state'])
+        $bookings = $query->with(['learner:id,name,email,phone', 'instructor:id,name,email,phone', 'suburb.state', 'review'])
             ->paginate(20);
 
         $items = $bookings->getCollection()->map(fn (Booking $b) => $this->formatBooking($b));

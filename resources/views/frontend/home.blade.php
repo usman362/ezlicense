@@ -4,32 +4,47 @@
 
 @section('content')
 {{-- Hero: Discover Top Driving Instructors + Search --}}
-<section class="ez-hero position-relative overflow-hidden" style="background: linear-gradient(rgba(27,33,44,0.75), rgba(27,33,44,0.8)), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80') center/cover no-repeat; min-height: 420px;">
-    <div class="container position-relative py-5">
-        <div class="text-center mb-4 pt-3">
-            <h1 class="display-4 fw-bold text-white mb-3">Find the Best Driving Instructors Near You</h1>
-            <p class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-0">
-                <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20" style="border-radius:50%;">
-                <span class="text-white fw-bold">Rated 4.9</span>
-                <span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
-                <span class="text-white-50">(10,000+)</span>
+<section class="ez-hero position-relative overflow-hidden"
+         style="background-image: linear-gradient(135deg, rgba(17,24,39,0.88) 0%, rgba(30,58,138,0.82) 100%), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80'); background-size: cover; background-position: center; min-height: 560px;">
+    {{-- Decorative glow --}}
+    <div class="position-absolute" style="top:-120px; right:-120px; width:420px; height:420px; background: radial-gradient(circle, rgba(245,158,11,0.22) 0%, transparent 70%); pointer-events:none;"></div>
+    <div class="position-absolute" style="bottom:-140px; left:-100px; width:380px; height:380px; background: radial-gradient(circle, rgba(59,130,246,0.25) 0%, transparent 70%); pointer-events:none;"></div>
+
+    <div class="container position-relative" style="padding-top:5rem; padding-bottom:6rem;">
+        <div class="text-center mb-5 animate-fade-in-up">
+            <span class="badge px-3 py-2 mb-3" style="background: rgba(245,158,11,0.15); color: var(--sl-accent-400); border: 1px solid rgba(245,158,11,0.3); font-size: var(--sl-text-xs); letter-spacing: 0.08em; text-transform: uppercase;">
+                <i class="bi bi-star-fill me-1"></i>Australia's #1 Platform
+            </span>
+            <h1 class="display-3 fw-bolder text-white mb-3" style="letter-spacing:-0.035em;">
+                Find the Best <span style="color: var(--sl-accent-400);">Driving Instructors</span><br class="d-none d-lg-block">
+                Near You
+            </h1>
+            <p class="text-white-50 mb-4" style="font-size:1.15rem; max-width:620px; margin:0 auto;">
+                Compare verified instructors, read real reviews, and book online in under 60 seconds.
             </p>
+            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20" style="border-radius:50%;">
+                <span class="text-white fw-bold">4.9</span>
+                <span style="color: var(--sl-accent-400);"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
+                <span class="text-white-50">based on <strong class="text-white">10,000+</strong> reviews</span>
+            </div>
         </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card shadow border-0 rounded-3" style="overflow:visible;">
-                    <div class="card-body p-4" style="overflow:visible;">
+
+        <div class="row justify-content-center animate-fade-in-up animate-delay-200">
+            <div class="col-lg-11 col-xl-10">
+                <div class="card border-0" style="overflow:visible; border-radius: var(--sl-radius-xl); box-shadow: var(--sl-shadow-2xl);">
+                    <div class="card-body p-4 p-lg-5" style="overflow:visible;">
                         <form action="{{ route('find-instructor.results') }}" method="get" id="home-search-form" class="row g-3 align-items-end">
                             <input type="hidden" name="suburb_id" id="home-suburb-id" value="">
                             <input type="hidden" name="q" id="home-q" value="">
-                            <div class="col-md-3">
-                                <label class="form-label fw-semibold">Pick-up Location <span class="text-danger">*</span></label>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><i class="bi bi-geo-alt-fill me-1 text-primary"></i>Pick-up Location <span class="text-danger">*</span></label>
                                 <div class="position-relative">
-                                    <input type="text" class="form-control form-control-lg" id="home-suburb-input" placeholder="Enter your suburb" autocomplete="off" data-list-id="home-suburb-list">
+                                    <input type="text" class="form-control form-control-lg" id="home-suburb-input" placeholder="e.g. Parramatta, Sydney" autocomplete="off" data-list-id="home-suburb-list">
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold">Transmission <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold"><i class="bi bi-gear-fill me-1 text-primary"></i>Transmission <span class="text-danger">*</span></label>
                                 <select name="transmission" class="form-select form-select-lg">
                                     <option value="">Any</option>
                                     <option value="auto">Auto</option>
@@ -37,13 +52,21 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold">Test pre-booked?</label>
+                                <label class="form-label fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>Test date (optional)</label>
                                 <input type="date" name="test_date" class="form-control form-control-lg">
                             </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-lg w-100 fw-bold" style="background: var(--ez-accent); color: #333; height: 48px;"><i class="bi bi-search me-1"></i> Search</button>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold" style="height: 52px;">
+                                    <i class="bi bi-search me-1"></i>Search
+                                </button>
                             </div>
                         </form>
+                        <div class="d-flex flex-wrap gap-3 mt-4 pt-3 border-top" style="font-size: var(--sl-text-sm); color: var(--sl-gray-500);">
+                            <span><i class="bi bi-shield-check-fill me-1 text-success"></i>Verified instructors</span>
+                            <span><i class="bi bi-lightning-charge-fill me-1 text-primary"></i>Instant booking</span>
+                            <span><i class="bi bi-cash-coin me-1 text-success"></i>Pay online</span>
+                            <span><i class="bi bi-star-fill me-1 text-warning"></i>Real reviews</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,92 +74,145 @@
     </div>
 </section>
 
-{{-- We are Australia's #1 --}}
-<section class="py-5 bg-white">
+{{-- Why choose Secure Licences --}}
+<section class="section bg-white position-relative">
     <div class="container">
-        <h2 class="text-center fw-bold mb-5" style="color: var(--ez-dark);">We are Australia's #1 booking platform for driving lessons</h2>
-        <div class="row g-4 text-center">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary-dark px-3 py-2 mb-2" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Why Choose Us</span>
+            <h2 class="display-5 fw-bolder mb-2">Built for learners. Trusted by thousands.</h2>
+            <p class="text-muted mb-0" style="font-size: 1.1rem;">Everything you need to pass your test with confidence.</p>
+        </div>
+        <div class="row g-4">
             <div class="col-6 col-md-4 col-lg-2">
-                <span class="display-5 fw-bold text-warning d-block">100k+</span>
-                <p class="small text-muted mb-0">Learners trusted us to get them road-ready</p>
+                <div class="card card-hover h-100 border-0 text-center p-3">
+                    <div class="icon-bubble mx-auto mb-3"><i class="bi bi-people-fill"></i></div>
+                    <div class="display-6 fw-bolder gradient-text mb-1">100k+</div>
+                    <p class="small text-muted mb-0">Learners passed with us</p>
+                </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <i class="bi bi-clock" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
-                <p class="small text-muted mt-2 mb-0">Book lessons 24/7 online in real time</p>
+                <div class="card card-hover h-100 border-0 text-center p-3">
+                    <div class="icon-bubble icon-bubble-accent mx-auto mb-3"><i class="bi bi-clock-fill"></i></div>
+                    <h6 class="fw-bold mb-1">24/7 Booking</h6>
+                    <p class="small text-muted mb-0">Real-time availability</p>
+                </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <i class="bi bi-shield-check" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
-                <p class="small text-muted mt-2 mb-0">Have a valid Working with Children Check</p>
+                <div class="card card-hover h-100 border-0 text-center p-3">
+                    <div class="icon-bubble icon-bubble-success mx-auto mb-3"><i class="bi bi-shield-check"></i></div>
+                    <h6 class="fw-bold mb-1">Verified WWCC</h6>
+                    <p class="small text-muted mb-0">All instructors checked</p>
+                </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <i class="bi bi-people" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
-                <p class="small text-muted mt-2 mb-0">Change your instructor anytime</p>
+                <div class="card card-hover h-100 border-0 text-center p-3">
+                    <div class="icon-bubble icon-bubble-teal mx-auto mb-3"><i class="bi bi-arrow-left-right"></i></div>
+                    <h6 class="fw-bold mb-1">Switch Anytime</h6>
+                    <p class="small text-muted mb-0">Change instructor freely</p>
+                </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <i class="bi bi-calendar-check" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
-                <p class="small text-muted mt-2 mb-0">Manage your lesson bookings online</p>
+                <div class="card card-hover h-100 border-0 text-center p-3">
+                    <div class="icon-bubble mx-auto mb-3"><i class="bi bi-calendar-check-fill"></i></div>
+                    <h6 class="fw-bold mb-1">Easy Scheduling</h6>
+                    <p class="small text-muted mb-0">Manage bookings online</p>
+                </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <i class="bi bi-cart-check" style="font-size: 2.5rem; color: var(--ez-dark);"></i>
-                <p class="small text-muted mt-2 mb-0">Purchase with peace of mind. Flexible rebooking.</p>
+                <div class="card card-hover h-100 border-0 text-center p-3">
+                    <div class="icon-bubble icon-bubble-accent mx-auto mb-3"><i class="bi bi-shield-lock-fill"></i></div>
+                    <h6 class="fw-bold mb-1">Buy with Confidence</h6>
+                    <p class="small text-muted mb-0">Flexible rebooking</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 {{-- How Secure Licences works --}}
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center fw-bold mb-2">How Secure Licences works</h2>
-        <p class="text-center text-muted mb-4">Simple, Trusted & Flexible Booking System</p>
-        <div class="row g-4">
-            <div class="col-md-4 text-center">
-                <div class="rounded-circle bg-warning text-dark d-inline-flex align-items-center justify-content-center mb-3 fw-bold" style="width: 56px; height: 56px; font-size: 1.25rem;">1</div>
-                <h5 class="fw-bold">Browse Our Trusted Driving Instructors</h5>
-                <p class="text-muted">Choose from a wide variety of instructors in your area. Check rating & reviews from real learners.</p>
+<section class="section position-relative" style="background: linear-gradient(180deg, var(--sl-gray-50) 0%, #fff 100%);">
+    <div class="bg-dots position-absolute" style="top:0; left:0; right:0; height:100%; opacity:0.4; pointer-events:none;"></div>
+    <div class="container position-relative">
+        <div class="text-center mb-5">
+            <span class="badge bg-accent-subtle text-accent px-3 py-2 mb-2" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Simple · Trusted · Flexible</span>
+            <h2 class="display-5 fw-bolder mb-2">How Secure Licences works</h2>
+            <p class="text-muted" style="font-size: 1.1rem;">From search to licence in three easy steps.</p>
+        </div>
+        <div class="row g-4 position-relative">
+            {{-- Connecting line on desktop --}}
+            <div class="d-none d-md-block position-absolute" style="top:38px; left:16%; right:16%; height:2px; border-top:2px dashed var(--sl-gray-300); z-index:0;"></div>
+
+            <div class="col-md-4 text-center position-relative" style="z-index:1;">
+                <div class="d-inline-flex align-items-center justify-content-center mb-4 fw-bold"
+                     style="width:76px;height:76px;background:#fff;color:var(--sl-primary-600);border:3px solid var(--sl-primary-600);border-radius:50%;font-size:1.75rem;box-shadow:var(--sl-shadow-lg);">1</div>
+                <h5 class="fw-bold mb-2">Browse Verified Instructors</h5>
+                <p class="text-muted mb-0">Compare ratings, reviews, and vehicles. Filter by transmission and location.</p>
             </div>
-            <div class="col-md-4 text-center">
-                <div class="rounded-circle bg-warning text-dark d-inline-flex align-items-center justify-content-center mb-3 fw-bold" style="width: 56px; height: 56px; font-size: 1.25rem;">2</div>
-                <h5 class="fw-bold">Book Lessons In Under 5 Mins</h5>
-                <p class="text-muted">Book online with instant confirmation. Easily manage your lesson schedule via our online dashboard.</p>
+            <div class="col-md-4 text-center position-relative" style="z-index:1;">
+                <div class="d-inline-flex align-items-center justify-content-center mb-4 fw-bold"
+                     style="width:76px;height:76px;background:#fff;color:var(--sl-accent-600);border:3px solid var(--sl-accent-500);border-radius:50%;font-size:1.75rem;box-shadow:var(--sl-shadow-lg);">2</div>
+                <h5 class="fw-bold mb-2">Book in Under 5 Minutes</h5>
+                <p class="text-muted mb-0">Instant confirmation. Manage your schedule from your learner dashboard.</p>
             </div>
-            <div class="col-md-4 text-center">
-                <div class="rounded-circle bg-warning text-dark d-inline-flex align-items-center justify-content-center mb-3 fw-bold" style="width: 56px; height: 56px; font-size: 1.25rem;">3</div>
-                <h5 class="fw-bold">Get Your Licence</h5>
-                <p class="text-muted">Your instructor picks you up from your chosen address and you're on your way 🚗</p>
+            <div class="col-md-4 text-center position-relative" style="z-index:1;">
+                <div class="d-inline-flex align-items-center justify-content-center mb-4 fw-bold"
+                     style="width:76px;height:76px;background:#fff;color:var(--sl-teal-600);border:3px solid var(--sl-teal-500);border-radius:50%;font-size:1.75rem;box-shadow:var(--sl-shadow-lg);">3</div>
+                <h5 class="fw-bold mb-2">Get Your Licence</h5>
+                <p class="text-muted mb-0">Your instructor picks you up from your chosen address and you're on your way.</p>
             </div>
         </div>
-        <div class="text-center mt-4">
-            <a href="{{ route('find-instructor') }}" class="btn btn-warning btn-lg fw-bold">Start learning to drive now</a>
+        <div class="text-center mt-5">
+            <a href="{{ route('find-instructor') }}" class="btn btn-primary btn-lg fw-bold px-5">
+                Start learning today<i class="bi bi-arrow-right ms-2"></i>
+            </a>
         </div>
     </div>
 </section>
 
 {{-- Testimonials --}}
-<section class="py-5 bg-white">
+<section class="section" style="background: var(--sl-gray-50);">
     <div class="container">
-        <h2 class="text-center fw-bold mb-2">What more than 100,000 learners say</h2>
-        <p class="text-center text-muted mb-4">Hear from learners about their Secure Licences experience</p>
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary-dark px-3 py-2 mb-2" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Testimonials</span>
+            <h2 class="display-5 fw-bolder mb-2">Loved by 100,000+ learners</h2>
+            <p class="text-muted" style="font-size: 1.1rem;">Real stories from learners who passed with Secure Licences.</p>
+        </div>
         <div id="testimonialsCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 @php
                     $testimonials = [
-                        ['name' => 'Adriana', 'text' => 'Adriana is a really good instructor! She knows everything and she always make sure to correct every detail before the test. Apart from that, she is very sweet and calm. I was blessed to find her. Thanks Adriana!!!!', 'by' => 'Livia'],
-                        ['name' => 'Tim', 'text' => 'Tim is a very calm and encouraging teacher. I really enjoy learning from him. I was really anxious about beginning lessons. Tim is very reassuring and kind.', 'by' => 'Mara'],
-                        ['name' => 'Simon', 'text' => 'Simon is a great instructor! I took a 2-hour lesson on a day prior to my driving test. Got a few valuable tips and much-needed practice, which helped me to pass the test on the first go.', 'by' => 'Dmitry'],
-                        ['name' => 'Shahida', 'text' => 'Shahida is an incredible driving instructor. My first driving experience with Shahida was absolutely great. Her calm, gentle nature and professionalism helped me overcome my anxiety with driving.', 'by' => 'Sepi'],
-                        ['name' => 'Mick', 'text' => 'Mick is fantastic! He is very friendly and I was comfortable straight away. He helped me very much on achieving my Ps, I passed first go. I highly recommend Mick to everyone!', 'by' => 'Isabella'],
+                        ['instructor' => 'Adriana', 'text' => 'A really great instructor — she makes sure every detail is corrected before the test. Sweet, calm, and so patient. I felt totally ready on test day.', 'by' => 'Livia', 'rating' => 5],
+                        ['instructor' => 'Tim',     'text' => 'A very calm and encouraging teacher. I was really anxious about starting lessons, but his reassuring manner made everything so much easier.', 'by' => 'Mara', 'rating' => 5],
+                        ['instructor' => 'Simon',   'text' => 'Took a 2-hour lesson the day before my test. Got a few valuable tips and much-needed practice which helped me pass on my first go.', 'by' => 'Dmitry', 'rating' => 5],
+                        ['instructor' => 'Shahida', 'text' => 'An incredible driving instructor. Her calm, gentle nature and professionalism helped me overcome my driving anxiety completely.', 'by' => 'Sepi', 'rating' => 5],
+                        ['instructor' => 'Mick',    'text' => 'Fantastic! Very friendly and I was comfortable straight away. He helped me achieve my Ps on the first attempt. Highly recommend!', 'by' => 'Isabella', 'rating' => 5],
                     ];
                 @endphp
                 @foreach($testimonials as $i => $t)
                 <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
                     <div class="row justify-content-center">
                         <div class="col-lg-8">
-                            <div class="card border-0 shadow-sm">
+                            <div class="card border-0" style="box-shadow: var(--sl-shadow-xl); border-radius: var(--sl-radius-xl);">
                                 <div class="card-body p-4 p-lg-5">
-                                    <p class="lead mb-3">"{{ $t['text'] }}"</p>
-                                    <p class="fw-bold mb-0">{{ $t['name'] }}</p>
-                                    <p class="small text-muted mb-0">{{ $t['by'] }}</p>
+                                    <div class="mb-3" style="color: var(--sl-accent-500); font-size: 2.5rem; line-height: 1;">
+                                        <i class="bi bi-quote"></i>
+                                    </div>
+                                    <div class="mb-3">
+                                        @for($s = 1; $s <= 5; $s++)
+                                            <i class="bi bi-star-fill" style="color: var(--sl-accent-500); font-size: 1.1rem;"></i>
+                                        @endfor
+                                    </div>
+                                    <p class="mb-4" style="font-size: 1.15rem; line-height: 1.6; color: var(--sl-gray-700);">{{ $t['text'] }}</p>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bolder"
+                                             style="width:48px; height:48px; background: linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500)); color:#fff; font-size:1.15rem;">
+                                            {{ substr($t['by'], 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ $t['by'] }}</div>
+                                            <div class="small text-muted">Taught by <strong>{{ $t['instructor'] }}</strong></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -144,77 +220,102 @@
                 </div>
                 @endforeach
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-secondary btn-sm me-2" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </section>
 
-{{-- Driving test package --}}
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center fw-bold mb-4">Driving test package</h2>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+{{-- Driving test package CTA --}}
+<section class="section" style="background: linear-gradient(135deg, var(--sl-primary-900) 0%, var(--sl-gray-900) 100%); color: #fff; position: relative; overflow: hidden;">
+    <div class="position-absolute" style="top:-100px; right:-100px; width:320px; height:320px; background: radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%); pointer-events:none;"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge bg-warning text-dark px-3 py-2 mb-3" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Test Package</span>
+                <h2 class="display-5 fw-bolder text-white mb-3">Everything you need on test day.</h2>
+                <p class="mb-4" style="color: rgba(255,255,255,0.75); font-size: 1.1rem;">Walk in relaxed, walk out licensed. One complete package.</p>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> Pick-up 1hr prior to test start time</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> 45 min pre-test warm up</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> Use of instructor's vehicle to sit the test</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> Drop-off after the test result is received</li>
+                    <li class="mb-2 d-flex align-items-start gap-2"><i class="bi bi-check-circle-fill" style="color:var(--sl-accent-500); font-size:1.25rem; margin-top:0.15rem;"></i> <span>Pick-up one hour before your test</span></li>
+                    <li class="mb-2 d-flex align-items-start gap-2"><i class="bi bi-check-circle-fill" style="color:var(--sl-accent-500); font-size:1.25rem; margin-top:0.15rem;"></i> <span>45-minute pre-test warm up on test route</span></li>
+                    <li class="mb-2 d-flex align-items-start gap-2"><i class="bi bi-check-circle-fill" style="color:var(--sl-accent-500); font-size:1.25rem; margin-top:0.15rem;"></i> <span>Use of your instructor's vehicle for the test</span></li>
+                    <li class="mb-2 d-flex align-items-start gap-2"><i class="bi bi-check-circle-fill" style="color:var(--sl-accent-500); font-size:1.25rem; margin-top:0.15rem;"></i> <span>Drop-off once your result is in</span></li>
                 </ul>
-                <div class="text-center mt-4">
-                    <a href="{{ route('find-instructor') }}" class="btn btn-warning btn-lg fw-bold">Book Test Package Now</a>
+                <a href="{{ route('find-instructor') }}" class="btn btn-warning btn-lg fw-bold mt-3 px-5">
+                    Book your test package<i class="bi bi-arrow-right ms-2"></i>
+                </a>
+                <p class="small mt-3 mb-0" style="color: rgba(255,255,255,0.5);">Not available in ACT, SA and TAS.</p>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div class="position-relative d-inline-block">
+                    <div class="position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%);width:280px;height:280px;background:radial-gradient(circle,rgba(245,158,11,0.3) 0%,transparent 70%);border-radius:50%;"></div>
+                    <i class="bi bi-trophy-fill position-relative" style="font-size:14rem; color: var(--sl-accent-500); filter: drop-shadow(0 20px 40px rgba(245,158,11,0.4));"></i>
                 </div>
-                <p class="small text-muted text-center mt-3 mb-0">Test package not available in ACT, SA and TAS.</p>
             </div>
         </div>
     </div>
 </section>
 
 {{-- Book with confidence --}}
-<section class="py-5 bg-white">
+<section class="section bg-white">
     <div class="container">
-        <h2 class="text-center fw-bold mb-2">Book driving lessons with confidence</h2>
-        <p class="text-center text-muted mb-4">Choose a driving instructor you can trust</p>
+        <div class="text-center mb-5">
+            <span class="badge bg-success-subtle px-3 py-2 mb-2" style="color: #065f46; font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Safety First</span>
+            <h2 class="display-5 fw-bolder mb-2">Book with total confidence</h2>
+            <p class="text-muted" style="font-size: 1.1rem;">Every instructor is vetted so you don't have to worry.</p>
+        </div>
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3 text-center">
-                <div class="rounded-circle bg-warning bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-2" style="width: 64px; height: 64px;"><i class="bi bi-star-fill text-warning fs-4"></i></div>
-                <h5 class="fw-bold">Instructor Ratings</h5>
-                <p class="small text-muted">Access peer reviews & find an instructor who has consistently provided a great learning experience.</p>
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-hover h-100 border-0 p-4 text-center">
+                    <div class="icon-bubble icon-bubble-lg icon-bubble-accent mx-auto mb-3"><i class="bi bi-star-fill"></i></div>
+                    <h5 class="fw-bold mb-2">Real Reviews</h5>
+                    <p class="small text-muted mb-0">Honest feedback from learners who actually passed their test.</p>
+                </div>
             </div>
-            <div class="col-md-6 col-lg-3 text-center">
-                <div class="rounded-circle bg-warning bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-2" style="width: 64px; height: 64px;"><i class="bi bi-patch-check-fill text-warning fs-4"></i></div>
-                <h5 class="fw-bold">Accredited</h5>
-                <p class="small text-muted">We obtain up to date copies of relevant instructor accreditations & verify their working with children credentials.</p>
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-hover h-100 border-0 p-4 text-center">
+                    <div class="icon-bubble icon-bubble-lg icon-bubble-success mx-auto mb-3"><i class="bi bi-patch-check-fill"></i></div>
+                    <h5 class="fw-bold mb-2">Fully Accredited</h5>
+                    <p class="small text-muted mb-0">Up-to-date driving instructor licences and WWCC verified.</p>
+                </div>
             </div>
-            <div class="col-md-6 col-lg-3 text-center">
-                <div class="rounded-circle bg-warning bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-2" style="width: 64px; height: 64px;"><i class="bi bi-car-front-fill text-warning fs-4"></i></div>
-                <h5 class="fw-bold">Vehicle Safety</h5>
-                <p class="small text-muted">Gain access to instructor vehicle make, model, year & safety rating.</p>
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-hover h-100 border-0 p-4 text-center">
+                    <div class="icon-bubble icon-bubble-lg mx-auto mb-3"><i class="bi bi-car-front-fill"></i></div>
+                    <h5 class="fw-bold mb-2">Safe Vehicles</h5>
+                    <p class="small text-muted mb-0">See the make, model, year and safety rating before you book.</p>
+                </div>
             </div>
-            <div class="col-md-6 col-lg-3 text-center">
-                <div class="rounded-circle bg-warning bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-2" style="width: 64px; height: 64px;"><i class="bi bi-arrow-left-right text-warning fs-4"></i></div>
-                <h5 class="fw-bold">Always Your Choice</h5>
-                <p class="small text-muted">Don't like your current instructor? Select a new instructor via our online portal, no questions asked.</p>
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-hover h-100 border-0 p-4 text-center">
+                    <div class="icon-bubble icon-bubble-lg icon-bubble-teal mx-auto mb-3"><i class="bi bi-arrow-left-right"></i></div>
+                    <h5 class="fw-bold mb-2">Your Choice</h5>
+                    <p class="small text-muted mb-0">Switch instructors any time from your dashboard — no hassle.</p>
+                </div>
             </div>
         </div>
-        <div class="text-center mt-4">
-            <a href="{{ route('find-instructor') }}" class="btn btn-warning fw-bold">Book driving lessons now</a>
+        <div class="text-center mt-5">
+            <a href="{{ route('find-instructor') }}" class="btn btn-primary btn-lg fw-bold px-5">
+                <i class="bi bi-search me-2"></i>Find my instructor
+            </a>
         </div>
     </div>
 </section>
 
 {{-- FAQs --}}
-<section class="py-5 bg-light">
+<section class="section bg-white">
     <div class="container">
-        <h2 class="text-center fw-bold mb-2">FAQs</h2>
-        <p class="text-center text-muted mb-4">Here's a few of the questions we get on a regular basis. Can't find the answer? Please check our <a href="#">full FAQ page</a>.</p>
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary-dark px-3 py-2 mb-2" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">FAQs</span>
+            <h2 class="display-5 fw-bolder mb-2">Got questions?</h2>
+            <p class="text-muted" style="font-size: 1.1rem;">The answers to what learners ask most often. Still stuck? <a href="{{ route('contact') }}" class="text-primary fw-semibold">Contact us</a>.</p>
+        </div>
         <div class="accordion accordion-flush col-lg-8 mx-auto" id="faqAccordion">
             <div class="accordion-item">
                 <h3 class="accordion-header">

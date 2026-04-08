@@ -4,16 +4,46 @@
 @section('heading', 'Make a Booking')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-2">
+<nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0 small">
         <li class="breadcrumb-item"><a href="{{ route('learner.dashboard') }}"><i class="bi bi-house"></i> Home</a></li>
         <li class="breadcrumb-item active" aria-current="page">Make a Booking</li>
     </ol>
 </nav>
 
-<h5 class="mb-4">Make a Booking</h5>
+<div class="mb-4">
+    <h3 class="fw-bolder mb-1" style="letter-spacing:-0.02em;">Make a Booking</h3>
+    <p class="text-muted mb-0">Choose your lesson type, pick a time, and confirm — it takes less than a minute.</p>
+</div>
 
-<div class="row">
+{{-- Stepper --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <div class="sl-stepper">
+            <div class="step active">
+                <div class="step-circle"><span>1</span></div>
+                <div class="step-label d-none d-md-inline">Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-circle"><span>2</span></div>
+                <div class="step-label d-none d-md-inline">Review</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-circle"><span>3</span></div>
+                <div class="step-label d-none d-md-inline">Payment</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-circle"><span>4</span></div>
+                <div class="step-label d-none d-md-inline">Confirmed</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
     <div class="col-lg-8">
         {{-- My Instructor --}}
         @php
@@ -23,25 +53,30 @@
             $vehicle = trim(implode(' ', array_filter([$profile->vehicle_make, $profile->vehicle_model, $profile->vehicle_year])));
         @endphp
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3">My Instructor</h6>
-                <div class="row">
+            <div class="card-body p-4">
+                <h6 class="text-muted small text-uppercase mb-1" style="letter-spacing:0.08em;">Booking with</h6>
+                <h5 class="fw-bold mb-3">Your Instructor</h5>
+                <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.1rem;">{{ strtoupper(substr($instructor->name ?? 'H', 0, 1)) }}</div>
-                            <div>
-                                <strong>{{ $instructor->name }}</strong><br>
-                                <a href="tel:{{ $instructor->phone }}">{{ $instructor->phone }}</a><br>
-                                @if($rate)<span class="small text-muted">{{ $rate }}</span>@endif
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 h-100" style="background: var(--sl-gray-50);">
+                            @if($profile->profile_photo)
+                                <img src="{{ asset('storage/' . $profile->profile_photo) }}" alt="{{ $instructor->name }}" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;">
+                            @else
+                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bolder text-white" style="width:56px;height:56px;font-size:1.2rem;background:linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500));flex-shrink:0;">{{ strtoupper(substr($instructor->name ?? 'I', 0, 1)) }}</div>
+                            @endif
+                            <div class="min-w-0 flex-grow-1">
+                                <div class="fw-bolder text-truncate">{{ $instructor->name }}</div>
+                                <a href="tel:{{ $instructor->phone }}" class="small text-decoration-none"><i class="bi bi-telephone me-1"></i>{{ $instructor->phone }}</a>
+                                @if($rate)<div class="small text-muted">{{ $rate }}</div>@endif
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="bg-light rounded p-2"><i class="bi bi-car-front text-muted fs-4"></i></div>
-                            <div class="small">
-                                {{ $vehicle ?: 'Vehicle' }} ({{ ucfirst($profile->transmission ?? 'Auto') }})<br>
-                                <span class="text-muted">5-star ANCAP rating · Dual controls fitted</span>
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 h-100" style="background: var(--sl-gray-50);">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#fff;border:1px solid var(--sl-gray-200);flex-shrink:0;"><i class="bi bi-car-front-fill" style="font-size:1.4rem;color:var(--sl-primary-600);"></i></div>
+                            <div class="small flex-grow-1 min-w-0">
+                                <div class="fw-semibold text-truncate">{{ $vehicle ?: 'Vehicle' }}</div>
+                                <div class="text-muted">{{ ucfirst($profile->transmission ?? 'Auto') }} · 5-star ANCAP · Dual controls</div>
                             </div>
                         </div>
                     </div>

@@ -11,59 +11,118 @@
     </ol>
 </nav>
 
-<h4 class="mb-4">Welcome back, <span id="welcome-name">{{ Auth::user()->name }}</span>!</h4>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h3 class="fw-bolder mb-1" style="letter-spacing:-0.02em;">Welcome back, <span id="welcome-name" style="background: linear-gradient(135deg, var(--sl-primary-600), var(--sl-teal-500)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">{{ Auth::user()->first_name ?? Auth::user()->name }}</span></h3>
+        <p class="text-muted mb-0">Here's what's happening with your learning journey.</p>
+    </div>
+    <a href="{{ route('find-instructor') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Book a New Lesson
+    </a>
+</div>
 
+{{-- KPI strip --}}
 <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-icon"><i class="bi bi-calendar-check-fill"></i></div>
+            <div class="kpi-label">Upcoming</div>
+            <div class="kpi-value" id="kpi-upcoming">—</div>
+            <div class="small text-muted mt-1">Scheduled lessons</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-success h-100">
+            <div class="kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="kpi-label">Completed</div>
+            <div class="kpi-value" id="kpi-completed">—</div>
+            <div class="small text-muted mt-1">Lessons finished</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-accent h-100">
+            <div class="kpi-icon"><i class="bi bi-wallet2"></i></div>
+            <div class="kpi-label">Wallet Balance</div>
+            <div class="kpi-value" id="wallet-balance">$0</div>
+            <div class="small text-muted mt-1">Incl. <span id="wallet-non-refundable">$0.00</span> non-refundable</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-teal h-100">
+            <div class="kpi-icon"><i class="bi bi-stars"></i></div>
+            <div class="kpi-label">Hours Logged</div>
+            <div class="kpi-value" id="kpi-hours">—</div>
+            <div class="small text-muted mt-1">Behind the wheel</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
     {{-- My Instructor --}}
-    <div class="col-lg-6">
+    <div class="col-lg-7">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
+            <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h6 class="fw-bold mb-0">My Instructor</h6>
-                    <a href="{{ route('find-instructor') }}" class="btn btn-warning btn-sm" id="instructor-book-now-btn">Book Now</a>
+                    <div>
+                        <h6 class="text-muted small text-uppercase mb-1" style="letter-spacing:0.08em;">Your Instructor</h6>
+                        <h5 class="fw-bold mb-0">My Instructor</h5>
+                    </div>
+                    <a href="{{ route('find-instructor') }}" class="btn btn-outline-primary btn-sm" id="instructor-book-now-btn">
+                        <i class="bi bi-calendar-plus me-1"></i>Book Now
+                    </a>
                 </div>
                 <div id="instructor-content">
-                    <div id="instructor-loading" class="text-muted small">Loading…</div>
+                    <div id="instructor-loading" class="text-muted small py-3">Loading…</div>
                     <div id="instructor-loaded" style="display: none;">
-                        <h6 class="text-muted small mb-2">Instructor</h6>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.25rem;" id="instructor-avatar">—</div>
-                            <div>
-                                <span id="instructor-name"></span><br>
-                                <a href="#" id="instructor-phone" class="small"></a><br>
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3" style="background: var(--sl-gray-50);">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bolder text-white" style="width: 64px; height: 64px; font-size: 1.5rem; background: linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500)); flex-shrink: 0;" id="instructor-avatar">—</div>
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="fw-bolder text-truncate" style="font-size: 1.1rem;" id="instructor-name">—</div>
+                                <a href="#" id="instructor-phone" class="small text-primary text-decoration-none d-block"><i class="bi bi-telephone me-1"></i></a>
                                 <span class="small text-muted" id="instructor-rate"></span>
                             </div>
                         </div>
-                        <h6 class="text-muted small mb-2 mt-3">Vehicle</h6>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="bg-light rounded d-flex align-items-center justify-content-center p-2" style="width: 64px; height: 48px;"><i class="bi bi-car-front text-muted"></i></div>
-                            <div class="small">
-                                <span id="instructor-vehicle"></span><br>
-                                <span class="text-muted" id="instructor-vehicle-details">5-star ANCAP rating · Dual controls fitted</span>
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--sl-gray-50);">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 64px; height: 48px; background: #fff; border: 1px solid var(--sl-gray-200); flex-shrink: 0;"><i class="bi bi-car-front-fill" style="color: var(--sl-primary-600); font-size: 1.25rem;"></i></div>
+                            <div class="small flex-grow-1">
+                                <div class="fw-semibold" id="instructor-vehicle">—</div>
+                                <div class="text-muted" id="instructor-vehicle-details">5-star ANCAP · Dual controls fitted</div>
                             </div>
                         </div>
                         <div class="mt-3 text-end">
-                            <a href="{{ route('find-instructor') }}" class="small">Switch Instructor &gt;</a>
+                            <a href="{{ route('find-instructor') }}" class="small text-decoration-none fw-semibold">Switch instructor <i class="bi bi-arrow-right"></i></a>
                         </div>
                     </div>
-                    <div id="instructor-empty" class="text-muted small" style="display: none;">You don't have an instructor yet. <a href="{{ route('find-instructor') }}">Find an instructor</a> to get started.</div>
+                    <div id="instructor-empty" class="text-center py-4" style="display: none;">
+                        <div class="icon-bubble mx-auto mb-3"><i class="bi bi-person-plus"></i></div>
+                        <p class="text-muted small mb-2">You don't have an instructor yet.</p>
+                        <a href="{{ route('find-instructor') }}" class="btn btn-primary btn-sm">Find an Instructor</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    {{-- My Wallet --}}
-    <div class="col-lg-6">
+
+    {{-- Quick Actions --}}
+    <div class="col-lg-5">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="fw-bold mb-0">My Wallet</h6>
-                    <a href="{{ route('learner.wallet.add-credit') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-credit-card me-1"></i> Add Credit
+            <div class="card-body p-4">
+                <h6 class="text-muted small text-uppercase mb-1" style="letter-spacing:0.08em;">Quick Actions</h6>
+                <h5 class="fw-bold mb-3">What would you like to do?</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ route('find-instructor') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-search me-2"></i>Find a new instructor
+                    </a>
+                    <a href="{{ route('learner.wallet.add-credit') }}" class="btn btn-outline-secondary text-start">
+                        <i class="bi bi-credit-card me-2"></i>Top up wallet
+                    </a>
+                    <a href="{{ route('gift-vouchers') }}" class="btn btn-outline-secondary text-start">
+                        <i class="bi bi-gift me-2"></i>Buy a gift voucher
+                    </a>
+                    <a href="{{ route('practice-test') }}" class="btn btn-outline-secondary text-start">
+                        <i class="bi bi-journal-text me-2"></i>Free practice test
                     </a>
                 </div>
-                <p class="mb-1 fs-4 fw-bold" id="wallet-balance">$0</p>
-                <p class="mb-2 small text-muted">Includes <span id="wallet-non-refundable">$0.00</span> of non refundable credit.</p>
-                <a href="{{ route('learner.wallet') }}" class="small">View details &gt;</a>
             </div>
         </div>
     </div>
@@ -155,6 +214,7 @@
                                     <th>Location</th>
                                     <th>Status</th>
                                     <th>Payment</th>
+                                    <th>Review</th>
                                 </tr>
                             </thead>
                             <tbody id="history-tbody"></tbody>
@@ -171,7 +231,112 @@
 <style>
 .nav-tabs .nav-link { color: #333; }
 .nav-tabs .nav-link.active { border-bottom: 2px solid #f0ad4e; font-weight: 500; color: #333; }
+#review-stars i { cursor: pointer; transition: transform 0.1s; }
+#review-stars i:hover { transform: scale(1.15); }
 </style>
+
+{{-- ============================================ --}}
+{{--  REVIEW SUBMISSION MODAL                       --}}
+{{-- ============================================ --}}
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="bi bi-star me-2"></i>Leave a Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="review-booking-id" value="">
+                <p class="text-muted small mb-3">How was your lesson with <strong id="review-instructor-name">your instructor</strong>?</p>
+
+                <div class="text-center mb-3">
+                    <div id="review-stars">
+                        <i class="bi bi-star text-muted fs-3 me-1" data-value="1"></i>
+                        <i class="bi bi-star text-muted fs-3 me-1" data-value="2"></i>
+                        <i class="bi bi-star text-muted fs-3 me-1" data-value="3"></i>
+                        <i class="bi bi-star text-muted fs-3 me-1" data-value="4"></i>
+                        <i class="bi bi-star text-muted fs-3 me-1" data-value="5"></i>
+                    </div>
+                    <div class="small text-muted mt-2">Tap a star to rate</div>
+                </div>
+
+                <div class="mb-2">
+                    <label for="review-comment" class="form-label small fw-semibold">Comment (optional)</label>
+                    <textarea id="review-comment" class="form-control" rows="4" maxlength="2000" placeholder="Tell others about your experience — what went well, what could improve..."></textarea>
+                </div>
+
+                <div class="alert alert-danger py-2 small mb-0" id="review-error" style="display:none;"></div>
+
+                <div class="alert alert-light border small mb-0 mt-3">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Your review is private until an admin approves it, to keep the platform safe and fair for everyone. See our <a href="{{ route('policies.learner-conduct') }}" target="_blank">Learner Code of Conduct</a>.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" id="review-submit-btn">
+                    <i class="bi bi-send me-1"></i>Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================ --}}
+{{--  GOOGLE REVIEW PROMPT MODAL                    --}}
+{{-- ============================================ --}}
+<div class="modal fade" id="googleReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>Thanks for your review!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Your review has been submitted and will be visible after a quick check by our team.</p>
+
+                <div class="p-3 bg-light rounded border mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-google text-primary fs-4"></i>
+                        <strong>Would you share it on Google too?</strong>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        A Google review helps other learners find great instructors — and takes just a few seconds.
+                    </p>
+
+                    <div id="google-review-copy-wrap" style="display:none;">
+                        <label class="small fw-semibold text-muted">Your comment (tap to copy):</label>
+                        <pre id="google-review-comment" class="small bg-white border rounded p-2" style="white-space:pre-wrap; max-height:140px; overflow-y:auto;"></pre>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" id="google-review-copy-btn">
+                            <i class="bi bi-clipboard me-1"></i>Copy my comment
+                        </button>
+                    </div>
+
+                    <a href="#" id="google-review-url" target="_blank" rel="noopener" class="btn btn-primary w-100">
+                        <i class="bi bi-google me-1"></i>Open Google Reviews
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Maybe later</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Thank-you toast (fallback for low-star or no Google Place ID) --}}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="review-thanks-toast" class="toast" role="alert" aria-live="polite" aria-atomic="true">
+        <div class="toast-header">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <strong class="me-auto">Review submitted</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body small">
+            Thanks for your feedback! Your review will be visible after an admin check.
+        </div>
+    </div>
+</div>
 @push('scripts')
 <script>
 window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
@@ -245,6 +410,15 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
       // Wallet
       document.getElementById('wallet-balance').textContent = wallet.balance_display || '$0.00';
       document.getElementById('wallet-non-refundable').textContent = wallet.non_refundable_credit_display || '$0.00';
+
+      // KPI stats
+      var stats = data.stats || {};
+      var kpiUpcoming = document.getElementById('kpi-upcoming');
+      var kpiCompleted = document.getElementById('kpi-completed');
+      var kpiHours = document.getElementById('kpi-hours');
+      if (kpiUpcoming) kpiUpcoming.textContent = stats.upcoming_count != null ? stats.upcoming_count : '0';
+      if (kpiCompleted) kpiCompleted.textContent = stats.completed_count != null ? stats.completed_count : '0';
+      if (kpiHours) kpiHours.innerHTML = (stats.total_hours != null ? stats.total_hours : '0') + '<span class="kpi-unit">hrs</span>';
 
       // Upcoming bookings
       document.getElementById('upcoming-loading').style.display = 'none';
@@ -346,6 +520,24 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
           var loc = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
           var instrName = (b.instructor && b.instructor.name) ? esc(b.instructor.name) : '—';
           var initial = instrName !== '—' ? instrName.charAt(0) : '?';
+
+          // Review column: show existing rating, "Leave Review" button, or dash
+          var reviewCell = '—';
+          if (b.status === 'completed') {
+            if (b.review && b.review.id) {
+              var starsHtml = '';
+              for (var s = 1; s <= 5; s++) {
+                starsHtml += '<i class="bi bi-star' + (s <= b.review.rating ? '-fill text-warning' : ' text-muted') + '"></i>';
+              }
+              reviewCell = '<span title="You rated ' + b.review.rating + '/5" class="small">' + starsHtml + '</span>';
+            } else {
+              reviewCell = '<button type="button" class="btn btn-outline-warning btn-sm py-0 px-2 leave-review-btn" ' +
+                'data-booking-id="' + b.id + '" ' +
+                'data-instructor-name="' + instrName + '">' +
+                '<i class="bi bi-star me-1"></i>Leave Review</button>';
+            }
+          }
+
           return '<tr>' +
             '<td>#' + b.id + '</td>' +
             '<td><span class="rounded-circle bg-light border d-inline-flex align-items-center justify-content-center me-1" style="width:24px;height:24px;font-size:0.7rem;">' + initial + '</span>' + instrName + '</td>' +
@@ -354,8 +546,16 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
             '<td>' + esc(loc) + '</td>' +
             '<td><span class="badge ' + statusClass + '">' + status + '</span></td>' +
             '<td>' + (pay !== '—' ? '<span class="badge ' + payClass + '">' + pay + '</span>' : '—') + '</td>' +
+            '<td>' + reviewCell + '</td>' +
           '</tr>';
         }).join('');
+
+        // Delegate click for Leave Review buttons
+        tbody.querySelectorAll('.leave-review-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            openReviewModal(btn.getAttribute('data-booking-id'), btn.getAttribute('data-instructor-name'));
+          });
+        });
         var pagination = document.getElementById('history-pagination');
         if (data.last_page > 1) {
           var cur = data.current_page || 1;
@@ -413,6 +613,186 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
       });
     }
   });
+
+  // =======================================================
+  //  REVIEW SUBMISSION FLOW
+  // =======================================================
+  var currentBookingId = null;
+  var currentRating = 0;
+
+  function openReviewModal(bookingId, instructorName) {
+    currentBookingId = bookingId;
+    currentRating = 0;
+
+    // Reset form state
+    document.getElementById('review-booking-id').value = bookingId;
+    document.getElementById('review-instructor-name').textContent = instructorName || 'your instructor';
+    document.getElementById('review-comment').value = '';
+    document.getElementById('review-error').style.display = 'none';
+    document.getElementById('review-error').textContent = '';
+    document.getElementById('review-submit-btn').disabled = false;
+    document.getElementById('review-submit-btn').innerHTML = '<i class="bi bi-send me-1"></i>Submit Review';
+
+    // Reset stars
+    document.querySelectorAll('#review-stars i').forEach(function(el) {
+      el.className = 'bi bi-star text-muted fs-3 me-1';
+    });
+
+    var modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+    modal.show();
+  }
+  window.openReviewModal = openReviewModal;
+
+  // Star click handler
+  document.querySelectorAll('#review-stars i').forEach(function(star) {
+    star.addEventListener('click', function() {
+      var val = parseInt(star.getAttribute('data-value'), 10);
+      currentRating = val;
+      document.querySelectorAll('#review-stars i').forEach(function(s, idx) {
+        if (idx < val) {
+          s.className = 'bi bi-star-fill text-warning fs-3 me-1';
+        } else {
+          s.className = 'bi bi-star text-muted fs-3 me-1';
+        }
+      });
+    });
+
+    star.addEventListener('mouseenter', function() {
+      var val = parseInt(star.getAttribute('data-value'), 10);
+      document.querySelectorAll('#review-stars i').forEach(function(s, idx) {
+        if (idx < val) {
+          s.classList.add('text-warning');
+          s.classList.remove('text-muted');
+          s.classList.remove('bi-star');
+          s.classList.add('bi-star-fill');
+        }
+      });
+    });
+  });
+  document.getElementById('review-stars')?.addEventListener('mouseleave', function() {
+    document.querySelectorAll('#review-stars i').forEach(function(s, idx) {
+      if (idx < currentRating) {
+        s.className = 'bi bi-star-fill text-warning fs-3 me-1';
+      } else {
+        s.className = 'bi bi-star text-muted fs-3 me-1';
+      }
+    });
+  });
+
+  // Submit review
+  document.getElementById('review-submit-btn')?.addEventListener('click', function() {
+    var err = document.getElementById('review-error');
+    err.style.display = 'none';
+    err.textContent = '';
+
+    if (!currentRating || currentRating < 1) {
+      err.textContent = 'Please select a star rating.';
+      err.style.display = 'block';
+      return;
+    }
+
+    var comment = document.getElementById('review-comment').value.trim();
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+
+    fetch('/api/reviews', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf || '',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        booking_id: parseInt(currentBookingId, 10),
+        rating: currentRating,
+        comment: comment || null
+      })
+    })
+    .then(function(r) {
+      return r.json().then(function(body) { return { ok: r.ok, status: r.status, body: body }; });
+    })
+    .then(function(res) {
+      if (!res.ok) {
+        err.textContent = (res.body && res.body.message) ? res.body.message : 'Could not submit review. Please try again.';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send me-1"></i>Submit Review';
+        return;
+      }
+
+      // Close review modal
+      bootstrap.Modal.getInstance(document.getElementById('reviewModal'))?.hide();
+
+      // Refresh history so the row shows the stars now
+      loadHistory(1);
+
+      // If a Google Reviews link was returned AND rating is positive (4-5 stars), prompt the learner
+      var gUrl = res.body && res.body.google_review_url;
+      var reviewData = res.body && res.body.data;
+      if (gUrl && currentRating >= 4) {
+        showGoogleReviewPrompt(gUrl, comment, reviewData ? reviewData.id : null);
+      } else {
+        showThankYouToast();
+      }
+    })
+    .catch(function() {
+      err.textContent = 'Network error. Please try again.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-send me-1"></i>Submit Review';
+    });
+  });
+
+  // Google review prompt
+  function showGoogleReviewPrompt(googleUrl, commentText, reviewId) {
+    document.getElementById('google-review-url').href = googleUrl;
+    var pre = document.getElementById('google-review-comment');
+    if (commentText && commentText.length > 0) {
+      pre.textContent = commentText;
+      document.getElementById('google-review-copy-wrap').style.display = 'block';
+    } else {
+      document.getElementById('google-review-copy-wrap').style.display = 'none';
+    }
+
+    // Track on click
+    var openBtn = document.getElementById('google-review-url');
+    openBtn.onclick = function() {
+      if (reviewId) {
+        fetch('/api/reviews/' + reviewId + '/google-prompted', {
+          method: 'PATCH',
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrf || '',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin'
+        }).catch(function() { /* silent */ });
+      }
+    };
+
+    var modal = new bootstrap.Modal(document.getElementById('googleReviewModal'));
+    modal.show();
+  }
+
+  // Copy comment helper
+  document.getElementById('google-review-copy-btn')?.addEventListener('click', function() {
+    var text = document.getElementById('google-review-comment').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      this.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copied!';
+      var btn = this;
+      setTimeout(function() { btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy my comment'; }, 2000);
+    });
+  });
+
+  function showThankYouToast() {
+    var toastEl = document.getElementById('review-thanks-toast');
+    if (toastEl) {
+      new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+    }
+  }
 })();
 </script>
 @endpush

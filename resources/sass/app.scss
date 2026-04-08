@@ -1,8 +1,11 @@
-// Fonts
-@import url('https://fonts.bunny.net/css?family=Nunito');
+// Fonts — Plus Jakarta Sans for modern, friendly, professional feel
+@import url('https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap');
 
 // Variables
 @import 'variables';
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+// Design system (brand tokens, typography, cards, buttons, etc.)
+@import 'design-system';

@@ -6,67 +6,104 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Learner') – {{ config('app.name') }}</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
+        body { background: var(--sl-gray-50); }
         .learner-wrapper { display: flex; min-height: 100vh; }
         .learner-sidebar {
             width: 260px;
             min-width: 260px;
-            background: #2c3e50;
+            background: var(--sl-gray-900);
+            background-image: linear-gradient(180deg, var(--sl-gray-900) 0%, #0b1220 100%);
             position: relative;
             flex-shrink: 0;
-        }
-        .learner-sidebar::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: #f0ad4e;
+            border-right: 1px solid rgba(255,255,255,0.04);
         }
         .learner-sidebar .logo {
-            padding: 1.25rem 1.5rem;
-            font-size: 1.35rem;
-            font-weight: 700;
+            padding: 1.5rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 800;
             color: #fff;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .learner-sidebar .logo i { color: #f0ad4e; }
-        .learner-sidebar .nav { padding: 0.75rem 0; }
+        .learner-sidebar .logo .ez-l {
+            width: 30px; height: 30px;
+            background: var(--sl-accent-500);
+            color: var(--sl-gray-900);
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+        }
+        .learner-sidebar .nav { padding: 1rem 0.75rem; }
         .learner-sidebar .nav-link {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.6rem 1.5rem;
-            color: rgba(255,255,255,0.85);
+            padding: 0.7rem 0.875rem;
+            color: rgba(255,255,255,0.7);
             text-decoration: none;
-            font-size: 0.95rem;
-            border-left: 3px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--sl-radius);
+            margin-bottom: 2px;
+            transition: all var(--sl-transition);
         }
-        .learner-sidebar .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
-        .learner-sidebar .nav-link.active { background: rgba(255,255,255,0.12); border-left-color: #f0ad4e; color: #fff; font-weight: 500; }
-        .learner-sidebar .nav-link i { font-size: 1.1rem; width: 1.25rem; text-align: center; }
-        .learner-sidebar .nav-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.5rem 0; }
+        .learner-sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .learner-sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--sl-primary-600), var(--sl-primary-700));
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+        }
+        .learner-sidebar .nav-link i {
+            font-size: 1.1rem;
+            width: 1.25rem;
+            text-align: center;
+        }
+        .learner-sidebar .nav-divider {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin: 0.75rem 0.5rem;
+        }
         .learner-main {
             flex: 1;
             overflow: auto;
-            background: #f5f5f5;
+            background: var(--sl-gray-50);
         }
         .learner-main .topbar {
             background: #fff;
-            padding: 0.75rem 1.5rem;
-            border-bottom: 1px solid #eee;
+            padding: 0.875rem 1.75rem;
+            border-bottom: 1px solid var(--sl-gray-200);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--sl-shadow-xs);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .learner-main .content { padding: 1.5rem; }
+        .learner-main .topbar h5 {
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--sl-gray-900);
+        }
+        .learner-main .content { padding: 2rem 1.75rem; }
+
         @media (max-width: 991.98px) {
             .learner-sidebar { width: 72px; min-width: 72px; }
-            .learner-sidebar .logo span:not(.logo-icon),
+            .learner-sidebar .logo span:not(.ez-l) { display: none !important; }
             .learner-sidebar .nav-link span { display: none !important; }
             .learner-sidebar .nav-link { justify-content: center; padding: 0.75rem; }
         }
@@ -76,7 +113,7 @@
     <div class="learner-wrapper">
         <aside class="learner-sidebar">
             <div class="logo">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;background:#f0ad4e;color:#333;font-weight:700;font-size:0.85rem;margin-right:4px;">L</span> Secure Licences
+                <span>Secure</span><span class="ez-l">L</span><span>icences</span>
             </div>
             <nav class="nav flex-column">
                 <a class="nav-link {{ request()->routeIs('learner.dashboard') ? 'active' : '' }}" href="{{ route('learner.dashboard') }}">
@@ -112,12 +149,12 @@
         </aside>
         <main class="learner-main">
             <div class="topbar">
-                <h5 class="mb-0">@yield('heading', 'Learner')</h5>
+                <h5 class="mb-0">@yield('heading', 'Dashboard')</h5>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="#" class="text-dark" title="Notifications" aria-label="Notifications"><i class="bi bi-bell fs-5"></i></a>
+                    <a href="#" class="text-muted" title="Notifications" aria-label="Notifications" style="font-size:1.15rem;"><i class="bi bi-bell"></i></a>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="rounded-circle bg-light border d-flex align-items-center justify-content-center text-secondary fw-bold" style="width: 32px; height: 32px; font-size: 0.9rem;">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
-                        <span class="text-muted small">{{ Auth::user()->name }}</span>
+                        <span class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 36px; height: 36px; font-size: 0.9rem; background: linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500));">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
+                        <span class="fw-semibold small d-none d-md-inline" style="color: var(--sl-gray-700);">{{ Auth::user()->name }}</span>
                         <a href="{{ route('logout') }}" class="btn btn-sm btn-outline-secondary" onclick="event.preventDefault(); document.getElementById('learner-logout-form').submit();">Logout</a>
                     </div>
                     <form id="learner-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>

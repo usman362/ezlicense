@@ -6,29 +6,94 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') – Admin</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito:400,600,700" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
-        :root { --ez-admin-accent: #1b212c; --ez-admin-sidebar: #2c3e50; }
+        body { background: var(--sl-gray-50); }
         .admin-wrapper { display: flex; min-height: 100vh; }
         .admin-sidebar {
-            width: 260px; min-width: 260px; background: var(--ez-admin-sidebar); flex-shrink: 0;
+            width: 260px;
+            min-width: 260px;
+            background: var(--sl-gray-900);
+            background-image: linear-gradient(180deg, var(--sl-gray-900) 0%, #0b1220 100%);
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255,255,255,0.04);
         }
-        .admin-sidebar .logo { padding: 1.25rem 1.5rem; font-size: 1.25rem; font-weight: 700; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .admin-sidebar .logo span { color: #f0ad4e; }
-        .admin-sidebar .nav { padding: 0.75rem 0; }
+        .admin-sidebar .logo {
+            padding: 1.5rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            letter-spacing: -0.02em;
+        }
+        .admin-sidebar .logo span {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: var(--sl-accent-500);
+            color: var(--sl-gray-900);
+            font-weight: 800;
+            line-height: 26px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin: 0 2px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+        }
+        .admin-sidebar .nav { padding: 1rem 0.75rem; }
         .admin-sidebar .nav-link {
-            display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1.5rem;
-            color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.95rem;
-            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.875rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--sl-radius);
+            margin-bottom: 2px;
+            transition: all var(--sl-transition);
         }
-        .admin-sidebar .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
-        .admin-sidebar .nav-link.active { background: rgba(255,255,255,0.12); border-left-color: #f0ad4e; color: #fff; font-weight: 500; }
-        .admin-sidebar .nav-link i { font-size: 1.1rem; width: 1.25rem; text-align: center; }
-        .admin-main { flex: 1; overflow: auto; background: #f0f2f5; }
-        .admin-header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
-        .admin-content { padding: 1.5rem; }
+        .admin-sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .admin-sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--sl-primary-600), var(--sl-primary-700));
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+        }
+        .admin-sidebar .nav-link i {
+            font-size: 1.1rem;
+            width: 1.25rem;
+            text-align: center;
+        }
+        .admin-main {
+            flex: 1;
+            overflow: auto;
+            background: var(--sl-gray-50);
+        }
+        .admin-header {
+            background: #fff;
+            border-bottom: 1px solid var(--sl-gray-200);
+            padding: 0.875rem 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--sl-shadow-xs);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .admin-header h1 {
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--sl-gray-900);
+        }
+        .admin-content { padding: 2rem 1.75rem; }
     </style>
 </head>
 <body>

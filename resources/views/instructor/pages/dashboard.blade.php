@@ -23,42 +23,41 @@
     </div>
 </div>
 
-{{-- KPI cards (from reports summary) --}}
+{{-- KPI cards --}}
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted small mb-1">Earnings</h6>
-                <p class="mb-0 fs-5 fw-bold" id="kpi-earnings">—</p>
-                <a href="{{ route('instructor.reports') }}" class="small">Your next payout: <span id="kpi-next-payout-date">—</span> &gt;</a>
-            </div>
+        <div class="kpi-card kpi-success h-100">
+            <div class="kpi-icon"><i class="bi bi-currency-dollar"></i></div>
+            <div class="kpi-label">Earnings</div>
+            <div class="kpi-value" id="kpi-earnings">—</div>
+            <div class="small text-muted mt-2">Next payout <span id="kpi-next-payout-date" class="fw-semibold">—</span></div>
+            <a href="{{ route('instructor.reports') }}" class="small fw-semibold text-decoration-none" style="color: var(--sl-primary-600);">View reports <i class="bi bi-arrow-right"></i></a>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted small mb-1">Cancellation Rate</h6>
-                <p class="mb-0 fs-5 fw-bold" id="kpi-cancellation">—</p>
-                <a href="{{ route('instructor.reports') }}" class="small">Your cancels in the last 90 days &gt;</a>
-            </div>
+        <div class="kpi-card kpi-danger h-100">
+            <div class="kpi-icon"><i class="bi bi-x-circle-fill"></i></div>
+            <div class="kpi-label">Cancellation Rate</div>
+            <div class="kpi-value" id="kpi-cancellation">—</div>
+            <div class="small text-muted mt-2">Last 90 days</div>
+            <a href="{{ route('instructor.reports') }}" class="small fw-semibold text-decoration-none" style="color: var(--sl-primary-600);">See details <i class="bi bi-arrow-right"></i></a>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted small mb-1">Booking hours per learner</h6>
-                <p class="mb-0 fs-5 fw-bold" id="kpi-hours-learner">—</p>
-                <span class="small text-muted">Excludes new learners (within 90 days)</span>
-            </div>
+        <div class="kpi-card h-100">
+            <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+            <div class="kpi-label">Hours per Learner</div>
+            <div class="kpi-value" id="kpi-hours-learner">—</div>
+            <div class="small text-muted mt-2">Excludes new learners (90d)</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted small mb-1">Learner rating</h6>
-                <p class="mb-0 fs-5 fw-bold" id="kpi-rating">—</p>
-                <a href="{{ route('instructor.reports') }}" class="small">Your reviews &gt;</a>
-            </div>
+        <div class="kpi-card kpi-accent h-100">
+            <div class="kpi-icon"><i class="bi bi-star-fill"></i></div>
+            <div class="kpi-label">Learner Rating</div>
+            <div class="kpi-value" id="kpi-rating">—</div>
+            <div class="small text-muted mt-2">Average from reviews</div>
+            <a href="{{ route('instructor.reports') }}" class="small fw-semibold text-decoration-none" style="color: var(--sl-primary-600);">See reviews <i class="bi bi-arrow-right"></i></a>
         </div>
     </div>
 </div>

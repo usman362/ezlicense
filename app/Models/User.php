@@ -36,6 +36,9 @@ class User extends Authenticatable
         'is_active',
         'last_login_at',
         'password',
+        'deactivation_reason',
+        'deactivated_at',
+        'blocked_until',
     ];
 
     /**
@@ -60,6 +63,8 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
             'password' => 'hashed',
+            'deactivated_at' => 'datetime',
+            'blocked_until' => 'datetime',
         ];
     }
 
@@ -86,6 +91,24 @@ class User extends Authenticatable
     public function learnerTransactions(): HasMany
     {
         return $this->hasMany(LearnerTransaction::class, 'user_id');
+    }
+
+    public function reviewsGiven(): HasMany
+    {
+        return $this->hasMany(Review::class, 'learner_id');
+    }
+
+    public function adminNotes(): HasMany
+    {
+        return $this->hasMany(UserAdminNote::class)
+            ->orderByDesc('pinned')
+            ->orderByDesc('created_at');
+    }
+
+    public function complaintsFiled(): HasMany
+    {
+        return $this->hasMany(InstructorComplaint::class, 'reporter_user_id')
+            ->orderByDesc('created_at');
     }
 
     public function isLearner(): bool

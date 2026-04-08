@@ -6,34 +6,26 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Driving School | Driving Lessons | Book Learners Driving Test Online') – Secure Licences</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito:400,600,700" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
-        :root { --ez-accent: #f0ad4e; --ez-accent-dark: #ec971f; --ez-dark: #2c3e50; --ez-topbar: #1b212c; }
-        .frontend-topbar { background: var(--ez-topbar); color: rgba(255,255,255,0.9); font-size: 0.875rem; }
-        .frontend-topbar a { color: rgba(255,255,255,0.9); text-decoration: none; }
-        .frontend-topbar a:hover { color: #fff; }
-        .frontend-topbar .divider { color: rgba(255,255,255,0.5); margin: 0 0.5rem; user-select: none; }
-        .frontend-header { background: #fff; border-bottom: 1px solid #eee; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-        .frontend-header .logo { font-size: 1.5rem; font-weight: 700; color: #333; text-decoration: none; display: inline-flex; align-items: center; }
-        .frontend-header .logo .ez { color: #333; }
-        .frontend-header .logo .ez-l { width: 32px; height: 32px; background: var(--ez-accent); color: #333; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin: 0 1px; font-size: 1.1rem; }
-        .frontend-header .logo .icence { color: #333; }
-        .frontend-header .nav-link { color: #333; font-weight: 500; padding: 0.6rem 0.75rem !important; }
-        .frontend-header .nav-link:hover { color: var(--ez-accent-dark); }
-        .frontend-header .dropdown-menu { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 0 0 4px 4px; padding: 0.5rem 0; }
-        .frontend-header .dropdown-item { padding: 0.5rem 1rem; color: #333; }
-        .frontend-header .dropdown-item:hover { background: #f8f9fa; color: var(--ez-accent-dark); }
-        .frontend-header .navbar-nav .nav-link.dropdown-toggle::after { margin-left: 0.35em; }
-        .frontend-header .btn-book { background: var(--ez-accent); color: #333; border: none; font-weight: 600; }
-        .frontend-header .btn-book:hover { background: var(--ez-accent-dark); color: #333; }
-        .frontend-footer { background: var(--ez-dark); color: rgba(255,255,255,0.85); padding: 2.5rem 0; margin-top: auto; }
-        .frontend-footer a { color: rgba(255,255,255,0.85); text-decoration: none; }
-        .frontend-footer a:hover { color: #fff; }
-        .frontend-footer .divider { color: rgba(255,255,255,0.4); margin: 0 0.5rem; }
         body { display: flex; flex-direction: column; min-height: 100vh; }
         main { flex: 1; }
+        /* Layout-specific: logo block */
+        .frontend-header .logo {
+            font-size: 1.5rem; font-weight: 800; color: var(--sl-gray-900);
+            text-decoration: none; display: inline-flex; align-items: center;
+            letter-spacing: -0.02em;
+        }
+        .frontend-header .logo .ez-l {
+            width: 34px; height: 34px; background: var(--sl-accent-500);
+            color: var(--sl-gray-900); font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin: 0 2px; font-size: 1.15rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -140,93 +132,86 @@
         @yield('content')
     </main>
 
-    <footer style="background: #f4f5f7; color: #333; padding: 3rem 0 1.5rem; margin-top: auto;">
+    <footer class="frontend-footer-new">
         <div class="container">
             <div class="row g-4 mb-4">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-4 col-md-12">
                     <a class="d-inline-flex align-items-center mb-3 text-decoration-none" href="{{ url('/') }}">
-                        <span style="font-size:1.4rem;font-weight:700;color:#333;">Secure</span><span style="width:28px;height:28px;background:var(--ez-accent);color:#333;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin:0 1px;font-size:1rem;">L</span><span style="font-size:1.4rem;font-weight:700;color:#333;">icences</span>
+                        <span style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Secure</span><span style="width:30px;height:30px;background:var(--sl-accent-500);color:var(--sl-gray-900);font-weight:800;display:inline-flex;align-items:center;justify-content:center;margin:0 2px;font-size:1.1rem;border-radius:6px;">L</span><span style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">icences</span>
                     </a>
-                    <p class="small" style="color:#555;"><strong>Secure Licences takes the hassle out of choosing a driving school</strong> by helping learner drivers find, compare and book verified driving instructors online.</p>
-                    <p class="small" style="color:#777;">The Secure Licences online platform brings transparency, choice and efficiency to booking and managing driving instructors and driving lessons across Australia.</p>
+                    <p style="color:var(--sl-gray-400);font-size:var(--sl-text-sm);line-height:1.6;">
+                        <strong style="color:var(--sl-gray-200);">Australia's trusted driving school marketplace.</strong>
+                        Find, compare and book verified instructors in minutes — with real reviews, transparent pricing, and zero hassle.
+                    </p>
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="#" class="social-link" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-link" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-link" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-link" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Learner Tests Online</h6>
-                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="{{ route('practice-test') }}" class="text-decoration-none" style="color:#555;">FREE Practice Learners Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'nsw') }}" class="text-decoration-none" style="color:#555;">NSW Driver Knowledge Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'vic') }}" class="text-decoration-none" style="color:#555;">VIC Learner Permit Knowledge Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'qld') }}" class="text-decoration-none" style="color:#555;">QLD Road Rules Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'wa') }}" class="text-decoration-none" style="color:#555;">WA Road Rules Theory Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'sa') }}" class="text-decoration-none" style="color:#555;">SA Learner Theory Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'tas') }}" class="text-decoration-none" style="color:#555;">TAS Driver Knowledge Test</a></li>
-                        <li><a href="{{ route('practice-test.state', 'act') }}" class="text-decoration-none" style="color:#555;">ACT Road Rules Knowledge Test</a></li>
-                    </ul>
-                    <h6 class="fw-bold mt-3 mb-2" style="color: var(--ez-dark);">Driving Instructors by State</h6>
-                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="{{ route('find-instructor') }}?q=NSW" class="text-decoration-none" style="color:#555;">NSW Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=VIC" class="text-decoration-none" style="color:#555;">VIC Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=QLD" class="text-decoration-none" style="color:#555;">QLD Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=WA" class="text-decoration-none" style="color:#555;">WA Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=SA" class="text-decoration-none" style="color:#555;">SA Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=TAS" class="text-decoration-none" style="color:#555;">TAS Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=ACT" class="text-decoration-none" style="color:#555;">ACT Driving Instructors</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Resources</h6>
-                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="{{ route('support') }}" class="text-decoration-none" style="color:#555;">Support</a></li>
-                        <li><a href="{{ route('blog.index') }}" class="text-decoration-none" style="color:#555;">Blog</a></li>
-                        <li><a href="{{ route('contact') }}" class="text-decoration-none" style="color:#555;">Contact</a></li>
-                        <li><a href="{{ route('about') }}" class="text-decoration-none" style="color:#555;">About</a></li>
-                        <li><a href="{{ route('about') }}" class="text-decoration-none" style="color:#555;">Learn more about Secure Licences</a></li>
-                        <li><a href="{{ route('instruct-with-us') }}" class="text-decoration-none" style="color:#555;">Instruct with Secure Licences</a></li>
-                        <li><a href="{{ route('instruct-with-us') }}" class="text-decoration-none" style="color:#555;">Become an instructor</a></li>
-                        <li><a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Driving Instructor User policies</a></li>
-                        <li><a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Learner User policies</a></li>
-                    </ul>
-                    <h6 class="fw-bold mt-3 mb-2" style="color: var(--ez-dark);">Driving Instructors by City</h6>
-                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="{{ route('find-instructor') }}?q=Sydney" class="text-decoration-none" style="color:#555;">Sydney Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Melbourne" class="text-decoration-none" style="color:#555;">Melbourne Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Brisbane" class="text-decoration-none" style="color:#555;">Brisbane Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Perth" class="text-decoration-none" style="color:#555;">Perth Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Adelaide" class="text-decoration-none" style="color:#555;">Adelaide Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Hobart" class="text-decoration-none" style="color:#555;">Hobart Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Canberra" class="text-decoration-none" style="color:#555;">Canberra Driving Instructors</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="fw-bold mb-3" style="color: var(--ez-dark);">Learn to Drive</h6>
-                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Driving Lessons</a></li>
-                        <li><a href="{{ route('find-instructor') }}" class="text-decoration-none" style="color:#555;">Test Packages</a></li>
-                        <li><a href="{{ route('gift-vouchers') }}" class="text-decoration-none" style="color:#555;">Gift Vouchers</a></li>
-                        <li><a href="{{ route('refresher-lessons') }}" class="text-decoration-none" style="color:#555;">Refresher Driving Lessons</a></li>
-                        <li><a href="{{ route('international-licence') }}" class="text-decoration-none" style="color:#555;">International Licence Conversions</a></li>
-                    </ul>
 
-                    <h6 class="fw-bold mt-4 mb-3" style="color: var(--ez-dark);">Home Services</h6>
-                    <ul class="list-unstyled small mb-0" style="line-height:1.8;">
-                        <li><a href="{{ route('services.categories') }}" class="text-decoration-none" style="color:#555;">Browse all services</a></li>
-                        @foreach(\App\Models\ServiceCategory::active()->orderBy('display_order')->orderBy('name')->limit(6)->get() as $footerCat)
-                            <li><a href="{{ route('services.browse', $footerCat->slug) }}" class="text-decoration-none" style="color:#555;">{{ $footerCat->name }}s</a></li>
-                        @endforeach
-                        <li><a href="{{ route('services.become-provider') }}" class="text-decoration-none fw-semibold" style="color:#198754;">Become a Provider →</a></li>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6>Learn to Drive</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('find-instructor') }}">Driving Lessons</a></li>
+                        <li><a href="{{ route('find-instructor') }}">Test Packages</a></li>
+                        <li><a href="{{ route('gift-vouchers') }}">Gift Vouchers</a></li>
+                        <li><a href="{{ route('refresher-lessons') }}">Refresher Lessons</a></li>
+                        <li><a href="{{ route('international-licence') }}">Licence Conversions</a></li>
+                        <li><a href="{{ route('practice-test') }}">Free Practice Test</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6>For Instructors</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('instruct-with-us') }}">Become an Instructor</a></li>
+                        <li><a href="{{ route('instructor-academy') }}">Instructor Academy</a></li>
+                        <li><a href="{{ route('instructor.login') }}">Instructor Login</a></li>
+                        <li><a href="{{ route('policies.instructor-conduct') }}">Code of Conduct</a></li>
+                    </ul>
+                    <h6 class="mt-4">Home Services</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('services.categories') }}">Browse Services</a></li>
+                        <li><a href="{{ route('services.become-provider') }}">Become a Provider</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6>Policies</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('policies.index') }}">All Policies</a></li>
+                        <li><a href="{{ route('policies.complaint-handling') }}">Complaint Handling</a></li>
+                        <li><a href="{{ route('policies.refund-cancellation') }}">Refunds & Cancellation</a></li>
+                        <li><a href="{{ route('policies.safety') }}">Safety Policy</a></li>
+                        <li><a href="{{ route('policies.dispute-resolution') }}">Dispute Resolution</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6>Company</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('about') }}">About</a></li>
+                        <li><a href="{{ route('blog.index') }}">Blog</a></li>
+                        <li><a href="{{ route('contact') }}">Contact</a></li>
+                        <li><a href="{{ route('support') }}">Support</a></li>
+                        <li><a href="{{ route('terms') }}">Terms</a></li>
+                        <li><a href="{{ route('privacy') }}">Privacy</a></li>
                     </ul>
                 </div>
             </div>
-            <hr style="border-color: rgba(0,0,0,0.1);">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 small" style="color:#777;">
-                <span>Secure Licences Pty Ltd &copy; {{ date('Y') }}</span>
+
+            <div class="footer-divider"></div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3" style="font-size:var(--sl-text-xs);color:var(--sl-gray-500);">
+                <span>&copy; {{ date('Y') }} Secure Licences Pty Ltd. All rights reserved.</span>
                 <div class="d-flex flex-wrap align-items-center gap-3">
-                    <a href="{{ route('privacy') }}" class="text-decoration-none" style="color:#555;">Privacy Policy</a>
-                    <a href="{{ route('terms') }}" class="text-decoration-none" style="color:#555;">Terms and Conditions</a>
-                </div>
-                <div class="d-flex gap-3">
-                    <a href="#" style="color:#555;" title="Facebook"><i class="bi bi-facebook fs-5"></i></a>
-                    <a href="#" style="color:#555;" title="Instagram"><i class="bi bi-instagram fs-5"></i></a>
+                    <span><i class="bi bi-geo-alt me-1"></i>Australia</span>
+                    <span>·</span>
+                    <span><i class="bi bi-shield-check me-1"></i>ABN Verified</span>
+                    <span>·</span>
+                    <span><i class="bi bi-lock me-1"></i>SSL Secured</span>
                 </div>
             </div>
         </div>

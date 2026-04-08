@@ -45,6 +45,17 @@ Route::get('/contact', fn () => view('frontend.pages.contact'))->name('contact')
 Route::get('/terms-and-conditions', fn () => view('frontend.pages.terms'))->name('terms');
 Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('privacy');
 Route::get('/support', fn () => redirect('/contact'))->name('support');
+
+// Policies hub and individual policies
+Route::prefix('policies')->name('policies.')->group(function () {
+    Route::get('/',                     fn () => view('frontend.policies.index'))->name('index');
+    Route::get('/instructor-code-of-conduct', fn () => view('frontend.policies.instructor-conduct'))->name('instructor-conduct');
+    Route::get('/learner-code-of-conduct',    fn () => view('frontend.policies.learner-conduct'))->name('learner-conduct');
+    Route::get('/complaint-handling',   fn () => view('frontend.policies.complaint-handling'))->name('complaint-handling');
+    Route::get('/refund-and-cancellation', fn () => view('frontend.policies.refund-cancellation'))->name('refund-cancellation');
+    Route::get('/safety',               fn () => view('frontend.policies.safety'))->name('safety');
+    Route::get('/dispute-resolution',   fn () => view('frontend.policies.dispute-resolution'))->name('dispute-resolution');
+});
 Route::get('/driving-test-packages', fn () => view('frontend.pages.driving-test-packages'))->name('driving-test-packages');
 Route::get('/international-licence-conversions', fn () => view('frontend.pages.international-licence'))->name('international-licence');
 Route::get('/refresher-lessons', fn () => view('frontend.pages.refresher-lessons'))->name('refresher-lessons');
@@ -82,9 +93,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Users management
     Route::get('/users', [App\Http\Controllers\Admin\UsersController::class, 'index'])->name('users.index');
-    Route::get('/users/{user}/json', [App\Http\Controllers\Admin\UsersController::class, 'show'])->name('users.show');
+    Route::get('/users/{user}', [App\Http\Controllers\Admin\UsersController::class, 'show'])->name('users.show');
+    Route::get('/users/{user}/json', [App\Http\Controllers\Admin\UsersController::class, 'showJson'])->name('users.show-json');
     Route::patch('/users/{user}/toggle-active', [App\Http\Controllers\Admin\UsersController::class, 'toggleActive'])->name('users.toggle-active');
     Route::patch('/users/{user}/update-role', [App\Http\Controllers\Admin\UsersController::class, 'updateRole'])->name('users.update-role');
+    Route::post('/users/{user}/notes', [App\Http\Controllers\Admin\UsersController::class, 'storeNote'])->name('users.notes.store');
+    Route::delete('/users/notes/{userAdminNote}', [App\Http\Controllers\Admin\UsersController::class, 'deleteNote'])->name('users.notes.destroy');
+    Route::patch('/users/notes/{userAdminNote}/toggle-pin', [App\Http\Controllers\Admin\UsersController::class, 'toggleNotePin'])->name('users.notes.toggle-pin');
 
     // Instructors management
     Route::get('/instructors', [App\Http\Controllers\Admin\InstructorsController::class, 'index'])->name('instructors.index');
@@ -96,6 +111,28 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/instructors/reviews/{review}/reject', [App\Http\Controllers\Admin\InstructorsController::class, 'rejectReview'])->name('instructors.reject-review');
     Route::delete('/instructors/reviews/{review}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteReview'])->name('instructors.delete-review');
     Route::patch('/instructors/reviews/{review}/toggle-visibility', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleReviewVisibility'])->name('instructors.toggle-review-visibility');
+
+    // Instructor audit/history — blocks
+    Route::post('/instructors/{instructorProfile}/blocks', [App\Http\Controllers\Admin\InstructorsController::class, 'storeBlock'])->name('instructors.blocks.store');
+    Route::patch('/instructors/blocks/{instructorBlock}/lift', [App\Http\Controllers\Admin\InstructorsController::class, 'liftBlock'])->name('instructors.blocks.lift');
+
+    // Instructor audit/history — warnings
+    Route::post('/instructors/{instructorProfile}/warnings', [App\Http\Controllers\Admin\InstructorsController::class, 'storeWarning'])->name('instructors.warnings.store');
+    Route::delete('/instructors/warnings/{instructorWarning}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteWarning'])->name('instructors.warnings.destroy');
+
+    // Instructor audit/history — complaints
+    Route::post('/instructors/{instructorProfile}/complaints', [App\Http\Controllers\Admin\InstructorsController::class, 'storeComplaint'])->name('instructors.complaints.store');
+    Route::patch('/instructors/complaints/{instructorComplaint}', [App\Http\Controllers\Admin\InstructorsController::class, 'updateComplaintStatus'])->name('instructors.complaints.update');
+    Route::delete('/instructors/complaints/{instructorComplaint}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteComplaint'])->name('instructors.complaints.destroy');
+
+    // Instructor audit/history — admin notes
+    Route::post('/instructors/{instructorProfile}/notes', [App\Http\Controllers\Admin\InstructorsController::class, 'storeNote'])->name('instructors.notes.store');
+    Route::delete('/instructors/notes/{instructorAdminNote}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteNote'])->name('instructors.notes.destroy');
+    Route::patch('/instructors/notes/{instructorAdminNote}/toggle-pin', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleNotePin'])->name('instructors.notes.toggle-pin');
+
+    // Instructor audit/history — correspondence log
+    Route::post('/instructors/{instructorProfile}/correspondences', [App\Http\Controllers\Admin\InstructorsController::class, 'storeCorrespondence'])->name('instructors.correspondences.store');
+    Route::delete('/instructors/correspondences/{instructorCorrespondence}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteCorrespondence'])->name('instructors.correspondences.destroy');
 
     // Gift Vouchers management
     Route::get('/gift-vouchers', [App\Http\Controllers\Admin\GiftVouchersController::class, 'index'])->name('gift-vouchers.index');
