@@ -68,8 +68,8 @@ class BookingController extends Controller
             }
         }
         $subtotal = collect($items)->sum('price');
-        $feePercent = 4;
-        $fee = round($subtotal * $feePercent) / 100;
+        $feePercent = (float) \App\Models\SiteSetting::get('platform_fee_percent', 4);
+        $fee = round($subtotal * $feePercent / 100, 2);
         $total = $subtotal + $fee;
 
         session([
@@ -159,7 +159,8 @@ class BookingController extends Controller
                     'scheduled_at' => $item['scheduled_at'],
                     'duration_minutes' => $item['duration_minutes'] ?? 60,
                     'amount' => $itemPrice,
-                    'platform_fee' => round($itemPrice * 0.04, 2),
+                    'platform_fee' => round($itemPrice * (float) \App\Models\SiteSetting::get('platform_fee_percent', 4) / 100, 2),
+                    'instructor_net_amount' => max(round($itemPrice - (float) \App\Models\SiteSetting::get('platform_service_fee', 5.00) - (float) \App\Models\SiteSetting::get('payment_processing_fee', 2.00), 2), 0),
                     'status' => Booking::STATUS_CONFIRMED,
                     'payment_method' => $validated['payment_method'],
                     'payment_status' => Booking::PAYMENT_PAID,

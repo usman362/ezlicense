@@ -103,6 +103,7 @@
             @php
                 $sidebarPendingVerify = \App\Models\InstructorProfile::where('verification_status', 'pending')->count();
                 $sidebarPendingBookings = \App\Models\Booking::where('status', 'pending')->count();
+                $sidebarPendingPayouts = \App\Models\InstructorPayout::where('status', 'pending')->count();
             @endphp
             <nav class="nav flex-column">
                 <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
@@ -121,6 +122,12 @@
                     <i class="bi bi-calendar-check"></i> Bookings
                     @if($sidebarPendingBookings > 0)
                         <span class="badge bg-info ms-auto" style="font-size:0.7rem">{{ $sidebarPendingBookings }}</span>
+                    @endif
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.payouts*') ? 'active' : '' }}" href="{{ route('admin.payouts.index') }}">
+                    <i class="bi bi-cash-stack"></i> Payouts
+                    @if($sidebarPendingPayouts > 0)
+                        <span class="badge bg-warning text-dark ms-auto" style="font-size:0.7rem">{{ $sidebarPendingPayouts }}</span>
                     @endif
                 </a>
                 <a class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}" href="{{ route('admin.blog.index') }}">

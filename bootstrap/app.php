@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserRole;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,6 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserRole::class,
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        // Generate instructor payouts every Monday at 02:00 AEST
+        $schedule->command('payouts:generate')
+            ->weeklyOn(1, '02:00')
+            ->timezone('Australia/Sydney')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/payouts.log'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

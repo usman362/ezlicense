@@ -158,6 +158,11 @@ class InstructorProfile extends Model
         return $this->hasMany(InstructorCorrespondence::class)->orderByDesc('communicated_at');
     }
 
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(InstructorPayout::class)->orderByDesc('period_start');
+    }
+
     /**
      * The currently-active block, if any.
      */

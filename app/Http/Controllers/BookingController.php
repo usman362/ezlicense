@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\InstructorProfile;
+use App\Models\SiteSetting;
 use App\Models\User;
 use App\Notifications\BookingCancelled;
 use App\Notifications\BookingProposed;
@@ -106,6 +107,13 @@ class BookingController extends Controller
         $duration = $profile->lesson_duration_minutes ?: 60;
 
         $booking = DB::transaction(function () use ($request, $user, $profile, $scheduledAt, $amount, $duration) {
+            $bookingAmount = $amount ?? 0;
+            $feePercent = (float) SiteSetting::get('platform_fee_percent', 4);
+            $platformFee = round($bookingAmount * $feePercent / 100, 2);
+            $serviceFee = (float) SiteSetting::get('platform_service_fee', 5.00);
+            $processingFee = (float) SiteSetting::get('payment_processing_fee', 2.00);
+            $instructorNet = max(round($bookingAmount - $serviceFee - $processingFee, 2), 0);
+
             return Booking::create([
                 'learner_id' => $user->id,
                 'instructor_id' => $profile->user_id,
@@ -115,8 +123,9 @@ class BookingController extends Controller
                 'transmission' => $request->input('transmission'),
                 'scheduled_at' => $scheduledAt,
                 'duration_minutes' => $duration,
-                'amount' => $amount ?? 0,
-                'platform_fee' => round(($amount ?? 0) * 0.04, 2),
+                'amount' => $bookingAmount,
+                'platform_fee' => $platformFee,
+                'instructor_net_amount' => $instructorNet,
                 'test_pre_booked' => $request->boolean('test_pre_booked'),
                 'status' => Booking::STATUS_CONFIRMED,
                 'learner_notes' => $request->input('learner_notes'),

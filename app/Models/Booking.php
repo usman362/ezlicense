@@ -65,6 +65,8 @@ class Booking extends Model
         'duration_minutes',
         'amount',
         'platform_fee',
+        'instructor_net_amount',
+        'instructor_payout_id',
         'payment_method',
         'payment_status',
         'test_pre_booked',
@@ -88,6 +90,7 @@ class Booking extends Model
             'proposal_expires_at' => 'datetime',
             'amount' => 'decimal:2',
             'platform_fee' => 'decimal:2',
+            'instructor_net_amount' => 'decimal:2',
             'test_pre_booked' => 'boolean',
             'cancellation_policy_accepted' => 'boolean',
         ];
@@ -133,6 +136,16 @@ class Booking extends Model
     public function rescheduledToBooking(): HasOne
     {
         return $this->hasOne(self::class, 'rescheduled_from_booking_id');
+    }
+
+    public function payout(): BelongsTo
+    {
+        return $this->belongsTo(InstructorPayout::class, 'instructor_payout_id');
+    }
+
+    public function payoutItem(): HasOne
+    {
+        return $this->hasOne(InstructorPayoutItem::class);
     }
 
     // ── Status helpers ─────────────────────────────────────────

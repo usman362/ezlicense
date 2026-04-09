@@ -144,6 +144,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
 
+    // Payouts management
+    Route::get('/payouts', [App\Http\Controllers\Admin\PayoutsController::class, 'index'])->name('payouts.index');
+    Route::get('/payouts/export-csv', [App\Http\Controllers\Admin\PayoutsController::class, 'exportCsv'])->name('payouts.export-csv');
+    Route::post('/payouts/generate', [App\Http\Controllers\Admin\PayoutsController::class, 'generate'])->name('payouts.generate');
+    Route::post('/payouts/bulk-approve', [App\Http\Controllers\Admin\PayoutsController::class, 'bulkApprove'])->name('payouts.bulk-approve');
+    Route::post('/payouts/bulk-mark-paid', [App\Http\Controllers\Admin\PayoutsController::class, 'bulkMarkPaid'])->name('payouts.bulk-mark-paid');
+    Route::get('/payouts/{instructorPayout}', [App\Http\Controllers\Admin\PayoutsController::class, 'show'])->name('payouts.show');
+    Route::patch('/payouts/{instructorPayout}/approve', [App\Http\Controllers\Admin\PayoutsController::class, 'approve'])->name('payouts.approve');
+    Route::patch('/payouts/{instructorPayout}/mark-paid', [App\Http\Controllers\Admin\PayoutsController::class, 'markPaid'])->name('payouts.mark-paid');
+    Route::patch('/payouts/{instructorPayout}/mark-failed', [App\Http\Controllers\Admin\PayoutsController::class, 'markFailed'])->name('payouts.mark-failed');
+    Route::post('/payouts/{instructorPayout}/notes', [App\Http\Controllers\Admin\PayoutsController::class, 'addNote'])->name('payouts.add-note');
+
     // Blog management
     Route::get('/blog', [App\Http\Controllers\Admin\BlogController::class, 'index'])->name('blog.index');
     Route::get('/blog/create', [App\Http\Controllers\Admin\BlogController::class, 'create'])->name('blog.create');
@@ -285,6 +297,7 @@ Route::prefix('api')->middleware('web')->group(function () {
             Route::post('documents', [App\Http\Controllers\Instructor\DocumentsController::class, 'store'])->name('documents.store');
             Route::put('profile/banking', [InstructorDashboard::class, 'updateBanking'])->name('profile.banking');
             Route::get('reports', [App\Http\Controllers\Instructor\ReportsController::class, 'index'])->name('reports.index');
+            Route::get('reports/fy-statement/{year}/download', [App\Http\Controllers\Instructor\ReportsController::class, 'downloadFinancialYearStatement'])->name('reports.fy-download');
         });
     });
 });

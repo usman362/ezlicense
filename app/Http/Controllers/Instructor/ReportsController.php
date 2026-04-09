@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\InstructorPayout;
 use App\Models\Review;
+use App\Models\SiteSetting;
+use App\Services\PayoutService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,8 +40,14 @@ class ReportsController extends Controller
         $completed90 = (clone $completed)->where('scheduled_at', '>=', $ninetyDaysAgo);
         $cancelled90 = (clone $cancelled)->where('cancelled_at', '>=', $ninetyDaysAgo);
 
+        $serviceFee = (float) SiteSetting::get('platform_service_fee', 5.00);
+        $processingFee = (float) SiteSetting::get('payment_processing_fee', 2.00);
+        $feePerBooking = $serviceFee + $processingFee;
+
         $totalEarnings = (float) $completed->sum('amount');
+        $totalNetEarnings = (float) $completed->sum('instructor_net_amount');
         $earnings90 = (float) $completed90->sum('amount');
+        $netEarnings90 = (float) $completed90->sum('instructor_net_amount');
         $hours90 = $completed90->sum(DB::raw('COALESCE(duration_minutes, 60)')) / 60;
         $completedCount90 = $completed90->count();
         $cancelledCount90 = $cancelled90->count();
@@ -59,7 +68,9 @@ class ReportsController extends Controller
         $fyEndPrevious = Carbon::createFromDate($fyPrevious, 6, 30)->endOfDay();
 
         $fytdCurrent = (float) (clone $completed)->whereBetween('scheduled_at', [$fyStartCurrent, $fyEndCurrent])->sum('amount');
+        $fytdCurrentNet = (float) (clone $completed)->whereBetween('scheduled_at', [$fyStartCurrent, $fyEndCurrent])->sum('instructor_net_amount');
         $fytdPrevious = (float) (clone $completed)->whereBetween('scheduled_at', [$fyStartPrevious, $fyEndPrevious])->sum('amount');
+        $fytdPreviousNet = (float) (clone $completed)->whereBetween('scheduled_at', [$fyStartPrevious, $fyEndPrevious])->sum('instructor_net_amount');
 
         $earningsByMonth = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -83,7 +94,9 @@ class ReportsController extends Controller
                 'id' => $b->id,
                 'learner_name' => $b->learner?->name ?? 'Learner',
                 'scheduled_at' => $b->scheduled_at->format('j M Y, g:i A'),
-                'payout' => (float) $b->amount,
+                'gross' => (float) $b->amount,
+                'fees' => $feePerBooking,
+                'payout' => (float) ($b->instructor_net_amount ?? max($b->amount - $feePerBooking, 0)),
                 'lesson_id' => '#'.$b->id,
             ]);
 
@@ -104,11 +117,17 @@ class ReportsController extends Controller
             'every_four_weeks'  => $now->copy()->subWeeks(4)->startOfWeek(),
             default             => $now->copy()->subWeeks(2)->startOfWeek(),
         };
-        $nextPayoutAmount = (float) Booking::where('instructor_id', $instructorId)
+        $nextPayoutAmountGross = (float) Booking::where('instructor_id', $instructorId)
             ->where('status', Booking::STATUS_COMPLETED)
             ->where('scheduled_at', '>=', $lastPayoutDate)
             ->where('scheduled_at', '<=', $now)
             ->sum('amount');
+        $nextPayoutBookingCount = Booking::where('instructor_id', $instructorId)
+            ->where('status', Booking::STATUS_COMPLETED)
+            ->where('scheduled_at', '>=', $lastPayoutDate)
+            ->where('scheduled_at', '<=', $now)
+            ->count();
+        $nextPayoutAmount = max($nextPayoutAmountGross - ($feePerBooking * $nextPayoutBookingCount), 0);
 
         // Previous payout: the period before lastPayoutDate
         $prevPayoutStart = match ($payoutFreq) {
@@ -116,11 +135,17 @@ class ReportsController extends Controller
             'every_four_weeks'  => $lastPayoutDate->copy()->subWeeks(4),
             default             => $lastPayoutDate->copy()->subWeeks(2),
         };
-        $previousPayoutAmount = (float) Booking::where('instructor_id', $instructorId)
+        $prevGross = (float) Booking::where('instructor_id', $instructorId)
             ->where('status', Booking::STATUS_COMPLETED)
             ->where('scheduled_at', '>=', $prevPayoutStart)
             ->where('scheduled_at', '<', $lastPayoutDate)
             ->sum('amount');
+        $prevCount = Booking::where('instructor_id', $instructorId)
+            ->where('status', Booking::STATUS_COMPLETED)
+            ->where('scheduled_at', '>=', $prevPayoutStart)
+            ->where('scheduled_at', '<', $lastPayoutDate)
+            ->count();
+        $previousPayoutAmount = max($prevGross - ($feePerBooking * $prevCount), 0);
 
         // Credits held: from learner wallets with bookings to this instructor
         $creditsHeld = (float) Booking::where('instructor_id', $instructorId)
@@ -132,7 +157,10 @@ class ReportsController extends Controller
             'data' => [
                 'summary' => [
                     'earnings' => $totalEarnings,
+                    'net_earnings' => $totalNetEarnings ?: max($totalEarnings - ($feePerBooking * $completed->count()), 0),
                     'earnings_display' => '$'.number_format($totalEarnings, 2),
+                    'net_earnings_display' => '$'.number_format($totalNetEarnings ?: max($totalEarnings - ($feePerBooking * $completed->count()), 0), 2),
+                    'fee_per_booking' => $feePerBooking,
                     'next_payout_amount' => $nextPayoutAmount,
                     'next_payout_date' => $nextPayoutDate->format('j M'),
                     'cancellation_rate' => $cancellationRate,
@@ -142,8 +170,10 @@ class ReportsController extends Controller
                     'next_payout' => $nextPayoutAmount,
                     'previous_payout' => $previousPayoutAmount,
                     'fytd_payout' => $fytdCurrent,
+                    'fytd_payout_net' => $fytdCurrentNet ?: $fytdCurrent,
                     'fytd_fy' => ($fyCurrent - 1).'-'.substr((string) $fyCurrent, 2),
                     'all_time_earnings' => $totalEarnings,
+                    'all_time_net_earnings' => $totalNetEarnings ?: $totalEarnings,
                     'ave_weekly_earnings_90' => $completedCount90 > 0 ? round($earnings90 / 13, 2) : 0,
                     'ave_earnings_per_hour_90' => $hours90 > 0 ? round($earnings90 / $hours90, 2) : 0,
                     'upcoming_bookings' => $upcomingAmount,
@@ -204,6 +234,59 @@ class ReportsController extends Controller
             'date' => $v['date'],
             'payout' => round($v['amount'], 2),
         ], $byFortnight));
+    }
+
+    /**
+     * Download financial year earnings statement as CSV.
+     */
+    public function downloadFinancialYearStatement(int $year): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $user = Auth::user();
+        $profile = $user?->instructorProfile;
+        if (! $profile) {
+            abort(404);
+        }
+
+        $service = app(PayoutService::class);
+        $stmt = $service->getFinancialYearStatement($profile, $year);
+
+        $headers = ['Reference', 'Period', 'Gross ($)', 'Deductions ($)', 'Net ($)', 'Paid Date'];
+
+        return response()->streamDownload(function () use ($stmt, $headers) {
+            $out = fopen('php://output', 'w');
+
+            // Header info
+            fputcsv($out, ['Financial Year Statement — ' . $stmt['fy_label']]);
+            fputcsv($out, ['Instructor', $stmt['instructor_name']]);
+            fputcsv($out, ['ABN', $stmt['abn'] ?? 'N/A']);
+            fputcsv($out, ['GST Registered', $stmt['gst_registered'] ? 'Yes' : 'No']);
+            fputcsv($out, ['Period', $stmt['fy_start'] . ' — ' . $stmt['fy_end']]);
+            fputcsv($out, []);
+
+            // Summary
+            fputcsv($out, ['Total Bookings', $stmt['total_bookings']]);
+            fputcsv($out, ['Gross Earnings', '$' . number_format($stmt['gross_earnings'], 2)]);
+            fputcsv($out, ['Service Fees', '-$' . number_format($stmt['total_service_fees'], 2)]);
+            fputcsv($out, ['Processing Fees', '-$' . number_format($stmt['total_processing_fees'], 2)]);
+            fputcsv($out, ['GST on Fees', '$' . number_format($stmt['total_gst_on_fees'], 2)]);
+            fputcsv($out, ['Net Earnings', '$' . number_format($stmt['net_earnings'], 2)]);
+            fputcsv($out, []);
+
+            // Payouts detail
+            fputcsv($out, $headers);
+            foreach ($stmt['payouts'] as $p) {
+                fputcsv($out, [
+                    $p['reference'],
+                    $p['period'],
+                    number_format($p['gross'], 2),
+                    number_format($p['deductions'], 2),
+                    number_format($p['net'], 2),
+                    $p['paid_at'] ?? '—',
+                ]);
+            }
+
+            fclose($out);
+        }, 'fy-statement-' . $stmt['fy_label'] . '.csv', ['Content-Type' => 'text/csv']);
     }
 
     private function emptyReport(): array
