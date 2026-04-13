@@ -1,7 +1,27 @@
 // Body
-$body-bg: #f8fafc;
+$body-bg: #faf9f7;
 
 // Typography
-$font-family-sans-serif: 'Nunito', sans-serif;
+$font-family-sans-serif: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
+
+// Commonwealth Bank-inspired orange palette
+$primary: #ff8400;
+$secondary: #4b4a47;
+$success: #10b981;
+$info: #ffd500;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+// Override Bootstrap theme map to ensure consistency
+$theme-colors: (
+  "primary":   $primary,
+  "secondary": $secondary,
+  "success":   $success,
+  "info":      $info,
+  "warning":   $warning,
+  "danger":    $danger,
+  "light":     #faf9f7,
+  "dark":      #121110,
+);

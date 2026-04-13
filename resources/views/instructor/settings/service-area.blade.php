@@ -68,10 +68,11 @@
                 <div class="position-relative">
                     <div class="input-group">
                         <span class="input-group-text bg-white"><i class="bi bi-geo"></i></span>
-                        <input type="text" id="suburb-add-input" class="form-control" placeholder="e.g. Parramatta, 2150, Bondi...">
+                        <input type="text" id="suburb-add-input" class="form-control" placeholder="Type suburb name or postcode..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                         <button type="button" class="btn btn-primary" id="suburb-add-btn"><i class="bi bi-plus-lg me-1"></i>Add</button>
                     </div>
-                    <ul id="suburb-suggestions" class="list-group position-absolute w-100 mt-1 shadow-sm" style="display: none; z-index: 10; max-height: 260px; overflow-y: auto;"></ul>
+                    <ul id="suburb-suggestions" class="list-group position-absolute w-100 mt-1 shadow-sm" style="display: none; z-index: 1050; max-height: 260px; overflow-y: auto;"></ul>
+                    <div class="small text-muted mt-1"><i class="bi bi-info-circle me-1"></i>Type at least 2 characters to search. Suburbs with the same name in different states will all be shown.</div>
                 </div>
             </div>
             <div class="col-lg-4">

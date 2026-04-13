@@ -19,20 +19,43 @@ class SuburbController extends Controller
             return response()->json(['data' => []]);
         }
 
+        // First, find suburbs matching by name or postcode
         $suburbs = Suburb::with('state')
-            ->where('name', 'like', $q . '%')
-            ->orWhere('postcode', 'like', $q . '%')
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', $q . '%')
+                      ->orWhere('postcode', 'like', $q . '%');
+            })
             ->orderBy('name')
-            ->limit(15)
-            ->get()
-            ->map(fn (Suburb $s) => [
-                'id' => $s->id,
-                'name' => $s->name,
-                'postcode' => $s->postcode,
-                'state' => $s->state?->code,
-                'label' => $s->name . ', ' . $s->postcode . ' ' . ($s->state?->code ?? ''),
-            ]);
+            ->orderBy('postcode')
+            ->limit(20)
+            ->get();
 
-        return response()->json(['data' => $suburbs]);
+        // If we matched by name, also include same-name suburbs in other states
+        // so the instructor can see e.g. "Auburn NSW", "Auburn VIC", "Auburn SA"
+        $matchedNames = $suburbs->pluck('name')->unique()->values();
+        if ($matchedNames->isNotEmpty()) {
+            $existingIds = $suburbs->pluck('id')->all();
+            $crossStateSuburbs = Suburb::with('state')
+                ->whereIn('name', $matchedNames)
+                ->whereNotIn('id', $existingIds)
+                ->orderBy('name')
+                ->orderBy('postcode')
+                ->limit(10)
+                ->get();
+
+            $suburbs = $suburbs->merge($crossStateSuburbs)
+                ->sortBy('name')
+                ->values();
+        }
+
+        $result = $suburbs->map(fn (Suburb $s) => [
+            'id' => $s->id,
+            'name' => $s->name,
+            'postcode' => $s->postcode,
+            'state' => $s->state?->code,
+            'label' => $s->name . ', ' . $s->postcode . ' ' . ($s->state?->code ?? ''),
+        ]);
+
+        return response()->json(['data' => $result]);
     }
 }

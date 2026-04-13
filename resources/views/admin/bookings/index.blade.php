@@ -20,9 +20,9 @@
                 @php $cs = request('status'); @endphp
                 <div class="btn-group btn-group-sm">
                     <a href="{{ route('admin.bookings.index', request()->except(['status','page'])) }}" class="btn {{ !$cs ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
-                    @foreach(['pending'=>'warning','confirmed'=>'primary','completed'=>'success','cancelled'=>'danger','no_show'=>'dark'] as $s => $c)
+                    @foreach(['pending'=>'warning','confirmed'=>'primary','instructor_arrived'=>'info','in_progress'=>'purple','completed'=>'success','cancelled'=>'danger','no_show'=>'dark'] as $s => $c)
                         <a href="{{ route('admin.bookings.index', array_merge(request()->except('page'), ['status'=>$s])) }}"
-                           class="btn {{ $cs===$s ? "btn-{$c}" : "btn-outline-{$c}" }}">{{ ucfirst($s === 'no_show' ? 'No Show' : $s) }}</a>
+                           class="btn {{ $cs===$s ? "btn-{$c}" : "btn-outline-{$c}" }}">{{ $s === 'no_show' ? 'No Show' : ($s === 'instructor_arrived' ? 'Arrived' : ($s === 'in_progress' ? 'In Progress' : ucfirst($s))) }}</a>
                     @endforeach
                 </div>
                 @php $ct = request('type'); @endphp
@@ -47,12 +47,13 @@
                         <th>Duration</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Confirmed</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $statusColors = ['pending'=>'warning','proposed'=>'info','confirmed'=>'primary','completed'=>'success','cancelled'=>'danger','no_show'=>'dark'];
+                        $statusColors = ['pending'=>'warning','proposed'=>'info','confirmed'=>'primary','instructor_arrived'=>'info','in_progress'=>'purple','completed'=>'success','cancelled'=>'danger','no_show'=>'dark'];
                     @endphp
                     @forelse($bookings as $b)
                         <tr>
@@ -75,7 +76,24 @@
                             </td>
                             <td class="small">{{ $b->duration_minutes }} min</td>
                             <td class="small fw-semibold">${{ number_format($b->amount, 2) }}</td>
-                            <td><span class="badge bg-{{ $statusColors[$b->status] ?? 'secondary' }}">{{ ucfirst($b->status) }}</span></td>
+                            <td><span class="badge bg-{{ $statusColors[$b->status] ?? 'secondary' }}">{{ $b->status === 'instructor_arrived' ? 'Arrived' : ($b->status === 'in_progress' ? 'In Progress' : ($b->status === 'no_show' ? 'No Show' : ucfirst($b->status))) }}</span></td>
+                            <td>
+                                @if($b->status === 'completed')
+                                    @if($b->learner_confirmed_at)
+                                        <span class="badge bg-success" title="Confirmed {{ $b->learner_confirmed_at->format('d M Y H:i') }} from {{ $b->learner_confirmed_ip ?? 'unknown IP' }}">
+                                            <i class="bi bi-shield-check"></i> Yes
+                                        </span>
+                                    @elseif($b->confirmation_sent_at)
+                                        <span class="badge bg-warning text-dark" title="Sent {{ $b->confirmation_sent_at->format('d M Y H:i') }}{{ $b->confirmation_reminder_count > 0 ? ', ' . $b->confirmation_reminder_count . ' reminder(s)' : '' }}">
+                                            <i class="bi bi-clock-history"></i> Pending
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary"><i class="bi bi-dash"></i> N/A</span>
+                                    @endif
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                             <td class="text-end">
                                 <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#bookingModal{{ $b->id }}" title="Manage">
                                     <i class="bi bi-pencil-square"></i>
@@ -83,7 +101,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="9" class="text-muted text-center py-4">No bookings found.</td></tr>
+                        <tr><td colspan="10" class="text-muted text-center py-4">No bookings found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -144,10 +162,60 @@
                             <div class="small">{{ $b->learner_notes }}</div>
                         </div>
                     @endif
+                    @if($b->instructor_arrived_at || $b->lesson_started_at || $b->lesson_ended_at)
+                        <div class="col-12">
+                            <label class="form-label text-muted small mb-0">Lesson Tracking</label>
+                            <div class="small">
+                                @if($b->instructor_arrived_at)
+                                    <div><i class="bi bi-geo-alt-fill text-info"></i> Instructor arrived: {{ $b->instructor_arrived_at->format('d M Y, H:i') }}</div>
+                                @endif
+                                @if($b->lesson_started_at)
+                                    <div><i class="bi bi-play-fill text-purple"></i> Lesson started: {{ $b->lesson_started_at->format('d M Y, H:i') }}</div>
+                                @endif
+                                @if($b->lesson_ended_at)
+                                    <div><i class="bi bi-stop-fill text-success"></i> Lesson ended: {{ $b->lesson_ended_at->format('d M Y, H:i') }}</div>
+                                @endif
+                                @if($b->lesson_started_at && $b->lesson_ended_at)
+                                    @php $actualMinutes = (int) $b->lesson_started_at->diffInMinutes($b->lesson_ended_at); @endphp
+                                    <div class="mt-1 fw-semibold">
+                                        <i class="bi bi-clock"></i> Actual duration: {{ $actualMinutes }} min
+                                        @if($actualMinutes !== $b->duration_minutes)
+                                            <span class="text-{{ $actualMinutes > $b->duration_minutes ? 'warning' : 'danger' }}">(scheduled: {{ $b->duration_minutes }} min)</span>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                     @if($b->cancellation_reason)
                         <div class="col-12">
                             <label class="form-label text-muted small mb-0">Cancellation Reason</label>
                             <div class="small text-danger">{{ $b->cancellation_reason }}</div>
+                        </div>
+                    @endif
+                    @if($b->status === 'completed')
+                        <div class="col-12">
+                            <label class="form-label text-muted small mb-0">Lesson Confirmation (Anti-Chargeback)</label>
+                            @if($b->learner_confirmed_at)
+                                <div class="small text-success fw-semibold">
+                                    <i class="bi bi-shield-check"></i> Confirmed by learner on {{ $b->learner_confirmed_at->format('d M Y \a\t H:i') }}
+                                </div>
+                                <div class="text-muted small">
+                                    IP: {{ $b->learner_confirmed_ip ?? 'N/A' }}
+                                    @if($b->learner_confirmed_user_agent)
+                                        | UA: {{ Str::limit($b->learner_confirmed_user_agent, 60) }}
+                                    @endif
+                                </div>
+                            @elseif($b->confirmation_sent_at)
+                                <div class="small text-warning fw-semibold">
+                                    <i class="bi bi-clock-history"></i> Awaiting confirmation (sent {{ $b->confirmation_sent_at->diffForHumans() }})
+                                    @if($b->confirmation_reminder_count > 0)
+                                        — {{ $b->confirmation_reminder_count }} reminder(s) sent
+                                    @endif
+                                </div>
+                            @else
+                                <div class="small text-muted">No confirmation requested yet</div>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -158,8 +226,8 @@
                     <div class="row g-2">
                         <div class="col-md-5">
                             <select name="status" class="form-select form-select-sm">
-                                @foreach(['pending','proposed','confirmed','completed','cancelled','no_show'] as $st)
-                                    <option value="{{ $st }}" {{ $b->status === $st ? 'selected' : '' }}>{{ ucfirst($st === 'no_show' ? 'No Show' : $st) }}</option>
+                                @foreach(['pending','proposed','confirmed','instructor_arrived','in_progress','completed','cancelled','no_show'] as $st)
+                                    <option value="{{ $st }}" {{ $b->status === $st ? 'selected' : '' }}>{{ $st === 'instructor_arrived' ? 'Instructor Arrived' : ($st === 'in_progress' ? 'In Progress' : ($st === 'no_show' ? 'No Show' : ucfirst($st))) }}</option>
                                 @endforeach
                             </select>
                         </div>

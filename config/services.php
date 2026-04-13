@@ -37,6 +37,16 @@ return [
 
     'google' => [
         'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect_uri' => env('GOOGLE_REDIRECT_URI', '/google-calendar/callback'),
+        'scopes' => ['https://www.googleapis.com/auth/calendar'],
+    ],
+
+    'vonage' => [
+        'key' => env('VONAGE_KEY'),
+        'secret' => env('VONAGE_SECRET'),
+        'sms_from' => env('VONAGE_SMS_FROM', 'SecureLicences'),
     ],
 
 ];

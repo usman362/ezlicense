@@ -146,17 +146,43 @@ const suburbSuggestions = document.getElementById('suburb-suggestions');
 
 function showSuggestions(items) {
   if (!suburbSuggestions) return;
-  suburbSuggestions.innerHTML = (items || []).map((s) => {
+  if (!items || !items.length) {
+    suburbSuggestions.innerHTML = '';
+    suburbSuggestions.style.display = 'none';
+    return;
+  }
+
+  // Group items by suburb name to detect cross-state duplicates
+  const nameCount = {};
+  items.forEach((s) => {
+    const key = (s.name || '').toLowerCase();
+    nameCount[key] = (nameCount[key] || 0) + 1;
+  });
+
+  suburbSuggestions.innerHTML = items.map((s) => {
     const label = s.label || (s.name + ', ' + (s.postcode || '') + ' ' + (s.state || ''));
     const already = serviceAreaIds.includes(s.id);
-    return '<li class="list-group-item list-group-item-action suburb-suggestion d-flex justify-content-between align-items-center' + (already ? ' bg-light' : '') + '" data-id="' + s.id + '" data-label="' + escapeHtml(label).replace(/"/g, '&quot;') + '">' +
-      '<span>' + escapeHtml(label) + '</span>' +
+    const nameKey = (s.name || '').toLowerCase();
+    const isDuplicate = nameCount[nameKey] > 1;
+    const stateColor = stateColors[s.state] || 'secondary';
+
+    // Show a prominent state badge when the same suburb name exists in multiple states
+    const stateBadge = isDuplicate
+      ? ' <span class="badge bg-' + stateColor + ' ms-1">' + escapeHtml(s.state || '') + '</span>'
+      : '';
+
+    return '<li class="list-group-item list-group-item-action suburb-suggestion d-flex justify-content-between align-items-center' + (already ? ' bg-light' : '') + '" data-id="' + s.id + '" data-label="' + escapeHtml(label).replace(/"/g, '&quot;') + '" style="cursor:pointer;">' +
+      '<span>' + escapeHtml(s.name || '') + ', ' + escapeHtml(s.postcode || '') + ' <strong>' + escapeHtml(s.state || '') + '</strong>' + stateBadge + '</span>' +
       (already ? '<span class="badge bg-success-subtle text-success">Added</span>' : '<span class="badge bg-primary-subtle text-primary">Add</span>') +
       '</li>';
   }).join('');
-  suburbSuggestions.style.display = (items && items.length) ? 'block' : 'none';
+
+  suburbSuggestions.style.display = 'block';
+
+  // Use mousedown instead of click so the event fires BEFORE the blur handler hides the dropdown
   suburbSuggestions.querySelectorAll('.suburb-suggestion').forEach((li) => {
-    li.addEventListener('click', () => {
+    li.addEventListener('mousedown', (e) => {
+      e.preventDefault(); // Prevent the input from losing focus (and triggering blur)
       const id = parseInt(li.getAttribute('data-id'), 10);
       const label = li.getAttribute('data-label') || '';
       if (!serviceAreaIds.includes(id)) {
@@ -170,13 +196,30 @@ function showSuggestions(items) {
   });
 }
 
-suburbAddInput?.addEventListener('input', async () => {
+let lastSearchResults = [];
+let searchDebounce = null;
+
+suburbAddInput?.addEventListener('input', () => {
+  clearTimeout(searchDebounce);
   const q = suburbAddInput.value.trim();
-  if (q.length < 2) { showSuggestions([]); return; }
-  const data = await searchSuburbs(q);
-  showSuggestions(data);
+  if (q.length < 2) { lastSearchResults = []; showSuggestions([]); return; }
+  searchDebounce = setTimeout(async () => {
+    const data = await searchSuburbs(q);
+    lastSearchResults = data;
+    showSuggestions(data);
+  }, 150);
 });
-suburbAddInput?.addEventListener('blur', () => setTimeout(() => { if (suburbSuggestions) suburbSuggestions.style.display = 'none'; }, 200));
+
+// Re-show results when input regains focus (if there's text and cached results)
+suburbAddInput?.addEventListener('focus', () => {
+  const q = suburbAddInput.value.trim();
+  if (q.length >= 2 && lastSearchResults.length) {
+    showSuggestions(lastSearchResults);
+  }
+});
+
+// Hide suggestions on blur with a longer delay so mousedown on suggestions can fire first
+suburbAddInput?.addEventListener('blur', () => setTimeout(() => { if (suburbSuggestions) suburbSuggestions.style.display = 'none'; }, 300));
 
 document.getElementById('suburb-add-btn')?.addEventListener('click', async () => {
   const q = suburbAddInput.value.trim();

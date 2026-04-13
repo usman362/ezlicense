@@ -14,6 +14,7 @@ use App\Models\InstructorWarning;
 use App\Models\Review;
 use App\Models\User;
 use App\Notifications\ReviewApproved;
+use App\Services\RatingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -200,6 +201,13 @@ class InstructorsController extends Controller
                 null,
                 ['review_id' => $review->id, 'rating' => $review->rating],
             );
+
+            // Update weighted rating based on the new review
+            try {
+                app(RatingService::class)->processNewReview($profile, $review);
+            } catch (\Throwable $e) {
+                Log::warning('Rating recalculation failed after review approval: ' . $e->getMessage());
+            }
         }
 
         return redirect()->back()->with('message', 'Review approved and is now visible publicly.');
@@ -238,20 +246,27 @@ class InstructorsController extends Controller
 
     public function deleteReview(Review $review)
     {
-        $profileId = InstructorProfile::where('user_id', $review->instructor_id)->value('id');
+        $profile = InstructorProfile::where('user_id', $review->instructor_id)->first();
         $reviewMeta = ['review_id' => $review->id, 'rating' => $review->rating, 'comment' => $review->comment];
 
         $review->delete();
 
-        if ($profileId) {
+        if ($profile) {
             InstructorAuditLog::record(
-                $profileId,
+                $profile->id,
                 Auth::id(),
                 'review_deleted',
                 'Deleted a ' . ($reviewMeta['rating'] ?? '?') . '★ review',
                 null,
                 $reviewMeta,
             );
+
+            // Recalculate weighted rating from scratch after review deletion
+            try {
+                app(RatingService::class)->onReviewDeleted($profile);
+            } catch (\Throwable $e) {
+                Log::warning('Rating recalculation failed after review deletion: ' . $e->getMessage());
+            }
         }
 
         return redirect()->back()->with('message', 'Review deleted successfully.');
@@ -275,6 +290,31 @@ class InstructorsController extends Controller
         }
 
         return redirect()->back()->with('message', 'Review ' . ($review->is_hidden ? 'hidden' : 'unhidden') . ' successfully.');
+    }
+
+    // ==================================================================
+    //  RATING ADJUSTMENT
+    // ==================================================================
+
+    /**
+     * Admin manually adjusts an instructor's weighted rating.
+     */
+    public function adjustRating(Request $request, InstructorProfile $instructorProfile)
+    {
+        $request->validate([
+            'weighted_rating' => 'required|numeric|min:1|max:5',
+            'reason'          => 'nullable|string|max:1000',
+        ]);
+
+        app(RatingService::class)->adminAdjustRating(
+            $instructorProfile,
+            (float) $request->input('weighted_rating'),
+            $request->input('reason'),
+        );
+
+        $name = $instructorProfile->user->name ?? 'Instructor';
+
+        return redirect()->back()->with('message', "{$name}'s rating has been adjusted to " . $request->input('weighted_rating') . ".");
     }
 
     // ==================================================================

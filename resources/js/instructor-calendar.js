@@ -8,12 +8,31 @@
   const HOURS_START = 7;
   const HOURS_END = 20;
 
+  /** Status color map */
+  const STATUS_COLORS = {
+    confirmed:          { bg: '#dcfce7', border: '#16a34a', text: '#166534', badge: '#16a34a' },
+    instructor_arrived: { bg: '#dbeafe', border: '#2563eb', text: '#1e40af', badge: '#2563eb' },
+    in_progress:        { bg: '#f3e8ff', border: '#9333ea', text: '#6b21a8', badge: '#9333ea' },
+    completed:          { bg: '#f3f4f6', border: '#6b7280', text: '#374151', badge: '#6b7280' },
+    proposed:           { bg: '#fef3c7', border: '#d97706', text: '#92400e', badge: '#d97706' },
+    pending:            { bg: '#fefce8', border: '#ca8a04', text: '#854d0e', badge: '#ca8a04' }
+  };
+  const DEFAULT_STATUS_COLOR = { bg: '#fff3cd', border: '#856404', text: '#856404', badge: '#6c757d' };
+
+  function getStatusColor(status) {
+    return STATUS_COLORS[status] || DEFAULT_STATUS_COLOR;
+  }
+
+  /** Cancellable statuses */
+  var CANCELLABLE = ['confirmed', 'proposed', 'pending'];
+
   let profileData = null;
   let calendarBookings = [];
   let currentView = 'week';
   let viewDate = new Date();
   let calendarYear = viewDate.getFullYear();
   let calendarMonth = viewDate.getMonth();
+  let nowLineInterval = null;
 
   function getCsrf() {
     const m = document.querySelector('meta[name="csrf-token"]');
@@ -69,6 +88,213 @@
       return h >= start && h < end;
     });
   }
+
+  /* ─── Popover helpers ─── */
+
+  function closePopover() {
+    var pop = document.getElementById('cal-popover');
+    if (pop) pop.remove();
+    var menu = document.getElementById('cal-slot-menu');
+    if (menu) menu.remove();
+  }
+
+  /** Position a floating element next to an anchor, keeping it in viewport */
+  function positionFloating(floating, anchor) {
+    var rect = anchor.getBoundingClientRect();
+    var fw = floating.offsetWidth || 320;
+    var fh = floating.offsetHeight || 200;
+    var left = rect.right + 8;
+    var top = rect.top;
+    if (left + fw > window.innerWidth - 16) {
+      left = rect.left - fw - 8;
+    }
+    if (left < 8) left = 8;
+    if (top + fh > window.innerHeight - 16) {
+      top = window.innerHeight - fh - 16;
+    }
+    if (top < 8) top = 8;
+    floating.style.left = left + 'px';
+    floating.style.top = top + 'px';
+  }
+
+  /** Build and show booking detail popover */
+  function showBookingPopover(booking, anchorEl) {
+    closePopover();
+    var sc = getStatusColor(booking.status);
+    var startTime = booking.scheduled_at ? new Date(booking.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--';
+    var endTime = '';
+    if (booking.scheduled_at && booking.duration_minutes) {
+      var e = new Date(new Date(booking.scheduled_at).getTime() + booking.duration_minutes * 60000);
+      endTime = ' - ' + e.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    var learnerName = (booking.learner && booking.learner.name) || 'Unknown';
+    var learnerPhone = (booking.learner && booking.learner.phone) || '';
+    var lessonType = booking.type || booking.lesson_type || 'Lesson';
+    var duration = booking.duration_minutes ? booking.duration_minutes + ' min' : '';
+    var suburb = (booking.suburb && ((booking.suburb.name || '') + ' ' + (booking.suburb.postcode || '')).trim()) || '';
+    var transmission = booking.transmission ? booking.transmission.charAt(0).toUpperCase() + booking.transmission.slice(1) : '';
+
+    var actionsHtml = '';
+    if (booking.status === 'confirmed') {
+      actionsHtml += '<button class="btn btn-sm btn-primary cal-action-btn" data-action="arrived" data-id="' + booking.id + '"><i class="bi bi-geo-alt me-1"></i>Mark Arrived</button>';
+    } else if (booking.status === 'instructor_arrived') {
+      actionsHtml += '<button class="btn btn-sm btn-primary cal-action-btn" data-action="start-lesson" data-id="' + booking.id + '"><i class="bi bi-play-fill me-1"></i>Start Lesson</button>';
+    } else if (booking.status === 'in_progress') {
+      actionsHtml += '<button class="btn btn-sm btn-primary cal-action-btn" data-action="end-lesson" data-id="' + booking.id + '"><i class="bi bi-stop-fill me-1"></i>End Lesson</button>';
+    }
+    if (CANCELLABLE.indexOf(booking.status) !== -1) {
+      actionsHtml += '<button class="btn btn-sm btn-outline-danger cal-action-btn ms-1" data-action="cancel" data-id="' + booking.id + '"><i class="bi bi-x-circle me-1"></i>Cancel</button>';
+    }
+    actionsHtml += '<a href="/instructor/learners/' + (booking.learner_id || '') + '" class="btn btn-sm btn-outline-secondary ms-1"><i class="bi bi-arrow-repeat me-1"></i>Reschedule</a>';
+
+    var pop = document.createElement('div');
+    pop.id = 'cal-popover';
+    pop.className = 'cal-popover';
+    pop.innerHTML = '<div class="cal-popover-header">'
+      + '<strong>' + escapeHtml(learnerName) + '</strong>'
+      + '<button class="cal-popover-close" title="Close">&times;</button>'
+      + '</div>'
+      + '<div class="cal-popover-body">'
+      + (learnerPhone ? '<div class="mb-1"><i class="bi bi-telephone me-1"></i>' + escapeHtml(learnerPhone) + '</div>' : '')
+      + '<div class="mb-1"><i class="bi bi-clock me-1"></i>' + startTime + endTime + (duration ? ' (' + duration + ')' : '') + '</div>'
+      + '<div class="mb-1"><i class="bi bi-book me-1"></i>' + escapeHtml(lessonType) + (transmission ? ' &middot; ' + escapeHtml(transmission) : '') + '</div>'
+      + (suburb ? '<div class="mb-1"><i class="bi bi-geo me-1"></i>' + escapeHtml(suburb) + '</div>' : '')
+      + '<div class="mb-2"><span class="cal-status-badge" style="background:' + sc.badge + '">' + escapeHtml(booking.status ? booking.status.replace(/_/g, ' ') : '') + '</span></div>'
+      + '<div class="cal-popover-actions">' + actionsHtml + '</div>'
+      + '</div>';
+
+    document.body.appendChild(pop);
+    positionFloating(pop, anchorEl);
+
+    pop.querySelector('.cal-popover-close').addEventListener('click', closePopover);
+    pop.querySelectorAll('.cal-action-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { handleQuickAction(btn.dataset.action, btn.dataset.id, btn); });
+    });
+  }
+
+  /** Handle quick action API call */
+  function handleQuickAction(action, bookingId, btn) {
+    var urlMap = {
+      'arrived': '/api/bookings/' + bookingId + '/arrived',
+      'start-lesson': '/api/bookings/' + bookingId + '/start-lesson',
+      'end-lesson': '/api/bookings/' + bookingId + '/end-lesson',
+      'cancel': '/api/bookings/' + bookingId + '/cancel'
+    };
+    var methodMap = {
+      'arrived': 'POST',
+      'start-lesson': 'POST',
+      'end-lesson': 'POST',
+      'cancel': 'PUT'
+    };
+    var url = urlMap[action];
+    if (!url) return;
+
+    if (action === 'cancel' && !confirm('Are you sure you want to cancel this booking?')) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Working...';
+
+    fetch(url, {
+      method: methodMap[action],
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': getCsrf(),
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    }).then(function (r) {
+      if (!r.ok) throw new Error('Request failed: ' + r.status);
+      return r.json();
+    }).then(function (data) {
+      closePopover();
+      // Refresh just the bookings and re-render
+      fetchJson(getBookingsUrl()).then(function (r) {
+        var d = r && r.data !== undefined ? r.data : r;
+        calendarBookings = Array.isArray(d) ? d : (d && d.data) || [];
+        render();
+      });
+    }).catch(function (err) {
+      console.error('Calendar action error:', err);
+      btn.disabled = false;
+      btn.innerHTML = 'Error - Try Again';
+    });
+  }
+
+  /** Show empty slot context menu */
+  function showSlotMenu(dateKey, hour, anchorEl) {
+    closePopover();
+    var menu = document.createElement('div');
+    menu.id = 'cal-slot-menu';
+    menu.className = 'cal-slot-menu';
+    var timeLabel = hour === 12 ? '12:00 pm' : hour > 12 ? (hour - 12) + ':00 pm' : hour + ':00 am';
+    menu.innerHTML = '<div class="cal-slot-menu-header">' + dateKey + ' at ' + timeLabel + '</div>'
+      + '<a href="/instructor/settings/opening-hours" class="cal-slot-menu-item"><i class="bi bi-slash-circle me-2"></i>Block This Time</a>'
+      + '<a href="/instructor/learners?propose=1&date=' + dateKey + '&time=' + String(hour).padStart(2, '0') + ':00" class="cal-slot-menu-item"><i class="bi bi-calendar-plus me-2"></i>Propose a Booking</a>';
+    document.body.appendChild(menu);
+    positionFloating(menu, anchorEl);
+  }
+
+  /* ─── Now-line (current time indicator) ─── */
+
+  function drawNowLine() {
+    // Remove old lines
+    document.querySelectorAll('.cal-now-line').forEach(function (el) { el.remove(); });
+    var now = new Date();
+    var nowHour = now.getHours() + now.getMinutes() / 60;
+    if (nowHour < HOURS_START || nowHour >= HOURS_END) return;
+
+    if (currentView === 'week') {
+      var grid = document.getElementById('calendar-week-grid');
+      if (!grid) return;
+      var todayKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      var cell = grid.querySelector('.week-cell[data-date="' + todayKey + '"][data-hour="' + Math.floor(nowHour) + '"]');
+      if (!cell) return;
+      cell.style.position = 'relative';
+      var line = document.createElement('div');
+      line.className = 'cal-now-line';
+      var minuteOffset = (now.getMinutes() / 60) * ROW_HEIGHT;
+      line.style.cssText = 'position:absolute;left:0;right:0;top:' + minuteOffset + 'px;height:2px;background:#ef4444;z-index:5;pointer-events:none;';
+      var dot = document.createElement('div');
+      dot.style.cssText = 'position:absolute;left:-4px;top:-3px;width:8px;height:8px;background:#ef4444;border-radius:50%;';
+      line.appendChild(dot);
+      cell.appendChild(line);
+    } else if (currentView === 'day') {
+      var container = document.getElementById('calendar-day-grid');
+      if (!container) return;
+      var rowIndex = Math.floor(nowHour) - HOURS_START;
+      var slots = container.querySelectorAll('.day-time-slot');
+      var slot = slots[rowIndex];
+      if (!slot) return;
+      slot.style.position = 'relative';
+      var line = document.createElement('div');
+      line.className = 'cal-now-line';
+      var minuteOffset = (now.getMinutes() / 60) * ROW_HEIGHT;
+      line.style.cssText = 'position:absolute;left:0;right:0;top:' + minuteOffset + 'px;height:2px;background:#ef4444;z-index:5;pointer-events:none;';
+      var dot = document.createElement('div');
+      dot.style.cssText = 'position:absolute;left:-4px;top:-3px;width:8px;height:8px;background:#ef4444;border-radius:50%;';
+      line.appendChild(dot);
+      slot.appendChild(line);
+    }
+  }
+
+  function startNowLineTimer() {
+    if (nowLineInterval) clearInterval(nowLineInterval);
+    drawNowLine();
+    nowLineInterval = setInterval(drawNowLine, 60000); // update every minute
+  }
+
+  /* ─── Close popover on outside click ─── */
+  document.addEventListener('click', function (e) {
+    var pop = document.getElementById('cal-popover');
+    var menu = document.getElementById('cal-slot-menu');
+    if (pop && !pop.contains(e.target) && !e.target.closest('.week-event') && !e.target.closest('.day-booking-event')) {
+      pop.remove();
+    }
+    if (menu && !menu.contains(e.target) && !e.target.closest('.week-cell') && !e.target.closest('.day-time-slot')) {
+      menu.remove();
+    }
+  });
 
   function renderWeekView() {
     var gridEl = document.getElementById('calendar-week-grid');
@@ -127,13 +353,31 @@
       var cell = gridEl.querySelector('.week-cell[data-date="' + dateKey + '"][data-hour="' + Math.floor(startHour) + '"]');
       if (!cell) return;
       cell.style.position = 'relative';
+      var sc = getStatusColor(b.status);
       var el = document.createElement('div');
       el.className = 'week-event booking';
-      el.style.cssText = 'position:absolute;left:2px;right:2px;top:' + minutesOffset + 'px;height:' + height + 'px;z-index:1';
+      el.style.cssText = 'position:absolute;left:2px;right:2px;top:' + minutesOffset + 'px;height:' + height + 'px;z-index:2;background:' + sc.bg + ';color:' + sc.text + ';border-left:3px solid ' + sc.border + ';cursor:pointer;';
       var addr = (b.suburb && (b.suburb.name || '') + ' ' + (b.suburb.postcode || '')).trim() || '';
       var trans = b.transmission ? '(' + String(b.transmission).charAt(0).toUpperCase() + ')' : '';
       el.innerHTML = '<strong>' + escapeHtml(b.learner && b.learner.name ? b.learner.name : 'Booking') + '</strong> ' + trans + '<br><small>' + (addr ? escapeHtml(addr) : '—') + '</small>';
+      // Booking click -> popover
+      (function (booking, element) {
+        element.addEventListener('click', function (e) {
+          e.stopPropagation();
+          showBookingPopover(booking, element);
+        });
+      })(b, el);
       cell.appendChild(el);
+    });
+
+    // Attach empty-slot click handlers
+    gridEl.querySelectorAll('.week-cell').forEach(function (cell) {
+      cell.addEventListener('click', function (e) {
+        if (e.target.closest('.week-event')) return; // ignore if clicking on a booking
+        var dateKey = cell.getAttribute('data-date');
+        var hour = parseInt(cell.getAttribute('data-hour'), 10);
+        showSlotMenu(dateKey, hour, cell);
+      });
     });
 
     var rangeLabel = document.getElementById('calendar-range-label');
@@ -164,12 +408,29 @@
       var slot = slots[rowIndex];
       if (!slot) return;
       var minutesOffset = (start.getMinutes() / 60) * ROW_HEIGHT;
+      var sc = getStatusColor(b.status);
       var el = document.createElement('div');
-      el.className = 'week-event booking';
-      el.style.cssText = 'position:absolute;left:4px;right:4px;top:' + minutesOffset + 'px;height:' + ((duration / 60) * ROW_HEIGHT - 4) + 'px';
+      el.className = 'week-event booking day-booking-event';
+      el.style.cssText = 'position:absolute;left:4px;right:4px;top:' + minutesOffset + 'px;height:' + ((duration / 60) * ROW_HEIGHT - 4) + 'px;background:' + sc.bg + ';color:' + sc.text + ';border-left:3px solid ' + sc.border + ';cursor:pointer;';
       var addr = (b.suburb && (b.suburb.name || '') + ' ' + (b.suburb.postcode || '')).trim() || '';
       el.innerHTML = '<strong>' + escapeHtml(b.learner && b.learner.name ? b.learner.name : '') + '</strong><br><small>' + (addr ? escapeHtml(addr) : '—') + '</small>';
+      // Booking click -> popover
+      (function (booking, element) {
+        element.addEventListener('click', function (e) {
+          e.stopPropagation();
+          showBookingPopover(booking, element);
+        });
+      })(b, el);
       slot.appendChild(el);
+    });
+
+    // Attach empty-slot click handlers for day view
+    container.querySelectorAll('.day-time-slot').forEach(function (slot) {
+      slot.addEventListener('click', function (e) {
+        if (e.target.closest('.week-event')) return;
+        var hour = parseInt(slot.getAttribute('data-hour'), 10);
+        showSlotMenu(dateKey, hour, slot);
+      });
     });
     var rangeLabel = document.getElementById('calendar-range-label');
     var breadcrumbRange = document.getElementById('calendar-breadcrumb-range');
@@ -227,7 +488,8 @@
       var classes = 'instructor-calendar-day' + (isOtherMonth ? ' other-month' : '') + (isToday ? ' today' : '') + (isPast ? ' past' : '') + (hasBooking ? ' has-booking' : '') + (isOtherMonth ? '' : ' clickable');
       var eventsHtml = hasBooking ? '<div class="day-events">' + dayBookings.slice(0, 2).map(function (b) {
         var t = b.scheduled_at ? new Date(b.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-        return '<div>● ' + t + ' ' + escapeHtml(b.learner && b.learner.name ? b.learner.name : '') + '</div>';
+        var sc = getStatusColor(b.status);
+        return '<div style="color:' + sc.text + '"><span style="color:' + sc.border + '">●</span> ' + t + ' ' + escapeHtml(b.learner && b.learner.name ? b.learner.name : '') + '</div>';
       }).join('') + '</div>' : '';
       html += '<div class="' + classes + '" data-date="' + dateKey + '"><span class="day-num">' + dayNum + '</span>' + eventsHtml + '</div>';
     }
@@ -252,7 +514,8 @@
       body.innerHTML = dayBookings.map(function (b) {
         var time = b.scheduled_at ? new Date(b.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
         var addr = (b.suburb && (b.suburb.name || '') + ' ' + (b.suburb.postcode || '')).trim() || '';
-        return '<p class="mb-2"><strong>' + time + '</strong> ' + escapeHtml(b.learner && b.learner.name ? b.learner.name : '—') + ' — ' + b.type + (addr ? '<br><small class="text-muted">' + escapeHtml(addr) + '</small>' : '') + ' <span class="badge bg-success">' + b.status + '</span></p>';
+        var sc = getStatusColor(b.status);
+        return '<p class="mb-2"><strong>' + time + '</strong> ' + escapeHtml(b.learner && b.learner.name ? b.learner.name : '—') + ' — ' + (b.type || '') + (addr ? '<br><small class="text-muted">' + escapeHtml(addr) + '</small>' : '') + ' <span class="badge" style="background:' + sc.badge + ';color:#fff">' + escapeHtml(b.status ? b.status.replace(/_/g, ' ') : '') + '</span></p>';
       }).join('');
     }
     detail.style.display = 'block';
@@ -268,6 +531,22 @@
     if (currentView === 'week') renderWeekView();
     else if (currentView === 'day') renderDayView();
     else renderMonthView();
+    startNowLineTimer();
+  }
+
+  /**
+   * Build a date-range query string based on the current view.
+   * Fetches ±60 days from today to cover any view (week/day/month).
+   */
+  function getBookingsUrl() {
+    var from = new Date(viewDate.getTime());
+    var to = new Date(viewDate.getTime());
+    from.setDate(from.getDate() - 60);
+    to.setDate(to.getDate() + 60);
+    var pad = function (n) { return String(n).padStart(2, '0'); };
+    var fromStr = from.getFullYear() + '-' + pad(from.getMonth() + 1) + '-' + pad(from.getDate());
+    var toStr = to.getFullYear() + '-' + pad(to.getMonth() + 1) + '-' + pad(to.getDate());
+    return '/api/bookings?calendar=1&from=' + fromStr + '&to=' + toStr;
   }
 
   function loadCalendar() {
@@ -277,16 +556,13 @@
 
     Promise.all([
       fetchJson('/api/instructor/profile').then(function (r) { return r.data || r; }).catch(function () { return {}; }),
-      fetchJson('/api/bookings').then(function (r) {
+      fetchJson(getBookingsUrl()).then(function (r) {
         var d = r && r.data !== undefined ? r.data : r;
         return Array.isArray(d) ? d : (d && d.data) || [];
       }).catch(function () { return []; })
     ]).then(function (results) {
       profileData = results[0] || null;
       calendarBookings = results[1] || [];
-      viewDate = new Date();
-      calendarYear = viewDate.getFullYear();
-      calendarMonth = viewDate.getMonth();
       render();
     }).catch(function (err) {
       console.error('Calendar error:', err);
@@ -308,7 +584,9 @@
         if (calendarMonth === 0) { calendarYear--; calendarMonth = 11; } else calendarMonth--;
         viewDate = new Date(calendarYear, calendarMonth, 1);
       }
-      render();
+      calendarYear = viewDate.getFullYear();
+      calendarMonth = viewDate.getMonth();
+      loadCalendar();
     });
     nextBtn.addEventListener('click', function () {
       if (currentView === 'week') viewDate.setDate(viewDate.getDate() + 7);
@@ -317,7 +595,9 @@
         if (calendarMonth === 11) { calendarYear++; calendarMonth = 0; } else calendarMonth++;
         viewDate = new Date(calendarYear, calendarMonth, 1);
       }
-      render();
+      calendarYear = viewDate.getFullYear();
+      calendarMonth = viewDate.getMonth();
+      loadCalendar();
     });
     todayBtn.addEventListener('click', function () {
       viewDate = new Date();

@@ -19,6 +19,8 @@ class Booking extends Model
     public const STATUS_PENDING = 'pending';
     public const STATUS_PROPOSED = 'proposed';
     public const STATUS_CONFIRMED = 'confirmed';
+    public const STATUS_INSTRUCTOR_ARRIVED = 'instructor_arrived';
+    public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
     public const STATUS_NO_SHOW = 'no_show';
@@ -80,6 +82,18 @@ class Booking extends Model
         'cancellation_policy_accepted',
         'proposal_expires_at',
         'rescheduled_from_booking_id',
+        'confirmation_token',
+        'confirmation_sent_at',
+        'learner_confirmed_at',
+        'learner_confirmed_ip',
+        'learner_confirmed_user_agent',
+        'confirmation_reminded_at',
+        'confirmation_reminder_count',
+        'instructor_arrived_at',
+        'lesson_started_at',
+        'lesson_ended_at',
+        'google_event_id',
+        'google_event_id_learner',
     ];
 
     protected function casts(): array
@@ -93,6 +107,12 @@ class Booking extends Model
             'instructor_net_amount' => 'decimal:2',
             'test_pre_booked' => 'boolean',
             'cancellation_policy_accepted' => 'boolean',
+            'confirmation_sent_at' => 'datetime',
+            'learner_confirmed_at' => 'datetime',
+            'confirmation_reminded_at' => 'datetime',
+            'instructor_arrived_at' => 'datetime',
+            'lesson_started_at' => 'datetime',
+            'lesson_ended_at' => 'datetime',
         ];
     }
 
@@ -167,6 +187,29 @@ class Booking extends Model
         ], true) && $this->scheduled_at->isFuture();
     }
 
+    public function isInstructorArrived(): bool
+    {
+        return $this->status === self::STATUS_INSTRUCTOR_ARRIVED;
+    }
+
+    public function isInProgress(): bool
+    {
+        return $this->status === self::STATUS_IN_PROGRESS;
+    }
+
+    /**
+     * Calculate actual lesson duration in minutes from started_at to ended_at.
+     * Returns null if either timestamp is missing.
+     */
+    public function actualDurationMinutes(): ?int
+    {
+        if (!$this->lesson_started_at || !$this->lesson_ended_at) {
+            return null;
+        }
+
+        return (int) $this->lesson_started_at->diffInMinutes($this->lesson_ended_at);
+    }
+
     /**
      * Check if the booking starts within the modification cutoff window.
      * Instructors cannot modify bookings within 24 hours unless it's an emergency.
@@ -203,6 +246,70 @@ class Booking extends Model
         }
 
         return true;
+    }
+
+    // ── Lesson confirmation helpers ────────────────────────────
+
+    /**
+     * Generate a unique confirmation token for this booking.
+     */
+    public function generateConfirmationToken(): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $this->update([
+            'confirmation_token' => $token,
+            'confirmation_sent_at' => now(),
+        ]);
+
+        return $token;
+    }
+
+    /**
+     * Check if the learner has confirmed this lesson.
+     */
+    public function isLearnerConfirmed(): bool
+    {
+        return $this->learner_confirmed_at !== null;
+    }
+
+    /**
+     * Check if a confirmation request has been sent.
+     */
+    public function isConfirmationSent(): bool
+    {
+        return $this->confirmation_sent_at !== null;
+    }
+
+    /**
+     * Check if confirmation is pending (sent but not yet confirmed).
+     */
+    public function isConfirmationPending(): bool
+    {
+        return $this->isConfirmationSent() && !$this->isLearnerConfirmed();
+    }
+
+    /**
+     * Record the learner's confirmation with forensic evidence.
+     */
+    public function recordConfirmation(?string $ip = null, ?string $userAgent = null): void
+    {
+        $this->update([
+            'learner_confirmed_at' => now(),
+            'learner_confirmed_ip' => $ip,
+            'learner_confirmed_user_agent' => $userAgent ? substr($userAgent, 0, 500) : null,
+        ]);
+    }
+
+    /**
+     * Get the public confirmation URL for this booking.
+     */
+    public function getConfirmationUrl(): ?string
+    {
+        if (!$this->confirmation_token) {
+            return null;
+        }
+
+        return url("/lesson-confirmation/{$this->confirmation_token}");
     }
 
     // ── Cancellation rate helpers ──────────────────────────────

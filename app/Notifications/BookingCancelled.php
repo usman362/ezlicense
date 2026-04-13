@@ -4,13 +4,15 @@ namespace App\Notifications;
 
 use App\Models\Booking;
 use App\Models\SiteSetting;
+use App\Traits\SendsSms;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\VonageMessage;
 use Illuminate\Notifications\Notification;
 
 class BookingCancelled extends Notification
 {
-    use Queueable;
+    use Queueable, SendsSms;
 
     public function __construct(
         protected Booking $booking,
@@ -20,12 +22,16 @@ class BookingCancelled extends Notification
 
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
-        $smtpHost = SiteSetting::get('smtp_host');
-        if (! empty($smtpHost)) {
-            $channels[] = 'mail';
-        }
-        return $channels;
+        return array_merge(['database', 'mail'], $this->smsChannel($notifiable));
+    }
+
+    public function toVonage(object $notifiable): VonageMessage
+    {
+        $b = $this->booking;
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : '';
+
+        return (new VonageMessage)
+            ->content("SecureLicences: Booking #{$b->id} on {$date} has been cancelled. Reason: " . ($this->reason ?: 'Not specified') . ". Log in for details.");
     }
 
     public function toMail(object $notifiable): MailMessage

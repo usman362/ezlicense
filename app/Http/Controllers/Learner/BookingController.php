@@ -8,7 +8,10 @@ use App\Models\InstructorProfile;
 use App\Models\LearnerTransaction;
 use App\Models\LearnerWallet;
 use App\Models\State;
+use App\Notifications\AdminBookingAlert;
 use App\Notifications\BookingConfirmed;
+use App\Notifications\InstructorNewBooking;
+use App\Traits\NotifiesAdmin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +21,7 @@ use Illuminate\View\View;
 
 class BookingController extends Controller
 {
+    use NotifiesAdmin;
     /**
      * Show the Make a Booking page for a given instructor.
      */
@@ -186,11 +190,25 @@ class BookingController extends Controller
 
             // Send confirmation notification for each booking
             foreach ($bookings as $booking) {
+                // Notify learner
                 try {
                     $user->notify(new BookingConfirmed($booking));
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::warning('Booking notification failed: ' . $e->getMessage());
                 }
+
+                // Notify the instructor about the new booking
+                try {
+                    $instructor = \App\Models\User::find($booking->instructor_id);
+                    if ($instructor) {
+                        $instructor->notify(new InstructorNewBooking($booking));
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Instructor booking notification failed: ' . $e->getMessage());
+                }
+
+                // Notify admin about the new booking
+                $this->notifyAdminAboutBooking($booking, AdminBookingAlert::EVENT_NEW);
             }
 
             // Clear session order

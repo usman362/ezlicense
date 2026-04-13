@@ -39,6 +39,10 @@ class User extends Authenticatable
         'deactivation_reason',
         'deactivated_at',
         'blocked_until',
+        'google_calendar_token',
+        'google_calendar_id',
+        'google_calendar_sync_enabled',
+        'google_calendar_last_synced_at',
     ];
 
     /**
@@ -49,6 +53,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'google_calendar_token',
     ];
 
     /**
@@ -65,7 +70,39 @@ class User extends Authenticatable
             'password' => 'hashed',
             'deactivated_at' => 'datetime',
             'blocked_until' => 'datetime',
+            'google_calendar_token' => 'encrypted:array',
+            'google_calendar_sync_enabled' => 'boolean',
+            'google_calendar_last_synced_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Route notifications for the Vonage (SMS) channel.
+     * Returns the phone number in E.164 format for Australian numbers.
+     */
+    public function routeNotificationForVonage($notification): ?string
+    {
+        $phone = $this->phone;
+        if (empty($phone)) {
+            return null;
+        }
+
+        // Clean non-digit chars
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // Convert Australian 04xx to +614xx
+        if (str_starts_with($phone, '04')) {
+            $phone = '+61' . substr($phone, 1);
+        } elseif (str_starts_with($phone, '4') && strlen($phone) === 9) {
+            $phone = '+61' . $phone;
+        }
+
+        // Ensure + prefix
+        if (!str_starts_with($phone, '+')) {
+            $phone = '+' . $phone;
+        }
+
+        return $phone;
     }
 
     public function instructorProfile(): HasOne
@@ -111,6 +148,21 @@ class User extends Authenticatable
             ->orderByDesc('created_at');
     }
 
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(CustomerVehicle::class);
+    }
+
+    public function primaryVehicle(): HasOne
+    {
+        return $this->hasOne(CustomerVehicle::class)->where('is_primary', true);
+    }
+
+    public function serviceBookings(): HasMany
+    {
+        return $this->hasMany(ServiceBooking::class);
+    }
+
     public function isLearner(): bool
     {
         return $this->role === self::ROLE_LEARNER;
@@ -124,5 +176,14 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * Check if the user has a connected and enabled Google Calendar sync.
+     */
+    public function isGoogleCalendarConnected(): bool
+    {
+        return !empty($this->google_calendar_token)
+            && $this->google_calendar_sync_enabled;
     }
 }

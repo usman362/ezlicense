@@ -64,6 +64,11 @@ class InstructorProfile extends Model
         'bank_details_submitted_at',
         'verification_status',
         'admin_notes',
+        'weighted_rating',
+        'rating_points',
+        'total_completed_lessons',
+        'consecutive_five_stars',
+        'recovery_deficit',
     ];
 
     protected function casts(): array
@@ -87,6 +92,11 @@ class InstructorProfile extends Model
             'attach_ics_to_emails' => 'boolean',
             'gst_registered' => 'boolean',
             'bank_details_submitted_at' => 'datetime',
+            'weighted_rating' => 'decimal:2',
+            'rating_points' => 'decimal:2',
+            'total_completed_lessons' => 'integer',
+            'consecutive_five_stars' => 'integer',
+            'recovery_deficit' => 'integer',
         ];
     }
 
@@ -183,10 +193,39 @@ class InstructorProfile extends Model
 
     /**
      * Average rating from approved, visible reviews only.
+     * Returns weighted_rating if available, otherwise falls back to simple average.
      */
     public function averageRating(): float
     {
+        if ($this->weighted_rating !== null && (float) $this->weighted_rating > 0) {
+            return (float) $this->weighted_rating;
+        }
+
         return (float) $this->reviews()->public()->avg('rating');
+    }
+
+    /**
+     * Get the weighted rating value directly.
+     */
+    public function getWeightedRating(): float
+    {
+        return (float) ($this->weighted_rating ?? 4.00);
+    }
+
+    /**
+     * Get a breakdown of all rating components for display / debugging.
+     */
+    public function getRatingBreakdown(): array
+    {
+        return [
+            'weighted_rating' => (float) ($this->weighted_rating ?? 4.00),
+            'rating_points' => (float) ($this->rating_points ?? 4.00),
+            'total_completed_lessons' => (int) ($this->total_completed_lessons ?? 0),
+            'consecutive_five_stars' => (int) ($this->consecutive_five_stars ?? 0),
+            'recovery_deficit' => (int) ($this->recovery_deficit ?? 0),
+            'simple_average' => (float) $this->reviews()->public()->avg('rating'),
+            'approved_reviews_count' => $this->reviews()->public()->count(),
+        ];
     }
 
     /**

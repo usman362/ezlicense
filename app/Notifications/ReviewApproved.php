@@ -18,14 +18,7 @@ class ReviewApproved extends Notification
 
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
-
-        $smtpHost = SiteSetting::get('smtp_host');
-        if (! empty($smtpHost)) {
-            $channels[] = 'mail';
-        }
-
-        return $channels;
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage

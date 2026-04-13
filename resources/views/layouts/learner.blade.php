@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
-        body { background: var(--sl-gray-50); }
+        body { background: #fff; }
         .learner-wrapper { display: flex; min-height: 100vh; }
         .learner-sidebar {
             width: 260px;
@@ -22,15 +22,19 @@
             border-right: 1px solid rgba(255,255,255,0.04);
         }
         .learner-sidebar .logo {
-            padding: 1.5rem 1.5rem;
+            padding: 1.5rem 1.5rem 1rem;
             font-size: 1.25rem;
             font-weight: 800;
             color: #fff;
             border-bottom: 1px solid rgba(255,255,255,0.08);
             letter-spacing: -0.02em;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 0.5rem;
+        }
+        .learner-sidebar .logo .brand {
+            display: flex;
+            align-items: center;
         }
         .learner-sidebar .logo .ez-l {
             width: 30px; height: 30px;
@@ -40,9 +44,23 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            margin: 0 2px;
             font-size: 1rem;
             border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+            box-shadow: 0 4px 12px rgba(255,213,0,0.35);
+        }
+        .learner-sidebar .logo .role-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--sl-accent-500);
+            background: rgba(255,213,0,0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255,213,0,0.2);
+            width: fit-content;
         }
         .learner-sidebar .nav { padding: 1rem 0.75rem; }
         .learner-sidebar .nav-link {
@@ -63,10 +81,10 @@
             color: #fff;
         }
         .learner-sidebar .nav-link.active {
-            background: linear-gradient(135deg, var(--sl-primary-600), var(--sl-primary-700));
+            background: linear-gradient(135deg, var(--sl-primary-500), var(--sl-primary-700));
             color: #fff;
             font-weight: 600;
-            box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+            box-shadow: 0 4px 14px rgba(255,132,0,0.3);
         }
         .learner-sidebar .nav-link i {
             font-size: 1.1rem;
@@ -80,7 +98,7 @@
         .learner-main {
             flex: 1;
             overflow: auto;
-            background: var(--sl-gray-50);
+            background: #fff;
         }
         .learner-main .topbar {
             background: #fff;
@@ -101,9 +119,82 @@
         }
         .learner-main .content { padding: 2rem 1.75rem; }
 
+        /* ── Topbar dropdown ─────────────────────────── */
+        .learner-main .user-dropdown .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--sl-radius);
+            border: 1px solid var(--sl-gray-200);
+            background: #fff;
+            color: var(--sl-gray-700);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--sl-transition);
+        }
+        .learner-main .user-dropdown .dropdown-toggle:hover {
+            border-color: var(--sl-gray-300);
+            background: var(--sl-gray-50);
+        }
+        .learner-main .user-dropdown .dropdown-toggle::after { display: none; }
+        .learner-main .user-dropdown .avatar-sm {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--sl-primary-500), var(--sl-primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .learner-main .user-dropdown .dropdown-menu {
+            min-width: 220px;
+            border: 1px solid var(--sl-gray-200);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .learner-main .user-dropdown .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--sl-gray-700);
+            transition: all var(--sl-transition);
+        }
+        .learner-main .user-dropdown .dropdown-menu .dropdown-item:hover {
+            background: var(--sl-gray-50);
+            color: var(--sl-gray-900);
+        }
+        .learner-main .user-dropdown .dropdown-menu .dropdown-item i {
+            font-size: 1rem;
+            width: 1.25rem;
+            text-align: center;
+            color: var(--sl-gray-500);
+        }
+        .learner-main .user-dropdown .dropdown-menu .dropdown-item.text-danger i { color: #dc3545; }
+        .learner-main .user-dropdown .dropdown-divider { margin: 0.35rem 0; border-color: var(--sl-gray-100); }
+        .learner-main .user-dropdown .dropdown-header {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--sl-gray-400);
+            font-weight: 600;
+        }
+
         @media (max-width: 991.98px) {
             .learner-sidebar { width: 72px; min-width: 72px; }
-            .learner-sidebar .logo span:not(.ez-l) { display: none !important; }
+            .learner-sidebar .logo .brand span:not(.ez-l) { display: none !important; }
+            .learner-sidebar .logo .role-badge { display: none !important; }
             .learner-sidebar .nav-link span { display: none !important; }
             .learner-sidebar .nav-link { justify-content: center; padding: 0.75rem; }
         }
@@ -113,12 +204,17 @@
     <div class="learner-wrapper">
         <aside class="learner-sidebar">
             <div class="logo">
-                <span>Secure</span><span class="ez-l">L</span><span>icences</span>
+                <span class="brand"><span>Secure</span><span class="ez-l">L</span><span>icences</span></span>
+                <span class="role-badge">Learner Portal</span>
             </div>
             <nav class="nav flex-column">
                 <a class="nav-link {{ request()->routeIs('learner.dashboard') ? 'active' : '' }}" href="{{ route('learner.dashboard') }}">
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
+                </a>
+                <a class="nav-link {{ request()->routeIs('learner.calendar') ? 'active' : '' }}" href="{{ route('learner.calendar') }}">
+                    <i class="bi bi-calendar3"></i>
+                    <span>My Calendar</span>
                 </a>
                 <a class="nav-link {{ request()->routeIs('learner.wallet*') ? 'active' : '' }}" href="{{ route('learner.wallet') }}">
                     <i class="bi bi-wallet2"></i>
@@ -151,11 +247,39 @@
             <div class="topbar">
                 <h5 class="mb-0">@yield('heading', 'Dashboard')</h5>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="#" class="text-muted" title="Notifications" aria-label="Notifications" style="font-size:1.15rem;"><i class="bi bi-bell"></i></a>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 36px; height: 36px; font-size: 0.9rem; background: linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500));">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
-                        <span class="fw-semibold small d-none d-md-inline" style="color: var(--sl-gray-700);">{{ Auth::user()->name }}</span>
-                        <a href="{{ route('logout') }}" class="btn btn-sm btn-outline-secondary" onclick="event.preventDefault(); document.getElementById('learner-logout-form').submit();">Logout</a>
+                    <div class="dropdown">
+                        <a href="#" class="text-muted position-relative" title="Notifications" aria-label="Notifications" style="font-size:1.15rem;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width:300px; border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.12); border:1px solid var(--sl-gray-200);">
+                            <div class="px-3 py-2 border-bottom" style="background:var(--sl-gray-50); border-radius:10px 10px 0 0;">
+                                <span class="fw-semibold small" style="color:var(--sl-gray-700);">Notifications</span>
+                            </div>
+                            <div class="px-3 py-4 text-center">
+                                <i class="bi bi-bell-slash text-muted" style="font-size:1.5rem;"></i>
+                                <p class="mb-0 mt-2 small text-muted">No new notifications</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-dropdown dropdown">
+                        <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar-sm">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
+                            <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                            <i class="bi bi-chevron-down" style="font-size:0.7rem; color: var(--sl-gray-400);"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="dropdown-header">Signed in as Learner</li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('learner.wallet') }}"><i class="bi bi-wallet2"></i> My Wallet</a></li>
+                            <li><a class="dropdown-item" href="{{ route('find-instructor') }}"><i class="bi bi-search"></i> Find Instructor</a></li>
+                            <li><a class="dropdown-item" href="{{ url('/') }}" target="_blank"><i class="bi bi-globe"></i> View Public Site</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('learner-logout-form').submit();">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <form id="learner-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                 </div>
@@ -165,7 +289,6 @@
             </div>
         </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     @stack('scripts')
 </body>
 </html>

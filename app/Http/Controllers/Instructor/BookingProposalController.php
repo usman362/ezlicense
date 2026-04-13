@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\InstructorProfile;
 use App\Models\User;
+use App\Notifications\AdminBookingAlert;
 use App\Notifications\BookingProposed;
 use App\Services\BookingAvailabilityService;
+use App\Traits\NotifiesAdmin;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +18,8 @@ use Illuminate\Validation\Rule;
 
 class BookingProposalController extends Controller
 {
+    use NotifiesAdmin;
+
     public function __construct(
         protected BookingAvailabilityService $availabilityService
     ) {}
@@ -84,6 +88,9 @@ class BookingProposalController extends Controller
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Proposal notification failed: ' . $e->getMessage());
             }
+
+            // Notify admin about the proposal
+            $this->notifyAdminAboutBooking($booking, AdminBookingAlert::EVENT_PROPOSED);
         }
 
         return response()->json([

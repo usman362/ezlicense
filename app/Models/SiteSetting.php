@@ -97,6 +97,7 @@ class SiteSetting extends Model
             ['group' => 'general', 'key' => 'google_place_id', 'value' => '', 'type' => 'text', 'label' => 'Google Place ID', 'hint' => 'Google Business Place ID for review redirect (find it at https://developers.google.com/maps/documentation/places/web-service/place-id)'],
             ['group' => 'general', 'key' => 'facebook_url', 'value' => 'https://www.facebook.com/SecureLicences', 'type' => 'text', 'label' => 'Facebook URL', 'hint' => 'Facebook page URL for emails and footer'],
             ['group' => 'general', 'key' => 'instagram_url', 'value' => 'https://www.instagram.com/securelicences', 'type' => 'text', 'label' => 'Instagram URL', 'hint' => 'Instagram profile URL for emails and footer'],
+            ['group' => 'general', 'key' => 'admin_notification_email', 'value' => 'admin@securelicences.com.au', 'type' => 'text', 'label' => 'Admin Notification Email', 'hint' => 'Email address that receives booking alerts (new, cancel, complete)'],
 
             // Payment
             ['group' => 'payment', 'key' => 'stripe_enabled', 'value' => '0', 'type' => 'boolean', 'label' => 'Enable Stripe', 'hint' => 'Toggle Stripe payment gateway'],

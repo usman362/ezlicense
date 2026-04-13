@@ -5,10 +5,10 @@
 @section('content')
 {{-- Hero: Discover Top Driving Instructors + Search --}}
 <section class="ez-hero position-relative overflow-hidden"
-         style="background-image: linear-gradient(135deg, rgba(17,24,39,0.88) 0%, rgba(30,58,138,0.82) 100%), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80'); background-size: cover; background-position: center; min-height: 560px;">
+         style="background-image: linear-gradient(135deg, rgba(18,17,16,0.88) 0%, rgba(124,61,13,0.82) 100%), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80'); background-size: cover; background-position: center; min-height: 560px;">
     {{-- Decorative glow --}}
     <div class="position-absolute" style="top:-120px; right:-120px; width:420px; height:420px; background: radial-gradient(circle, rgba(245,158,11,0.22) 0%, transparent 70%); pointer-events:none;"></div>
-    <div class="position-absolute" style="bottom:-140px; left:-100px; width:380px; height:380px; background: radial-gradient(circle, rgba(59,130,246,0.25) 0%, transparent 70%); pointer-events:none;"></div>
+    <div class="position-absolute" style="bottom:-140px; left:-100px; width:380px; height:380px; background: radial-gradient(circle, rgba(255,132,0,0.25) 0%, transparent 70%); pointer-events:none;"></div>
 
     <div class="container position-relative" style="padding-top:5rem; padding-bottom:6rem;">
         <div class="text-center mb-5 animate-fade-in-up">

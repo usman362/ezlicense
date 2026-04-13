@@ -6,13 +6,15 @@ use App\Models\Booking;
 use App\Models\InstructorProfile;
 use App\Models\SiteSetting;
 use App\Services\IcsGenerator;
+use App\Traits\SendsSms;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\VonageMessage;
 use Illuminate\Notifications\Notification;
 
 class BookingConfirmed extends Notification
 {
-    use Queueable;
+    use Queueable, SendsSms;
 
     public function __construct(
         protected Booking $booking
@@ -20,15 +22,17 @@ class BookingConfirmed extends Notification
 
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
+        return array_merge(['database', 'mail'], $this->smsChannel($notifiable));
+    }
 
-        // Only add mail if SMTP is configured
-        $smtpHost = SiteSetting::get('smtp_host');
-        if (! empty($smtpHost)) {
-            $channels[] = 'mail';
-        }
+    public function toVonage(object $notifiable): VonageMessage
+    {
+        $b = $this->booking;
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : 'TBC';
+        $type = $b->type === 'test_package' ? 'Test Package' : 'Lesson';
 
-        return $channels;
+        return (new VonageMessage)
+            ->content("SecureLicences: Your {$type} on {$date} is confirmed! Booking #{$b->id}. View details at " . url('/learner/dashboard'));
     }
 
     public function toMail(object $notifiable): MailMessage

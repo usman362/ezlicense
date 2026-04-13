@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Bookings',
                     data: data.map(d => d.count),
-                    backgroundColor: 'rgba(59,130,246,0.7)',
+                    backgroundColor: 'rgba(255,132,0,0.7)',
                     borderRadius: 4,
                     yAxisID: 'y'
                 },

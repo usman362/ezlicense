@@ -24,6 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('Australia/Sydney')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/payouts.log'));
+
+        // Send lesson confirmation reminders every 4 hours (anti-chargeback)
+        $schedule->command('confirmations:remind --hours=4 --max-reminders=3')
+            ->everyFourHours()
+            ->timezone('Australia/Sydney')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/confirmations.log'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

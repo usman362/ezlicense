@@ -18,6 +18,8 @@ export default defineConfig({
                 'resources/js/instructor-settings-calendar.js',
                 'resources/js/instructor-settings-documents.js',
                 'resources/js/instructor-settings-banking.js',
+                'resources/js/learner-calendar.js',
+                'resources/js/admin-calendar.js',
                 'resources/js/home-search.js',
             ],
             refresh: true,

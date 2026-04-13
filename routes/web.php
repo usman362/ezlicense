@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstructorProfileController;
 use App\Http\Controllers\InstructorSearchController;
@@ -71,9 +72,22 @@ Route::get('/practice-test/{state}', [App\Http\Controllers\PracticeTestControlle
 Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
+// Lesson confirmation (token-authenticated, no login needed — anti-chargeback proof)
+Route::get('/lesson-confirmation/{token}', [App\Http\Controllers\LessonConfirmationController::class, 'show'])->name('lesson-confirmation.show');
+Route::post('/lesson-confirmation/{token}', [App\Http\Controllers\LessonConfirmationController::class, 'confirm'])->name('lesson-confirmation.confirm');
+
 // Calendar ICS feeds (token-authenticated, no login needed)
 Route::get('/calendar/instructor/{token}/feed.ics', [App\Http\Controllers\CalendarFeedController::class, 'instructorFeed'])->name('calendar.instructor.feed');
 Route::get('/calendar/learner/{token}/feed.ics', [App\Http\Controllers\CalendarFeedController::class, 'learnerFeed'])->name('calendar.learner.feed');
+
+// Google Calendar two-way sync (auth required)
+Route::middleware('auth')->group(function () {
+    Route::get('/google-calendar/connect', [GoogleCalendarController::class, 'connect'])->name('google-calendar.connect');
+    Route::get('/google-calendar/callback', [GoogleCalendarController::class, 'callback'])->name('google-calendar.callback');
+    Route::post('/google-calendar/disconnect', [GoogleCalendarController::class, 'disconnect'])->name('google-calendar.disconnect');
+    Route::get('/api/google-calendar/status', [GoogleCalendarController::class, 'status'])->name('google-calendar.status');
+    Route::post('/api/google-calendar/sync', [GoogleCalendarController::class, 'syncNow'])->name('google-calendar.sync');
+});
 
 Auth::routes();
 
@@ -112,6 +126,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/instructors/reviews/{review}', [App\Http\Controllers\Admin\InstructorsController::class, 'deleteReview'])->name('instructors.delete-review');
     Route::patch('/instructors/reviews/{review}/toggle-visibility', [App\Http\Controllers\Admin\InstructorsController::class, 'toggleReviewVisibility'])->name('instructors.toggle-review-visibility');
 
+    // Instructor rating adjustment
+    Route::post('/instructors/{instructorProfile}/adjust-rating', [App\Http\Controllers\Admin\InstructorsController::class, 'adjustRating'])->name('instructors.adjust-rating');
+
     // Instructor audit/history — blocks
     Route::post('/instructors/{instructorProfile}/blocks', [App\Http\Controllers\Admin\InstructorsController::class, 'storeBlock'])->name('instructors.blocks.store');
     Route::patch('/instructors/blocks/{instructorBlock}/lift', [App\Http\Controllers\Admin\InstructorsController::class, 'liftBlock'])->name('instructors.blocks.lift');
@@ -143,6 +160,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Bookings management
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
+
+    // Calendar view
+    Route::get('/calendar', fn () => view('admin.calendar'))->name('calendar');
 
     // Payouts management
     Route::get('/payouts', [App\Http\Controllers\Admin\PayoutsController::class, 'index'])->name('payouts.index');
@@ -204,6 +224,7 @@ Route::put('/user/profile', function (\Illuminate\Http\Request $request) {
 
 Route::middleware(['auth', 'role:learner'])->prefix('learner')->name('learner.')->group(function () {
     Route::get('/dashboard', fn () => view('learner.pages.dashboard'))->name('dashboard');
+    Route::get('/calendar', fn () => view('learner.pages.calendar'))->name('calendar');
     Route::get('/wallet', fn () => view('learner.pages.wallet'))->name('wallet');
     Route::get('/wallet/add-credit', fn () => view('learner.pages.wallet-add-credit'))->name('wallet.add-credit');
     Route::get('/bookings/new', [App\Http\Controllers\Learner\BookingController::class, 'create'])->name('bookings.new');
@@ -252,7 +273,30 @@ Route::prefix('api')->middleware('web')->group(function () {
         Route::delete('categories/{blogCategory}', [App\Http\Controllers\Admin\BlogController::class, 'categoryDestroy']);
     });
 
+    // Admin calendar API (all bookings across all instructors)
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+        Route::get('calendar/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'calendarBookings'])->name('api.admin.calendar.bookings');
+    });
+
+    // ── Vehicle makes & models (public lookups) ────────────
+    Route::get('vehicle-makes', [App\Http\Controllers\Api\VehicleController::class, 'makes'])->name('api.vehicle-makes');
+    Route::get('vehicle-makes/{vehicleMake}/models', [App\Http\Controllers\Api\VehicleController::class, 'models'])->name('api.vehicle-models');
+    Route::get('mechanic-service-types', [App\Http\Controllers\Api\ServiceJobController::class, 'serviceTypes'])->name('api.mechanic-service-types');
+
     Route::middleware('auth')->group(function () {
+        // ── Customer vehicles ────────────────────────────────
+        Route::get('my-vehicles', [App\Http\Controllers\Api\VehicleController::class, 'index'])->name('api.vehicles.index');
+        Route::post('my-vehicles', [App\Http\Controllers\Api\VehicleController::class, 'store'])->name('api.vehicles.store');
+        Route::put('my-vehicles/{vehicle}', [App\Http\Controllers\Api\VehicleController::class, 'update'])->name('api.vehicles.update');
+        Route::delete('my-vehicles/{vehicle}', [App\Http\Controllers\Api\VehicleController::class, 'destroy'])->name('api.vehicles.destroy');
+
+        // ── Service job requests (customer submits, provider accepts/rejects) ──
+        Route::post('mechanic/{serviceProvider}/job-request', [App\Http\Controllers\Api\ServiceJobController::class, 'submitJobRequest'])->name('api.mechanic.job-request');
+        Route::get('mechanic/pending-jobs', [App\Http\Controllers\Api\ServiceJobController::class, 'pendingJobs'])->name('api.mechanic.pending-jobs');
+        Route::get('mechanic/my-jobs', [App\Http\Controllers\Api\ServiceJobController::class, 'myJobs'])->name('api.mechanic.my-jobs');
+        Route::patch('mechanic/jobs/{serviceBooking}/accept', [App\Http\Controllers\Api\ServiceJobController::class, 'acceptJob'])->name('api.mechanic.accept-job');
+        Route::patch('mechanic/jobs/{serviceBooking}/reject', [App\Http\Controllers\Api\ServiceJobController::class, 'rejectJob'])->name('api.mechanic.reject-job');
+
         Route::get('bookings', [BookingController::class, 'index'])->name('api.bookings.index');
         Route::post('bookings', [BookingController::class, 'store'])->name('api.bookings.store');
         Route::get('bookings/{booking}', [BookingController::class, 'show'])->name('api.bookings.show');
@@ -261,6 +305,9 @@ Route::prefix('api')->middleware('web')->group(function () {
         Route::post('reviews', [ReviewController::class, 'store'])->name('api.reviews.store');
         Route::patch('reviews/{review}/google-prompted', [ReviewController::class, 'markGooglePrompted'])->name('api.reviews.google-prompted');
         Route::put('bookings/{booking}/complete', [BookingController::class, 'complete'])->name('api.bookings.complete');
+        Route::post('bookings/{booking}/arrived', [BookingController::class, 'markArrived'])->name('api.bookings.arrived');
+        Route::post('bookings/{booking}/start-lesson', [BookingController::class, 'startLesson'])->name('api.bookings.start-lesson');
+        Route::post('bookings/{booking}/end-lesson', [BookingController::class, 'endLesson'])->name('api.bookings.end-lesson');
 
         // Gift Vouchers API
         Route::post('gift-vouchers/purchase', [App\Http\Controllers\GiftVoucherController::class, 'purchase'])->name('api.gift-vouchers.purchase');

@@ -45,7 +45,7 @@
             left: -120px;
             width: 440px;
             height: 440px;
-            background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 65%);
+            background: radial-gradient(circle, rgba(255,132,0,0.3) 0%, transparent 65%);
             pointer-events: none;
         }
 
@@ -188,7 +188,7 @@
         .auth-input-wrap .form-control:focus {
             border-color: var(--sl-primary-500);
             background: #fff;
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+            box-shadow: 0 0 0 4px rgba(255,132,0,0.15);
         }
         .auth-input-wrap i {
             position: absolute;

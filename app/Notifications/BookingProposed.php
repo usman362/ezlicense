@@ -4,13 +4,15 @@ namespace App\Notifications;
 
 use App\Models\Booking;
 use App\Models\SiteSetting;
+use App\Traits\SendsSms;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\VonageMessage;
 use Illuminate\Notifications\Notification;
 
 class BookingProposed extends Notification
 {
-    use Queueable;
+    use Queueable, SendsSms;
 
     public function __construct(
         protected Booking $booking,
@@ -19,12 +21,16 @@ class BookingProposed extends Notification
 
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
-        $smtpHost = SiteSetting::get('smtp_host');
-        if (! empty($smtpHost)) {
-            $channels[] = 'mail';
-        }
-        return $channels;
+        return array_merge(['database', 'mail'], $this->smsChannel($notifiable));
+    }
+
+    public function toVonage(object $notifiable): VonageMessage
+    {
+        $b = $this->booking;
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : 'TBC';
+
+        return (new VonageMessage)
+            ->content("SecureLicences: {$this->instructorName} proposed a lesson on {$date}. Log in to accept or decline: " . url('/learner/dashboard'));
     }
 
     public function toMail(object $notifiable): MailMessage
