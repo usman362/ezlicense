@@ -26,14 +26,15 @@
                 </div>
                 <div class="card bg-light border-0 p-4">
                     <h5 class="fw-bold mb-2">For Instructors</h5>
-                    <p class="small mb-0">If you're a driving instructor and want to join the Secure Licences platform, visit our <a href="#">Instruct with Secure Licences</a> page or email us at <strong>instructors@securelicences.com.au</strong></p>
+                    <p class="small mb-0">If you're a driving instructor and want to join the Secure Licences platform, visit our <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licences</a> page or email us at <strong>instructors@securelicences.com.au</strong></p>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h3 class="h5 fw-bold mb-3">Send Us a Message</h3>
-                        <form id="contact-form">
+                        <form id="contact-form" method="POST" action="{{ route('contact.send') }}">
+                            @csrf
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Your Name *</label>
                                 <input type="text" class="form-control" name="name" required>
@@ -41,6 +42,10 @@
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Email Address *</label>
                                 <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Phone (optional)</label>
+                                <input type="tel" class="form-control" name="phone">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Subject</label>
@@ -57,9 +62,10 @@
                                 <label class="form-label small fw-semibold">Message *</label>
                                 <textarea class="form-control" name="message" rows="5" required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-warning fw-bold w-100">Send Message</button>
+                            <button type="submit" class="btn btn-warning fw-bold w-100" id="contact-submit-btn">Send Message</button>
                         </form>
                         <div id="contact-success" class="alert alert-success mt-3" style="display:none;">Thank you! Your message has been sent. We'll get back to you within 1-2 business days.</div>
+                        <div id="contact-error" class="alert alert-danger mt-3" style="display:none;"></div>
                     </div>
                 </div>
             </div>
@@ -70,8 +76,40 @@
 <script>
 document.getElementById('contact-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    this.style.display = 'none';
-    document.getElementById('contact-success').style.display = 'block';
+    var form = this;
+    var btn = document.getElementById('contact-submit-btn');
+    var errEl = document.getElementById('contact-error');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+        },
+        body: new FormData(form)
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (res.ok) {
+            form.style.display = 'none';
+            document.getElementById('contact-success').style.display = 'block';
+        } else {
+            var msgs = res.data.errors ? Object.values(res.data.errors).flat().join('<br>') : (res.data.message || 'Something went wrong. Please try again.');
+            errEl.innerHTML = msgs;
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Send Message';
+        }
+    })
+    .catch(function() {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+    });
 });
 </script>
 @endpush

@@ -3,8 +3,19 @@
 @section('content')
 <div class="container-fluid p-4" style="max-width: 900px;">
     <a href="{{ route('admin.service-providers.index') }}" class="text-decoration-none small">&larr; Back to providers</a>
-    <h1 class="h3 mt-2 mb-1">{{ $provider->business_name ?: $provider->user->name }}</h1>
-    <p class="text-muted">{{ $provider->category->name }}</p>
+    <div class="d-flex justify-content-between align-items-start mt-2">
+        <div>
+            <h1 class="h3 mb-1">{{ $provider->business_name ?: $provider->user->name }}</h1>
+            <p class="text-muted">{{ $provider->category->name }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.service-providers.edit', $provider) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            <form method="POST" action="{{ route('admin.service-providers.destroy', $provider) }}" onsubmit="return confirm('Delete this provider? This cannot be undone.')">
+                @csrf @method('DELETE')
+                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+        </div>
+    </div>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

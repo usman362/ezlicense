@@ -11,6 +11,13 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
         body { background: #fff; }
+        /* Custom Bootstrap color extensions */
+        .bg-indigo { background-color: #6610f2 !important; }
+        .text-indigo { color: #6610f2 !important; }
+        .btn-indigo { background-color: #6610f2; border-color: #6610f2; color: #fff; }
+        .btn-indigo:hover { background-color: #520dc2; border-color: #520dc2; color: #fff; }
+        .btn-outline-indigo { color: #6610f2; border-color: #6610f2; }
+        .btn-outline-indigo:hover { background-color: #6610f2; border-color: #6610f2; color: #fff; }
         .admin-wrapper { display: flex; min-height: 100vh; }
         .admin-sidebar {
             width: 260px;

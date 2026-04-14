@@ -77,6 +77,32 @@ class GiftVouchersController extends Controller
         return redirect()->route('admin.gift-vouchers.index')->with('message', 'Gift voucher ' . $voucher->code . ' created and activated.');
     }
 
+    public function show(GiftVoucher $giftVoucher)
+    {
+        $giftVoucher->load(['purchaser', 'redeemer']);
+        return view('admin.gift-vouchers.show', ['voucher' => $giftVoucher]);
+    }
+
+    public function edit(GiftVoucher $giftVoucher)
+    {
+        return view('admin.gift-vouchers.edit', ['voucher' => $giftVoucher]);
+    }
+
+    public function update(Request $request, GiftVoucher $giftVoucher)
+    {
+        $data = $request->validate([
+            'recipient_name' => 'required|string|max:100',
+            'recipient_email' => 'required|email|max:255',
+            'personal_message' => 'nullable|string|max:500',
+            'expires_at' => 'nullable|date|after:today',
+        ]);
+
+        $giftVoucher->update($data);
+
+        return redirect()->route('admin.gift-vouchers.index')
+            ->with('message', 'Voucher ' . $giftVoucher->code . ' updated.');
+    }
+
     public function cancel(GiftVoucher $giftVoucher)
     {
         if (in_array($giftVoucher->status, [GiftVoucher::STATUS_REDEEMED])) {

@@ -105,6 +105,62 @@ class ServiceProviderController extends Controller
         return view('admin.service-providers.show', ['provider' => $serviceProvider]);
     }
 
+    public function edit(ServiceProvider $serviceProvider)
+    {
+        $serviceProvider->load('user');
+        $categories = ServiceCategory::active()->orderBy('name')->get();
+        return view('admin.service-providers.edit', ['provider' => $serviceProvider, 'categories' => $categories]);
+    }
+
+    public function update(Request $request, ServiceProvider $serviceProvider)
+    {
+        $data = $request->validate([
+            'service_category_id' => 'required|exists:service_categories,id',
+            'business_name' => 'nullable|string|max:255',
+            'abn' => 'nullable|string|max:20',
+            'bio' => 'nullable|string',
+            'years_experience' => 'nullable|integer|min:0|max:80',
+            'hourly_rate' => 'required|numeric|min:0',
+            'callout_fee' => 'nullable|numeric|min:0',
+            'default_duration_minutes' => 'required|integer|min:15',
+            'service_radius_km' => 'required|integer|min:1',
+            'base_suburb' => 'nullable|string|max:120',
+            'base_postcode' => 'nullable|string|max:10',
+            'base_state' => 'nullable|string|max:10',
+            'service_description' => 'nullable|string',
+            'license_number' => 'nullable|string|max:120',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $serviceProvider->update([
+            'service_category_id' => $data['service_category_id'],
+            'business_name' => $data['business_name'] ?? null,
+            'abn' => $data['abn'] ?? null,
+            'bio' => $data['bio'] ?? null,
+            'years_experience' => $data['years_experience'] ?? null,
+            'hourly_rate' => $data['hourly_rate'],
+            'callout_fee' => $data['callout_fee'] ?? 0,
+            'default_duration_minutes' => $data['default_duration_minutes'],
+            'service_radius_km' => $data['service_radius_km'],
+            'base_suburb' => $data['base_suburb'] ?? null,
+            'base_postcode' => $data['base_postcode'] ?? null,
+            'base_state' => $data['base_state'] ?? null,
+            'service_description' => $data['service_description'] ?? null,
+            'license_number' => $data['license_number'] ?? null,
+            'is_active' => (bool) ($data['is_active'] ?? $serviceProvider->is_active),
+        ]);
+
+        return redirect()->route('admin.service-providers.show', $serviceProvider)
+            ->with('success', 'Service provider updated successfully.');
+    }
+
+    public function destroy(ServiceProvider $serviceProvider)
+    {
+        $serviceProvider->delete();
+        return redirect()->route('admin.service-providers.index')
+            ->with('success', 'Service provider removed.');
+    }
+
     public function approve(ServiceProvider $serviceProvider)
     {
         $serviceProvider->update([

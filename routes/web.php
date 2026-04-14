@@ -43,6 +43,7 @@ Route::get('/instructors/{instructorProfile}', function (App\Models\InstructorPr
 // Static pages
 Route::get('/about', fn () => view('frontend.pages.about'))->name('about');
 Route::get('/contact', fn () => view('frontend.pages.contact'))->name('contact');
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 Route::get('/terms-and-conditions', fn () => view('frontend.pages.terms'))->name('terms');
 Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('privacy');
 Route::get('/support', fn () => redirect('/contact'))->name('support');
@@ -155,6 +156,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/gift-vouchers', [App\Http\Controllers\Admin\GiftVouchersController::class, 'index'])->name('gift-vouchers.index');
     Route::get('/gift-vouchers/create', [App\Http\Controllers\Admin\GiftVouchersController::class, 'create'])->name('gift-vouchers.create');
     Route::post('/gift-vouchers', [App\Http\Controllers\Admin\GiftVouchersController::class, 'store'])->name('gift-vouchers.store');
+    Route::get('/gift-vouchers/{giftVoucher}', [App\Http\Controllers\Admin\GiftVouchersController::class, 'show'])->name('gift-vouchers.show');
+    Route::get('/gift-vouchers/{giftVoucher}/edit', [App\Http\Controllers\Admin\GiftVouchersController::class, 'edit'])->name('gift-vouchers.edit');
+    Route::put('/gift-vouchers/{giftVoucher}', [App\Http\Controllers\Admin\GiftVouchersController::class, 'update'])->name('gift-vouchers.update');
     Route::patch('/gift-vouchers/{giftVoucher}/cancel', [App\Http\Controllers\Admin\GiftVouchersController::class, 'cancel'])->name('gift-vouchers.cancel');
 
     // Bookings management
@@ -387,6 +391,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('service-providers/create', [App\Http\Controllers\Admin\ServiceProviderController::class, 'create'])->name('service-providers.create');
     Route::post('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'store'])->name('service-providers.store');
     Route::get('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'show'])->name('service-providers.show');
+    Route::get('service-providers/{serviceProvider}/edit', [App\Http\Controllers\Admin\ServiceProviderController::class, 'edit'])->name('service-providers.edit');
+    Route::put('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'update'])->name('service-providers.update');
+    Route::delete('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'destroy'])->name('service-providers.destroy');
     Route::post('service-providers/{serviceProvider}/approve', [App\Http\Controllers\Admin\ServiceProviderController::class, 'approve'])->name('service-providers.approve');
     Route::post('service-providers/{serviceProvider}/reject', [App\Http\Controllers\Admin\ServiceProviderController::class, 'reject'])->name('service-providers.reject');
 });

@@ -368,7 +368,7 @@
                 </div>
             </div>
         </div>
-        <p class="text-center mt-3"><a href="#">Read More FAQs</a></p>
+        <p class="text-center mt-3"><a href="{{ route('contact') }}">Have more questions? Contact Us</a></p>
     </div>
 </section>
 
@@ -382,12 +382,12 @@
                     <div class="card-body p-4">
                         <h3 class="h5 card-title fw-bold">11 Tips for Choosing a Good Driving Instructor</h3>
                         <p class="small text-muted mb-0">Secure Licences · 7 November 2018</p>
-                        <a href="#" class="btn btn-outline-warning btn-sm mt-2">Read more</a>
+                        <a href="{{ route('blog.index') }}" class="btn btn-outline-warning btn-sm mt-2">Read more</a>
                     </div>
                 </div>
             </div>
         </div>
-        <p class="text-center mt-3"><a href="#">Read more blogs</a></p>
+        <p class="text-center mt-3"><a href="{{ route('blog.index') }}">Read more blogs</a></p>
     </div>
 </section>
 

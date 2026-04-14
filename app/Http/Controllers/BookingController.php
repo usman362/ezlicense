@@ -699,9 +699,23 @@ class BookingController extends Controller
             $location = implode(' ', $parts);
         }
 
+        // Only expose learner contact info to the instructor of this booking or admin
+        $authUser = auth()->user();
+        $canSeeContact = $authUser && (
+            $authUser->id === $b->instructor_id ||
+            $authUser->role === 'admin' ||
+            $authUser->id === $b->learner_id
+        );
+
+        $learnerData = $b->learner ? ['id' => $b->learner->id, 'name' => $b->learner->name] : null;
+        if ($canSeeContact && $b->learner) {
+            $learnerData['email'] = $b->learner->email;
+            $learnerData['phone'] = $b->learner->phone;
+        }
+
         return [
             'id' => $b->id,
-            'learner' => $b->learner ? ['id' => $b->learner->id, 'name' => $b->learner->name, 'email' => $b->learner->email, 'phone' => $b->learner->phone] : null,
+            'learner' => $learnerData,
             'instructor' => $b->instructor ? ['id' => $b->instructor->id, 'name' => $b->instructor->name] : null,
             'suburb' => $b->suburb ? ['id' => $b->suburb->id, 'name' => $b->suburb->name, 'postcode' => $b->suburb->postcode, 'state_code' => $b->suburb->state?->code, 'location' => $location] : null,
             'type' => $b->type,
