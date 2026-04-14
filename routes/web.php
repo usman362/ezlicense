@@ -257,6 +257,7 @@ Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('inst
 // API-style JSON routes (session auth for same-origin JS)
 Route::prefix('api')->middleware('web')->group(function () {
     Route::get('suburbs/search', [SuburbController::class, 'search'])->name('api.suburbs.search');
+    Route::get('suburbs/postcode/{postcode}', [SuburbController::class, 'byPostcode'])->name('api.suburbs.postcode');
     Route::get('instructors', [InstructorSearchController::class, 'index'])->name('api.instructors.index');
     Route::get('instructors/{instructorProfile}', [InstructorProfileController::class, 'show'])->name('api.instructors.show');
     Route::get('instructors/{instructorProfile}/availability/dates', [AvailabilityController::class, 'dates'])->name('api.availability.dates');
