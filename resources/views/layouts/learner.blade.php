@@ -199,6 +199,7 @@
             .learner-sidebar .nav-link { justify-content: center; padding: 0.75rem; }
         }
     </style>
+    @stack('styles')
 </head>
 <body>
     <div class="learner-wrapper">

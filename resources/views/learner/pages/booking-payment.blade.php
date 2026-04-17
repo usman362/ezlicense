@@ -150,12 +150,42 @@
     </div>
 </div>
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .ts-wrapper.form-select-sm { min-height: calc(1.5em + 0.5rem + 2px); }
+    .ts-wrapper.form-select-sm .ts-control { padding: 0.25rem 0.5rem; font-size: 0.875rem; min-height: calc(1.5em + 0.5rem + 2px); }
+    .ts-wrapper .ts-control { border-radius: var(--sl-radius, 0.375rem); border-color: var(--sl-gray-300, #dee2e6); }
+    .ts-wrapper.focus .ts-control { border-color: var(--sl-primary-500, #ff8400); box-shadow: 0 0 0 0.2rem rgba(255,132,0,0.15); }
+    .ts-dropdown .option.active { background-color: var(--sl-primary-500, #ff8400); color: #fff; }
+</style>
+@endpush
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
 @push('scripts')
 <script>
 (function() {
+  // Searchable suburb/state dropdowns
+  function initTs(id) {
+    var el = document.getElementById(id);
+    if (!el || el.tomselect) return;
+    new TomSelect(el, {
+      create: false,
+      allowEmptyOption: true,
+      maxOptions: 1000,
+      placeholder: el.options[0] ? el.options[0].text : 'Select...',
+    });
+  }
+  initTs('billing_suburb');
+  initTs('billing_state');
+
   document.getElementById('billing_suburb').addEventListener('change', function() {
     var opt = this.selectedOptions[0];
-    if (opt && opt.getAttribute('data-state')) document.getElementById('billing_state').value = opt.getAttribute('data-state');
+    if (opt && opt.getAttribute('data-state')) {
+      var stateEl = document.getElementById('billing_state');
+      if (stateEl.tomselect) stateEl.tomselect.setValue(opt.getAttribute('data-state'), true);
+      else stateEl.value = opt.getAttribute('data-state');
+    }
   });
 
   document.getElementById('payment-form').addEventListener('submit', function(e) {

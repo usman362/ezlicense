@@ -247,6 +247,24 @@
 @if(!empty($googleMapsApiKey))
 <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&callback=Function.prototype" async defer></script>
 @endif
+
+{{-- Tom Select — modern searchable dropdown (no jQuery required) --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    /* Match Bootstrap form-select-sm height */
+    .ts-wrapper.form-select-sm { min-height: calc(1.5em + 0.5rem + 2px); }
+    .ts-wrapper.form-select-sm .ts-control { padding: 0.25rem 0.5rem; font-size: 0.875rem; min-height: calc(1.5em + 0.5rem + 2px); }
+    .ts-wrapper .ts-control { border-radius: var(--sl-radius, 0.375rem); border-color: var(--sl-gray-300, #dee2e6); }
+    .ts-wrapper.focus .ts-control { border-color: var(--sl-primary-500, #ff8400); box-shadow: 0 0 0 0.2rem rgba(255,132,0,0.15); }
+    .ts-dropdown { border-radius: var(--sl-radius, 0.375rem); box-shadow: 0 10px 40px rgba(0,0,0,0.12); border: 1px solid var(--sl-gray-200, #e5e7eb); }
+    .ts-dropdown .active { background-color: var(--sl-primary-50, #fff7ed); color: var(--sl-gray-900, #111827); }
+    .ts-dropdown .option.active { background-color: var(--sl-primary-500, #ff8400); color: #fff; }
+    .ts-wrapper.single .ts-control:after { border-top-color: var(--sl-gray-500, #6b7280); }
+</style>
+@endpush
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
 @push('scripts')
 <script>
 (function() {
@@ -271,9 +289,39 @@
   });
   showHideTestPackage();
 
+  // ── Tom Select: searchable dropdowns for suburb/state (handles large data) ──
+  var tsInstances = {};
+  function initTomSelect(el, opts) {
+    if (!el || el.tomselect) return null;
+    var ts = new TomSelect(el, Object.assign({
+      create: false,
+      allowEmptyOption: true,
+      maxOptions: 1000,
+      searchField: ['text'],
+      placeholder: el.options[0] ? el.options[0].text : 'Select...',
+      render: {
+        no_results: function(data) { return '<div class="no-results px-3 py-2 text-muted small">No matches for "' + data.input + '"</div>'; }
+      }
+    }, opts || {}));
+    tsInstances[el.id] = ts;
+    return ts;
+  }
+  initTomSelect(document.getElementById('pickup_suburb'));
+  initTomSelect(document.getElementById('pickup_state'));
+  initTomSelect(document.getElementById('dropoff_suburb'));
+  initTomSelect(document.getElementById('dropoff_state'));
+  var testLocEl = document.getElementById('test_location');
+  if (testLocEl) initTomSelect(testLocEl);
+
   function syncStateFromSuburb(suburbSelect, stateSelect) {
     var opt = suburbSelect.selectedOptions[0];
-    if (opt && opt.getAttribute('data-state')) stateSelect.value = opt.getAttribute('data-state');
+    if (opt && opt.getAttribute('data-state')) {
+      if (stateSelect.tomselect) {
+        stateSelect.tomselect.setValue(opt.getAttribute('data-state'), true);
+      } else {
+        stateSelect.value = opt.getAttribute('data-state');
+      }
+    }
   }
   document.getElementById('pickup_suburb').addEventListener('change', function() { syncStateFromSuburb(this, document.getElementById('pickup_state')); });
   document.getElementById('dropoff_suburb').addEventListener('change', function() { syncStateFromSuburb(this, document.getElementById('dropoff_state')); });
@@ -326,12 +374,18 @@
         document.getElementById('booking_date').value = item.dateLabel || '';
         document.getElementById('booking_date_iso').value = item.date_iso || '';
         document.getElementById('pickup_address').value = item.pickup_address || '';
-        document.getElementById('pickup_suburb').value = item.pickup_suburb_id || '';
-        document.getElementById('pickup_state').value = item.pickup_state_id || '';
+        function setTsValue(id, val) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          if (el.tomselect) el.tomselect.setValue(val || '', true);
+          else el.value = val || '';
+        }
+        setTsValue('pickup_suburb', item.pickup_suburb_id);
+        setTsValue('pickup_state', item.pickup_state_id);
         if (item.booking_type === 'test_package') {
           document.getElementById('type-test').checked = true;
-          document.getElementById('dropoff_suburb').value = item.dropoff_suburb_id || '';
-          document.getElementById('dropoff_state').value = item.dropoff_state_id || '';
+          setTsValue('dropoff_suburb', item.dropoff_suburb_id);
+          setTsValue('dropoff_state', item.dropoff_state_id);
           document.getElementById('dropoff_address').value = item.dropoff_address || '';
         } else {
           document.getElementById('type-1hr').checked = item.booking_type === '1hr';
@@ -560,8 +614,12 @@
           for (var j = 0; j < suburbSelect.options.length; j++) {
             var opt = suburbSelect.options[j];
             if (opt.value && opt.text.indexOf(suburb) !== -1 && (postcode === '' || opt.text.indexOf(postcode) !== -1)) {
-              suburbSelect.value = opt.value;
-              if (opt.getAttribute('data-state')) stateSelect.value = opt.getAttribute('data-state');
+              if (suburbSelect.tomselect) suburbSelect.tomselect.setValue(opt.value, true);
+              else suburbSelect.value = opt.value;
+              if (opt.getAttribute('data-state')) {
+                if (stateSelect.tomselect) stateSelect.tomselect.setValue(opt.getAttribute('data-state'), true);
+                else stateSelect.value = opt.getAttribute('data-state');
+              }
               break;
             }
           }
