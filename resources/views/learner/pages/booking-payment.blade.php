@@ -6,7 +6,7 @@
 @section('content')
 <nav aria-label="breadcrumb" class="mb-2">
     <ol class="breadcrumb mb-0 small">
-        <li class="breadcrumb-item"><a href="{{ route('learner.dashboard') }}"><i class="bi bi-house"></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ auth()->check() ? route('learner.dashboard') : url('/') }}"><i class="bi bi-house"></i> Home</a></li>
         <li class="breadcrumb-item"><a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $order['instructor_profile_id'] ?? '']) }}">Make a Booking</a></li>
         <li class="breadcrumb-item active" aria-current="page">Payment</li>
     </ol>

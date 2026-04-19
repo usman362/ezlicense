@@ -209,39 +209,68 @@
                 <span class="role-badge">Learner Portal</span>
             </div>
             <nav class="nav flex-column">
-                <a class="nav-link {{ request()->routeIs('learner.dashboard') ? 'active' : '' }}" href="{{ route('learner.dashboard') }}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a class="nav-link {{ request()->routeIs('learner.calendar') ? 'active' : '' }}" href="{{ route('learner.calendar') }}">
-                    <i class="bi bi-calendar3"></i>
-                    <span>My Calendar</span>
-                </a>
-                <a class="nav-link {{ request()->routeIs('learner.wallet*') ? 'active' : '' }}" href="{{ route('learner.wallet') }}">
-                    <i class="bi bi-wallet2"></i>
-                    <span>Wallet</span>
-                </a>
-                <a class="nav-link {{ request()->routeIs('service-bookings.*') ? 'active' : '' }}" href="{{ route('service-bookings.index') }}">
-                    <i class="bi bi-tools"></i>
-                    <span>My Service Bookings</span>
-                </a>
-                <a class="nav-link" href="{{ route('services.categories') }}">
-                    <i class="bi bi-search"></i>
-                    <span>Find Services</span>
-                </a>
-                <div class="nav-divider"></div>
-                <a class="nav-link" href="#">
-                    <i class="bi bi-gift"></i>
-                    <span>Invite Friends</span>
-                </a>
-                <a class="nav-link" href="#">
-                    <i class="bi bi-chat-left-text"></i>
-                    <span>Give Feedback</span>
-                </a>
-                <a class="nav-link" href="#">
-                    <i class="bi bi-headset"></i>
-                    <span>Support</span>
-                </a>
+                @auth
+                    <a class="nav-link {{ request()->routeIs('learner.dashboard') ? 'active' : '' }}" href="{{ route('learner.dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('learner.calendar') ? 'active' : '' }}" href="{{ route('learner.calendar') }}">
+                        <i class="bi bi-calendar3"></i>
+                        <span>My Calendar</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('learner.wallet*') ? 'active' : '' }}" href="{{ route('learner.wallet') }}">
+                        <i class="bi bi-wallet2"></i>
+                        <span>Wallet</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('service-bookings.*') ? 'active' : '' }}" href="{{ route('service-bookings.index') }}">
+                        <i class="bi bi-tools"></i>
+                        <span>My Service Bookings</span>
+                    </a>
+                    <a class="nav-link" href="{{ route('services.categories') }}">
+                        <i class="bi bi-search"></i>
+                        <span>Find Services</span>
+                    </a>
+                    <div class="nav-divider"></div>
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-gift"></i>
+                        <span>Invite Friends</span>
+                    </a>
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-chat-left-text"></i>
+                        <span>Give Feedback</span>
+                    </a>
+                    <a class="nav-link" href="{{ route('contact') }}">
+                        <i class="bi bi-headset"></i>
+                        <span>Support</span>
+                    </a>
+                @else
+                    {{-- Guest booking navigation — limited menu --}}
+                    <a class="nav-link {{ request()->routeIs('find-instructor*') ? 'active' : '' }}" href="{{ route('find-instructor') }}">
+                        <i class="bi bi-search"></i>
+                        <span>Find Instructor</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('learner.bookings.*') ? 'active' : '' }}" href="#" onclick="event.preventDefault();">
+                        <i class="bi bi-calendar-check"></i>
+                        <span>Book a Lesson</span>
+                    </a>
+                    <a class="nav-link" href="{{ route('prices-packages') }}">
+                        <i class="bi bi-tag"></i>
+                        <span>Prices &amp; Packages</span>
+                    </a>
+                    <div class="nav-divider"></div>
+                    <a class="nav-link" href="{{ url('/') }}">
+                        <i class="bi bi-house"></i>
+                        <span>Home</span>
+                    </a>
+                    <a class="nav-link" href="{{ route('contact') }}">
+                        <i class="bi bi-headset"></i>
+                        <span>Support</span>
+                    </a>
+                    <div class="px-3 py-3 mt-2" style="background:rgba(255,213,0,0.08); border-radius:8px; margin:0.5rem;">
+                        <p class="small text-white-50 mb-2">Already have an account?</p>
+                        <a href="{{ route('learner.login') }}" class="btn btn-sm btn-warning w-100 fw-semibold">Log in</a>
+                    </div>
+                @endauth
             </nav>
         </aside>
         <main class="learner-main">
@@ -262,27 +291,36 @@
                             </div>
                         </div>
                     </div>
-                    <div class="user-dropdown dropdown">
-                        <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="avatar-sm">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
-                            <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
-                            <i class="bi bi-chevron-down" style="font-size:0.7rem; color: var(--sl-gray-400);"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li class="dropdown-header">Signed in as Learner</li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('learner.wallet') }}"><i class="bi bi-wallet2"></i> My Wallet</a></li>
-                            <li><a class="dropdown-item" href="{{ route('find-instructor') }}"><i class="bi bi-search"></i> Find Instructor</a></li>
-                            <li><a class="dropdown-item" href="{{ url('/') }}" target="_blank"><i class="bi bi-globe"></i> View Public Site</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('learner-logout-form').submit();">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <form id="learner-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                    @auth
+                        <div class="user-dropdown dropdown">
+                            <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="avatar-sm">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
+                                <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                                <i class="bi bi-chevron-down" style="font-size:0.7rem; color: var(--sl-gray-400);"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li class="dropdown-header">Signed in as Learner</li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('learner.wallet') }}"><i class="bi bi-wallet2"></i> My Wallet</a></li>
+                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}"><i class="bi bi-search"></i> Find Instructor</a></li>
+                                <li><a class="dropdown-item" href="{{ url('/') }}" target="_blank"><i class="bi bi-globe"></i> View Public Site</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('learner-logout-form').submit();">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <form id="learner-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                    @else
+                        <a href="{{ route('learner.login') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Log in
+                        </a>
+                        <a href="{{ route('register') }}" class="btn btn-sm btn-warning fw-semibold">
+                            Sign up
+                        </a>
+                    @endauth
                 </div>
             </div>
             <div class="content">
