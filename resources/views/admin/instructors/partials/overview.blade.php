@@ -177,6 +177,28 @@
             </div>
         </div>
 
+        {{-- Rating Management --}}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                <h6 class="fw-bold mb-0"><i class="bi bi-star-fill text-warning me-2"></i>Rating</h6>
+                <span class="badge bg-warning-subtle text-warning fs-6">
+                    {{ number_format($instructor->weighted_rating ?? 4.00, 2) }} ★
+                </span>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless mb-3 small">
+                    <tr><td class="text-muted" style="width:55%">Weighted Rating</td><td class="fw-bold">{{ number_format($instructor->weighted_rating ?? 4.00, 2) }} / 5.00</td></tr>
+                    <tr><td class="text-muted">Review Count</td><td>{{ $instructor->reviews()->where('is_approved', true)->count() ?? 0 }}</td></tr>
+                    <tr><td class="text-muted">Completed Lessons</td><td>{{ $instructor->total_completed_lessons ?? 0 }}</td></tr>
+                    <tr><td class="text-muted">5★ Streak</td><td>{{ $instructor->consecutive_five_stars ?? 0 }}</td></tr>
+                    <tr><td class="text-muted">Recovery Deficit</td><td>{{ $instructor->recovery_deficit ?? 0 }}</td></tr>
+                </table>
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#adjustRatingModal">
+                    <i class="bi bi-pencil me-1"></i> Adjust Rating Manually
+                </button>
+            </div>
+        </div>
+
         {{-- Business Details --}}
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3">
@@ -276,6 +298,56 @@
         </form>
     </div>
 </div>
+{{-- Adjust Rating Modal --}}
+<div class="modal fade" id="adjustRatingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('admin.instructors.adjust-rating', $instructor) }}">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title"><i class="bi bi-star-fill text-warning me-2"></i>Adjust Instructor Rating</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning small mb-3">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <strong>Admin override:</strong> This directly sets the weighted rating, bypassing the automatic algorithm. Use sparingly and document the reason. All changes are logged in the audit trail.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Current Rating</label>
+                        <div class="fs-4 fw-bold text-warning">{{ number_format($instructor->weighted_rating ?? 4.00, 2) }} / 5.00</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">New Rating <span class="text-danger">*</span></label>
+                        <input type="number" name="weighted_rating" class="form-control" min="1.00" max="5.00" step="0.01" required
+                               value="{{ number_format($instructor->weighted_rating ?? 4.00, 2) }}"
+                               placeholder="e.g. 4.50">
+                        <small class="text-muted">Must be between 1.00 and 5.00</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Reason for Adjustment <span class="text-danger">*</span></label>
+                        <textarea name="reason" class="form-control" rows="3" required maxlength="1000"
+                                  placeholder="e.g. Compensating for system error, manual correction after complaint review, goodwill adjustment..."></textarea>
+                        <small class="text-muted">This will be saved to the audit log.</small>
+                    </div>
+
+                    <div class="alert alert-info small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Note: If new reviews come in after this adjustment, the algorithm will re-blend them based on the new base.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-check-circle me-1"></i>Save Rating</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 document.getElementById('blockDurationType')?.addEventListener('change', function() {
     document.getElementById('customDaysField').style.display = this.value === 'custom' ? 'block' : 'none';

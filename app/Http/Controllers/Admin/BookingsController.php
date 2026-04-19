@@ -16,7 +16,7 @@ class BookingsController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Booking::with(['learner', 'instructor', 'suburb']);
+        $query = Booking::with(['learner', 'instructor', 'suburb', 'instructorProfile']);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {

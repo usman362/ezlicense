@@ -13,6 +13,7 @@ use App\Models\InstructorProfile;
 use App\Models\InstructorWarning;
 use App\Models\Review;
 use App\Models\User;
+use App\Notifications\InstructorVerificationUpdated;
 use App\Notifications\ReviewApproved;
 use App\Services\RatingService;
 use Illuminate\Http\Request;
@@ -60,22 +61,37 @@ class InstructorsController extends Controller
             'admin_notes'         => $instructorProfile->admin_notes,
         ];
 
+        $newStatus = $request->input('verification_status');
+        $adminNotes = $request->input('admin_notes');
+
         $instructorProfile->update([
-            'verification_status' => $request->input('verification_status'),
-            'admin_notes'         => $request->input('admin_notes'),
+            'verification_status' => $newStatus,
+            'admin_notes'         => $adminNotes,
+            // Automatically activate instructor when verified
+            'is_active'           => $newStatus === 'verified' ? true : $instructorProfile->is_active,
         ]);
 
         InstructorAuditLog::record(
             $instructorProfile->id,
             Auth::id(),
             'verification_updated',
-            'Verification status changed to ' . $request->input('verification_status'),
+            'Verification status changed to ' . $newStatus,
             $old,
-            ['verification_status' => $request->input('verification_status'), 'admin_notes' => $request->input('admin_notes')],
+            ['verification_status' => $newStatus, 'admin_notes' => $adminNotes],
         );
 
+        // Notify instructor via email — only for user-visible status changes
+        if ($instructorProfile->user && $old['verification_status'] !== $newStatus
+            && in_array($newStatus, ['verified', 'rejected', 'documents_submitted'])) {
+            try {
+                $instructorProfile->user->notify(new InstructorVerificationUpdated($newStatus, $adminNotes));
+            } catch (\Throwable $e) {
+                Log::warning('Instructor verification email failed: ' . $e->getMessage());
+            }
+        }
+
         $name = $instructorProfile->user->name ?? 'Instructor';
-        return redirect()->back()->with('message', "{$name}'s verification status updated to " . ucfirst($request->input('verification_status')) . ".");
+        return redirect()->back()->with('message', "{$name}'s verification status updated to " . ucfirst($newStatus) . ".");
     }
 
     public function toggleActive(InstructorProfile $instructorProfile)

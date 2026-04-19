@@ -58,6 +58,10 @@ class Booking extends Model
 
     protected $fillable = [
         'learner_id',
+        'guest_name',
+        'guest_email',
+        'guest_phone',
+        'is_guest_booking',
         'instructor_id',
         'instructor_profile_id',
         'suburb_id',
@@ -106,6 +110,7 @@ class Booking extends Model
             'platform_fee' => 'decimal:2',
             'instructor_net_amount' => 'decimal:2',
             'test_pre_booked' => 'boolean',
+            'is_guest_booking' => 'boolean',
             'cancellation_policy_accepted' => 'boolean',
             'confirmation_sent_at' => 'datetime',
             'learner_confirmed_at' => 'datetime',

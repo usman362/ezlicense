@@ -281,10 +281,13 @@
                                 </a>
                             @endif
                         @else
-                            <a href="{{ route('learner.login') }}" class="btn btn-primary btn-lg w-100 fw-bold">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Log in to Book
+                            {{-- Guest booking: no login required — account auto-created after payment --}}
+                            <a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
+                                <i class="bi bi-calendar-check me-2"></i>Book a Lesson
                             </a>
-                            <p class="small text-muted text-center mb-0 mt-2">New here? <a href="{{ route('register') }}" class="fw-semibold">Create an account</a></p>
+                            <p class="small text-muted text-center mb-0 mt-2">
+                                Already a member? <a href="{{ route('learner.login') }}" class="fw-semibold">Log in</a>
+                            </p>
                         @endauth
                     </div>
                 </div>

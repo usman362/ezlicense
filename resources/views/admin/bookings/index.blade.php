@@ -46,6 +46,7 @@
                         <th>Scheduled</th>
                         <th>Duration</th>
                         <th>Amount</th>
+                        <th>Instr. Net</th>
                         <th>Status</th>
                         <th>Confirmed</th>
                         <th class="text-end">Actions</th>
@@ -76,6 +77,12 @@
                             </td>
                             <td class="small">{{ $b->duration_minutes }} min</td>
                             <td class="small fw-semibold">${{ number_format($b->amount, 2) }}</td>
+                            <td class="small fw-semibold text-success">
+                                ${{ number_format($b->instructor_net_amount ?? max($b->amount - 7, 0), 2) }}
+                                @if($b->instructor_payout_id)
+                                    <i class="bi bi-check-circle-fill text-success" title="Paid out in payout #{{ $b->instructor_payout_id }}"></i>
+                                @endif
+                            </td>
                             <td><span class="badge bg-{{ $statusColors[$b->status] ?? 'secondary' }}">{{ $b->status === 'instructor_arrived' ? 'Arrived' : ($b->status === 'in_progress' ? 'In Progress' : ($b->status === 'no_show' ? 'No Show' : ucfirst($b->status))) }}</span></td>
                             <td>
                                 @if($b->status === 'completed')
@@ -101,7 +108,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="10" class="text-muted text-center py-4">No bookings found.</td></tr>
+                        <tr><td colspan="11" class="text-muted text-center py-4">No bookings found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -149,12 +156,102 @@
                         <div class="small">{{ $b->duration_minutes }} minutes</div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label text-muted small mb-0">Amount</label>
-                        <div class="small fw-semibold">${{ number_format($b->amount, 2) }}</div>
-                    </div>
-                    <div class="col-6">
                         <label class="form-label text-muted small mb-0">Location</label>
                         <div class="small">{{ $b->suburb->name ?? '—' }}</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small mb-0">Payment Method</label>
+                        <div class="small">
+                            <span class="badge bg-light text-dark">{{ ucfirst($b->payment_method ?? '—') }}</span>
+                            @php
+                                $payStatus = $b->payment_status ?? ($b->status === 'completed' ? 'paid' : ($b->status === 'cancelled' ? 'refunded' : 'pending'));
+                                $payColor = ['paid' => 'success', 'pending' => 'warning', 'refunded' => 'danger', 'failed' => 'danger'][$payStatus] ?? 'secondary';
+                            @endphp
+                            <span class="badge bg-{{ $payColor }}-subtle text-{{ $payColor }}">{{ ucfirst($payStatus) }}</span>
+                        </div>
+                    </div>
+
+                    {{-- Payment Breakdown --}}
+                    @php
+                        $serviceFee = (float) \App\Models\SiteSetting::get('platform_service_fee', 5.00);
+                        $processingFee = (float) \App\Models\SiteSetting::get('payment_processing_fee', 2.00);
+                        $feePercent = (float) \App\Models\SiteSetting::get('platform_fee_percent', 4);
+
+                        $gross = (float) $b->amount;
+                        $platformFee = (float) ($b->platform_fee ?? round($gross * $feePercent / 100, 2));
+                        $learnerPaid = $gross + $platformFee;
+                        $totalDeductions = $serviceFee + $processingFee;
+                        $instructorNet = (float) ($b->instructor_net_amount ?? max($gross - $totalDeductions, 0));
+                        $gstOnFees = $b->instructorProfile?->gst_registered ? round($totalDeductions / 11, 2) : 0;
+                    @endphp
+                    <div class="col-12">
+                        <div class="border rounded p-3" style="background:var(--sl-gray-50);">
+                            <h6 class="fw-bold small text-muted text-uppercase mb-3" style="letter-spacing:0.06em;">
+                                <i class="bi bi-cash-coin me-1"></i>Payment Breakdown
+                            </h6>
+                            <table class="table table-sm mb-0 small">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted">Booking Amount (gross)</td>
+                                        <td class="text-end fw-semibold">${{ number_format($gross, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">+ Platform Fee ({{ $feePercent }}%)</td>
+                                        <td class="text-end">${{ number_format($platformFee, 2) }}</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="fw-bold">Total Learner Paid</td>
+                                        <td class="text-end fw-bold text-primary">${{ number_format($learnerPaid, 2) }}</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="text-muted" colspan="2" style="padding-top:0.75rem;">
+                                            <small class="text-uppercase fw-semibold" style="letter-spacing:0.06em;">Instructor Payout Calculation</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Booking Amount</td>
+                                        <td class="text-end">${{ number_format($gross, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">− Service Fee</td>
+                                        <td class="text-end text-danger">−${{ number_format($serviceFee, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">− Processing Fee</td>
+                                        <td class="text-end text-danger">−${{ number_format($processingFee, 2) }}</td>
+                                    </tr>
+                                    @if($gstOnFees > 0)
+                                        <tr>
+                                            <td class="text-muted">GST on fees (1/11)</td>
+                                            <td class="text-end">${{ number_format($gstOnFees, 2) }}</td>
+                                        </tr>
+                                    @endif
+                                    <tr class="border-top">
+                                        <td class="fw-bold">Instructor Net Payout</td>
+                                        <td class="text-end fw-bold text-success">${{ number_format($instructorNet, 2) }}</td>
+                                    </tr>
+                                    @if($b->instructor_payout_id)
+                                        <tr class="border-top">
+                                            <td class="text-muted">Payout Status</td>
+                                            <td class="text-end">
+                                                <span class="badge bg-success-subtle text-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Paid — Payout #{{ $b->instructor_payout_id }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @else
+                                        <tr class="border-top">
+                                            <td class="text-muted">Payout Status</td>
+                                            <td class="text-end">
+                                                <span class="badge bg-warning-subtle text-warning">
+                                                    <i class="bi bi-clock me-1"></i>Pending next payout cycle
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     @if($b->learner_notes)
                         <div class="col-12">

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -77,12 +79,21 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
             'role' => $data['role'] ?? User::ROLE_LEARNER,
             'password' => Hash::make($data['password']),
         ]);
+
+        // Send welcome email (fails silently — don't block registration)
+        try {
+            $user->notify(new WelcomeNotification($user));
+        } catch (\Throwable $e) {
+            Log::warning('Welcome email failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
+
+        return $user;
     }
 }

@@ -82,9 +82,28 @@ class BookingController extends Controller
                 $query->whereIn('status', [Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED])
                     ->orderBy('scheduled_at', 'desc');
             }
-        } elseif ($user->isLearner() && $tab === 'history') {
-            $query->whereIn('status', [Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED])
-                ->orderBy('scheduled_at', 'desc');
+        } elseif ($user->isLearner() && in_array($tab, ['upcoming', 'pending', 'history'], true)) {
+            if ($tab === 'upcoming') {
+                // Confirmed or in-progress bookings scheduled for the future (or actively running)
+                $query->whereIn('status', [
+                        Booking::STATUS_CONFIRMED,
+                        Booking::STATUS_PROPOSED,
+                        Booking::STATUS_INSTRUCTOR_ARRIVED,
+                        Booking::STATUS_IN_PROGRESS,
+                    ])
+                    ->where(function ($q) use ($now) {
+                        $q->where('scheduled_at', '>', $now)
+                          ->orWhereIn('status', [Booking::STATUS_INSTRUCTOR_ARRIVED, Booking::STATUS_IN_PROGRESS]);
+                    })
+                    ->orderBy('scheduled_at', 'asc');
+            } elseif ($tab === 'pending') {
+                // Learner's pending bookings — awaiting payment/confirmation
+                $query->where('status', Booking::STATUS_PENDING)
+                    ->orderBy('scheduled_at', 'asc');
+            } else {
+                $query->whereIn('status', [Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED])
+                    ->orderBy('scheduled_at', 'desc');
+            }
         } else {
             $status = $request->input('status');
             if (in_array($status, [Booking::STATUS_PENDING, Booking::STATUS_PROPOSED, Booking::STATUS_CONFIRMED, Booking::STATUS_INSTRUCTOR_ARRIVED, Booking::STATUS_IN_PROGRESS, Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED], true)) {
@@ -724,6 +743,8 @@ class BookingController extends Controller
             'duration_minutes' => $b->duration_minutes,
             'amount' => (float) $b->amount,
             'platform_fee' => (float) ($b->platform_fee ?? 0),
+            'instructor_net_amount' => (float) ($b->instructor_net_amount ?? 0),
+            'instructor_payout_id' => $b->instructor_payout_id,
             'test_pre_booked' => $b->test_pre_booked,
             'status' => $b->status,
             'payment_method' => $b->payment_method,

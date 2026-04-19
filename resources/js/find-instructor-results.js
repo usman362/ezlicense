@@ -134,11 +134,9 @@ function attachCardHandlers(col, inst) {
   if (bookBtn) {
     bookBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (isLearner && learnerBookingNewUrl) {
-        window.location.href = `${learnerBookingNewUrl}?instructor_profile_id=${id}`;
-      } else {
-        window.location.href = '/learner/login';
-      }
+      // Guests can book too — account is auto-created after payment
+      const url = learnerBookingNewUrl || '/learner/bookings/new';
+      window.location.href = `${url}?instructor_profile_id=${id}`;
     });
   }
   if (viewBtn) {

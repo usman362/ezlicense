@@ -18,6 +18,40 @@
     <div class="col-lg-8">
         <form id="payment-form" action="#" method="post">
             @csrf
+
+            @if($isGuest ?? false)
+                {{-- ── Guest account details ── --}}
+                <div class="card border-0 shadow-sm mb-4" style="border-left: 4px solid var(--sl-primary-500, #ff8400) !important;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start gap-2 mb-3">
+                            <i class="bi bi-person-plus-fill text-primary fs-5"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Your Details</h6>
+                                <p class="small text-muted mb-0">We'll create an account for you automatically after payment, so you can manage your bookings.</p>
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-12">
+                                <label class="form-label small">Full name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="guest_name" required value="{{ $guestName ?? '' }}" placeholder="e.g. Aaron Smith">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="guest_email" required value="{{ $guestEmail ?? '' }}" placeholder="you@example.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Mobile <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" name="guest_phone" required value="{{ $guestPhone ?? '' }}" placeholder="04XX XXX XXX">
+                            </div>
+                        </div>
+                        <p class="small text-muted mt-3 mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Already have an account? <a href="{{ route('learner.login') }}?redirect={{ urlencode(route('learner.bookings.payment')) }}">Log in</a> to use saved payment methods.
+                        </p>
+                    </div>
+                </div>
+            @endif
+
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
                     <h6 class="fw-bold mb-3">Payment Method</h6>
@@ -197,6 +231,28 @@
     var method = document.querySelector('input[name="payment_method"]:checked').value;
     var csrf = document.querySelector('meta[name="csrf-token"]');
 
+    var payload = {
+      payment_method: method,
+      billing_name: document.querySelector('[name="billing_name"]').value,
+      billing_address: document.querySelector('[name="billing_address"]').value
+    };
+
+    // Include guest fields if present
+    var guestName = document.querySelector('[name="guest_name"]');
+    var guestEmail = document.querySelector('[name="guest_email"]');
+    var guestPhone = document.querySelector('[name="guest_phone"]');
+    if (guestName && guestEmail && guestPhone) {
+      if (!guestName.value.trim() || !guestEmail.value.trim() || !guestPhone.value.trim()) {
+        alert('Please fill in your name, email and mobile so we can create your account.');
+        btn.disabled = false;
+        btn.textContent = 'Pay ${{ number_format((float) ($order["total"] ?? 0), 2) }}';
+        return;
+      }
+      payload.guest_name = guestName.value.trim();
+      payload.guest_email = guestEmail.value.trim();
+      payload.guest_phone = guestPhone.value.trim();
+    }
+
     fetch('/api/learner/bookings/pay', {
       method: 'POST',
       headers: {
@@ -206,11 +262,7 @@
         'X-Requested-With': 'XMLHttpRequest'
       },
       credentials: 'same-origin',
-      body: JSON.stringify({
-        payment_method: method,
-        billing_name: document.querySelector('[name="billing_name"]').value,
-        billing_address: document.querySelector('[name="billing_address"]').value
-      })
+      body: JSON.stringify(payload)
     })
     .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
     .then(function(result) {
@@ -218,9 +270,17 @@
         btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Booking Confirmed!';
         btn.classList.remove('btn-warning');
         btn.classList.add('btn-success');
-        setTimeout(function() { window.location.href = '{{ route("learner.dashboard") }}'; }, 2000);
+        if (result.data.data && result.data.data.account_created) {
+          alert('Success! Your account has been created. Check your email for a password-reset link.');
+        }
+        var redirect = (result.data.data && result.data.data.redirect) || '{{ route("find-instructor") }}';
+        setTimeout(function() { window.location.href = redirect; }, 2000);
       } else {
-        alert(result.data.message || 'Payment failed. Please try again.');
+        var msg = result.data.message || 'Payment failed. Please try again.';
+        if (result.data.errors) {
+          msg = Object.values(result.data.errors).flat().join('\n');
+        }
+        alert(msg);
         btn.disabled = false;
         btn.textContent = 'Pay ${{ number_format((float) ($order["total"] ?? 0), 2) }}';
       }

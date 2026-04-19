@@ -226,14 +226,20 @@ Route::put('/user/profile', function (\Illuminate\Http\Request $request) {
     return response()->json(['message' => 'Updated']);
 })->name('user.profile.update')->middleware('auth');
 
+// ── Learner booking flow — accessible to GUESTS and authenticated learners ──
+// Guest bookings auto-create an account after successful payment (EasyLicence-style)
+Route::prefix('learner')->name('learner.')->group(function () {
+    Route::get('/bookings/new', [App\Http\Controllers\Learner\BookingController::class, 'create'])->name('bookings.new');
+    Route::post('/bookings/continue', [App\Http\Controllers\Learner\BookingController::class, 'continueToPayment'])->name('bookings.continue');
+    Route::get('/bookings/payment', [App\Http\Controllers\Learner\BookingController::class, 'payment'])->name('bookings.payment');
+});
+
+// ── Learner authenticated routes ──
 Route::middleware(['auth', 'role:learner'])->prefix('learner')->name('learner.')->group(function () {
     Route::get('/dashboard', fn () => view('learner.pages.dashboard'))->name('dashboard');
     Route::get('/calendar', fn () => view('learner.pages.calendar'))->name('calendar');
     Route::get('/wallet', fn () => view('learner.pages.wallet'))->name('wallet');
     Route::get('/wallet/add-credit', fn () => view('learner.pages.wallet-add-credit'))->name('wallet.add-credit');
-    Route::get('/bookings/new', [App\Http\Controllers\Learner\BookingController::class, 'create'])->name('bookings.new');
-    Route::post('/bookings/continue', [App\Http\Controllers\Learner\BookingController::class, 'continueToPayment'])->name('bookings.continue');
-    Route::get('/bookings/payment', [App\Http\Controllers\Learner\BookingController::class, 'payment'])->name('bookings.payment');
 });
 
 Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('instructor.')->group(function () {
@@ -266,6 +272,10 @@ Route::prefix('api')->middleware('web')->group(function () {
     Route::get('instructors/{instructorProfile}', [InstructorProfileController::class, 'show'])->name('api.instructors.show');
     Route::get('instructors/{instructorProfile}/availability/dates', [AvailabilityController::class, 'dates'])->name('api.availability.dates');
     Route::get('instructors/{instructorProfile}/availability/slots', [AvailabilityController::class, 'slots'])->name('api.availability.slots');
+
+    // Learner booking payment — accepts guest OR authenticated users
+    // (Guests get an account auto-created after successful payment)
+    Route::post('learner/bookings/pay', [App\Http\Controllers\Learner\BookingController::class, 'processPayment'])->name('api.learner.bookings.pay');
 
     // Admin blog API routes
     Route::middleware(['auth', 'role:admin'])->prefix('admin/blog')->group(function () {
@@ -330,7 +340,6 @@ Route::prefix('api')->middleware('web')->group(function () {
             Route::get('wallet', [App\Http\Controllers\Learner\WalletController::class, 'show'])->name('wallet.show');
             Route::get('wallet/transactions', [App\Http\Controllers\Learner\WalletController::class, 'transactions'])->name('wallet.transactions');
             Route::post('wallet/add-credit', [App\Http\Controllers\Learner\WalletController::class, 'addCredit'])->name('wallet.add-credit');
-            Route::post('bookings/pay', [App\Http\Controllers\Learner\BookingController::class, 'processPayment'])->name('bookings.pay');
         });
 
         Route::middleware('role:instructor')->prefix('instructor')->name('api.instructor.')->group(function () {

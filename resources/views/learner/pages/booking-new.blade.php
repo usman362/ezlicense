@@ -148,28 +148,21 @@
                     <h6 class="small fw-bold mb-2">Pick Up Location</h6>
                     <div class="mb-2">
                         <label class="form-label small">* Pick up address</label>
-                        <input type="text" class="form-control" id="pickup_address" placeholder="Enter a location">
+                        <input type="text" class="form-control" id="pickup_address" placeholder="Enter a street address">
                     </div>
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label small">* Suburb</label>
-                            <select class="form-select form-select-sm" id="pickup_suburb">
-                                <option value="">Select suburb</option>
-                                @foreach($states as $state)
-                                    @foreach($suburbsByState[$state->id] ?? [] as $sub)
-                                        <option value="{{ $sub['id'] }}" data-state="{{ $state->id }}">{{ $sub['name'] }}, {{ $sub['postcode'] }}</option>
-                                    @endforeach
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">* State</label>
-                            <select class="form-select form-select-sm" id="pickup_state">
-                                <option value="">Select state</option>
-                                @foreach($states as $state)
-                                    <option value="{{ $state->id }}">{{ $state->name }}</option>
-                                @endforeach
-                            </select>
+                    {{-- Typable suburb/postcode search (EasyLicence-style) --}}
+                    <div class="mb-2 position-relative">
+                        <label class="form-label small">* Suburb or postcode</label>
+                        <input type="text" class="form-control" id="pickup_suburb_search"
+                               placeholder="Type a suburb name or postcode (e.g. Parramatta or 2150)"
+                               autocomplete="off" data-ac-target="pickup">
+                        <div class="suburb-ac-dropdown" id="pickup_suburb_ac"></div>
+                        <input type="hidden" id="pickup_suburb" name="pickup_suburb">
+                        <input type="hidden" id="pickup_state" name="pickup_state">
+                        <div class="small text-muted mt-1" id="pickup_selected_display" style="display:none;">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span id="pickup_selected_label"></span>
+                            <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-danger" id="pickup_clear">Change</button>
                         </div>
                     </div>
                 </div>
@@ -178,28 +171,20 @@
                     <h6 class="small fw-bold mb-2">Drop Off Location</h6>
                     <div class="mb-2">
                         <label class="form-label small">Drop off address</label>
-                        <input type="text" class="form-control" id="dropoff_address" placeholder="Enter a location">
+                        <input type="text" class="form-control" id="dropoff_address" placeholder="Enter a street address">
                     </div>
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label small">* Suburb</label>
-                            <select class="form-select form-select-sm" id="dropoff_suburb">
-                                <option value="">Select suburb</option>
-                                @foreach($states as $state)
-                                    @foreach($suburbsByState[$state->id] ?? [] as $sub)
-                                        <option value="{{ $sub['id'] }}" data-state="{{ $state->id }}">{{ $sub['name'] }}, {{ $sub['postcode'] }}</option>
-                                    @endforeach
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">* State</label>
-                            <select class="form-select form-select-sm" id="dropoff_state">
-                                <option value="">Select state</option>
-                                @foreach($states as $state)
-                                    <option value="{{ $state->id }}">{{ $state->name }}</option>
-                                @endforeach
-                            </select>
+                    <div class="mb-2 position-relative">
+                        <label class="form-label small">* Suburb or postcode</label>
+                        <input type="text" class="form-control" id="dropoff_suburb_search"
+                               placeholder="Type a suburb name or postcode"
+                               autocomplete="off" data-ac-target="dropoff">
+                        <div class="suburb-ac-dropdown" id="dropoff_suburb_ac"></div>
+                        <input type="hidden" id="dropoff_suburb" name="dropoff_suburb">
+                        <input type="hidden" id="dropoff_state" name="dropoff_state">
+                        <div class="small text-muted mt-1" id="dropoff_selected_display" style="display:none;">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span id="dropoff_selected_label"></span>
+                            <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-danger" id="dropoff_clear">Change</button>
                         </div>
                     </div>
                 </div>
@@ -248,22 +233,58 @@
 <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&callback=Function.prototype" async defer></script>
 @endif
 
-{{-- Tom Select — modern searchable dropdown (no jQuery required) --}}
+{{-- Suburb autocomplete + dropdown styling --}}
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
-    /* Match Bootstrap form-select-sm height */
-    .ts-wrapper.form-select-sm { min-height: calc(1.5em + 0.5rem + 2px); }
-    .ts-wrapper.form-select-sm .ts-control { padding: 0.25rem 0.5rem; font-size: 0.875rem; min-height: calc(1.5em + 0.5rem + 2px); }
-    .ts-wrapper .ts-control { border-radius: var(--sl-radius, 0.375rem); border-color: var(--sl-gray-300, #dee2e6); }
-    .ts-wrapper.focus .ts-control { border-color: var(--sl-primary-500, #ff8400); box-shadow: 0 0 0 0.2rem rgba(255,132,0,0.15); }
-    .ts-dropdown { border-radius: var(--sl-radius, 0.375rem); box-shadow: 0 10px 40px rgba(0,0,0,0.12); border: 1px solid var(--sl-gray-200, #e5e7eb); }
-    .ts-dropdown .active { background-color: var(--sl-primary-50, #fff7ed); color: var(--sl-gray-900, #111827); }
-    .ts-dropdown .option.active { background-color: var(--sl-primary-500, #ff8400); color: #fff; }
-    .ts-wrapper.single .ts-control:after { border-top-color: var(--sl-gray-500, #6b7280); }
+    /* ── Suburb autocomplete dropdown (EasyLicence-style) ── */
+    .suburb-ac-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+        background: #fff;
+        border: 1px solid var(--sl-gray-200, #e5e7eb);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+        max-height: 320px;
+        overflow-y: auto;
+        display: none;
+        margin-top: 2px;
+    }
+    .suburb-ac-dropdown.show { display: block; }
+    .suburb-ac-item {
+        padding: 0.6rem 0.875rem;
+        cursor: pointer;
+        border-bottom: 1px solid var(--sl-gray-100, #f3f4f6);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.1s;
+    }
+    .suburb-ac-item:last-child { border-bottom: none; }
+    .suburb-ac-item:hover, .suburb-ac-item.active {
+        background: var(--sl-primary-50, #fff7ed);
+    }
+    .suburb-ac-item .suburb-name { font-weight: 600; color: var(--sl-gray-900, #111827); }
+    .suburb-ac-item .suburb-meta { color: var(--sl-gray-500, #6b7280); font-size: 0.85rem; margin-left: auto; }
+    .suburb-ac-item .state-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 0.15rem 0.45rem;
+        background: var(--sl-gray-100, #f3f4f6);
+        color: var(--sl-gray-700, #374151);
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    .suburb-ac-empty, .suburb-ac-loading {
+        padding: 0.75rem 1rem;
+        text-align: center;
+        color: var(--sl-gray-500, #6b7280);
+        font-size: 0.875rem;
+    }
 </style>
 @endpush
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 @push('scripts')
 <script>
@@ -289,42 +310,135 @@
   });
   showHideTestPackage();
 
-  // ── Tom Select: searchable dropdowns for suburb/state (handles large data) ──
-  var tsInstances = {};
-  function initTomSelect(el, opts) {
-    if (!el || el.tomselect) return null;
-    var ts = new TomSelect(el, Object.assign({
-      create: false,
-      allowEmptyOption: true,
-      maxOptions: 1000,
-      searchField: ['text'],
-      placeholder: el.options[0] ? el.options[0].text : 'Select...',
-      render: {
-        no_results: function(data) { return '<div class="no-results px-3 py-2 text-muted small">No matches for "' + data.input + '"</div>'; }
-      }
-    }, opts || {}));
-    tsInstances[el.id] = ts;
-    return ts;
-  }
-  initTomSelect(document.getElementById('pickup_suburb'));
-  initTomSelect(document.getElementById('pickup_state'));
-  initTomSelect(document.getElementById('dropoff_suburb'));
-  initTomSelect(document.getElementById('dropoff_state'));
-  var testLocEl = document.getElementById('test_location');
-  if (testLocEl) initTomSelect(testLocEl);
+  // ── EasyLicence-style suburb autocomplete ──
+  // Queries /api/suburbs/search as user types
+  var STATES_MAP = @json($states->mapWithKeys(fn($s) => [$s->code => $s->id])->toArray());
 
-  function syncStateFromSuburb(suburbSelect, stateSelect) {
-    var opt = suburbSelect.selectedOptions[0];
-    if (opt && opt.getAttribute('data-state')) {
-      if (stateSelect.tomselect) {
-        stateSelect.tomselect.setValue(opt.getAttribute('data-state'), true);
+  function initSuburbAutocomplete(prefix) {
+    var input = document.getElementById(prefix + '_suburb_search');
+    var dropdown = document.getElementById(prefix + '_suburb_ac');
+    var suburbHidden = document.getElementById(prefix + '_suburb');
+    var stateHidden = document.getElementById(prefix + '_state');
+    var selectedDisplay = document.getElementById(prefix + '_selected_display');
+    var selectedLabel = document.getElementById(prefix + '_selected_label');
+    var clearBtn = document.getElementById(prefix + '_clear');
+
+    if (!input || !dropdown) return;
+
+    var debounceTimer = null;
+    var currentRequest = null;
+    var activeIndex = -1;
+    var currentResults = [];
+
+    function render(items) {
+      currentResults = items || [];
+      activeIndex = -1;
+      if (items.length === 0) {
+        dropdown.innerHTML = '<div class="suburb-ac-empty">No suburbs match — try a postcode or nearby area</div>';
       } else {
-        stateSelect.value = opt.getAttribute('data-state');
+        dropdown.innerHTML = items.map(function(item, i) {
+          return '<div class="suburb-ac-item" data-idx="' + i + '">' +
+            '<span class="suburb-name">' + escapeHtml(item.name) + '</span>' +
+            '<span class="suburb-meta">' + escapeHtml(item.postcode || '') + '</span>' +
+            '<span class="state-badge">' + escapeHtml(item.state || '') + '</span>' +
+          '</div>';
+        }).join('');
+        // Click handlers
+        Array.prototype.slice.call(dropdown.querySelectorAll('.suburb-ac-item')).forEach(function(el) {
+          el.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            var idx = parseInt(el.getAttribute('data-idx'), 10);
+            selectItem(currentResults[idx]);
+          });
+        });
       }
+      dropdown.classList.add('show');
     }
+
+    function selectItem(item) {
+      if (!item) return;
+      suburbHidden.value = item.id;
+      stateHidden.value = STATES_MAP[item.state] || '';
+      input.value = '';
+      dropdown.classList.remove('show');
+      selectedLabel.textContent = item.label || (item.name + ', ' + (item.postcode || '') + ' ' + (item.state || ''));
+      selectedDisplay.style.display = 'block';
+      input.style.display = 'none';
+      // Fire change event for other listeners
+      suburbHidden.dispatchEvent(new Event('change'));
+    }
+
+    function clearSelection() {
+      suburbHidden.value = '';
+      stateHidden.value = '';
+      selectedDisplay.style.display = 'none';
+      input.style.display = '';
+      input.value = '';
+      input.focus();
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function(c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    input.addEventListener('input', function() {
+      var q = input.value.trim();
+      if (q.length < 2) { dropdown.classList.remove('show'); return; }
+      dropdown.innerHTML = '<div class="suburb-ac-loading"><span class="spinner-border spinner-border-sm me-1"></span>Searching...</div>';
+      dropdown.classList.add('show');
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        if (currentRequest && currentRequest.abort) currentRequest.abort();
+        fetch('/api/suburbs/search?q=' + encodeURIComponent(q), {
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin'
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) { render(res.data || []); })
+        .catch(function() {
+          dropdown.innerHTML = '<div class="suburb-ac-empty text-danger">Search failed — please try again</div>';
+        });
+      }, 220);
+    });
+
+    input.addEventListener('keydown', function(e) {
+      if (!dropdown.classList.contains('show')) return;
+      var items = dropdown.querySelectorAll('.suburb-ac-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        updateActive(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        updateActive(items);
+      } else if (e.key === 'Enter' && activeIndex >= 0) {
+        e.preventDefault();
+        selectItem(currentResults[activeIndex]);
+      } else if (e.key === 'Escape') {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    function updateActive(items) {
+      Array.prototype.slice.call(items).forEach(function(el, i) {
+        el.classList.toggle('active', i === activeIndex);
+      });
+      if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    input.addEventListener('blur', function() {
+      setTimeout(function() { dropdown.classList.remove('show'); }, 200);
+    });
+
+    if (clearBtn) clearBtn.addEventListener('click', clearSelection);
   }
-  document.getElementById('pickup_suburb').addEventListener('change', function() { syncStateFromSuburb(this, document.getElementById('pickup_state')); });
-  document.getElementById('dropoff_suburb').addEventListener('change', function() { syncStateFromSuburb(this, document.getElementById('dropoff_state')); });
+
+  initSuburbAutocomplete('pickup');
+  initSuburbAutocomplete('dropoff');
 
   function getBookingTypeLabel() {
     if (document.getElementById('type-test').checked) return 'Driving Test Package';
@@ -374,18 +488,28 @@
         document.getElementById('booking_date').value = item.dateLabel || '';
         document.getElementById('booking_date_iso').value = item.date_iso || '';
         document.getElementById('pickup_address').value = item.pickup_address || '';
-        function setTsValue(id, val) {
-          var el = document.getElementById(id);
-          if (!el) return;
-          if (el.tomselect) el.tomselect.setValue(val || '', true);
-          else el.value = val || '';
+
+        // Restore suburb autocomplete selection (new typeable flow)
+        function restoreSuburb(prefix, suburbId, stateId, label) {
+          document.getElementById(prefix + '_suburb').value = suburbId || '';
+          document.getElementById(prefix + '_state').value = stateId || '';
+          var display = document.getElementById(prefix + '_selected_display');
+          var lbl = document.getElementById(prefix + '_selected_label');
+          var input = document.getElementById(prefix + '_suburb_search');
+          if (suburbId && label) {
+            lbl.textContent = label;
+            display.style.display = 'block';
+            input.style.display = 'none';
+          } else {
+            display.style.display = 'none';
+            input.style.display = '';
+            input.value = '';
+          }
         }
-        setTsValue('pickup_suburb', item.pickup_suburb_id);
-        setTsValue('pickup_state', item.pickup_state_id);
+        restoreSuburb('pickup', item.pickup_suburb_id, item.pickup_state_id, item.pickup_label);
         if (item.booking_type === 'test_package') {
           document.getElementById('type-test').checked = true;
-          setTsValue('dropoff_suburb', item.dropoff_suburb_id);
-          setTsValue('dropoff_state', item.dropoff_state_id);
+          restoreSuburb('dropoff', item.dropoff_suburb_id, item.dropoff_state_id, item.dropoff_label);
           document.getElementById('dropoff_address').value = item.dropoff_address || '';
         } else {
           document.getElementById('type-1hr').checked = item.booking_type === '1hr';
@@ -514,16 +638,18 @@
       return;
     }
     if (!pickupSuburb || !pickupState) {
-      alert('Please select pick up suburb and state.');
+      alert('Please type and select a pickup suburb.');
       return;
     }
     var isTest = document.getElementById('type-test').checked;
     var dropoffSuburb = document.getElementById('dropoff_suburb').value;
     var dropoffState = document.getElementById('dropoff_state').value;
     if (isTest && (!dropoffSuburb || !dropoffState)) {
-      alert('Please select drop off suburb and state for test package.');
+      alert('Please type and select a drop-off suburb for test package.');
       return;
     }
+    var pickupLabel = document.getElementById('pickup_selected_label').textContent || '';
+    var dropoffLabel = isTest ? (document.getElementById('dropoff_selected_label').textContent || '') : null;
     var type = isTest ? 'test_package' : (document.getElementById('type-2hr').checked ? '2hr' : '1hr');
     var timeLabel = document.getElementById('booking_time').selectedOptions[0] ? document.getElementById('booking_time').selectedOptions[0].text : timeVal;
     var pd = getPriceAndDuration(type);
@@ -539,10 +665,12 @@
       pickup_address: pickupAddr,
       pickup_suburb_id: pickupSuburb,
       pickup_state_id: pickupState,
-      pickupAddress: pickupAddr || document.getElementById('pickup_suburb').selectedOptions[0]?.text,
+      pickup_label: pickupLabel,
+      pickupAddress: pickupAddr || pickupLabel,
       dropoff_address: isTest ? document.getElementById('dropoff_address').value.trim() : null,
       dropoff_suburb_id: isTest ? dropoffSuburb : null,
       dropoff_state_id: isTest ? dropoffState : null,
+      dropoff_label: dropoffLabel,
     });
     renderBookingsList();
     renderOrderSummary();
@@ -593,11 +721,7 @@
     if (typeof google === 'undefined' || !google.maps || !google.maps.places) return;
     var pickupInput = document.getElementById('pickup_address');
     var dropoffInput = document.getElementById('dropoff_address');
-    var pickupSuburb = document.getElementById('pickup_suburb');
-    var pickupState = document.getElementById('pickup_state');
-    var dropoffSuburb = document.getElementById('dropoff_suburb');
-    var dropoffState = document.getElementById('dropoff_state');
-    function setupAutocomplete(input, suburbSelect, stateSelect) {
+    function setupAutocomplete(input, prefix) {
       if (!input) return;
       var autocomplete = new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'au' } });
       autocomplete.addListener('place_changed', function() {
@@ -610,24 +734,32 @@
           if (c.types.indexOf('administrative_area_level_1') !== -1) state = c.short_name;
           if (c.types.indexOf('locality') !== -1) suburb = c.long_name;
         }
-        if (suburbSelect && stateSelect) {
-          for (var j = 0; j < suburbSelect.options.length; j++) {
-            var opt = suburbSelect.options[j];
-            if (opt.value && opt.text.indexOf(suburb) !== -1 && (postcode === '' || opt.text.indexOf(postcode) !== -1)) {
-              if (suburbSelect.tomselect) suburbSelect.tomselect.setValue(opt.value, true);
-              else suburbSelect.value = opt.value;
-              if (opt.getAttribute('data-state')) {
-                if (stateSelect.tomselect) stateSelect.tomselect.setValue(opt.getAttribute('data-state'), true);
-                else stateSelect.value = opt.getAttribute('data-state');
+        // Look up matching suburb in our DB via the API
+        if (suburb || postcode) {
+          var q = postcode || suburb;
+          fetch('/api/suburbs/search?q=' + encodeURIComponent(q))
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+              var items = res.data || [];
+              // Prefer an exact match on suburb+postcode
+              var match = items.find(function(i) {
+                return (i.name || '').toLowerCase() === suburb.toLowerCase()
+                  && (!postcode || i.postcode === postcode);
+              }) || items[0];
+              if (match) {
+                document.getElementById(prefix + '_suburb').value = match.id;
+                document.getElementById(prefix + '_state').value = STATES_MAP[match.state] || '';
+                var lbl = match.label || (match.name + ', ' + match.postcode + ' ' + match.state);
+                document.getElementById(prefix + '_selected_label').textContent = lbl;
+                document.getElementById(prefix + '_selected_display').style.display = 'block';
+                document.getElementById(prefix + '_suburb_search').style.display = 'none';
               }
-              break;
-            }
-          }
+            });
         }
       });
     }
-    setupAutocomplete(pickupInput, pickupSuburb, pickupState);
-    setupAutocomplete(dropoffInput, dropoffSuburb, dropoffState);
+    setupAutocomplete(pickupInput, 'pickup');
+    setupAutocomplete(dropoffInput, 'dropoff');
   }
   if (typeof google !== 'undefined' && google.maps && google.maps.places) {
     initPlaces();

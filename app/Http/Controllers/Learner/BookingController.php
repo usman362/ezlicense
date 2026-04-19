@@ -8,28 +8,49 @@ use App\Models\InstructorProfile;
 use App\Models\LearnerTransaction;
 use App\Models\LearnerWallet;
 use App\Models\State;
+use App\Models\User;
 use App\Notifications\AdminBookingAlert;
 use App\Notifications\BookingConfirmed;
 use App\Notifications\InstructorNewBooking;
+use App\Notifications\WelcomeNotification;
 use App\Traits\NotifiesAdmin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
+/**
+ * Handles both authenticated learner bookings AND guest bookings.
+ *
+ * Guest flow (EasyLicence-style):
+ *   1. Guest visits /learner/bookings/new?instructor_profile_id=X (no auth required)
+ *   2. Guest fills booking details, clicks Continue
+ *   3. Guest provides name/email/phone + payment details at payment step
+ *   4. After successful payment:
+ *       - A new User account is created (role=learner)
+ *       - Guest is auto-logged in
+ *       - Welcome email with password-reset link is sent
+ *       - Bookings are linked to the new user
+ */
 class BookingController extends Controller
 {
     use NotifiesAdmin;
+
     /**
-     * Show the Make a Booking page for a given instructor.
+     * Show the Make a Booking page.
+     * Accessible to guests and authenticated learners.
      */
     public function create(Request $request): View|RedirectResponse
     {
         $instructorProfileId = $request->input('instructor_profile_id');
         if (! $instructorProfileId) {
-            return redirect()->route('learner.dashboard')->with('message', 'Please select an instructor to book.');
+            return redirect()->route('find-instructor')->with('message', 'Please select an instructor to book.');
         }
 
         $instructorProfile = InstructorProfile::with(['user:id,name,phone', 'serviceAreas.state'])
@@ -49,11 +70,13 @@ class BookingController extends Controller
             'states' => $states,
             'suburbsByState' => $suburbsByState,
             'googleMapsApiKey' => config('services.google.maps_api_key'),
+            'isGuest' => ! Auth::check(),
         ]);
     }
 
     /**
      * Store order in session and redirect to payment step.
+     * Accessible to guests and authenticated learners.
      */
     public function continueToPayment(Request $request): RedirectResponse
     {
@@ -91,13 +114,17 @@ class BookingController extends Controller
     }
 
     /**
-     * Show the payment step (after Continue from Make a Booking).
+     * Show the payment step.
+     * Guests see extra fields: name/email/phone for account creation.
      */
     public function payment(Request $request): View|RedirectResponse
     {
         $order = session('learner_booking_order');
         if (! $order || empty($order['items'])) {
-            return redirect()->route('learner.dashboard')->with('message', 'No booking in progress. Please start again.');
+            if (Auth::check()) {
+                return redirect()->route('learner.dashboard')->with('message', 'No booking in progress. Please start again.');
+            }
+            return redirect()->route('find-instructor')->with('message', 'No booking in progress. Please start again.');
         }
 
         $states = State::orderBy('name')->get(['id', 'name', 'code']);
@@ -114,20 +141,35 @@ class BookingController extends Controller
             'states' => $states,
             'suburbsByState' => $suburbsByState,
             'billingName' => $user->name ?? '',
+            'isGuest' => ! Auth::check(),
+            'guestName' => session('guest_booking.name', ''),
+            'guestEmail' => session('guest_booking.email', ''),
+            'guestPhone' => session('guest_booking.phone', ''),
         ]);
     }
 
     /**
      * Process the booking payment.
-     * Creates booking records, deducts from wallet or processes payment, records transactions.
+     * Creates booking records, deducts from wallet or processes payment.
+     * If guest — creates User account, links bookings, auto-logs-in, sends welcome email.
      */
     public function processPayment(Request $request): JsonResponse
     {
-        $user = Auth::user();
         $order = session('learner_booking_order');
 
         if (! $order || empty($order['items'])) {
             return response()->json(['message' => 'No booking in progress.'], 422);
+        }
+
+        $isGuest = ! Auth::check();
+
+        // Guests must provide name/email/phone
+        if ($isGuest) {
+            $guestValidated = $request->validate([
+                'guest_name'  => 'required|string|max:120',
+                'guest_email' => 'required|email|max:160',
+                'guest_phone' => 'required|string|max:30',
+            ]);
         }
 
         $validated = $request->validate([
@@ -136,12 +178,45 @@ class BookingController extends Controller
             'billing_address' => 'nullable|string|max:500',
         ]);
 
+        // Guests can't use wallet (no wallet exists)
+        if ($isGuest && $validated['payment_method'] === 'wallet') {
+            return response()->json(['message' => 'Wallet payment requires an account. Please use card or PayPal.'], 422);
+        }
+
         $total = (float) ($order['total'] ?? 0);
         $useWallet = $validated['payment_method'] === 'wallet';
 
-        return DB::transaction(function () use ($user, $order, $total, $useWallet, $validated) {
-            // If paying with wallet, check balance
-            if ($useWallet) {
+        return DB::transaction(function () use ($order, $total, $useWallet, $validated, $isGuest, $request) {
+            $user = Auth::user();
+            $newUserCreated = false;
+            $tempPassword = null;
+
+            // ── Guest flow: create user account FIRST (before bookings) ──
+            if ($isGuest) {
+                $guestEmail = strtolower(trim($request->input('guest_email')));
+                $existing = User::where('email', $guestEmail)->first();
+
+                if ($existing) {
+                    // Email already exists — link bookings to existing user but don't log them in
+                    // (prevents account takeover via guest booking)
+                    $user = $existing;
+                    Log::info("Guest booking: linked to existing user #{$existing->id} via email");
+                } else {
+                    // Create new learner account
+                    $tempPassword = Str::random(12);
+                    $user = User::create([
+                        'name'     => $request->input('guest_name'),
+                        'email'    => $guestEmail,
+                        'phone'    => $request->input('guest_phone'),
+                        'role'     => User::ROLE_LEARNER,
+                        'password' => Hash::make($tempPassword),
+                    ]);
+                    $newUserCreated = true;
+                }
+            }
+
+            // If paying with wallet, check balance (only authenticated users)
+            if ($useWallet && $user) {
                 $wallet = LearnerWallet::where('user_id', $user->id)->first();
                 if (! $wallet || (float) $wallet->balance < $total) {
                     return response()->json(['message' => 'Insufficient wallet balance. Please add credit or use a card.'], 422);
@@ -154,10 +229,14 @@ class BookingController extends Controller
             foreach ($order['items'] as $item) {
                 $itemPrice = (float) ($item['price'] ?? 0);
                 $booking = Booking::create([
-                    'learner_id' => $user->id,
+                    'learner_id' => $user?->id,
+                    'guest_name' => $isGuest ? $request->input('guest_name') : null,
+                    'guest_email' => $isGuest ? strtolower(trim($request->input('guest_email'))) : null,
+                    'guest_phone' => $isGuest ? $request->input('guest_phone') : null,
+                    'is_guest_booking' => $isGuest,
                     'instructor_id' => $instructorProfile ? $instructorProfile->user_id : null,
                     'instructor_profile_id' => $order['instructor_profile_id'],
-                    'suburb_id' => $item['suburb_id'] ?? null,
+                    'suburb_id' => $item['pickup_suburb_id'] ?? $item['suburb_id'] ?? null,
                     'type' => $item['booking_type'] ?? 'lesson',
                     'transmission' => $item['transmission'] ?? 'auto',
                     'scheduled_at' => $item['scheduled_at'],
@@ -172,8 +251,8 @@ class BookingController extends Controller
                 $bookings[] = $booking;
             }
 
-            // Process wallet deduction
-            if ($useWallet) {
+            // Process wallet deduction (authenticated users only)
+            if ($useWallet && $user) {
                 $wallet = LearnerWallet::where('user_id', $user->id)->first();
                 $wallet->balance = (float) $wallet->balance - $total;
                 $wallet->save();
@@ -188,38 +267,67 @@ class BookingController extends Controller
                 ]);
             }
 
-            // Send confirmation notification for each booking
+            // Send notifications
             foreach ($bookings as $booking) {
-                // Notify learner
                 try {
-                    $user->notify(new BookingConfirmed($booking));
+                    if ($user) {
+                        $user->notify(new BookingConfirmed($booking));
+                    } else {
+                        // Send to guest email directly (via on-demand routing)
+                        \Illuminate\Support\Facades\Notification::route('mail', $booking->guest_email)
+                            ->notify(new BookingConfirmed($booking));
+                    }
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Booking notification failed: ' . $e->getMessage());
+                    Log::warning('Booking notification failed: ' . $e->getMessage());
                 }
 
-                // Notify the instructor about the new booking
+                // Notify instructor
                 try {
-                    $instructor = \App\Models\User::find($booking->instructor_id);
+                    $instructor = User::find($booking->instructor_id);
                     if ($instructor) {
                         $instructor->notify(new InstructorNewBooking($booking));
                     }
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Instructor booking notification failed: ' . $e->getMessage());
+                    Log::warning('Instructor booking notification failed: ' . $e->getMessage());
                 }
 
-                // Notify admin about the new booking
+                // Notify admin
                 $this->notifyAdminAboutBooking($booking, AdminBookingAlert::EVENT_NEW);
             }
 
-            // Clear session order
-            session()->forget('learner_booking_order');
+            // Guest: send welcome email + password reset link + auto-login
+            if ($newUserCreated && $user) {
+                try {
+                    $user->notify(new WelcomeNotification($user, $tempPassword));
+                } catch (\Throwable $e) {
+                    Log::warning('Welcome email failed: ' . $e->getMessage());
+                }
+
+                // Also send password reset so they can set their own password
+                try {
+                    Password::sendResetLink(['email' => $user->email]);
+                } catch (\Throwable $e) {
+                    Log::warning('Password reset email failed: ' . $e->getMessage());
+                }
+
+                // Auto-login the new guest user
+                Auth::login($user);
+                $request->session()->regenerate();
+            }
+
+            // Clear session order + guest draft
+            session()->forget(['learner_booking_order', 'guest_booking']);
 
             return response()->json([
-                'message' => 'Booking confirmed!',
+                'message' => $newUserCreated
+                    ? 'Booking confirmed! Your account has been created and a password-reset link has been emailed.'
+                    : 'Booking confirmed!',
                 'data' => [
                     'booking_ids' => collect($bookings)->pluck('id')->toArray(),
                     'total_charged' => $total,
                     'payment_method' => $validated['payment_method'],
+                    'account_created' => $newUserCreated,
+                    'redirect' => Auth::check() ? route('learner.dashboard') : route('find-instructor'),
                 ],
             ]);
         });
