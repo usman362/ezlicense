@@ -408,6 +408,7 @@ Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.
 
 // Admin
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('email-logs', [App\Http\Controllers\Admin\EmailLogsController::class, 'index'])->name('email-logs.index');
     Route::resource('service-categories', App\Http\Controllers\Admin\ServiceCategoryController::class)->except(['show']);
     Route::get('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'index'])->name('service-providers.index');
     Route::get('service-providers/create', [App\Http\Controllers\Admin\ServiceProviderController::class, 'create'])->name('service-providers.create');

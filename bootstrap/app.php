@@ -31,6 +31,13 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('Australia/Sydney')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/confirmations.log'));
+
+        // Send 24-hour lesson reminders (hourly check, sends once per booking)
+        $schedule->command('lessons:remind-24h')
+            ->hourly()
+            ->timezone('Australia/Sydney')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/lesson-reminders.log'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

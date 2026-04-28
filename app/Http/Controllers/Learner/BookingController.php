@@ -11,6 +11,7 @@ use App\Models\State;
 use App\Models\User;
 use App\Notifications\AdminBookingAlert;
 use App\Notifications\BookingConfirmed;
+use App\Notifications\PaymentReceipt;
 use App\Notifications\InstructorNewBooking;
 use App\Notifications\WelcomeNotification;
 use App\Traits\NotifiesAdmin;
@@ -540,7 +541,28 @@ class BookingController extends Controller
                 ]);
             }
 
-            // Send notifications
+            // Send a single payment receipt for the whole transaction (covers all bookings at once)
+            try {
+                $receipt = new PaymentReceipt(
+                    bookings: $bookings,
+                    totalCharged: $total,
+                    paymentMethod: $validated['payment_method'],
+                    transactionRef: null, // populate when real gateway integration is added
+                );
+                if ($user) {
+                    $user->notify($receipt);
+                } else {
+                    // Guests get the receipt to their guest email
+                    $guestEmail = $bookings[0]->guest_email ?? null;
+                    if ($guestEmail) {
+                        \Illuminate\Support\Facades\Notification::route('mail', $guestEmail)->notify($receipt);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Payment receipt email failed: ' . $e->getMessage());
+            }
+
+            // Send per-booking notifications
             foreach ($bookings as $booking) {
                 try {
                     if ($user) {

@@ -111,8 +111,25 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'noreply@securelicences.com.au'),
+        'name' => env('MAIL_FROM_NAME', 'Secure Licences'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Markdown Mail Settings
+    |--------------------------------------------------------------------------
+    |
+    | Custom branded theme used by all notification emails. The theme CSS
+    | lives at resources/views/vendor/mail/html/themes/securelicences.css.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'securelicences',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
     ],
 
 ];

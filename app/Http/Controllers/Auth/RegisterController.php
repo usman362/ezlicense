@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\InstructorSignupAdminAlert;
 use App\Notifications\WelcomeNotification;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -92,6 +93,18 @@ class RegisterController extends Controller
             $user->notify(new WelcomeNotification($user));
         } catch (\Throwable $e) {
             Log::warning('Welcome email failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
+
+        // If instructor: alert all admins so they can verify quickly
+        if ($user->role === User::ROLE_INSTRUCTOR) {
+            try {
+                $admins = User::where('role', User::ROLE_ADMIN)->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new InstructorSignupAdminAlert($user, $user->instructorProfile));
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Admin instructor-signup alert failed: ' . $e->getMessage());
+            }
         }
 
         return $user;

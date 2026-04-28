@@ -257,6 +257,9 @@
                 <a class="nav-link {{ request()->routeIs('admin.service-providers*') ? 'active' : '' }}" href="{{ route('admin.service-providers.index') }}">
                     <i class="bi bi-people"></i> Service Providers
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.email-logs*') ? 'active' : '' }}" href="{{ route('admin.email-logs.index') }}">
+                    <i class="bi bi-envelope-paper"></i> Email Logs
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
                     <i class="bi bi-gear"></i> Settings
                 </a>
