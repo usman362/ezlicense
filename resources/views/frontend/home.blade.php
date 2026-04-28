@@ -37,13 +37,13 @@
                         <form action="{{ route('find-instructor.results') }}" method="get" id="home-search-form" class="row g-3 align-items-end">
                             <input type="hidden" name="suburb_id" id="home-suburb-id" value="">
                             <input type="hidden" name="q" id="home-q" value="">
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-6 col-lg-4">
                                 <label class="form-label fw-semibold"><i class="bi bi-geo-alt-fill me-1 text-primary"></i>Pick-up Location <span class="text-danger">*</span></label>
                                 <div class="position-relative">
                                     <input type="text" class="form-control form-control-lg" id="home-suburb-input" placeholder="e.g. Parramatta, Sydney" autocomplete="off" data-list-id="home-suburb-list">
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold"><i class="bi bi-gear-fill me-1 text-primary"></i>Transmission <span class="text-danger">*</span></label>
                                 <select name="transmission" class="form-select form-select-lg">
                                     <option value="">Any</option>
@@ -51,14 +51,33 @@
                                     <option value="manual">Manual</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>Test date (optional)</label>
                                 <input type="date" name="test_date" class="form-control form-control-lg">
                             </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold" style="height: 52px;">
-                                    <i class="bi bi-search me-1"></i>Search
+                            <div class="col-12 col-md-6 col-lg-2">
+                                <label class="form-label d-none d-lg-block">&nbsp;</label>
+                                <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold d-flex align-items-center justify-content-center gap-2" style="height: 58px; white-space: nowrap;">
+                                    <i class="bi bi-search"></i><span>Search</span>
                                 </button>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <div class="d-flex flex-wrap align-items-center gap-3">
+                                    <label class="form-label fw-semibold mb-0 me-1"><i class="bi bi-shield-check text-success me-1"></i>Instructor preference:</label>
+                                    <div class="form-check form-check-inline mb-0">
+                                        <input class="form-check-input" type="radio" name="instructor_gender" id="gender-any" value="" checked>
+                                        <label class="form-check-label" for="gender-any">Any</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-0">
+                                        <input class="form-check-input" type="radio" name="instructor_gender" id="gender-female" value="female">
+                                        <label class="form-check-label" for="gender-female"><i class="bi bi-gender-female text-pink"></i> Female only</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-0">
+                                        <input class="form-check-input" type="radio" name="instructor_gender" id="gender-male" value="male">
+                                        <label class="form-check-label" for="gender-male"><i class="bi bi-gender-male"></i> Male only</label>
+                                    </div>
+                                    <small class="text-muted ms-auto" style="font-size: 0.78rem;"><i class="bi bi-lock-fill"></i> Your safety preferences are respected</small>
+                                </div>
                             </div>
                         </form>
                         <div class="d-flex flex-wrap gap-3 mt-4 pt-3 border-top" style="font-size: var(--sl-text-sm); color: var(--sl-gray-500);">

@@ -181,6 +181,8 @@ class BookingController extends Controller
                 'instructor_net_amount' => $instructorNet,
                 'test_pre_booked' => $request->boolean('test_pre_booked'),
                 'status' => Booking::STATUS_CONFIRMED,
+                'payment_method' => $request->input('payment_method', 'card'),
+                'payment_status' => Booking::PAYMENT_PAID, // confirmed bookings are paid upfront
                 'learner_notes' => $request->input('learner_notes'),
             ]);
         });
@@ -215,6 +217,46 @@ class BookingController extends Controller
      * - Cancellation counts towards instructor's cancellation rate
      * - Other party is notified with the reason and message
      */
+    /**
+     * Accept a PROPOSED booking (typically a reschedule proposal).
+     * Just transitions status from `proposed` → `confirmed` and clears the proposal expiry.
+     */
+    public function acceptProposed(Request $request, Booking $booking): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Must be a party to this booking
+        if ($user->id !== $booking->learner_id && $user->id !== $booking->instructor_id && ! $user->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        if ($booking->status !== Booking::STATUS_PROPOSED) {
+            return response()->json(['message' => 'This booking is not awaiting acceptance.'], 422);
+        }
+
+        $booking->update([
+            'status' => Booking::STATUS_CONFIRMED,
+            'proposal_expires_at' => null,
+        ]);
+
+        // Notify the other party
+        try {
+            $otherParty = $user->id === $booking->learner_id
+                ? \App\Models\User::find($booking->instructor_id)
+                : \App\Models\User::find($booking->learner_id);
+            if ($otherParty) {
+                $otherParty->notify(new \App\Notifications\BookingConfirmed($booking->fresh()));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('BookingConfirmed notification failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Booking confirmed.',
+            'data' => $this->formatBooking($booking->fresh()),
+        ]);
+    }
+
     public function cancel(Request $request, Booking $booking): JsonResponse
     {
         $validReasonCodes = array_keys(Booking::cancellationReasonLabels());
@@ -526,6 +568,12 @@ class BookingController extends Controller
             $updateData['lesson_ended_at'] = now();
         }
 
+        // Defensive: completed lessons should always have payment_status = paid
+        // (covers legacy bookings where status was created without explicit payment_status)
+        if ($booking->payment_status !== Booking::PAYMENT_PAID) {
+            $updateData['payment_status'] = Booking::PAYMENT_PAID;
+        }
+
         $booking->update($updateData);
 
         // Update instructor's weighted rating for the completed lesson
@@ -663,6 +711,7 @@ class BookingController extends Controller
         $booking->update([
             'status' => Booking::STATUS_COMPLETED,
             'lesson_ended_at' => now(),
+            'payment_status' => Booking::PAYMENT_PAID, // defensive: completed = paid
         ]);
 
         // Update instructor's weighted rating for the completed lesson
@@ -736,6 +785,7 @@ class BookingController extends Controller
             'id' => $b->id,
             'learner' => $learnerData,
             'instructor' => $b->instructor ? ['id' => $b->instructor->id, 'name' => $b->instructor->name] : null,
+            'instructor_profile_id' => $b->instructor_profile_id,
             'suburb' => $b->suburb ? ['id' => $b->suburb->id, 'name' => $b->suburb->name, 'postcode' => $b->suburb->postcode, 'state_code' => $b->suburb->state?->code, 'location' => $location] : null,
             'type' => $b->type,
             'transmission' => $b->transmission,
@@ -748,7 +798,13 @@ class BookingController extends Controller
             'test_pre_booked' => $b->test_pre_booked,
             'status' => $b->status,
             'payment_method' => $b->payment_method,
-            'payment_status' => $b->payment_status ?? ($b->status === Booking::STATUS_COMPLETED ? 'paid' : ($b->status === Booking::STATUS_CANCELLED ? 'refunded' : 'pending')),
+            // Smart inference: completed=paid, cancelled=refunded, otherwise use stored value (or pending)
+            'payment_status' => match (true) {
+                $b->status === Booking::STATUS_COMPLETED => 'paid',
+                $b->status === Booking::STATUS_CANCELLED && in_array($b->payment_status, ['paid', 'refunded']) => 'refunded',
+                $b->status === Booking::STATUS_CANCELLED => 'refunded',
+                default => $b->payment_status ?? 'pending',
+            },
             'learner_notes' => $b->learner_notes,
             'cancellation_reason' => $b->cancellation_reason,
             'cancellation_reason_code' => $b->cancellation_reason_code,

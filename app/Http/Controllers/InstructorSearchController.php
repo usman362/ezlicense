@@ -17,6 +17,8 @@ class InstructorSearchController extends Controller
         $suburbId = $request->input('suburb_id');
         $transmission = $request->input('transmission'); // auto, manual, or empty for both
         $testPreBooked = $request->boolean('test_pre_booked');
+        // Gender filter: 'female' / 'male' / null (any). Used by learners (often female learners) for safety.
+        $instructorGender = $request->input('instructor_gender');
 
         $query = InstructorProfile::with(['user', 'serviceAreas.state'])
             ->where('is_active', true);
@@ -35,6 +37,13 @@ class InstructorSearchController extends Controller
             $query->where('offers_test_package', true);
         }
 
+        // Filter by instructor gender (case-insensitive match on user.gender)
+        if (in_array(strtolower((string) $instructorGender), ['female', 'male'], true)) {
+            $query->whereHas('user', function ($q) use ($instructorGender) {
+                $q->whereRaw('LOWER(gender) = ?', [strtolower($instructorGender)]);
+            });
+        }
+
         $instructors = $query->withCount('reviews')
             ->get()
             ->map(function (InstructorProfile $p) {
@@ -42,6 +51,7 @@ class InstructorSearchController extends Controller
                     'id' => $p->id,
                     'user_id' => $p->user_id,
                     'name' => $p->user->name,
+                    'gender' => $p->user->gender ? strtolower($p->user->gender) : null,
                     'bio' => $p->bio,
                     'transmission' => $p->transmission,
                     'vehicle' => $this->formatVehicle($p),

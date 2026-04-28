@@ -67,6 +67,186 @@
     return d.innerHTML;
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Cancel Modal — properly sends cancellation_reason_code (REQUIRED)
+  // ─────────────────────────────────────────────────────────────
+  window.openLearnerCancelModal = function (booking, opts) {
+    opts = opts || {};
+    var modalEl = document.getElementById('learnerCancelModal');
+    if (!modalEl) { alert('Cancel modal not found'); return; }
+
+    document.getElementById('learner-cancel-booking-id').value = booking.id;
+    var form = document.getElementById('learner-cancel-form');
+    form.reset();
+    document.getElementById('learner-cancel-error').classList.add('d-none');
+    document.getElementById('learner-cancel-reason-other-wrap').style.display = 'none';
+
+    // 24-hour cutoff warning
+    var sched = new Date(booking.scheduled_at);
+    var hoursUntil = (sched.getTime() - Date.now()) / 36e5;
+    document.getElementById('learner-cancel-cutoff-warning').style.display = (hoursUntil < 24 ? 'block' : 'none');
+
+    // For decline of proposed: pre-select "other" + sensible message
+    if (opts.isDecline) {
+      document.getElementById('learner-cancel-reason-code').value = 'other';
+      document.getElementById('learner-cancel-reason-other-wrap').style.display = 'block';
+      document.getElementById('learner-cancel-reason-text').value = 'Declined the proposed reschedule';
+      document.querySelector('#learnerCancelModal .modal-title').innerHTML = '<i class="bi bi-x-circle text-danger me-2"></i>Decline Proposed Booking';
+      document.getElementById('learner-cancel-submit').innerHTML = '<i class="bi bi-x-circle me-1"></i>Decline';
+    } else {
+      document.querySelector('#learnerCancelModal .modal-title').innerHTML = '<i class="bi bi-x-circle text-danger me-2"></i>Cancel Booking';
+      document.getElementById('learner-cancel-submit').innerHTML = '<i class="bi bi-x-circle me-1"></i>Cancel Booking';
+    }
+
+    var modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  };
+
+  // Wire reason code → toggle "other" text field
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'learner-cancel-reason-code') {
+      var wrap = document.getElementById('learner-cancel-reason-other-wrap');
+      if (wrap) wrap.style.display = (e.target.value === 'other' ? 'block' : 'none');
+    }
+  });
+
+  // Wire cancel form submission
+  document.addEventListener('submit', function (e) {
+    if (e.target && e.target.id === 'learner-cancel-form') {
+      e.preventDefault();
+      var bookingId = document.getElementById('learner-cancel-booking-id').value;
+      var reasonCode = document.getElementById('learner-cancel-reason-code').value;
+      var reasonText = document.getElementById('learner-cancel-reason-text').value.trim();
+      var message = document.getElementById('learner-cancel-message').value.trim();
+      var policy = document.getElementById('learner-cancel-policy').checked;
+      var submitBtn = document.getElementById('learner-cancel-submit');
+      var errorEl = document.getElementById('learner-cancel-error');
+
+      if (!reasonCode || !policy) {
+        errorEl.textContent = 'Please pick a reason and accept the cancellation policy.';
+        errorEl.classList.remove('d-none');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Cancelling...';
+
+      postJson('/api/bookings/' + bookingId + '/cancel', 'PUT', {
+        cancellation_reason_code: reasonCode,
+        cancellation_reason: reasonText || null,
+        cancellation_message: message || null,
+        cancellation_policy_accepted: true
+      })
+      .then(function () {
+        bootstrap.Modal.getInstance(document.getElementById('learnerCancelModal')).hide();
+        if (typeof loadCalendar === 'function') loadCalendar();
+        if (typeof window.__loadLearnerDashboard === 'function') window.__loadLearnerDashboard();
+      })
+      .catch(function (err) {
+        var msg = (err && err.errors) ? Object.values(err.errors).flat().join(' ') : (err.message || 'Failed to cancel booking.');
+        errorEl.textContent = msg;
+        errorEl.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i>Cancel Booking';
+      });
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Reschedule Modal — date + time picker, posts to /reschedule
+  // ─────────────────────────────────────────────────────────────
+  window.openLearnerRescheduleModal = function (booking) {
+    var modalEl = document.getElementById('learnerRescheduleModal');
+    if (!modalEl) { alert('Reschedule modal not found'); return; }
+
+    var form = document.getElementById('learner-reschedule-form');
+    form.reset();
+    document.getElementById('learner-reschedule-error').classList.add('d-none');
+    document.getElementById('learner-reschedule-booking-id').value = booking.id;
+    document.getElementById('learner-reschedule-instructor-profile-id').value = booking.instructor_profile_id || '';
+    document.getElementById('learner-reschedule-time').innerHTML = '<option value="">Select a date first</option>';
+
+    var modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  };
+
+  // Date change → load time slots
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'learner-reschedule-date') {
+      var date = e.target.value;
+      var profileId = document.getElementById('learner-reschedule-instructor-profile-id').value;
+      var timeSelect = document.getElementById('learner-reschedule-time');
+      if (!date || !profileId) return;
+
+      timeSelect.innerHTML = '<option value="">Loading...</option>';
+      fetch('/api/instructors/' + profileId + '/availability/slots?date=' + encodeURIComponent(date), {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        var slots = res.data || [];
+        if (!slots.length) {
+          timeSelect.innerHTML = '<option value="">No times available — try another date</option>';
+          return;
+        }
+        timeSelect.innerHTML = '<option value="">Select time</option>' + slots.map(function (s) {
+          var dt = s.datetime || (date + ' ' + s.time + ':00');
+          var t = (dt && dt.length >= 16) ? dt.substr(11, 5) : (s.time || '');
+          var parts = t.split(':');
+          var h = parseInt(parts[0], 10);
+          var am = h < 12;
+          if (h === 0) h = 12; else if (h > 12) h -= 12;
+          var label = h + ':' + parts[1] + (am ? ' am' : ' pm');
+          return '<option value="' + dt + '">' + label + '</option>';
+        }).join('');
+      })
+      .catch(function () {
+        timeSelect.innerHTML = '<option value="">Could not load times</option>';
+      });
+    }
+  });
+
+  // Reschedule form submission
+  document.addEventListener('submit', function (e) {
+    if (e.target && e.target.id === 'learner-reschedule-form') {
+      e.preventDefault();
+      var bookingId = document.getElementById('learner-reschedule-booking-id').value;
+      var newDateTime = document.getElementById('learner-reschedule-time').value;
+      var reasonCode = document.getElementById('learner-reschedule-reason-code').value;
+      var policy = document.getElementById('learner-reschedule-policy').checked;
+      var submitBtn = document.getElementById('learner-reschedule-submit');
+      var errorEl = document.getElementById('learner-reschedule-error');
+
+      if (!newDateTime || !reasonCode || !policy) {
+        errorEl.textContent = 'Please pick a new time, a reason, and accept the policy.';
+        errorEl.classList.remove('d-none');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Rescheduling...';
+
+      postJson('/api/bookings/' + bookingId + '/reschedule', 'PUT', {
+        scheduled_at: newDateTime,
+        cancellation_reason_code: reasonCode,
+        cancellation_policy_accepted: true
+      })
+      .then(function () {
+        bootstrap.Modal.getInstance(document.getElementById('learnerRescheduleModal')).hide();
+        if (typeof loadCalendar === 'function') loadCalendar();
+        if (typeof window.__loadLearnerDashboard === 'function') window.__loadLearnerDashboard();
+      })
+      .catch(function (err) {
+        var msg = (err && err.errors) ? Object.values(err.errors).flat().join(' ') : (err.message || 'Failed to reschedule booking.');
+        errorEl.textContent = msg;
+        errorEl.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Reschedule';
+      });
+    }
+  });
+
   function pad(n) { return String(n).padStart(2, '0'); }
 
   function dateKey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -197,7 +377,7 @@
 
     if (booking.status === 'confirmed' && isFuture) {
       html += '<button class="btn btn-sm btn-outline-danger lc-action-cancel" data-id="' + booking.id + '"><i class="bi bi-x-circle me-1"></i>Cancel Booking</button>';
-      html += '<a href="/find-instructor" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-repeat me-1"></i>Reschedule</a>';
+      html += '<button class="btn btn-sm btn-outline-primary lc-action-reschedule" data-id="' + booking.id + '" data-instructor-profile-id="' + (booking.instructor_profile_id || '') + '"><i class="bi bi-arrow-repeat me-1"></i>Reschedule</button>';
     } else if (booking.status === 'instructor_arrived') {
       html += '<div class="lc-status-message lc-status-arrived"><i class="bi bi-check-circle-fill"></i> Your instructor has arrived!</div>';
     } else if (booking.status === 'in_progress') {
@@ -231,65 +411,50 @@
       closePopover();
     });
 
+    // ── Cancel button → open shared modal (proper required fields) ──
     var cancelBtn = popover.querySelector('.lc-action-cancel');
     if (cancelBtn) {
       cancelBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (!confirm('Are you sure you want to cancel this booking?')) return;
-        cancelBtn.disabled = true;
-        cancelBtn.textContent = 'Cancelling...';
-        postJson('/api/bookings/' + booking.id + '/cancel', 'PUT', {
-          cancellation_reason: 'Cancelled by learner',
-          cancellation_policy_accepted: true
-        }).then(function () {
-          closePopover();
-          loadCalendar();
-        }).catch(function (err) {
-          alert(err.message || 'Failed to cancel booking.');
-          cancelBtn.disabled = false;
-          cancelBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i>Cancel Booking';
-        });
+        closePopover();
+        openLearnerCancelModal(booking);
       });
     }
 
+    // ── Reschedule button → open reschedule modal ──
+    var rescheduleBtn = popover.querySelector('.lc-action-reschedule');
+    if (rescheduleBtn) {
+      rescheduleBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closePopover();
+        openLearnerRescheduleModal(booking);
+      });
+    }
+
+    // ── Accept proposed reschedule → uses dedicated /accept endpoint ──
     var acceptBtn = popover.querySelector('.lc-action-accept');
     if (acceptBtn) {
       acceptBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         acceptBtn.disabled = true;
         acceptBtn.textContent = 'Accepting...';
-        postJson('/api/bookings/' + booking.id + '/reschedule', 'PUT', {
-          scheduled_at: booking.scheduled_at,
-          cancellation_policy_accepted: true
-        }).then(function () {
-          closePopover();
-          loadCalendar();
-        }).catch(function (err) {
-          alert(err.message || 'Failed to accept booking.');
-          acceptBtn.disabled = false;
-          acceptBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Accept';
-        });
+        postJson('/api/bookings/' + booking.id + '/accept', 'PUT', {})
+          .then(function () { closePopover(); loadCalendar(); })
+          .catch(function (err) {
+            alert(err.message || 'Failed to accept booking.');
+            acceptBtn.disabled = false;
+            acceptBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Accept';
+          });
       });
     }
 
+    // ── Decline proposed booking → uses cancel modal with sensible defaults ──
     var declineBtn = popover.querySelector('.lc-action-decline');
     if (declineBtn) {
       declineBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (!confirm('Decline this proposed booking?')) return;
-        declineBtn.disabled = true;
-        declineBtn.textContent = 'Declining...';
-        postJson('/api/bookings/' + booking.id + '/cancel', 'PUT', {
-          cancellation_reason: 'Declined by learner',
-          cancellation_policy_accepted: true
-        }).then(function () {
-          closePopover();
-          loadCalendar();
-        }).catch(function (err) {
-          alert(err.message || 'Failed to decline booking.');
-          declineBtn.disabled = false;
-          declineBtn.innerHTML = '<i class="bi bi-x-lg me-1"></i>Decline';
-        });
+        closePopover();
+        openLearnerCancelModal(booking, { isDecline: true });
       });
     }
 

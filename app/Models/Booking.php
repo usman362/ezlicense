@@ -320,29 +320,39 @@ class Booking extends Model
     // ── Cancellation rate helpers ──────────────────────────────
 
     /**
-     * Get cancellation count for a user (instructor) within a given period.
+     * Get cancellation count for an INSTRUCTOR within a given period.
+     * Counts bookings cancelled BY the instructor where the original `scheduled_at`
+     * falls within the window — same window basis as totalBookingsForUser() so the
+     * resulting rate is mathematically consistent (numerator ⊂ denominator).
      */
     public static function cancellationCountForUser(int $userId, int $days = 30): int
     {
+        $since = now()->subDays($days);
         return static::where('instructor_id', $userId)
             ->where('cancelled_by_id', $userId)
-            ->where('cancelled_at', '>=', now()->subDays($days))
+            ->where('status', self::STATUS_CANCELLED)
+            ->where('scheduled_at', '>=', $since)
             ->count();
     }
 
     /**
-     * Get total completed + cancelled bookings for cancellation rate calculation.
+     * Total completed + cancelled bookings (any party) within the window.
+     * Used as the denominator for the instructor's cancellation rate.
      */
     public static function totalBookingsForUser(int $userId, int $days = 30): int
     {
+        $since = now()->subDays($days);
         return static::where('instructor_id', $userId)
             ->whereIn('status', [self::STATUS_COMPLETED, self::STATUS_CANCELLED])
-            ->where('scheduled_at', '>=', now()->subDays($days))
+            ->where('scheduled_at', '>=', $since)
             ->count();
     }
 
     /**
      * Calculate cancellation rate as a percentage (0-100).
+     * Numerator: bookings cancelled by THIS instructor (within window, scheduled in window).
+     * Denominator: completed + cancelled bookings (within window, scheduled in window).
+     * Both filters use `scheduled_at` so the math can never exceed 100%.
      */
     public static function cancellationRateForUser(int $userId, int $days = 30): float
     {
@@ -353,6 +363,6 @@ class Booking extends Model
 
         $cancelled = static::cancellationCountForUser($userId, $days);
 
-        return round(($cancelled / $total) * 100, 1);
+        return round(min(($cancelled / $total) * 100, 100), 1);
     }
 }

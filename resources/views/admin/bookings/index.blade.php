@@ -20,7 +20,7 @@
                 @php $cs = request('status'); @endphp
                 <div class="btn-group btn-group-sm">
                     <a href="{{ route('admin.bookings.index', request()->except(['status','page'])) }}" class="btn {{ !$cs ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
-                    @foreach(['pending'=>'warning','confirmed'=>'primary','instructor_arrived'=>'info','in_progress'=>'indigo','completed'=>'success','cancelled'=>'danger','no_show'=>'dark'] as $s => $c)
+                    @foreach(['pending'=>'warning','proposed'=>'info','confirmed'=>'primary','instructor_arrived'=>'info','in_progress'=>'indigo','completed'=>'success','cancelled'=>'danger','no_show'=>'dark'] as $s => $c)
                         <a href="{{ route('admin.bookings.index', array_merge(request()->except('page'), ['status'=>$s])) }}"
                            class="btn {{ $cs===$s ? "btn-{$c}" : "btn-outline-{$c}" }}">{{ $s === 'no_show' ? 'No Show' : ($s === 'instructor_arrived' ? 'Arrived' : ($s === 'in_progress' ? 'In Progress' : ucfirst($s))) }}</a>
                     @endforeach

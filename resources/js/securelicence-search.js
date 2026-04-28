@@ -64,11 +64,12 @@ export function initSuburbAutocomplete(inputEl, onSelect) {
   inputEl.addEventListener('blur', () => setTimeout(() => { listEl.hidden = true; }, 200));
 }
 
-export async function runInstructorSearch({ suburbId, transmission, testPreBooked }) {
+export async function runInstructorSearch({ suburbId, transmission, testPreBooked, instructorGender }) {
   const instructors = await searchInstructors({
     suburb_id: suburbId || undefined,
     transmission: transmission || undefined,
     test_pre_booked: testPreBooked,
+    instructor_gender: instructorGender || undefined,
   });
   return instructors;
 }

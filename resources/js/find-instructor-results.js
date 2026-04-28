@@ -52,13 +52,20 @@ function renderCard(inst) {
     else starsHtml += '<i class="bi bi-star"></i>';
   }
 
-  // Top-badge area: verified + popularity
+  // Top-badge area: verified + popularity + gender
   const verifiedBadge = inst.is_verified !== false
     ? '<span class="sl-verified-badge" title="Verified instructor"><i class="bi bi-patch-check-fill"></i> Verified</span>'
     : '';
   const popularBadge = (reviews >= 20 && ratingNum >= 4.7)
     ? '<span class="sl-popular-badge" title="Highly rated with many bookings"><i class="bi bi-fire"></i> Popular</span>'
     : '';
+  // Gender badge (helps learners with gender-preference safety filter)
+  const gender = (inst.gender || '').toLowerCase();
+  const genderBadge = gender === 'female'
+    ? '<span class="sl-gender-badge sl-gender-female" title="Female instructor"><i class="bi bi-gender-female"></i> Female</span>'
+    : (gender === 'male'
+        ? '<span class="sl-gender-badge sl-gender-male" title="Male instructor"><i class="bi bi-gender-male"></i> Male</span>'
+        : '');
 
   return `
     <div class="col-md-6 col-lg-4 col-xl-3">
@@ -68,6 +75,7 @@ function renderCard(inst) {
           <div class="instructor-card-v2-badges">
             ${verifiedBadge}
             ${popularBadge}
+            ${genderBadge}
           </div>
         </div>
         <div class="card-body d-flex flex-column p-3 pt-4">
@@ -134,9 +142,13 @@ function attachCardHandlers(col, inst) {
   if (bookBtn) {
     bookBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Guests can book too — account is auto-created after payment
-      const url = learnerBookingNewUrl || '/learner/bookings/new';
-      window.location.href = `${url}?instructor_profile_id=${id}`;
+      if (isLearner) {
+        // Logged-in learner: go directly to Make a Booking (no Amount/upsell/Registration steps)
+        window.location.href = `/learner/bookings/new?instructor_profile_id=${id}`;
+      } else {
+        // Guest: 5-step flow starting at Amount (account auto-created at payment)
+        window.location.href = `/learner/bookings/amount?instructor_profile_id=${id}`;
+      }
     });
   }
   if (viewBtn) {
@@ -169,10 +181,12 @@ function openAvailability(inst) {
   if (bookBtn) {
     bookBtn.onclick = () => {
       if (!availabilityInstructor) return;
-      if (isLearner && learnerBookingNewUrl) {
-        window.location.href = `${learnerBookingNewUrl}?instructor_profile_id=${availabilityInstructor.id}`;
+      if (isLearner) {
+        // Logged-in learner: skip Amount/upsell, go directly to Make a Booking
+        window.location.href = `/learner/bookings/new?instructor_profile_id=${availabilityInstructor.id}`;
       } else {
-        window.location.href = '/learner/login';
+        // Guest: full 5-step flow starting at Amount
+        window.location.href = `/learner/bookings/amount?instructor_profile_id=${availabilityInstructor.id}`;
       }
     };
   }
@@ -215,8 +229,9 @@ function init() {
   const suburbId = params.suburbId || null;
   const transmission = params.transmission || null;
   const testPreBooked = params.testPreBooked === true;
+  const instructorGender = params.instructorGender || null;
 
-  runInstructorSearch({ suburbId, transmission, testPreBooked })
+  runInstructorSearch({ suburbId, transmission, testPreBooked, instructorGender })
     .then((instructors) => {
       resultsLoading.style.display = 'none';
       if (!instructors.length) {

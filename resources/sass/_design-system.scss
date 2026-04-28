@@ -661,7 +661,8 @@ a:hover > .card,
   z-index: 3;
 }
 .sl-verified-badge,
-.sl-popular-badge {
+.sl-popular-badge,
+.sl-gender-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -679,6 +680,14 @@ a:hover > .card,
 }
 .sl-popular-badge {
   background: rgba(255,132,0,0.95);
+  color: #fff;
+}
+.sl-gender-badge.sl-gender-female {
+  background: rgba(236, 72, 153, 0.95); // pink-500
+  color: #fff;
+}
+.sl-gender-badge.sl-gender-male {
+  background: rgba(59, 130, 246, 0.95); // blue-500
   color: #fff;
 }
 

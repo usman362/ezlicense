@@ -1,53 +1,48 @@
-@extends('layouts.learner')
+@extends(auth()->check() ? 'layouts.learner' : 'layouts.booking', ['step' => 5])
 
-@section('title', 'Make a Booking')
-@section('heading', 'Make a Booking')
+@section('title', 'Payment')
+@section('heading', 'Payment')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-2">
-    <ol class="breadcrumb mb-0 small">
-        <li class="breadcrumb-item"><a href="{{ auth()->check() ? route('learner.dashboard') : url('/') }}"><i class="bi bi-house"></i> Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $order['instructor_profile_id'] ?? '']) }}">Make a Booking</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Payment</li>
-    </ol>
-</nav>
-
-<h5 class="mb-4">Make a Booking</h5>
+@auth
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item"><a href="{{ route('learner.dashboard') }}"><i class="bi bi-house"></i> Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $order['instructor_profile_id'] ?? '']) }}">Make a Booking</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Payment</li>
+        </ol>
+    </nav>
+@endauth
+<div class="mb-4">
+    <h3 class="fw-bolder mb-1" style="letter-spacing:-0.02em;">Complete Your Booking</h3>
+    <p class="text-muted mb-0">Secure payment — your lessons will be confirmed instantly.</p>
+</div>
 
 <div class="row">
     <div class="col-lg-8">
         <form id="payment-form" action="#" method="post">
             @csrf
 
-            @if($isGuest ?? false)
-                {{-- ── Guest account details ── --}}
-                <div class="card border-0 shadow-sm mb-4" style="border-left: 4px solid var(--sl-primary-500, #ff8400) !important;">
+            {{-- Confirmation: Your details (collected in Step 4) --}}
+            @if(!empty($details))
+                <div class="card border-0 shadow-sm mb-4" style="border-left: 4px solid var(--sl-accent-500, #ffd500) !important;">
                     <div class="card-body">
-                        <div class="d-flex align-items-start gap-2 mb-3">
-                            <i class="bi bi-person-plus-fill text-primary fs-5"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Your Details</h6>
-                                <p class="small text-muted mb-0">We'll create an account for you automatically after payment, so you can manage your bookings.</p>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-person-check-fill text-success me-2"></i>Your Details</h6>
+                            <a href="{{ route('learner.bookings.details') }}" class="small text-decoration-underline">Edit</a>
                         </div>
-                        <div class="row g-2">
-                            <div class="col-md-12">
-                                <label class="form-label small">Full name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="guest_name" required value="{{ $guestName ?? '' }}" placeholder="e.g. Aaron Smith">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" name="guest_email" required value="{{ $guestEmail ?? '' }}" placeholder="you@example.com">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small">Mobile <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" name="guest_phone" required value="{{ $guestPhone ?? '' }}" placeholder="04XX XXX XXX">
-                            </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-6"><span class="text-muted">Name:</span> <strong>{{ $details['first_name'] ?? '' }} {{ $details['last_name'] ?? '' }}</strong></div>
+                            <div class="col-md-6"><span class="text-muted">Email:</span> <strong>{{ $details['email'] ?? '' }}</strong></div>
+                            <div class="col-md-6"><span class="text-muted">Phone:</span> <strong>{{ $details['phone'] ?? '' }}</strong></div>
+                            <div class="col-md-6"><span class="text-muted">Pick-up:</span> <strong>{{ $details['pickup_address'] ?? '' }}</strong></div>
                         </div>
-                        <p class="small text-muted mt-3 mb-0">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Already have an account? <a href="{{ route('learner.login') }}?redirect={{ urlencode(route('learner.bookings.payment')) }}">Log in</a> to use saved payment methods.
-                        </p>
+                        @if($isGuest ?? false)
+                            <p class="small text-muted mt-2 mb-0">
+                                <i class="bi bi-info-circle me-1"></i>
+                                A learner account will be created automatically after payment.
+                            </p>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -143,7 +138,7 @@
     </div>
 
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm sticky-top">
+        <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h6 class="fw-bold mb-3">Order Summary</h6>
                 @foreach($order['items'] as $item)
@@ -166,6 +161,21 @@
                         <span>${{ number_format((float) $price, 2) }}</span>
                     </div>
                 @endforeach
+                @if(!empty($order['discount_amount']) && $order['discount_amount'] > 0)
+                    <div class="d-flex justify-content-between small mb-1 mt-2">
+                        <span>
+                            Credit Discount
+                            <span class="ms-1" style="font-size:0.7rem;padding:0.1rem 0.45rem;background:#d1f4e1;color:#0b7b3c;font-weight:700;border-radius:12px;">{{ (int) ($order['discount_pct'] ?? 0) }}% OFF</span>
+                        </span>
+                        <span class="text-success fw-semibold">-${{ number_format((float) $order['discount_amount'], 2) }}</span>
+                    </div>
+                @endif
+                @if(!empty($order['add_test_package']))
+                    <div class="d-flex justify-content-between small mb-1 mt-2">
+                        <span><i class="bi bi-check2-circle text-success me-1"></i>Driving Test Package</span>
+                        <span>${{ number_format((float) ($order['test_package_price'] ?? 0), 2) }}</span>
+                    </div>
+                @endif
                 <div class="d-flex justify-content-between small mb-1 mt-2">
                     <span>Platform Processing Fee</span>
                     <span>${{ number_format((float) ($order['fee'] ?? 0), 2) }}</span>
@@ -176,11 +186,37 @@
                     <span id="order-total">${{ number_format((float) ($order['total'] ?? 0), 2) }}</span>
                 </div>
                 <p class="small text-muted mb-3 mt-1">Or 4 payments of <span id="order-instalment">${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</span></p>
-                <button type="submit" form="payment-form" class="btn btn-warning w-100" id="btn-pay">
+                <button type="submit" form="payment-form" class="btn btn-warning w-100 fw-semibold" id="btn-pay">
                     Pay ${{ number_format((float) ($order['total'] ?? 0), 2) }}
                 </button>
             </div>
         </div>
+
+        @guest
+            {{-- BNPL + Trust signals — guest-only (logged-in learners don't need them) --}}
+            <div class="bnpl-panel">
+                <div class="bnpl-title">
+                    Buy Now Pay Later <i class="bi bi-info-circle text-muted small" title="Split your payment into 4 interest-free instalments"></i>
+                </div>
+                <div class="bnpl-amount">4 payments of ${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</div>
+                <div class="bnpl-badges">
+                    <span class="bnpl-badge paypal"><i class="bi bi-paypal me-1"></i>Pay in 4</span>
+                    <span class="bnpl-badge afterpay">afterpay&lt;&gt;</span>
+                    <span class="bnpl-badge klarna">Klarna</span>
+                </div>
+            </div>
+
+            <div class="trust-panel">
+                <h6><i class="bi bi-shield-check text-success me-1"></i>Purchase With Peace Of Mind</h6>
+                <p>Flexible rebooking if your plans change.</p>
+
+                <h6><i class="bi bi-calendar2-check text-primary me-1"></i>Manage Your Lessons Online</h6>
+                <p>24/7 access. Manage your account. Switch your instructor at no cost.</p>
+
+                <h6><i class="bi bi-lock-fill text-warning me-1"></i>Secure Payments</h6>
+                <p>We use 100% secure payments to provide you with a simple and safe experience.</p>
+            </div>
+        @endguest
     </div>
 </div>
 
@@ -237,21 +273,8 @@
       billing_address: document.querySelector('[name="billing_address"]').value
     };
 
-    // Include guest fields if present
-    var guestName = document.querySelector('[name="guest_name"]');
-    var guestEmail = document.querySelector('[name="guest_email"]');
-    var guestPhone = document.querySelector('[name="guest_phone"]');
-    if (guestName && guestEmail && guestPhone) {
-      if (!guestName.value.trim() || !guestEmail.value.trim() || !guestPhone.value.trim()) {
-        alert('Please fill in your name, email and mobile so we can create your account.');
-        btn.disabled = false;
-        btn.textContent = 'Pay ${{ number_format((float) ($order["total"] ?? 0), 2) }}';
-        return;
-      }
-      payload.guest_name = guestName.value.trim();
-      payload.guest_email = guestEmail.value.trim();
-      payload.guest_phone = guestPhone.value.trim();
-    }
+    // Guest details were already collected in Step 4 (Learner Registration)
+    // and stored in session — no need to send them here
 
     fetch('/api/learner/bookings/pay', {
       method: 'POST',

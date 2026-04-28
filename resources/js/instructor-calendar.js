@@ -143,9 +143,9 @@
       actionsHtml += '<button class="btn btn-sm btn-primary cal-action-btn" data-action="end-lesson" data-id="' + booking.id + '"><i class="bi bi-stop-fill me-1"></i>End Lesson</button>';
     }
     if (CANCELLABLE.indexOf(booking.status) !== -1) {
-      actionsHtml += '<button class="btn btn-sm btn-outline-danger cal-action-btn ms-1" data-action="cancel" data-id="' + booking.id + '"><i class="bi bi-x-circle me-1"></i>Cancel</button>';
+      actionsHtml += '<button class="btn btn-sm btn-outline-danger cal-action-btn ms-1" data-action="cancel" data-booking="' + encodeURIComponent(JSON.stringify(booking)) + '"><i class="bi bi-x-circle me-1"></i>Cancel</button>';
+      actionsHtml += '<button class="btn btn-sm btn-outline-secondary cal-action-btn ms-1" data-action="reschedule" data-booking="' + encodeURIComponent(JSON.stringify(booking)) + '"><i class="bi bi-arrow-repeat me-1"></i>Reschedule</button>';
     }
-    actionsHtml += '<a href="/instructor/learners/' + (booking.learner_id || '') + '" class="btn btn-sm btn-outline-secondary ms-1"><i class="bi bi-arrow-repeat me-1"></i>Reschedule</a>';
 
     var pop = document.createElement('div');
     pop.id = 'cal-popover';
@@ -168,34 +168,51 @@
 
     pop.querySelector('.cal-popover-close').addEventListener('click', closePopover);
     pop.querySelectorAll('.cal-action-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () { handleQuickAction(btn.dataset.action, btn.dataset.id, btn); });
+      btn.addEventListener('click', function () {
+        var action = btn.dataset.action;
+        // Cancel + Reschedule open the dashboard's full modals (which collect required fields)
+        if (action === 'cancel' || action === 'reschedule') {
+          var bookingObj = {};
+          try { bookingObj = JSON.parse(decodeURIComponent(btn.dataset.booking || '%7B%7D')); } catch (e) {}
+          closePopover();
+          openInstructorBookingModal(action, bookingObj);
+          return;
+        }
+        handleQuickAction(action, btn.dataset.id, btn);
+      });
     });
   }
 
-  /** Handle quick action API call */
+  /** Open the instructor dashboard's cancel/reschedule modal from the calendar popover */
+  function openInstructorBookingModal(action, booking) {
+    if (!booking || !booking.id) return;
+
+    // The instructor dashboard exposes window.openInstructorActionModal — use it if present
+    if (typeof window.openInstructorActionModal === 'function') {
+      window.openInstructorActionModal(action, booking);
+      return;
+    }
+
+    // Fallback: navigate to dashboard page with hash to open the modal there
+    var hash = action === 'cancel' ? '#cancel-' : '#reschedule-';
+    window.location.href = '/instructor/dashboard' + hash + booking.id;
+  }
+
+  /** Handle quick action API call (arrived / start-lesson / end-lesson only) */
   function handleQuickAction(action, bookingId, btn) {
     var urlMap = {
       'arrived': '/api/bookings/' + bookingId + '/arrived',
       'start-lesson': '/api/bookings/' + bookingId + '/start-lesson',
-      'end-lesson': '/api/bookings/' + bookingId + '/end-lesson',
-      'cancel': '/api/bookings/' + bookingId + '/cancel'
-    };
-    var methodMap = {
-      'arrived': 'POST',
-      'start-lesson': 'POST',
-      'end-lesson': 'POST',
-      'cancel': 'PUT'
+      'end-lesson': '/api/bookings/' + bookingId + '/end-lesson'
     };
     var url = urlMap[action];
     if (!url) return;
-
-    if (action === 'cancel' && !confirm('Are you sure you want to cancel this booking?')) return;
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Working...';
 
     fetch(url, {
-      method: methodMap[action],
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -208,7 +225,6 @@
       return r.json();
     }).then(function (data) {
       closePopover();
-      // Refresh just the bookings and re-render
       fetchJson(getBookingsUrl()).then(function (r) {
         var d = r && r.data !== undefined ? r.data : r;
         calendarBookings = Array.isArray(d) ? d : (d && d.data) || [];

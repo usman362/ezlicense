@@ -276,13 +276,13 @@
                     <div class="mt-4">
                         @auth
                             @if(auth()->user()->isLearner())
-                                <a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
+                                <a href="{{ auth()->check() && auth()->user()->isLearner() ? route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) : route('learner.bookings.amount', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
                                     <i class="bi bi-calendar-check me-2"></i>Book a Lesson
                                 </a>
                             @endif
                         @else
                             {{-- Guest booking: no login required — account auto-created after payment --}}
-                            <a href="{{ route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
+                            <a href="{{ auth()->check() && auth()->user()->isLearner() ? route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) : route('learner.bookings.amount', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
                                 <i class="bi bi-calendar-check me-2"></i>Book a Lesson
                             </a>
                             <p class="small text-muted text-center mb-0 mt-2">

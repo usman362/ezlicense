@@ -508,8 +508,13 @@
     tbody.innerHTML = items.map(function(b) {
       var status = (b.status === 'cancelled') ? 'CANCELLED' : 'COMPLETED';
       var statusClass = (b.status === 'cancelled') ? 'badge-cancelled' : 'badge-completed';
-      var pay = (b.payment_status === 'RETURNED') ? 'RETURNED' : (b.payment_status === 'PROCESSED' ? 'PROCESSED' : '—');
-      var payClass = (b.payment_status === 'RETURNED') ? 'badge-returned' : 'badge-processed';
+      // Backend serializes lowercase: paid / refunded / pending / failed
+      var ps = (b.payment_status || '').toLowerCase();
+      var pay = ps ? ps.charAt(0).toUpperCase() + ps.slice(1) : '—';
+      var payClass = ps === 'refunded' ? 'badge-returned'
+                    : ps === 'paid' ? 'badge-processed'
+                    : ps === 'failed' ? 'badge-returned'
+                    : '';
       var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
       var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
       return '<tr>' +
@@ -647,6 +652,20 @@
       })
       .catch(function() { body.innerHTML = '<p class="text-danger">Failed to load booking details.</p>'; });
   }
+
+  // ── Public helper: called from the instructor calendar popover ──
+  // Lets the calendar route Cancel/Reschedule clicks through the same dashboard modals
+  // (which collect cancellation_reason_code + policy_accepted properly).
+  window.openInstructorActionModal = function (action, booking) {
+    if (!booking || !booking.id) return;
+    // Make sure booking has the is_within_24_hours hint for the modal
+    if (typeof booking.is_within_24_hours === 'undefined' && booking.scheduled_at) {
+      var hours = (new Date(booking.scheduled_at).getTime() - Date.now()) / 36e5;
+      booking.is_within_24_hours = hours < 24;
+    }
+    if (action === 'cancel') openCancelModal(booking);
+    else if (action === 'reschedule') openRescheduleModal(booking);
+  };
 
   // ——— Cancel Booking Modal ———
   function openCancelModal(booking) {

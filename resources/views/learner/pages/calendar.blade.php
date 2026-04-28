@@ -352,6 +352,8 @@
 }
 </style>
 
+@include('learner.partials.booking-action-modals')
+
 @push('scripts')
     @vite('resources/js/learner-calendar.js')
 @endpush

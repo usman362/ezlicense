@@ -215,6 +215,7 @@
                                     <th>Status</th>
                                     <th>Payment</th>
                                     <th>Review</th>
+                                    <th class="text-end"></th>
                                 </tr>
                             </thead>
                             <tbody id="history-tbody"></tbody>
@@ -337,9 +338,17 @@
         </div>
     </div>
 </div>
+@include('learner.partials.booking-action-modals')
+
 @push('scripts')
+{{-- Loads the cancel/reschedule modal helpers used by the dashboard list --}}
+@vite('resources/js/learner-calendar.js')
 <script>
 window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
+// Expose the dashboard's load function so cancel/reschedule modal can refresh it
+window.__loadLearnerDashboard = function() {
+  if (typeof loadDashboardData === 'function') loadDashboardData();
+};
 </script>
 <script>
 (function() {
@@ -430,11 +439,42 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
         document.getElementById('upcoming-list').style.display = 'block';
         document.getElementById('upcoming-list').innerHTML = '<ul class="list-unstyled mb-0">' + upcoming.map(function(b) {
           var typeLabel = (b.type === 'test_package') ? 'Test Package' : ((b.duration_minutes || 60) / 60) + ' hr Lesson';
-          return '<li class="border-bottom py-2 small">' +
-            '<strong>' + formatDate(b.scheduled_at) + '</strong> ' + formatTime(b.scheduled_at, b.duration_minutes) + '<br>' +
-            (b.instructor_name ? esc(b.instructor_name) + ' · ' : '') + typeLabel + (b.location ? ' · ' + esc(b.location) : '') +
-            '</li>';
+          var canModify = (b.status === 'confirmed' || b.status === 'proposed' || b.status === 'pending')
+                          && new Date(b.scheduled_at).getTime() > Date.now();
+          return '<li class="border-bottom py-2 small d-flex justify-content-between align-items-start gap-2">' +
+            '<div>' +
+              '<strong>' + formatDate(b.scheduled_at) + '</strong> ' + formatTime(b.scheduled_at, b.duration_minutes) + '<br>' +
+              (b.instructor_name ? esc(b.instructor_name) + ' · ' : '') + typeLabel + (b.location ? ' · ' + esc(b.location) : '') +
+            '</div>' +
+            (canModify ? (
+              '<div class="dropdown flex-shrink-0">' +
+                '<button class="btn btn-sm btn-outline-secondary border-0 px-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Manage">' +
+                  '<i class="bi bi-three-dots-vertical"></i>' +
+                '</button>' +
+                '<ul class="dropdown-menu dropdown-menu-end small">' +
+                  '<li><button type="button" class="dropdown-item learner-action-reschedule" data-booking=\'' + JSON.stringify(b).replace(/'/g, '&#39;') + '\'><i class="bi bi-arrow-repeat me-2"></i>Reschedule</button></li>' +
+                  '<li><button type="button" class="dropdown-item text-danger learner-action-cancel" data-booking=\'' + JSON.stringify(b).replace(/'/g, '&#39;') + '\'><i class="bi bi-x-circle me-2"></i>Cancel</button></li>' +
+                '</ul>' +
+              '</div>'
+            ) : '') +
+          '</li>';
         }).join('') + '</ul>';
+
+        // Wire up cancel/reschedule buttons (uses modals from learner-calendar.js)
+        document.querySelectorAll('.learner-action-cancel').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var b = JSON.parse(btn.getAttribute('data-booking'));
+            if (typeof window.openLearnerCancelModal === 'function') window.openLearnerCancelModal(b);
+            else window.location.href = '/learner/calendar';
+          });
+        });
+        document.querySelectorAll('.learner-action-reschedule').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var b = JSON.parse(btn.getAttribute('data-booking'));
+            if (typeof window.openLearnerRescheduleModal === 'function') window.openLearnerRescheduleModal(b);
+            else window.location.href = '/learner/calendar';
+          });
+        });
       }
 
       // Services tab: build cards from my_instructor
@@ -513,15 +553,44 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
         document.getElementById('history-wrap').style.display = 'block';
         var tbody = document.getElementById('history-tbody');
         tbody.innerHTML = items.map(function(b) {
-          var status = (b.status === 'cancelled') ? 'CANCELLED' : 'COMPLETED';
-          var statusClass = (b.status === 'cancelled') ? 'bg-danger text-white' : 'bg-success text-white';
-          var pay = (b.payment_status === 'RETURNED') ? 'RETURNED' : (b.payment_status === 'PROCESSED' ? 'PROCESSED' : '—');
-          var payClass = (b.payment_status === 'RETURNED') ? 'bg-primary text-white' : 'bg-success text-white';
+          // ── Status badge: Completed / Cancelled / Rescheduled ──
+          var isRescheduled = b.status === 'cancelled'
+            && (b.cancellation_reason_code === 'rescheduled'
+                || (b.cancellation_reason && /resched/i.test(b.cancellation_reason)));
+          var status, statusClass;
+          if (isRescheduled) { status = 'RESCHEDULED'; statusClass = 'bg-secondary text-white'; }
+          else if (b.status === 'cancelled') { status = 'CANCELLED'; statusClass = 'bg-danger text-white'; }
+          else { status = 'COMPLETED'; statusClass = 'bg-success text-white'; }
+
+          // ── Payment badge with amount ──
+          var ps = (b.payment_status || '').toLowerCase();
+          var payLabel = ps ? ps.charAt(0).toUpperCase() + ps.slice(1) : '—';
+          var amount = b.amount != null ? '$' + Number(b.amount).toFixed(2) : '';
+          var payClass = ps === 'refunded' ? 'bg-primary text-white'
+                        : ps === 'paid' ? 'bg-success text-white'
+                        : ps === 'pending' ? 'bg-warning text-dark'
+                        : ps === 'failed' ? 'bg-danger text-white'
+                        : '';
+          var payCell = ps
+            ? '<span class="badge ' + payClass + '">' + payLabel + '</span>' +
+              (amount ? '<div class="text-muted" style="font-size:0.72rem;line-height:1;margin-top:2px;">' + amount + '</div>' : '')
+            : '—';
+
           var loc = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
           var instrName = (b.instructor && b.instructor.name) ? esc(b.instructor.name) : '—';
           var initial = instrName !== '—' ? instrName.charAt(0) : '?';
+          var instructorProfileId = b.instructor_profile_id || '';
 
-          // Review column: show existing rating, "Leave Review" button, or dash
+          // ── Cancellation reason (shown inline under status badge) ──
+          var cancelReasonLine = '';
+          if (b.status === 'cancelled' && b.cancellation_reason && !isRescheduled) {
+            var reason = b.cancellation_reason.length > 50 ? b.cancellation_reason.substr(0, 50) + '…' : b.cancellation_reason;
+            cancelReasonLine = '<div class="text-muted" style="font-size:0.72rem;line-height:1.1;margin-top:3px;" title="' + esc(b.cancellation_reason) + '">' + esc(reason) + '</div>';
+          } else if (isRescheduled) {
+            cancelReasonLine = '<div class="text-muted" style="font-size:0.72rem;line-height:1.1;margin-top:3px;">Replaced by new booking</div>';
+          }
+
+          // ── Review cell ──
           var reviewCell = '—';
           if (b.status === 'completed') {
             if (b.review && b.review.id) {
@@ -538,15 +607,29 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
             }
           }
 
+          // ── Actions menu (Rebook + View Details) ──
+          var rebookUrl = window.learnerBookingNewUrl + (instructorProfileId ? ('?instructor_profile_id=' + instructorProfileId) : '');
+          var actionsCell =
+            '<div class="dropdown">' +
+              '<button class="btn btn-sm btn-outline-secondary border-0 px-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More">' +
+                '<i class="bi bi-three-dots-vertical"></i>' +
+              '</button>' +
+              '<ul class="dropdown-menu dropdown-menu-end small">' +
+                (instructorProfileId ? '<li><a class="dropdown-item" href="' + rebookUrl + '"><i class="bi bi-arrow-clockwise me-2"></i>Rebook</a></li>' : '') +
+                (instructorProfileId ? '<li><a class="dropdown-item" href="/instructors/' + instructorProfileId + '" target="_blank"><i class="bi bi-person me-2"></i>View Instructor</a></li>' : '') +
+              '</ul>' +
+            '</div>';
+
           return '<tr>' +
             '<td>#' + b.id + '</td>' +
             '<td><span class="rounded-circle bg-light border d-inline-flex align-items-center justify-content-center me-1" style="width:24px;height:24px;font-size:0.7rem;">' + initial + '</span>' + instrName + '</td>' +
             '<td>' + formatDate(b.scheduled_at) + '</td>' +
             '<td>' + formatTime(b.scheduled_at, b.duration_minutes) + '</td>' +
             '<td>' + esc(loc) + '</td>' +
-            '<td><span class="badge ' + statusClass + '">' + status + '</span></td>' +
-            '<td>' + (pay !== '—' ? '<span class="badge ' + payClass + '">' + pay + '</span>' : '—') + '</td>' +
+            '<td><span class="badge ' + statusClass + '">' + status + '</span>' + cancelReasonLine + '</td>' +
+            '<td>' + payCell + '</td>' +
             '<td>' + reviewCell + '</td>' +
+            '<td class="text-end">' + actionsCell + '</td>' +
           '</tr>';
         }).join('');
 
@@ -561,12 +644,32 @@ window.learnerBookingNewUrl = "{{ route('learner.bookings.new') }}";
           var cur = data.current_page || 1;
           var last = data.last_page;
           var parts = [];
-          if (cur > 1) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur - 1) + '">Prev</a></li>');
-          for (var i = 1; i <= Math.min(last, 5); i++) {
+
+          // Prev
+          if (cur > 1) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur - 1) + '">‹</a></li>');
+          else parts.push('<li class="page-item disabled"><span class="page-link">‹</span></li>');
+
+          // Windowed page numbers: current ± 2 with first/last shortcuts and ellipses
+          var windowStart = Math.max(1, cur - 2);
+          var windowEnd = Math.min(last, cur + 2);
+
+          if (windowStart > 1) {
+            parts.push('<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>');
+            if (windowStart > 2) parts.push('<li class="page-item disabled"><span class="page-link">…</span></li>');
+          }
+          for (var i = windowStart; i <= windowEnd; i++) {
             if (i === cur) parts.push('<li class="page-item active"><span class="page-link">' + i + '</span></li>');
             else parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>');
           }
-          if (cur < last) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur + 1) + '">Next</a></li>');
+          if (windowEnd < last) {
+            if (windowEnd < last - 1) parts.push('<li class="page-item disabled"><span class="page-link">…</span></li>');
+            parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + last + '">' + last + '</a></li>');
+          }
+
+          // Next
+          if (cur < last) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur + 1) + '">›</a></li>');
+          else parts.push('<li class="page-item disabled"><span class="page-link">›</span></li>');
+
           pagination.innerHTML = '<ul class="pagination pagination-sm mb-0">' + parts.join('') + '</ul>';
           pagination.querySelectorAll('a[data-page]').forEach(function(a) {
             a.addEventListener('click', function(e) { e.preventDefault(); loadHistory(parseInt(a.getAttribute('data-page'), 10)); });

@@ -32,6 +32,7 @@ Route::get('/find-instructor/results', function (\Illuminate\Http\Request $reque
         'q' => $q,
         'transmission' => $request->query('transmission', ''),
         'test_pre_booked' => $request->boolean('test_pre_booked'),
+        'instructor_gender' => $request->query('instructor_gender', ''),
     ]);
 })->name('find-instructor.results');
 
@@ -229,8 +230,19 @@ Route::put('/user/profile', function (\Illuminate\Http\Request $request) {
 // ── Learner booking flow — accessible to GUESTS and authenticated learners ──
 // Guest bookings auto-create an account after successful payment (EasyLicence-style)
 Route::prefix('learner')->name('learner.')->group(function () {
+    // Step 2: Choose lesson amount (hours package with bulk discount)
+    Route::get('/bookings/amount', [App\Http\Controllers\Learner\BookingController::class, 'amount'])->name('bookings.amount');
+    Route::post('/bookings/amount', [App\Http\Controllers\Learner\BookingController::class, 'storeAmount'])->name('bookings.amount.store');
+    // Step 2b: Add Driving Test Package upsell (Add or Skip)
+    Route::get('/bookings/test-package', [App\Http\Controllers\Learner\BookingController::class, 'testPackage'])->name('bookings.test-package');
+    Route::post('/bookings/test-package', [App\Http\Controllers\Learner\BookingController::class, 'storeTestPackage'])->name('bookings.test-package.store');
+    // Step 3: Book your lessons (schedule individual lessons from purchased hours)
     Route::get('/bookings/new', [App\Http\Controllers\Learner\BookingController::class, 'create'])->name('bookings.new');
     Route::post('/bookings/continue', [App\Http\Controllers\Learner\BookingController::class, 'continueToPayment'])->name('bookings.continue');
+    // Step 4: Learner Registration — collect personal details + (guest) password
+    Route::get('/bookings/details', [App\Http\Controllers\Learner\BookingController::class, 'details'])->name('bookings.details');
+    Route::post('/bookings/details', [App\Http\Controllers\Learner\BookingController::class, 'storeDetails'])->name('bookings.details.store');
+    // Step 5: Payment
     Route::get('/bookings/payment', [App\Http\Controllers\Learner\BookingController::class, 'payment'])->name('bookings.payment');
 });
 
@@ -317,6 +329,7 @@ Route::prefix('api')->middleware('web')->group(function () {
         Route::get('bookings/{booking}', [BookingController::class, 'show'])->name('api.bookings.show');
         Route::put('bookings/{booking}/reschedule', [BookingController::class, 'reschedule'])->name('api.bookings.reschedule');
         Route::put('bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('api.bookings.cancel');
+        Route::put('bookings/{booking}/accept', [BookingController::class, 'acceptProposed'])->name('api.bookings.accept');
         Route::post('reviews', [ReviewController::class, 'store'])->name('api.reviews.store');
         Route::patch('reviews/{review}/google-prompted', [ReviewController::class, 'markGooglePrompted'])->name('api.reviews.google-prompted');
         Route::put('bookings/{booking}/complete', [BookingController::class, 'complete'])->name('api.bookings.complete');

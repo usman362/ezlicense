@@ -11,7 +11,7 @@
         </ol>
     </nav>
 
-    {{-- Quick filters + Filter / Sort --}}
+    {{-- Quick filters --}}
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <div class="d-flex flex-wrap gap-2">
             <span class="badge rounded-pill bg-light text-dark border py-2 px-3">High Rated</span>
@@ -19,11 +19,40 @@
             <span class="badge rounded-pill bg-light text-dark border py-2 px-3">Best Match</span>
             <span class="badge rounded-pill bg-light text-dark border py-2 px-3">Instant Book</span>
             <span class="badge rounded-pill bg-light text-dark border py-2 px-3">Flexible Days</span>
-            <span class="badge rounded-pill bg-light text-dark border py-2 px-3">Female Instructor</span>
         </div>
         <div class="ms-auto d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm">Filter</button>
             <button type="button" class="btn btn-outline-secondary btn-sm">Sort</button>
+        </div>
+    </div>
+
+    {{-- ── Instructor gender filter (safety-focused) ── --}}
+    @php $currentGender = strtolower($instructor_gender ?? ''); @endphp
+    <div class="card border-0 mb-3" style="background: rgba(255, 213, 0, 0.06);">
+        <div class="card-body py-3 d-flex flex-wrap align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <i class="bi bi-shield-check text-success" style="font-size: 1.2rem;"></i>
+                <div>
+                    <strong class="d-block small">Instructor preference</strong>
+                    <span class="text-muted" style="font-size: 0.78rem;">Many learners prefer same-gender instructors for comfort &amp; safety. We respect your choice.</span>
+                </div>
+            </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Instructor gender filter">
+                @php
+                    $base = request()->except(['instructor_gender', 'page']);
+                @endphp
+                <a href="{{ route('find-instructor.results', $base) }}"
+                   class="btn {{ $currentGender === '' ? 'btn-dark' : 'btn-outline-dark' }}">
+                    Any
+                </a>
+                <a href="{{ route('find-instructor.results', array_merge($base, ['instructor_gender' => 'female'])) }}"
+                   class="btn {{ $currentGender === 'female' ? 'btn-dark' : 'btn-outline-dark' }}">
+                    <i class="bi bi-gender-female me-1"></i>Female only
+                </a>
+                <a href="{{ route('find-instructor.results', array_merge($base, ['instructor_gender' => 'male'])) }}"
+                   class="btn {{ $currentGender === 'male' ? 'btn-dark' : 'btn-outline-dark' }}">
+                    <i class="bi bi-gender-male me-1"></i>Male only
+                </a>
+            </div>
         </div>
     </div>
 
@@ -94,6 +123,7 @@
             transmission: {{ json_encode($transmission) }},
             testPreBooked: {{ $test_pre_booked ? 'true' : 'false' }},
             locationLabel: {{ json_encode($q) }},
+            instructorGender: {{ json_encode($instructor_gender ?? '') }},
         };
         window.isLearner = {{ auth()->check() && auth()->user()->isLearner() ? 'true' : 'false' }};
         window.learnerBookingNewUrl = "{{ auth()->check() && auth()->user()->isLearner() ? route('learner.bookings.new') : '' }}";
