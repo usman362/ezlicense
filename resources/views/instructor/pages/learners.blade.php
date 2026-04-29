@@ -297,14 +297,112 @@
     });
   }
 
-  document.getElementById('tab-pending').addEventListener('shown.bs.tab', function() {
-    emptyEl.textContent = 'No pending invites.';
+  // ── Pending Invites tab — loads real data + supports resend/cancel ──
+  function loadPendingInvites() {
+    loadingEl.style.display = 'block';
     tableWrap.style.display = 'none';
-    tbody.innerHTML = '';
-    emptyEl.style.display = 'block';
+    emptyEl.style.display = 'none';
+
+    fetch('/api/instructor/learners/pending-invites', {
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin'
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      loadingEl.style.display = 'none';
+      var invites = res.data || [];
+      if (invites.length === 0) {
+        emptyEl.textContent = 'No pending invites. Click "Invite Learner" to send your first invite.';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      tableWrap.style.display = 'block';
+
+      // Replace table headers for invites view
+      var thead = tableWrap.querySelector('thead tr');
+      thead.innerHTML = '<th>Invitee</th><th>Sent</th><th>Personal Message</th><th>Status</th><th class="text-end">Actions</th>';
+
+      tbody.innerHTML = invites.map(function(inv) {
+        var sentDate = new Date(inv.sent_at);
+        var sentLabel = sentDate.toLocaleDateString() + ' ' + sentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var msg = inv.personal_message ? escapeHtml(inv.personal_message.length > 60 ? inv.personal_message.substr(0, 60) + '…' : inv.personal_message) : '<span class="text-muted">—</span>';
+        var statusBadge = inv.is_expired
+          ? '<span class="badge bg-danger-subtle text-danger">Expired</span>'
+          : '<span class="badge bg-warning-subtle text-warning">Pending</span>';
+
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(inv.invitee_name || inv.invitee_email) + '</strong>' +
+            (inv.invitee_name ? '<br><small class="text-muted">' + escapeHtml(inv.invitee_email) + '</small>' : '') + '</td>' +
+          '<td class="small text-muted">' + sentLabel + '</td>' +
+          '<td class="small">' + msg + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td class="text-end">' +
+            (!inv.is_expired ? '<button class="btn btn-sm btn-outline-secondary me-1 invite-resend-btn" data-id="' + inv.id + '"><i class="bi bi-arrow-clockwise"></i> Resend</button>' : '') +
+            '<button class="btn btn-sm btn-outline-danger invite-cancel-btn" data-id="' + inv.id + '" data-email="' + escapeHtml(inv.invitee_email) + '"><i class="bi bi-x-circle"></i> Cancel</button>' +
+          '</td></tr>';
+      }).join('');
+    })
+    .catch(function() {
+      loadingEl.style.display = 'none';
+      emptyEl.textContent = 'Could not load pending invites.';
+      emptyEl.style.display = 'block';
+    });
+  }
+
+  document.getElementById('tab-pending').addEventListener('shown.bs.tab', function() {
+    loadPendingInvites();
   });
   document.getElementById('tab-my-learners').addEventListener('shown.bs.tab', function() {
+    // Restore my-learners table headers
+    var thead = tableWrap.querySelector('thead tr');
+    thead.innerHTML = '<th>Learner Details</th><th>Guardian Details</th><th>Booking Hours Completed</th><th>Upcoming Bookings</th><th class="text-end">Actions</th>';
     load(searchInput ? searchInput.value.trim() : '');
+  });
+
+  // Resend / cancel invite handlers (delegated)
+  tbody.addEventListener('click', function(e) {
+    var resendBtn = e.target.closest('.invite-resend-btn');
+    var cancelBtn = e.target.closest('.invite-cancel-btn');
+    var csrf = document.querySelector('meta[name="csrf-token"]');
+    var csrfToken = csrf ? csrf.getAttribute('content') : '';
+
+    if (resendBtn) {
+      e.preventDefault();
+      var id = resendBtn.getAttribute('data-id');
+      resendBtn.disabled = true;
+      resendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      fetch('/api/instructor/learners/invite/' + id + '/resend', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+      })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (res.ok) {
+          alert(res.data.message || 'Invite resent.');
+        } else {
+          alert(res.data.message || 'Failed to resend.');
+        }
+        loadPendingInvites();
+      });
+    }
+
+    if (cancelBtn) {
+      e.preventDefault();
+      var id = cancelBtn.getAttribute('data-id');
+      var email = cancelBtn.getAttribute('data-email');
+      if (!confirm('Cancel invite to ' + email + '?')) return;
+      fetch('/api/instructor/learners/invite/' + id, {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+      })
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (res.ok) loadPendingInvites();
+        else alert(res.data.message || 'Failed to cancel.');
+      });
+    }
   });
   window.addEventListener('learners-refresh', function() {
     load(searchInput ? searchInput.value.trim() : '');
@@ -654,6 +752,12 @@ document.getElementById('invite-send-btn').addEventListener('click', function() 
       btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Sent!';
       btn.classList.remove('btn-warning');
       btn.classList.add('btn-success');
+      // Auto-close modal after 1.5s + switch to Pending Invites tab
+      setTimeout(function() {
+        bootstrap.Modal.getInstance(document.getElementById('invite-learner-modal'))?.hide();
+        var pendingTab = document.getElementById('tab-pending');
+        if (pendingTab) bootstrap.Tab.getOrCreateInstance(pendingTab).show();
+      }, 1500);
     } else {
       resultEl.className = 'alert alert-danger small';
       resultEl.textContent = result.data.message || 'Failed to send invitation.';

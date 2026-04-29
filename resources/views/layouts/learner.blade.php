@@ -231,15 +231,15 @@
                         <span>Find Services</span>
                     </a>
                     <div class="nav-divider"></div>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {{ request()->routeIs('learner.invite*') ? 'active' : '' }}" href="{{ route('learner.invite') }}">
                         <i class="bi bi-gift"></i>
                         <span>Invite Friends</span>
                     </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {{ request()->routeIs('learner.feedback*') ? 'active' : '' }}" href="{{ route('learner.feedback') }}">
                         <i class="bi bi-chat-left-text"></i>
                         <span>Give Feedback</span>
                     </a>
-                    <a class="nav-link" href="{{ route('contact') }}">
+                    <a class="nav-link {{ request()->routeIs('learner.support*') ? 'active' : '' }}" href="{{ route('learner.support') }}">
                         <i class="bi bi-headset"></i>
                         <span>Support</span>
                     </a>

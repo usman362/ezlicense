@@ -1,4 +1,8 @@
-import 'bootstrap';
+import * as bootstrap from 'bootstrap';
+// Expose Bootstrap globally so inline <script> blocks can use `new bootstrap.Modal(...)`,
+// `bootstrap.Tab.getOrCreateInstance(...)`, etc. Without this, blade-inline JS that
+// calls `bootstrap.X` throws ReferenceError: bootstrap is not defined.
+window.bootstrap = bootstrap;
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests

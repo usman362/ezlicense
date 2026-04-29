@@ -40,6 +40,9 @@ class User extends Authenticatable
         'deactivation_reason',
         'deactivated_at',
         'blocked_until',
+        'referral_code',
+        'referred_by_user_id',
+        'referred_at',
         'google_calendar_token',
         'google_calendar_id',
         'google_calendar_sync_enabled',
@@ -185,6 +188,45 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new PasswordResetNotification($token));
+    }
+
+    /**
+     * Auto-generate a unique 8-char referral code on creation.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $user) {
+            if (empty($user->referral_code)) {
+                $user->referral_code = self::generateUniqueReferralCode();
+            }
+        });
+    }
+
+    public static function generateUniqueReferralCode(): string
+    {
+        do {
+            $code = strtoupper(\Illuminate\Support\Str::random(8));
+        } while (self::where('referral_code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Relationships for the Invite Friends / referral system.
+     */
+    public function referrer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_by_user_id');
+    }
+
+    public function referredUsers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class, 'referred_by_user_id');
+    }
+
+    public function sentInvites(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\ReferralInvite::class, 'referrer_user_id');
     }
 
     /**

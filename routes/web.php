@@ -78,6 +78,9 @@ Route::get('/blog/{slug}', [App\Http\Controllers\BlogController::class, 'show'])
 Route::get('/lesson-confirmation/{token}', [App\Http\Controllers\LessonConfirmationController::class, 'show'])->name('lesson-confirmation.show');
 Route::post('/lesson-confirmation/{token}', [App\Http\Controllers\LessonConfirmationController::class, 'confirm'])->name('lesson-confirmation.confirm');
 
+// Public instructor invite accept link (sent in email — no login required)
+Route::get('/instructor-invite/{token}', [App\Http\Controllers\Instructor\LearnersController::class, 'acceptInvite'])->name('instructor-invite.accept');
+
 // Calendar ICS feeds (token-authenticated, no login needed)
 Route::get('/calendar/instructor/{token}/feed.ics', [App\Http\Controllers\CalendarFeedController::class, 'instructorFeed'])->name('calendar.instructor.feed');
 Route::get('/calendar/learner/{token}/feed.ics', [App\Http\Controllers\CalendarFeedController::class, 'learnerFeed'])->name('calendar.learner.feed');
@@ -252,6 +255,18 @@ Route::middleware(['auth', 'role:learner'])->prefix('learner')->name('learner.')
     Route::get('/calendar', fn () => view('learner.pages.calendar'))->name('calendar');
     Route::get('/wallet', fn () => view('learner.pages.wallet'))->name('wallet');
     Route::get('/wallet/add-credit', fn () => view('learner.pages.wallet-add-credit'))->name('wallet.add-credit');
+
+    // ── Invite Friends (referral) ──
+    Route::get('/invite-friends', [App\Http\Controllers\Learner\InviteController::class, 'index'])->name('invite');
+    Route::post('/invite-friends/send', [App\Http\Controllers\Learner\InviteController::class, 'send'])->name('invite.send');
+
+    // ── Give Feedback ──
+    Route::get('/feedback', [App\Http\Controllers\Learner\FeedbackController::class, 'index'])->name('feedback');
+    Route::post('/feedback', [App\Http\Controllers\Learner\FeedbackController::class, 'store'])->name('feedback.store');
+
+    // ── Support ──
+    Route::get('/support', [App\Http\Controllers\Learner\SupportController::class, 'index'])->name('support');
+    Route::post('/support', [App\Http\Controllers\Learner\SupportController::class, 'send'])->name('support.send');
 });
 
 Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('instructor.')->group(function () {
@@ -361,8 +376,11 @@ Route::prefix('api')->middleware('web')->group(function () {
             Route::post('profile/photo', [InstructorDashboard::class, 'uploadProfilePhoto'])->name('profile.photo');
             Route::post('profile/vehicle-photo', [InstructorDashboard::class, 'uploadVehiclePhoto'])->name('profile.vehicle-photo');
             Route::get('learners', [App\Http\Controllers\Instructor\LearnersController::class, 'index'])->name('learners');
+            Route::get('learners/pending-invites', [App\Http\Controllers\Instructor\LearnersController::class, 'pendingInvites'])->name('learners.pending-invites');
             Route::get('learners/{user}', [App\Http\Controllers\Instructor\LearnersController::class, 'show'])->name('learners.show');
             Route::post('learners/invite', [App\Http\Controllers\Instructor\LearnersController::class, 'invite'])->name('learners.invite');
+            Route::post('learners/invite/{invite}/resend', [App\Http\Controllers\Instructor\LearnersController::class, 'resendInvite'])->name('learners.invite.resend');
+            Route::delete('learners/invite/{invite}', [App\Http\Controllers\Instructor\LearnersController::class, 'cancelInvite'])->name('learners.invite.cancel');
             Route::post('booking-proposals', [App\Http\Controllers\Instructor\BookingProposalController::class, 'store'])->name('booking-proposals.store');
             Route::put('profile/service-areas', [InstructorDashboard::class, 'updateServiceAreas'])->name('profile.service-areas');
             Route::put('profile/availability', [InstructorDashboard::class, 'updateAvailability'])->name('profile.availability');
@@ -409,6 +427,8 @@ Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.
 // Admin
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('email-logs', [App\Http\Controllers\Admin\EmailLogsController::class, 'index'])->name('email-logs.index');
+    Route::get('feedback', [App\Http\Controllers\Admin\FeedbackController::class, 'index'])->name('feedback.index');
+    Route::patch('feedback/{feedback}', [App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
     Route::resource('service-categories', App\Http\Controllers\Admin\ServiceCategoryController::class)->except(['show']);
     Route::get('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'index'])->name('service-providers.index');
     Route::get('service-providers/create', [App\Http\Controllers\Admin\ServiceProviderController::class, 'create'])->name('service-providers.create');
