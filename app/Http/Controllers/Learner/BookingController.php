@@ -44,6 +44,27 @@ class BookingController extends Controller
     use NotifiesAdmin;
 
     /**
+     * Returns a redirect response if the (logged-in) user can't book this
+     * female-only instructor. Returns null if all OK.
+     * Guests pass through — they're checked at registration step.
+     */
+    private function checkFemaleOnlyGate(?InstructorProfile $profile): ?RedirectResponse
+    {
+        if (! $profile || ! $profile->isFemaleOnly()) {
+            return null;
+        }
+        $user = Auth::user();
+        if (! $user) {
+            return null; // guest — gate at registration
+        }
+        if ($user->isAdmin() || strtolower((string) ($user->gender ?? '')) === 'female') {
+            return null;
+        }
+        return redirect()->route('find-instructor')
+            ->with('error', 'This instructor only accepts female learners. Please choose another instructor.');
+    }
+
+    /**
      * STEP 2: Choose lesson amount (hours package with bulk discount).
      * GUEST-ONLY step — logged-in learners skip this and go directly to "Make a Booking".
      */
@@ -59,10 +80,12 @@ class BookingController extends Controller
             return redirect()->route('learner.bookings.new', ['instructor_profile_id' => $instructorProfileId]);
         }
 
-        $instructorProfile = InstructorProfile::with(['user:id,name,phone'])
+        $instructorProfile = InstructorProfile::with(['user:id,name,phone,gender'])
             ->where('id', $instructorProfileId)
             ->where('is_active', true)
             ->firstOrFail();
+
+        if ($redirect = $this->checkFemaleOnlyGate($instructorProfile)) return $redirect;
 
         // Pre-seed the package session with instructor context
         session([
@@ -133,10 +156,12 @@ class BookingController extends Controller
             return redirect()->route('learner.bookings.amount', ['instructor_profile_id' => $instructorProfileId]);
         }
 
-        $instructorProfile = InstructorProfile::with('user:id,name')
+        $instructorProfile = InstructorProfile::with('user:id,name,gender')
             ->where('id', $instructorProfileId)
             ->where('is_active', true)
             ->firstOrFail();
+
+        if ($redirect = $this->checkFemaleOnlyGate($instructorProfile)) return $redirect;
 
         return view('learner.pages.booking-test-package', [
             'instructorProfile' => $instructorProfile,
@@ -198,10 +223,12 @@ class BookingController extends Controller
             }
         }
 
-        $instructorProfile = InstructorProfile::with(['user:id,name,phone', 'serviceAreas.state'])
+        $instructorProfile = InstructorProfile::with(['user:id,name,phone,gender', 'serviceAreas.state'])
             ->where('id', $instructorProfileId)
             ->where('is_active', true)
             ->firstOrFail();
+
+        if ($redirect = $this->checkFemaleOnlyGate($instructorProfile)) return $redirect;
 
         $states = State::orderBy('name')->get(['id', 'name', 'code']);
         $suburbsByState = State::with(['suburbs' => fn ($q) => $q->orderBy('name')])
@@ -301,9 +328,11 @@ class BookingController extends Controller
             return redirect()->route('learner.bookings.payment');
         }
 
-        $instructorProfile = InstructorProfile::with('user:id,name')
+        $instructorProfile = InstructorProfile::with('user:id,name,gender')
             ->where('id', $order['instructor_profile_id'])
             ->firstOrFail();
+
+        if ($redirect = $this->checkFemaleOnlyGate($instructorProfile)) return $redirect;
 
         $states = State::orderBy('name')->get(['id', 'name', 'code']);
         $suburbsByState = State::with(['suburbs' => fn ($q) => $q->orderBy('name')])
@@ -344,6 +373,7 @@ class BookingController extends Controller
             'dob_day'          => 'required|integer|min:1|max:31',
             'dob_month'        => 'required|integer|min:1|max:12',
             'dob_year'         => 'required|integer|min:1930|max:' . date('Y'),
+            'gender'           => 'required|in:male,female,other,prefer_not_to_say',
             'describes_as'     => 'required|string|max:40',
             'marketing_opt_in' => 'nullable|boolean',
             'terms_accepted'   => 'required|accepted',
@@ -355,6 +385,15 @@ class BookingController extends Controller
         }
 
         $validated = $request->validate($rules);
+
+        // Female-only safety gate: block if instructor is female-only and learner isn't female
+        $instructorProfile = InstructorProfile::with('user:id,name,gender')
+            ->find($order['instructor_profile_id']);
+        if ($instructorProfile && $instructorProfile->isFemaleOnly() && $validated['gender'] !== 'female') {
+            return back()->withErrors([
+                'gender' => 'This instructor only accepts female learners. Please choose a different instructor.',
+            ])->withInput();
+        }
 
         // Persist details in session for the payment step
         session([
@@ -370,6 +409,7 @@ class BookingController extends Controller
                 'dob_day'           => (int) $validated['dob_day'],
                 'dob_month'         => (int) $validated['dob_month'],
                 'dob_year'          => (int) $validated['dob_year'],
+                'gender'            => $validated['gender'],
                 'describes_as'      => $validated['describes_as'],
                 'marketing_opt_in'  => (bool) ($validated['marketing_opt_in'] ?? false),
                 'terms_accepted'    => true,
@@ -400,6 +440,18 @@ class BookingController extends Controller
         $details = session('learner_booking_details');
         if (! Auth::check() && ! $details) {
             return redirect()->route('learner.bookings.details');
+        }
+
+        // Female-only safety gate (logged-in user check)
+        $instructorProfile = InstructorProfile::with('user:id,name,gender')
+            ->find($order['instructor_profile_id']);
+        if ($redirect = $this->checkFemaleOnlyGate($instructorProfile)) return $redirect;
+
+        // ALSO check the guest's chosen gender from Step 4 if provided
+        if (! Auth::check() && $details && $instructorProfile?->isFemaleOnly()) {
+            // Step 4 collects "registering_for" but not gender. We rely on User::create
+            // to be blocked at processPayment if gender provided is non-female.
+            // Nothing to do here — final gate is in processPayment().
         }
 
         $states = State::orderBy('name')->get(['id', 'name', 'code']);
@@ -451,6 +503,19 @@ class BookingController extends Controller
             return response()->json(['message' => 'Wallet payment requires an account. Please use card or PayPal.'], 422);
         }
 
+        // Final female-only safety gate (defensive — also enforced upstream)
+        $instructorProfileForCheck = InstructorProfile::with('user:id,gender')->find($order['instructor_profile_id']);
+        if ($instructorProfileForCheck && $instructorProfileForCheck->isFemaleOnly()) {
+            $bookerGender = $isGuest
+                ? ($details['gender'] ?? null)
+                : strtolower((string) (Auth::user()->gender ?? ''));
+            if (strtolower((string) $bookerGender) !== 'female' && ! (Auth::user()?->isAdmin() ?? false)) {
+                return response()->json([
+                    'message' => 'This instructor only accepts female learners. Please choose a different instructor.',
+                ], 422);
+            }
+        }
+
         $total = (float) ($order['total'] ?? 0);
         $useWallet = $validated['payment_method'] === 'wallet';
 
@@ -474,8 +539,11 @@ class BookingController extends Controller
                     $tempPassword = $details['password'] ?? Str::random(12);
                     $user = User::create([
                         'name'     => $fullName,
+                        'first_name' => $details['first_name'] ?? null,
+                        'last_name'  => $details['last_name'] ?? null,
                         'email'    => $guestEmail,
                         'phone'    => $details['phone'] ?? null,
+                        'gender'   => $details['gender'] ?? null,
                         'role'     => User::ROLE_LEARNER,
                         'password' => Hash::make($tempPassword),
                     ]);

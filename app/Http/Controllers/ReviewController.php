@@ -55,10 +55,11 @@ class ReviewController extends Controller
 
         $review->load(['booking', 'learner', 'instructor']);
 
-        // Build Google Reviews redirect URL if configured
+        // Build Google Reviews redirect URL — ONLY for 5-star reviews
+        // Business rule: amplify happy learners' voices to Google; lower ratings stay private to admin moderation.
         $googlePlaceId = SiteSetting::get('google_place_id');
         $googleReviewUrl = null;
-        if ($googlePlaceId) {
+        if ($googlePlaceId && (int) $review->rating === 5) {
             $googleReviewUrl = 'https://search.google.com/local/writereview?placeid=' . urlencode($googlePlaceId);
         }
 

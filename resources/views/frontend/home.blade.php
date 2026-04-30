@@ -61,24 +61,6 @@
                                     <i class="bi bi-search"></i><span>Search</span>
                                 </button>
                             </div>
-                            <div class="col-12 mt-2">
-                                <div class="d-flex flex-wrap align-items-center gap-3">
-                                    <label class="form-label fw-semibold mb-0 me-1"><i class="bi bi-shield-check text-success me-1"></i>Instructor preference:</label>
-                                    <div class="form-check form-check-inline mb-0">
-                                        <input class="form-check-input" type="radio" name="instructor_gender" id="gender-any" value="" checked>
-                                        <label class="form-check-label" for="gender-any">Any</label>
-                                    </div>
-                                    <div class="form-check form-check-inline mb-0">
-                                        <input class="form-check-input" type="radio" name="instructor_gender" id="gender-female" value="female">
-                                        <label class="form-check-label" for="gender-female"><i class="bi bi-gender-female text-pink"></i> Female only</label>
-                                    </div>
-                                    <div class="form-check form-check-inline mb-0">
-                                        <input class="form-check-input" type="radio" name="instructor_gender" id="gender-male" value="male">
-                                        <label class="form-check-label" for="gender-male"><i class="bi bi-gender-male"></i> Male only</label>
-                                    </div>
-                                    <small class="text-muted ms-auto" style="font-size: 0.78rem;"><i class="bi bi-lock-fill"></i> Your safety preferences are respected</small>
-                                </div>
-                            </div>
                         </form>
                         <div class="d-flex flex-wrap gap-3 mt-4 pt-3 border-top" style="font-size: var(--sl-text-sm); color: var(--sl-gray-500);">
                             <span><i class="bi bi-shield-check-fill me-1 text-success"></i>Verified instructors</span>

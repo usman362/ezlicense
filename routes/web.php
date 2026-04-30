@@ -32,7 +32,6 @@ Route::get('/find-instructor/results', function (\Illuminate\Http\Request $reque
         'q' => $q,
         'transmission' => $request->query('transmission', ''),
         'test_pre_booked' => $request->boolean('test_pre_booked'),
-        'instructor_gender' => $request->query('instructor_gender', ''),
     ]);
 })->name('find-instructor.results');
 
@@ -169,6 +168,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
 
+    // Centralized Reviews management — full control panel across all instructors
+    Route::get('/reviews', [App\Http\Controllers\Admin\ReviewsController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/bulk', [App\Http\Controllers\Admin\ReviewsController::class, 'bulk'])->name('reviews.bulk');
+    Route::post('/reviews/{review}/approve', [App\Http\Controllers\Admin\ReviewsController::class, 'approve'])->name('reviews.approve');
+    Route::post('/reviews/{review}/reject', [App\Http\Controllers\Admin\ReviewsController::class, 'reject'])->name('reviews.reject');
+    Route::post('/reviews/{review}/toggle-visibility', [App\Http\Controllers\Admin\ReviewsController::class, 'toggleVisibility'])->name('reviews.toggle-visibility');
+    Route::delete('/reviews/{review}', [App\Http\Controllers\Admin\ReviewsController::class, 'destroy'])->name('reviews.destroy');
+
     // Calendar view
     Route::get('/calendar', fn () => view('admin.calendar'))->name('calendar');
 
@@ -210,6 +217,7 @@ Route::put('/user/profile', function (\Illuminate\Http\Request $request) {
             'postcode' => 'required|string|max:10',
             'current_password' => 'required|string|current_password',
             'new_password' => 'nullable|string|min:8|confirmed',
+            'accepts_female_learners_only' => 'nullable|boolean',
         ];
         $validated = $request->validate($rules);
         $user->first_name = $validated['first_name'];
@@ -223,6 +231,17 @@ Route::put('/user/profile', function (\Illuminate\Http\Request $request) {
             $user->password = $validated['new_password'];
         }
         $user->save();
+
+        // Female-only safety preference (only applies to female-gendered instructors)
+        if ($user->isInstructor() && $user->instructorProfile) {
+            $femaleOnly = $request->boolean('accepts_female_learners_only');
+            // Force-disable if user changed gender away from female
+            if ($validated['gender'] !== 'female') {
+                $femaleOnly = false;
+            }
+            $user->instructorProfile->update(['accepts_female_learners_only' => $femaleOnly]);
+        }
+
         return response()->json(['message' => 'Saved.']);
     }
     $request->validate(['name' => 'required|string|max:255', 'phone' => 'nullable|string|max:20']);

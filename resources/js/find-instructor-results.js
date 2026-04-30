@@ -67,6 +67,11 @@ function renderCard(inst) {
         ? '<span class="sl-gender-badge sl-gender-male" title="Male instructor"><i class="bi bi-gender-male"></i> Male</span>'
         : '');
 
+  // Female-only badge — instructor only accepts female learners
+  const femaleOnlyBadge = inst.female_only
+    ? '<span class="sl-gender-badge sl-gender-female" title="This instructor only accepts female learners"><i class="bi bi-shield-fill-check"></i> Female learners only</span>'
+    : '';
+
   return `
     <div class="col-md-6 col-lg-4 col-xl-3">
       <div class="card h-100 border-0 instructor-card-v2" data-profile-id="${inst.id}">
@@ -76,6 +81,7 @@ function renderCard(inst) {
             ${verifiedBadge}
             ${popularBadge}
             ${genderBadge}
+            ${femaleOnlyBadge}
           </div>
         </div>
         <div class="card-body d-flex flex-column p-3 pt-4">
@@ -229,9 +235,8 @@ function init() {
   const suburbId = params.suburbId || null;
   const transmission = params.transmission || null;
   const testPreBooked = params.testPreBooked === true;
-  const instructorGender = params.instructorGender || null;
 
-  runInstructorSearch({ suburbId, transmission, testPreBooked, instructorGender })
+  runInstructorSearch({ suburbId, transmission, testPreBooked })
     .then((instructors) => {
       resultsLoading.style.display = 'none';
       if (!instructors.length) {

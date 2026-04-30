@@ -95,6 +95,29 @@
                 </div>
             </div>
 
+            {{-- ── Safety preference: female-instructor → female-learner only ── --}}
+            @php $profile = $u->instructorProfile; @endphp
+            <div class="mb-4 p-3 rounded" style="background: rgba(255, 213, 0, 0.06); border: 1px solid var(--sl-accent-500);" id="female-only-section" @if(strtolower($u->gender ?? '') !== 'female') style="display:none;" @endif>
+                <h6 class="fw-bold mb-2">
+                    <i class="bi bi-shield-check text-success me-1"></i>Safety preference
+                </h6>
+                <p class="small text-muted mb-3">
+                    As a female instructor, you can choose to only accept female learners. When enabled, your profile will be hidden from male/other learners and they won't be able to book lessons with you.
+                </p>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           id="accepts_female_learners_only" name="accepts_female_learners_only" value="1"
+                           {{ old('accepts_female_learners_only', $profile?->accepts_female_learners_only) ? 'checked' : '' }}>
+                    <label class="form-check-label fw-semibold" for="accepts_female_learners_only">
+                        Only accept female learners
+                    </label>
+                </div>
+                <div class="alert alert-info small mt-3 mb-0" id="female-only-info" style="display:none;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    With this enabled: your profile is hidden from male/other learners in search, and only female-verified learners can book you. Existing bookings (already made) are unaffected.
+                </div>
+            </div>
+
             <div class="mb-4">
                 <label class="form-label">Enter your current password to confirm the changes <span class="text-danger">*</span></label>
                 <input type="password" name="current_password" class="form-control" required autocomplete="current-password" placeholder="••••••••">
@@ -114,6 +137,31 @@
   var msg = document.getElementById('personal-details-message');
   if (!form) return;
 
+  // ── Toggle the female-only section based on gender ──
+  var genderSelect = form.querySelector('[name="gender"]');
+  var femaleSection = document.getElementById('female-only-section');
+  var femaleToggle = document.getElementById('accepts_female_learners_only');
+  var femaleInfo = document.getElementById('female-only-info');
+
+  function updateFemaleVisibility() {
+    if (!genderSelect || !femaleSection) return;
+    var isFemale = genderSelect.value === 'female';
+    femaleSection.style.display = isFemale ? 'block' : 'none';
+    // If they switch away from female, force the toggle off
+    if (!isFemale && femaleToggle) femaleToggle.checked = false;
+  }
+
+  if (genderSelect) {
+    genderSelect.addEventListener('change', updateFemaleVisibility);
+    updateFemaleVisibility();
+  }
+  if (femaleToggle && femaleInfo) {
+    femaleToggle.addEventListener('change', function() {
+      femaleInfo.style.display = femaleToggle.checked ? 'block' : 'none';
+    });
+    if (femaleToggle.checked) femaleInfo.style.display = 'block';
+  }
+
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     var newPw = form.querySelector('[name="new_password"]').value;
@@ -126,6 +174,7 @@
     msg.textContent = '';
     var csrf = document.querySelector('meta[name="csrf-token"]');
     var token = csrf ? csrf.getAttribute('content') : '';
+    var femaleOnlyEl = form.querySelector('[name="accepts_female_learners_only"]');
     var body = {
       first_name: form.querySelector('[name="first_name"]').value,
       last_name: form.querySelector('[name="last_name"]').value,
@@ -133,7 +182,8 @@
       gender: form.querySelector('[name="gender"]').value,
       phone: form.querySelector('[name="phone"]').value,
       postcode: form.querySelector('[name="postcode"]').value,
-      current_password: form.querySelector('[name="current_password"]').value
+      current_password: form.querySelector('[name="current_password"]').value,
+      accepts_female_learners_only: femaleOnlyEl && femaleOnlyEl.checked ? 1 : 0,
     };
     if (newPw) body.new_password = newPw;
     if (newPw) body.new_password_confirmation = confirmPw;

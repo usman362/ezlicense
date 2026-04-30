@@ -273,23 +273,111 @@
                     </div>
                     @endif
 
-                    <div class="mt-4">
-                        @auth
-                            @if(auth()->user()->isLearner())
-                                <a href="{{ auth()->check() && auth()->user()->isLearner() ? route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) : route('learner.bookings.amount', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
-                                    <i class="bi bi-calendar-check me-2"></i>Book a Lesson
-                                </a>
-                            @endif
-                        @else
-                            {{-- Guest booking: no login required — account auto-created after payment --}}
-                            <a href="{{ auth()->check() && auth()->user()->isLearner() ? route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id]) : route('learner.bookings.amount', ['instructor_profile_id' => $instructorProfile->id]) }}" class="btn btn-primary btn-lg w-100 fw-bold">
+                    @php
+                        $isFemaleOnly = $instructorProfile->isFemaleOnly();
+                        $viewer = auth()->user();
+                        $viewerGender = $viewer ? strtolower((string) ($viewer->gender ?? '')) : null;
+                        $bookingUrl = auth()->check() && auth()->user()->isLearner()
+                            ? route('learner.bookings.new', ['instructor_profile_id' => $instructorProfile->id])
+                            : route('learner.bookings.amount', ['instructor_profile_id' => $instructorProfile->id]);
+                        // Block: logged-in non-female non-admin user
+                        $isBlocked = $isFemaleOnly && $viewer
+                            && ! $viewer->isAdmin()
+                            && $viewerGender !== 'female';
+                        // Warn: guest (gender unknown) or just informational for female-only
+                        $needsGuestConfirm = $isFemaleOnly && ! $viewer;
+                    @endphp
+
+                    {{-- ── Female-only safety banner ── --}}
+                    @if($isFemaleOnly)
+                        <div class="alert {{ $isBlocked ? 'alert-danger' : 'alert-warning' }} small mt-3 mb-3">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-shield-fill-check fs-5 {{ $isBlocked ? 'text-danger' : 'text-warning' }}"></i>
+                                <div>
+                                    <strong class="d-block">Female learners only</strong>
+                                    @if($isBlocked)
+                                        <span>This instructor only accepts female learners. Please <a href="{{ route('find-instructor') }}" class="fw-semibold">choose another instructor</a>.</span>
+                                    @elseif($needsGuestConfirm)
+                                        <span>This instructor only accepts female learners. You'll be asked to confirm your gender during booking.</span>
+                                    @else
+                                        <span>This instructor only accepts female learners.</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="mt-3">
+                        @if($isBlocked)
+                            {{-- Logged-in non-female user cannot book --}}
+                            <button type="button" class="btn btn-secondary btn-lg w-100 fw-bold" disabled>
+                                <i class="bi bi-lock me-2"></i>Booking unavailable
+                            </button>
+                            <p class="small text-muted text-center mb-0 mt-2">
+                                <a href="{{ route('find-instructor') }}">Find another instructor →</a>
+                            </p>
+                        @elseif($needsGuestConfirm)
+                            {{-- Guest viewing female-only: button opens confirmation modal --}}
+                            <button type="button" class="btn btn-primary btn-lg w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#femaleOnlyConfirmModal">
                                 <i class="bi bi-calendar-check me-2"></i>Book a Lesson
-                            </a>
+                            </button>
                             <p class="small text-muted text-center mb-0 mt-2">
                                 Already a member? <a href="{{ route('learner.login') }}" class="fw-semibold">Log in</a>
                             </p>
-                        @endauth
+                        @else
+                            @auth
+                                @if(auth()->user()->isLearner())
+                                    <a href="{{ $bookingUrl }}" class="btn btn-primary btn-lg w-100 fw-bold">
+                                        <i class="bi bi-calendar-check me-2"></i>Book a Lesson
+                                    </a>
+                                @endif
+                            @else
+                                <a href="{{ $bookingUrl }}" class="btn btn-primary btn-lg w-100 fw-bold">
+                                    <i class="bi bi-calendar-check me-2"></i>Book a Lesson
+                                </a>
+                                <p class="small text-muted text-center mb-0 mt-2">
+                                    Already a member? <a href="{{ route('learner.login') }}" class="fw-semibold">Log in</a>
+                                </p>
+                            @endauth
+                        @endif
                     </div>
+
+                    {{-- Confirmation modal for guests viewing female-only instructor --}}
+                    @if($needsGuestConfirm)
+                        <div class="modal fade" id="femaleOnlyConfirmModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-warning-subtle">
+                                        <h5 class="modal-title"><i class="bi bi-shield-fill-check text-warning me-2"></i>Female Learners Only</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="mb-3">
+                                            <strong>{{ $instructorProfile->user->name }}</strong> only accepts <strong>female learners</strong> for safety and comfort reasons. We respect this preference and verify it during booking.
+                                        </p>
+                                        <div class="alert alert-info small mb-3">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            If you continue:
+                                            <ul class="mb-0 mt-1">
+                                                <li>You'll be asked to provide your gender during registration</li>
+                                                <li>If you're not female, your booking won't be allowed</li>
+                                                <li>You'll need to choose a different instructor</li>
+                                            </ul>
+                                        </div>
+                                        <p class="fw-semibold mb-0">Are you a female learner?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{{ route('find-instructor') }}" class="btn btn-outline-secondary">
+                                            No, find another instructor
+                                        </a>
+                                        <a href="{{ $bookingUrl }}" class="btn btn-warning fw-bold">
+                                            <i class="bi bi-check-lg me-1"></i>Yes, continue booking
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Trust badges --}}

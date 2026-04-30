@@ -17,11 +17,23 @@ class InstructorSearchController extends Controller
         $suburbId = $request->input('suburb_id');
         $transmission = $request->input('transmission'); // auto, manual, or empty for both
         $testPreBooked = $request->boolean('test_pre_booked');
-        // Gender filter: 'female' / 'male' / null (any). Used by learners (often female learners) for safety.
-        $instructorGender = $request->input('instructor_gender');
 
         $query = InstructorProfile::with(['user', 'serviceAreas.state'])
             ->where('is_active', true);
+
+        // ── Female-only safety filter ──
+        // Hide female-only instructors from male/other learners.
+        // Visible to: female users, guests (gender unknown), admins.
+        $viewer = $request->user();
+        $viewerGender = $viewer ? strtolower((string) ($viewer->gender ?? '')) : null;
+        $shouldHideFemaleOnly = $viewer
+            && ! ($viewer->isAdmin() ?? false)
+            && $viewerGender !== 'female'
+            && $viewerGender !== null
+            && $viewerGender !== '';
+        if ($shouldHideFemaleOnly) {
+            $query->where('accepts_female_learners_only', false);
+        }
 
         if ($suburbId) {
             $query->whereHas('serviceAreas', fn ($q) => $q->where('suburbs.id', $suburbId));
@@ -37,13 +49,6 @@ class InstructorSearchController extends Controller
             $query->where('offers_test_package', true);
         }
 
-        // Filter by instructor gender (case-insensitive match on user.gender)
-        if (in_array(strtolower((string) $instructorGender), ['female', 'male'], true)) {
-            $query->whereHas('user', function ($q) use ($instructorGender) {
-                $q->whereRaw('LOWER(gender) = ?', [strtolower($instructorGender)]);
-            });
-        }
-
         $instructors = $query->withCount('reviews')
             ->get()
             ->map(function (InstructorProfile $p) {
@@ -52,6 +57,7 @@ class InstructorSearchController extends Controller
                     'user_id' => $p->user_id,
                     'name' => $p->user->name,
                     'gender' => $p->user->gender ? strtolower($p->user->gender) : null,
+                    'female_only' => $p->isFemaleOnly(),
                     'bio' => $p->bio,
                     'transmission' => $p->transmission,
                     'vehicle' => $this->formatVehicle($p),

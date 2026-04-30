@@ -18,6 +18,8 @@
     $dobYear = $sd['dob_year'] ?? '';
     $describes = $sd['describes_as'] ?? '';
     $registeringFor = $sd['registering_for'] ?? 'myself';
+    $gender = $sd['gender'] ?? ($isAuth ? ($authUser->gender ?? '') : '');
+    $isFemaleOnlyInstructor = $instructorProfile->isFemaleOnly() ?? false;
 
     // Pickup from the first booking item
     $firstBooking = $order['items'][0] ?? [];
@@ -49,6 +51,18 @@
 
                 <form id="reg-form" method="POST" action="{{ route('learner.bookings.details.store') }}">
                     @csrf
+
+                    @if($isFemaleOnlyInstructor)
+                        <div class="alert alert-warning small mb-4" id="female-only-warning">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-shield-fill-check fs-5 text-warning"></i>
+                                <div>
+                                    <strong class="d-block">Female learners only</strong>
+                                    {{ $instructorProfile->user->name }} only accepts female learners. Please select <strong>Female</strong> below to continue. If you are not female, please <a href="{{ route('find-instructor') }}" class="fw-semibold">choose a different instructor</a>.
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Who are you registering for? --}}
                     <h6 class="fw-bold mb-3">Who are you registering for?</h6>
@@ -145,6 +159,28 @@
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small"><span class="text-danger">*</span> Gender</label>
+                            <select name="gender" id="reg_gender" class="form-select" required {{ $isAuth ? 'disabled' : '' }}>
+                                <option value="">Please select</option>
+                                <option value="male" @selected($gender === 'male')>Male</option>
+                                <option value="female" @selected($gender === 'female')>Female</option>
+                                <option value="other" @selected($gender === 'other')>Other</option>
+                                <option value="prefer_not_to_say" @selected($gender === 'prefer_not_to_say')>Prefer not to say</option>
+                            </select>
+                            @if($isAuth)
+                                {{-- Pre-filled from authenticated user — keep as hidden input so it's submitted --}}
+                                <input type="hidden" name="gender" value="{{ $gender }}">
+                                <small class="text-muted">From your account profile.</small>
+                            @endif
+                            @if($isFemaleOnlyInstructor)
+                                <div class="alert alert-danger small mt-2 d-none" id="non-female-error">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    This instructor only accepts female learners. Please <a href="{{ route('find-instructor') }}" class="fw-semibold">choose a different instructor</a>.
+                                </div>
+                            @endif
                         </div>
 
                         <div class="col-12">
@@ -319,6 +355,36 @@
                 state.value = opt.getAttribute('data-state');
             }
         });
+    }
+
+    // ── Female-only instructor gender enforcement ──
+    var isFemaleOnly = @json($isFemaleOnlyInstructor);
+    if (isFemaleOnly) {
+        var genderSelect = document.getElementById('reg_gender');
+        var errorBox = document.getElementById('non-female-error');
+        var form = document.getElementById('reg-form');
+
+        function validateGender() {
+            if (!genderSelect || !errorBox) return true;
+            var val = genderSelect.value;
+            var isFemale = val === 'female';
+            var isEmpty = val === '';
+            errorBox.classList.toggle('d-none', isFemale || isEmpty);
+            return isFemale || isEmpty; // Empty allowed during typing — required attr will catch it
+        }
+
+        if (genderSelect) genderSelect.addEventListener('change', validateGender);
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!genderSelect) return;
+                if (genderSelect.value !== 'female') {
+                    e.preventDefault();
+                    errorBox.classList.remove('d-none');
+                    errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
     }
 })();
 </script>

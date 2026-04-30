@@ -832,10 +832,11 @@ window.__loadLearnerDashboard = function() {
       // Refresh history so the row shows the stars now
       loadHistory(1);
 
-      // If a Google Reviews link was returned AND rating is positive (4-5 stars), prompt the learner
+      // Google Reviews prompt — fires ONLY for 5-star reviews (per business rule)
+      // Lower ratings just save quietly to the platform (no Google amplification)
       var gUrl = res.body && res.body.google_review_url;
       var reviewData = res.body && res.body.data;
-      if (gUrl && currentRating >= 4) {
+      if (gUrl && currentRating === 5) {
         showGoogleReviewPrompt(gUrl, comment, reviewData ? reviewData.id : null);
       } else {
         showThankYouToast();

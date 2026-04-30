@@ -40,6 +40,7 @@ class InstructorProfile extends Model
         'service_test_new',
         'service_manual_no_vehicle',
         'is_active',
+        'accepts_female_learners_only',
         'notification_email_marketing',
         'notification_sms_marketing',
         'travel_buffer_same_mins',
@@ -81,6 +82,7 @@ class InstructorProfile extends Model
             'test_package_price_private' => 'decimal:2',
             'offers_test_package' => 'boolean',
             'is_active' => 'boolean',
+            'accepts_female_learners_only' => 'boolean',
             'languages' => 'array',
             'association_member' => 'boolean',
             'service_test_existing' => 'boolean',
@@ -250,5 +252,77 @@ class InstructorProfile extends Model
     public function pendingReviewsCount(): int
     {
         return $this->reviews()->pending()->count();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Female-only safety mode
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * True if this instructor only accepts female learners.
+     * Only meaningful when the instructor herself is female-gendered.
+     */
+    public function isFemaleOnly(): bool
+    {
+        if (! $this->accepts_female_learners_only) {
+            return false;
+        }
+        // Defensive: a non-female user shouldn't be able to enable this anyway,
+        // but if data is stale, treat as not enforced.
+        return strtolower((string) ($this->user?->gender ?? '')) === 'female';
+    }
+
+    /**
+     * Determine whether the given user (or guest) can BOOK this instructor.
+     * Returns ['ok' => bool, 'reason' => string].
+     *
+     * - Female learners (or admin): always allowed
+     * - Male/other learners: blocked when the instructor is female-only
+     * - Guests (null): allowed to PROCEED, but must pass gender at registration
+     */
+    public function canBeBookedBy(?\App\Models\User $user): array
+    {
+        if (! $this->isFemaleOnly()) {
+            return ['ok' => true, 'reason' => ''];
+        }
+
+        // Admin can always proceed (e.g. for support actions)
+        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            return ['ok' => true, 'reason' => ''];
+        }
+
+        // Guests get a "soft pass" — final gate is at registration step
+        if (! $user) {
+            return ['ok' => true, 'reason' => 'guest_pending_gender_check'];
+        }
+
+        $gender = strtolower((string) ($user->gender ?? ''));
+        if ($gender === 'female') {
+            return ['ok' => true, 'reason' => ''];
+        }
+
+        return [
+            'ok' => false,
+            'reason' => 'This instructor only accepts female learners.',
+        ];
+    }
+
+    /**
+     * Determine whether the given user can SEE this instructor in search/listings.
+     * Same logic as canBeBookedBy but stricter: guests still see (with warnings).
+     */
+    public function isVisibleTo(?\App\Models\User $user): bool
+    {
+        if (! $this->isFemaleOnly()) {
+            return true;
+        }
+        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            return true;
+        }
+        if (! $user) {
+            // Guest — gender unknown, show profile but warn before booking
+            return true;
+        }
+        return strtolower((string) ($user->gender ?? '')) === 'female';
     }
 }
