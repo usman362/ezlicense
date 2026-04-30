@@ -381,7 +381,8 @@
 <input type="hidden" id="package_test_price" value="{{ $package['test_package_price'] ?? 0 }}">
 <input type="hidden" id="instructor_service_area_ids" value="{{ json_encode($instructorProfile->serviceAreas->pluck('id')->all()) }}">
 @if(!empty($googleMapsApiKey))
-<script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&callback=Function.prototype" async defer></script>
+{{-- Google Maps JS API (Places library) — used for address autocomplete --}}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&loading=async&callback=Function.prototype" async defer></script>
 @endif
 
 {{-- Tom Select for searchable suburb/state dropdowns --}}
@@ -817,6 +818,10 @@
 
   // ── Address autocomplete using OpenStreetMap Nominatim (free, no API key) ──
   // Returns real Australian street addresses, just like Google Places does
+  // ── Address Autocomplete (Google Places) ──
+  // Uses Google's AutocompleteService for predictions + PlacesService for full details.
+  // Keeps our custom dropdown UI for visual consistency with the rest of the app.
+  // Falls back to a plain input if no Google Maps API key is configured.
   function initAddressAutocomplete(prefix) {
     var input = document.getElementById(prefix + '_address');
     var dropdown = document.getElementById(prefix + '_address_ac');
@@ -825,6 +830,9 @@
     var debounceTimer = null;
     var activeIndex = -1;
     var currentResults = [];
+    var sessionToken = null;
+    var autocompleteService = null;
+    var placesService = null;
 
     function escapeHtml(s) {
       return String(s || '').replace(/[&<>"']/g, function(c) {
@@ -832,114 +840,144 @@
       });
     }
 
-    // Format a Nominatim result into a clean street/suburb/state display
-    function formatAddress(item) {
-      var addr = item.address || {};
-      // Build a "street line" — house number + road, fallback to first part of display_name
-      var streetParts = [];
-      if (addr.house_number) streetParts.push(addr.house_number);
-      if (addr.road) streetParts.push(addr.road);
-      var streetLine = streetParts.join(' ');
-      if (!streetLine) {
-        // Fallback to first segment of display_name (e.g. "Sydney Road")
-        streetLine = (item.display_name || '').split(',')[0] || '';
+    function getServices() {
+      if (typeof google === 'undefined' || !google.maps || !google.maps.places) return false;
+      if (!autocompleteService) {
+        autocompleteService = new google.maps.places.AutocompleteService();
+        // PlacesService needs a DOM element host (Google's quirk)
+        var hostDiv = document.createElement('div');
+        placesService = new google.maps.places.PlacesService(hostDiv);
+        sessionToken = new google.maps.places.AutocompleteSessionToken();
       }
+      return true;
+    }
 
-      var suburb = addr.suburb || addr.city || addr.town || addr.village || addr.municipality || '';
-      var stateShort = addr['ISO3166-2-lvl4'] ? addr['ISO3166-2-lvl4'].replace('AU-', '') : '';
-      var stateName = addr.state || '';
-      var postcode = addr.postcode || '';
-
+    // Parse a Google PlaceResult into our normalized address fields
+    function parsePlace(place) {
+      var components = place.address_components || [];
+      var streetNumber = '', route = '', suburb = '', postcode = '', state = '';
+      for (var i = 0; i < components.length; i++) {
+        var c = components[i];
+        if (c.types.indexOf('street_number') !== -1) streetNumber = c.long_name;
+        if (c.types.indexOf('route') !== -1) route = c.long_name;
+        if (c.types.indexOf('locality') !== -1) suburb = c.long_name;
+        if (c.types.indexOf('postal_code') !== -1) postcode = c.long_name;
+        if (c.types.indexOf('administrative_area_level_1') !== -1) state = c.short_name;
+      }
+      var streetLine = (streetNumber ? streetNumber + ' ' : '') + route;
+      if (!streetLine) {
+        streetLine = (place.formatted_address || '').split(',')[0] || '';
+      }
       return {
         streetLine: streetLine,
         suburb: suburb,
-        state: stateShort || stateName,
+        state: state,
         postcode: postcode,
         full: streetLine + (suburb ? ', ' + suburb : '') + (postcode ? ' ' + postcode : ''),
       };
     }
 
-    function render(items) {
-      currentResults = items || [];
+    function render(predictions) {
+      currentResults = predictions || [];
       activeIndex = -1;
-      if (items.length === 0) {
+      if (!predictions || predictions.length === 0) {
         dropdown.innerHTML = '<div class="suburb-ac-empty">No matches — try a different spelling or postcode</div>';
       } else {
-        dropdown.innerHTML = items.map(function(item, i) {
-          var fmt = formatAddress(item);
+        dropdown.innerHTML = predictions.map(function(p, i) {
+          var main = p.structured_formatting ? p.structured_formatting.main_text : p.description;
+          var secondary = p.structured_formatting ? p.structured_formatting.secondary_text : '';
           return '<div class="suburb-ac-item" data-idx="' + i + '">' +
             '<i class="bi bi-geo-alt-fill text-muted me-1"></i>' +
-            '<span class="suburb-name">' + escapeHtml(fmt.streetLine) + '</span>' +
-            (fmt.suburb ? '<span class="suburb-meta ms-2">' + escapeHtml(fmt.suburb) + (fmt.state ? ' ' + escapeHtml(fmt.state) : '') + '</span>' : '') +
+            '<span class="suburb-name">' + escapeHtml(main || '') + '</span>' +
+            (secondary ? '<span class="suburb-meta ms-2">' + escapeHtml(secondary) + '</span>' : '') +
           '</div>';
-        }).join('') + '<div class="px-3 py-1 text-end small text-muted" style="border-top:1px solid var(--sl-gray-100);">powered by <strong>OpenStreetMap</strong></div>';
+        }).join('') + '<div class="px-3 py-1 text-end small text-muted" style="border-top:1px solid var(--sl-gray-100);">powered by <strong>Google</strong></div>';
 
         Array.prototype.slice.call(dropdown.querySelectorAll('.suburb-ac-item')).forEach(function(el) {
           el.addEventListener('mousedown', function(e) {
             e.preventDefault();
             var idx = parseInt(el.getAttribute('data-idx'), 10);
-            selectItem(currentResults[idx]);
+            selectPrediction(currentResults[idx]);
           });
         });
       }
       dropdown.classList.add('show');
     }
 
-    function selectItem(item) {
-      if (!item) return;
-      var fmt = formatAddress(item);
+    function selectPrediction(prediction) {
+      if (!prediction || !placesService) return;
+      placesService.getDetails({
+        placeId: prediction.place_id,
+        fields: ['address_components', 'formatted_address', 'geometry'],
+        sessionToken: sessionToken,
+      }, function(place, status) {
+        // Reset session token after a details fetch (Google billing best practice)
+        sessionToken = new google.maps.places.AutocompleteSessionToken();
 
-      // Put the full street address into the input
-      input.value = fmt.full || item.display_name || '';
-      dropdown.classList.remove('show');
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !place) return;
+        var fmt = parsePlace(place);
 
-      // Match the suburb to our DB and auto-fill the suburb + state dropdowns
-      if (fmt.suburb || fmt.postcode) {
-        var query = fmt.postcode || fmt.suburb;
-        fetch('/api/suburbs/search?q=' + encodeURIComponent(query), {
-          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-          credentials: 'same-origin'
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(res) {
-          var dbSuburbs = res.data || [];
-          var match = dbSuburbs.find(function(s) {
-            return (s.name || '').toLowerCase() === (fmt.suburb || '').toLowerCase()
-              && (!fmt.postcode || s.postcode === fmt.postcode);
-          }) || dbSuburbs.find(function(s) {
-            return (s.name || '').toLowerCase() === (fmt.suburb || '').toLowerCase();
-          }) || dbSuburbs[0];
+        input.value = fmt.full || place.formatted_address || prediction.description || '';
+        dropdown.classList.remove('show');
 
-          if (match && window.__setSuburbFromMatch) {
-            window.__setSuburbFromMatch(prefix, match);
-          }
-        })
-        .catch(function() { /* silent */ });
-      }
+        // Match the suburb to our DB and auto-fill the suburb + state dropdowns
+        if (fmt.suburb || fmt.postcode) {
+          var query = fmt.postcode || fmt.suburb;
+          fetch('/api/suburbs/search?q=' + encodeURIComponent(query), {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(res) {
+            var dbSuburbs = res.data || [];
+            var match = dbSuburbs.find(function(s) {
+              return (s.name || '').toLowerCase() === (fmt.suburb || '').toLowerCase()
+                && (!fmt.postcode || s.postcode === fmt.postcode);
+            }) || dbSuburbs.find(function(s) {
+              return (s.name || '').toLowerCase() === (fmt.suburb || '').toLowerCase();
+            }) || dbSuburbs[0];
+
+            if (match && window.__setSuburbFromMatch) {
+              window.__setSuburbFromMatch(prefix, match);
+            }
+          })
+          .catch(function() { /* silent */ });
+        }
+      });
     }
 
     input.addEventListener('input', function() {
       var q = input.value.trim();
       if (q.length < 3) { dropdown.classList.remove('show'); return; }
+
+      // If Google Places API isn't loaded (no API key configured), degrade silently
+      if (!getServices()) {
+        dropdown.classList.remove('show');
+        return;
+      }
+
       dropdown.innerHTML = '<div class="suburb-ac-loading"><span class="spinner-border spinner-border-sm me-1"></span>Searching addresses...</div>';
       dropdown.classList.add('show');
 
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function() {
-        // Nominatim — free, no API key. Restricted to Australia for relevance.
-        var url = 'https://nominatim.openstreetmap.org/search'
-          + '?q=' + encodeURIComponent(q)
-          + '&format=json&addressdetails=1&countrycodes=au&limit=6';
-        fetch(url, {
-          headers: { 'Accept': 'application/json' }
-          // Note: no credentials — this is a CORS-public API
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(items) { render(Array.isArray(items) ? items : []); })
-        .catch(function() {
-          dropdown.innerHTML = '<div class="suburb-ac-empty text-danger">Search failed — please try again</div>';
+        autocompleteService.getPlacePredictions({
+          input: q,
+          componentRestrictions: { country: 'au' },
+          types: ['address'],
+          sessionToken: sessionToken,
+        }, function(predictions, status) {
+          if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+            render([]);
+            return;
+          }
+          if (status !== google.maps.places.PlacesServiceStatus.OK) {
+            dropdown.innerHTML = '<div class="suburb-ac-empty text-danger">Search failed — please try again</div>';
+            return;
+          }
+          render(predictions || []);
         });
-      }, 350); // Slightly longer debounce — respects Nominatim's 1 req/sec policy
+      }, 200); // 200ms debounce — Google handles much higher rate than Nominatim
     });
 
     input.addEventListener('keydown', function(e) {
@@ -957,7 +995,7 @@
         if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
       } else if (e.key === 'Enter' && activeIndex >= 0) {
         e.preventDefault();
-        selectItem(currentResults[activeIndex]);
+        selectPrediction(currentResults[activeIndex]);
       } else if (e.key === 'Escape') {
         dropdown.classList.remove('show');
       }
@@ -1479,59 +1517,6 @@
   });
 
   renderOrderSummary();
-
-  @if(!empty($googleMapsApiKey))
-  function initPlaces() {
-    if (typeof google === 'undefined' || !google.maps || !google.maps.places) return;
-    var pickupInput = document.getElementById('pickup_address');
-    var dropoffInput = document.getElementById('dropoff_address');
-    function setupAutocomplete(input, prefix) {
-      if (!input) return;
-      var autocomplete = new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'au' } });
-      autocomplete.addListener('place_changed', function() {
-        var place = autocomplete.getPlace();
-        if (!place.address_components) return;
-        var suburb = '', postcode = '', state = '';
-        for (var i = 0; i < place.address_components.length; i++) {
-          var c = place.address_components[i];
-          if (c.types.indexOf('postal_code') !== -1) postcode = c.long_name;
-          if (c.types.indexOf('administrative_area_level_1') !== -1) state = c.short_name;
-          if (c.types.indexOf('locality') !== -1) suburb = c.long_name;
-        }
-        // Look up matching suburb in our DB via the API
-        if (suburb || postcode) {
-          var q = postcode || suburb;
-          fetch('/api/suburbs/search?q=' + encodeURIComponent(q))
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-              var items = res.data || [];
-              // Prefer an exact match on suburb+postcode
-              var match = items.find(function(i) {
-                return (i.name || '').toLowerCase() === suburb.toLowerCase()
-                  && (!postcode || i.postcode === postcode);
-              }) || items[0];
-              if (match) {
-                var suburbEl = document.getElementById(prefix + '_suburb');
-                var stateEl = document.getElementById(prefix + '_state');
-                var stateId = STATES_MAP[match.state] || '';
-                if (suburbEl.tomselect) suburbEl.tomselect.setValue(String(match.id), true);
-                else suburbEl.value = match.id;
-                if (stateEl.tomselect) stateEl.tomselect.setValue(String(stateId), true);
-                else stateEl.value = stateId;
-              }
-            });
-        }
-      });
-    }
-    setupAutocomplete(pickupInput, 'pickup');
-    setupAutocomplete(dropoffInput, 'dropoff');
-  }
-  if (typeof google !== 'undefined' && google.maps && google.maps.places) {
-    initPlaces();
-  } else {
-    window.addEventListener('load', function() { setTimeout(initPlaces, 500); });
-  }
-  @endif
 })();
 </script>
 @endpush

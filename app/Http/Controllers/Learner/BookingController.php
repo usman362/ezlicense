@@ -241,7 +241,8 @@ class BookingController extends Controller
             'instructorProfile' => $instructorProfile,
             'states' => $states,
             'suburbsByState' => $suburbsByState,
-            'googleMapsApiKey' => config('services.google.maps_api_key'),
+            // Prefer admin-managed key from SiteSetting; fall back to env GOOGLE_MAPS_API_KEY for dev
+            'googleMapsApiKey' => \App\Models\SiteSetting::get('google_maps_api_key') ?: config('services.google.maps_api_key'),
             'isGuest' => ! $isAuth,
             'package' => $isAuth ? null : $package, // Auth users have no package
         ]);
