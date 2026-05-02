@@ -92,8 +92,11 @@ class BookingController extends Controller
             'learner_booking_package.instructor_profile_id' => (int) $instructorProfileId,
         ]);
 
+        $pricing = new \App\Services\PricingService();
         return view('learner.pages.booking-amount', [
             'instructorProfile' => $instructorProfile,
+            'discountTiers' => $pricing->getDiscountTiers(),
+            'hourPackages' => $pricing->getBookingHourPackages(),
         ]);
     }
 
@@ -117,10 +120,8 @@ class BookingController extends Controller
             return redirect()->back()->withErrors(['hours' => 'Please select how many lesson hours you want to purchase.']);
         }
 
-        // Calculate bulk discount percentage
-        $discountPct = 0;
-        if ($hours >= 10) $discountPct = 10;
-        elseif ($hours >= 6) $discountPct = 5;
+        // Calculate bulk discount percentage from admin-configured tiers
+        $discountPct = (new \App\Services\PricingService())->discountPctForHours($hours);
 
         session([
             'learner_booking_package' => [
@@ -188,7 +189,8 @@ class BookingController extends Controller
         // If adding, capture the price snapshot
         if ($package['add_test_package']) {
             $instructorProfile = InstructorProfile::find($package['instructor_profile_id']);
-            $package['test_package_price'] = (float) ($instructorProfile->test_package_price ?? 225);
+            $defaultTestPrice = (new \App\Services\PricingService())->defaultTestPackagePrice();
+            $package['test_package_price'] = (float) ($instructorProfile->test_package_price ?? $defaultTestPrice);
         } else {
             $package['test_package_price'] = 0;
         }
@@ -288,6 +290,18 @@ class BookingController extends Controller
         $fee = round($afterDiscount * $feePercent / 100, 2);
         $total = $afterDiscount + $fee;
 
+        // Apply referral discount automatically (if user qualifies for first-booking discount)
+        $referralDiscount = 0;
+        $user = Auth::user();
+        if ($user) {
+            $referralDiscount = (new \App\Services\PricingService())->referralDiscountFor($user, $afterDiscount);
+            if ($referralDiscount > 0) {
+                $afterDiscount -= $referralDiscount;
+                $fee = round($afterDiscount * $feePercent / 100, 2);
+                $total = $afterDiscount + $fee;
+            }
+        }
+
         session([
             'learner_booking_order' => [
                 'instructor_profile_id' => $request->input('instructor_profile_id'),
@@ -302,6 +316,10 @@ class BookingController extends Controller
                 'total' => $total,
                 'fee_percent' => $feePercent,
                 'package_hours' => $package['hours'] ?? null,
+                'referral_discount' => $referralDiscount,
+                // Coupon fields are populated by applyCoupon() at the payment step
+                'coupon_code' => null,
+                'coupon_discount' => 0,
             ],
         ]);
 
@@ -473,6 +491,94 @@ class BookingController extends Controller
     }
 
     /**
+     * Apply a coupon code to the current order.
+     * Called via AJAX from the payment page; returns updated totals.
+     */
+    public function applyCoupon(Request $request): JsonResponse
+    {
+        $request->validate(['code' => 'required|string|max:50']);
+        $order = session('learner_booking_order');
+        if (! $order) {
+            return response()->json(['ok' => false, 'message' => 'No active order.'], 422);
+        }
+
+        $pricing = new \App\Services\PricingService();
+        // Re-compute the cart total *before* coupon and referral so we can re-apply both cleanly
+        $itemsSubtotal = (float) ($order['subtotal'] ?? 0);
+        $bulkDiscount = (float) ($order['discount_amount'] ?? 0);
+        $testPrice = (float) ($order['test_package_price'] ?? 0);
+        $referralDiscount = (float) ($order['referral_discount'] ?? 0);
+        $preCouponTotal = max(0, $itemsSubtotal - $bulkDiscount + $testPrice - $referralDiscount);
+
+        $result = $pricing->validateCoupon($request->input('code'), Auth::user(), $preCouponTotal);
+        if (! $result['ok']) {
+            return response()->json(['ok' => false, 'message' => $result['reason']], 422);
+        }
+
+        $couponDiscount = (float) $result['discount'];
+        $afterDiscount = max(0, $preCouponTotal - $couponDiscount);
+        $feePercent = (float) ($order['fee_percent'] ?? \App\Models\SiteSetting::get('platform_fee_percent', 4));
+        $fee = round($afterDiscount * $feePercent / 100, 2);
+        $total = $afterDiscount + $fee;
+
+        $order['coupon_code'] = $result['coupon']->code;
+        $order['coupon_discount'] = $couponDiscount;
+        $order['after_discount'] = $afterDiscount;
+        $order['fee'] = $fee;
+        $order['total'] = $total;
+        session(['learner_booking_order' => $order]);
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Coupon applied — you saved $' . number_format($couponDiscount, 2),
+            'order' => [
+                'coupon_code' => $order['coupon_code'],
+                'coupon_discount' => $couponDiscount,
+                'after_discount' => $afterDiscount,
+                'fee' => $fee,
+                'total' => $total,
+            ],
+        ]);
+    }
+
+    /**
+     * Remove an applied coupon.
+     */
+    public function removeCoupon(Request $request): JsonResponse
+    {
+        $order = session('learner_booking_order');
+        if (! $order) {
+            return response()->json(['ok' => false, 'message' => 'No active order.'], 422);
+        }
+
+        $itemsSubtotal = (float) ($order['subtotal'] ?? 0);
+        $bulkDiscount = (float) ($order['discount_amount'] ?? 0);
+        $testPrice = (float) ($order['test_package_price'] ?? 0);
+        $referralDiscount = (float) ($order['referral_discount'] ?? 0);
+        $afterDiscount = max(0, $itemsSubtotal - $bulkDiscount + $testPrice - $referralDiscount);
+        $feePercent = (float) ($order['fee_percent'] ?? \App\Models\SiteSetting::get('platform_fee_percent', 4));
+        $fee = round($afterDiscount * $feePercent / 100, 2);
+        $total = $afterDiscount + $fee;
+
+        $order['coupon_code'] = null;
+        $order['coupon_discount'] = 0;
+        $order['after_discount'] = $afterDiscount;
+        $order['fee'] = $fee;
+        $order['total'] = $total;
+        session(['learner_booking_order' => $order]);
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Coupon removed.',
+            'order' => [
+                'after_discount' => $afterDiscount,
+                'fee' => $fee,
+                'total' => $total,
+            ],
+        ]);
+    }
+
+    /**
      * Process the booking payment.
      * Creates booking records, deducts from wallet or processes payment.
      * If guest — creates User account, links bookings, auto-logs-in, sends welcome email.
@@ -567,9 +673,21 @@ class BookingController extends Controller
             $discountPct = (float) ($order['discount_pct'] ?? 0);
             $discountMultiplier = $discountPct > 0 ? (100 - $discountPct) / 100 : 1.0;
 
+            // Coupon + referral discounts apply to the whole order — distribute proportionally across items
+            $couponTotal = (float) ($order['coupon_discount'] ?? 0);
+            $referralTotal = (float) ($order['referral_discount'] ?? 0);
+            $itemsSubtotalAfterBulk = max(0.01, collect($order['items'])->sum(fn ($i) => (float) ($i['price'] ?? 0) * $discountMultiplier));
+
             foreach ($order['items'] as $item) {
                 $itemPrice = (float) ($item['price'] ?? 0);
                 $discountedPrice = round($itemPrice * $discountMultiplier, 2);
+
+                // Pro-rata share of coupon + referral discount for this item
+                $share = $discountedPrice / $itemsSubtotalAfterBulk;
+                $itemCouponDiscount = round($couponTotal * $share, 2);
+                $itemReferralDiscount = round($referralTotal * $share, 2);
+                $itemBulkDiscount = round($itemPrice - $discountedPrice, 2);
+                $finalAmount = max(0, round($discountedPrice - $itemCouponDiscount - $itemReferralDiscount, 2));
 
                 $booking = Booking::create([
                     'learner_id' => $user?->id,
@@ -584,14 +702,54 @@ class BookingController extends Controller
                     'transmission' => $item['transmission'] ?? 'auto',
                     'scheduled_at' => $item['scheduled_at'],
                     'duration_minutes' => $item['duration_minutes'] ?? 60,
-                    'amount' => $discountedPrice,
-                    'platform_fee' => round($discountedPrice * (float) \App\Models\SiteSetting::get('platform_fee_percent', 4) / 100, 2),
-                    'instructor_net_amount' => max(round($discountedPrice - (float) \App\Models\SiteSetting::get('platform_service_fee', 5.00) - (float) \App\Models\SiteSetting::get('payment_processing_fee', 2.00), 2), 0),
+                    'amount' => $finalAmount,
+                    'bulk_discount_amount' => $itemBulkDiscount,
+                    'coupon_discount_amount' => $itemCouponDiscount,
+                    'coupon_code' => $order['coupon_code'] ?? null,
+                    'referral_discount_amount' => $itemReferralDiscount,
+                    'platform_fee' => round($finalAmount * (float) \App\Models\SiteSetting::get('platform_fee_percent', 4) / 100, 2),
+                    'instructor_net_amount' => max(round($finalAmount - (float) \App\Models\SiteSetting::get('platform_service_fee', 5.00) - (float) \App\Models\SiteSetting::get('payment_processing_fee', 2.00), 2), 0),
                     'status' => Booking::STATUS_CONFIRMED,
                     'payment_method' => $validated['payment_method'],
                     'payment_status' => Booking::PAYMENT_PAID,
                 ]);
                 $bookings[] = $booking;
+            }
+
+            // ── Record coupon redemption + bump usage counter ──
+            if (! empty($order['coupon_code']) && $couponTotal > 0 && ! empty($bookings)) {
+                $coupon = \App\Models\Coupon::where('code', $order['coupon_code'])->first();
+                if ($coupon && $user) {
+                    \App\Models\CouponRedemption::create([
+                        'coupon_id' => $coupon->id,
+                        'user_id' => $user->id,
+                        'booking_id' => $bookings[0]->id, // link to first item
+                        'discount_applied' => $couponTotal,
+                        'order_total' => (float) ($order['total'] ?? 0),
+                    ]);
+                    $coupon->increment('used_count');
+                }
+            }
+
+            // ── Credit the referrer's wallet (if this is the invitee's first paid booking) ──
+            if ($referralTotal > 0 && $user && $user->referred_by_user_id) {
+                try {
+                    $credit = (new \App\Services\PricingService())->referrerCreditAmount();
+                    if ($credit > 0) {
+                        $referrerWallet = LearnerWallet::firstOrCreate(['user_id' => $user->referred_by_user_id]);
+                        $referrerWallet->balance = (float) $referrerWallet->balance + $credit;
+                        $referrerWallet->save();
+                        LearnerTransaction::create([
+                            'user_id' => $user->referred_by_user_id,
+                            'type' => 'credit',
+                            'amount' => $credit,
+                            'description' => 'Referral reward: ' . ($user->name ?? 'a friend') . ' completed first booking',
+                            'reference' => 'REF-' . $user->id . '-' . now()->format('YmdHis'),
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('Referral credit failed: ' . $e->getMessage());
+                }
             }
 
             // Process wallet deduction (authenticated users only)

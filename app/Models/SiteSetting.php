@@ -115,6 +115,20 @@ class SiteSetting extends Model
             ['group' => 'commission', 'key' => 'instructor_commission_percent', 'value' => '85', 'type' => 'number', 'label' => 'Instructor Payout (%)', 'hint' => 'Percentage of booking amount paid to instructor'],
             ['group' => 'commission', 'key' => 'cancellation_fee_percent', 'value' => '50', 'type' => 'number', 'label' => 'Late Cancellation Fee (%)', 'hint' => 'Charged if cancelled within 24 hours'],
             ['group' => 'commission', 'key' => 'min_wallet_topup', 'value' => '50', 'type' => 'number', 'label' => 'Minimum Wallet Top-up ($)', 'hint' => 'Minimum amount for wallet credit purchase'],
+            ['group' => 'commission', 'key' => 'gst_rate_percent', 'value' => '10', 'type' => 'number', 'label' => 'GST Rate (%)', 'hint' => 'Australian GST is 10%. Applied to platform fees on payouts (instructor must be GST-registered).'],
+            ['group' => 'commission', 'key' => 'default_test_package_price', 'value' => '225', 'type' => 'number', 'label' => 'Default Test Package Price ($)', 'hint' => 'Fallback price shown if instructor has not set their own. Australian average is ~$225.'],
+
+            // Discounts (bulk-hours tiers + booking package options)
+            ['group' => 'discounts', 'key' => 'hours_discount_tiers', 'value' => '[{"hours":6,"discount_pct":5},{"hours":10,"discount_pct":10}]', 'type' => 'json', 'label' => 'Bulk Hours Discount Tiers', 'hint' => 'Defines: buy X hours → get Y% off. Add/remove tiers below. Order from smallest hours to largest.'],
+            ['group' => 'discounts', 'key' => 'booking_hour_packages', 'value' => '[1,3,5,10,20]', 'type' => 'json', 'label' => 'Hour Package Options', 'hint' => 'Pre-set hour packages shown to learners on the amount-selection page (in addition to a custom input).'],
+
+            // Referral program
+            ['group' => 'referral', 'key' => 'referral_enabled', 'value' => '1', 'type' => 'boolean', 'label' => 'Enable Referral Program', 'hint' => 'Allow learners to invite friends for rewards'],
+            ['group' => 'referral', 'key' => 'referral_referrer_credit', 'value' => '10', 'type' => 'number', 'label' => 'Referrer Credit ($)', 'hint' => 'Wallet credit awarded to the referrer after invitee completes their first paid booking'],
+            ['group' => 'referral', 'key' => 'referral_invitee_discount_pct', 'value' => '5', 'type' => 'number', 'label' => 'Invitee Discount (%)', 'hint' => 'Percentage discount on invitee\'s first booking (set 0 to disable)'],
+            ['group' => 'referral', 'key' => 'referral_invitee_discount_amount', 'value' => '0', 'type' => 'number', 'label' => 'Invitee Discount ($)', 'hint' => 'Flat dollar discount on invitee\'s first booking (alternative to %; takes precedence if both set)'],
+            ['group' => 'referral', 'key' => 'referral_expiry_days', 'value' => '90', 'type' => 'number', 'label' => 'Expiry (days)', 'hint' => 'How long an invite link/discount stays valid after sign-up'],
+            ['group' => 'referral', 'key' => 'referral_max_invites_per_user', 'value' => '50', 'type' => 'number', 'label' => 'Max Invites Per User', 'hint' => 'Anti-abuse cap on how many friends one learner can invite'],
 
             // Email
             ['group' => 'email', 'key' => 'mail_from_name', 'value' => 'Secure Licences', 'type' => 'text', 'label' => 'From Name', 'hint' => 'Sender name in outgoing emails'],

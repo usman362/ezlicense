@@ -5,33 +5,34 @@
 @section('content')
 @php
     $lessonPrice = (float) ($instructorProfile->lesson_price ?? 75);
-    // Discount tiers — matches EasyLicence reference
-    $packages = [
-        [
-            'hours' => 10,
-            'discount_pct' => 10,
-            'label' => '10 hours',
-            'description' => 'Perfect for new learners starting their driving journey from scratch',
-            'badge' => '10% OFF',
-            'recommended' => true,
-        ],
-        [
-            'hours' => 6,
-            'discount_pct' => 5,
-            'label' => '6 hours',
-            'description' => 'Ideal for new learners, overseas license holders, or anyone needing a driving skill refresh.',
-            'badge' => '5% OFF',
-            'recommended' => false,
-        ],
-    ];
-    foreach ($packages as &$pkg) {
-        $pkg['subtotal'] = $lessonPrice * $pkg['hours'];
-        $pkg['discount_amount'] = round($pkg['subtotal'] * $pkg['discount_pct'] / 100, 2);
-        $pkg['total'] = $pkg['subtotal'] - $pkg['discount_amount'];
+
+    // Build packages from admin-configured discount tiers
+    // $discountTiers comes from controller as [['hours' => N, 'discount_pct' => P], ...] sorted ascending
+    $tiers = $discountTiers ?? [];
+    // Highlight the highest tier as "recommended" (best value)
+    $recommendedHours = ! empty($tiers) ? max(array_column($tiers, 'hours')) : null;
+
+    $packages = [];
+    foreach (array_reverse($tiers) as $tier) { // show biggest savings first
+        $hours = (int) $tier['hours'];
+        $pct = (float) $tier['discount_pct'];
+        $packages[] = [
+            'hours' => $hours,
+            'discount_pct' => $pct,
+            'label' => $hours . ' hours',
+            'description' => $hours >= 10
+                ? 'Perfect for new learners starting their driving journey from scratch'
+                : 'Ideal for new learners, overseas license holders, or anyone needing a driving skill refresh.',
+            'badge' => rtrim(rtrim(number_format($pct, 2), '0'), '.') . '% OFF',
+            'recommended' => $hours === $recommendedHours,
+            'subtotal' => $lessonPrice * $hours,
+            'discount_amount' => round($lessonPrice * $hours * $pct / 100, 2),
+            'total' => round($lessonPrice * $hours * (100 - $pct) / 100, 2),
+        ];
     }
-    unset($pkg);
 
     $selectedHours = session('learner_booking_package.hours');
+    $tierHours = array_map(fn($t) => (int) $t['hours'], $tiers);
 @endphp
 
 <div class="row g-4">
@@ -73,9 +74,18 @@
                     @endforeach
 
                     {{-- Custom hours --}}
-                    <label class="package-option {{ $selectedHours && !in_array((int)$selectedHours, [6, 10]) ? 'selected' : '' }}" for="pkg-custom">
+                    @php
+                        $isCustomSelected = $selectedHours && !in_array((int)$selectedHours, $tierHours);
+                        // Build the custom-hours dropdown from admin-configured booking_hour_packages,
+                        // plus a few in-between values for flexibility.
+                        $customOptions = $hourPackages ?? [1, 3, 5, 10, 20];
+                        $extraSteps = [1, 2, 3, 4, 5, 7, 8, 9, 12, 15, 20, 25, 30, 40];
+                        $customOptions = array_values(array_unique(array_merge($customOptions, $extraSteps)));
+                        sort($customOptions);
+                    @endphp
+                    <label class="package-option {{ $isCustomSelected ? 'selected' : '' }}" for="pkg-custom">
                         <input type="radio" name="hours" value="custom" id="pkg-custom"
-                               {{ $selectedHours && !in_array((int)$selectedHours, [6, 10]) ? 'checked' : '' }}
+                               {{ $isCustomSelected ? 'checked' : '' }}
                                class="pkg-radio">
                         <span class="pkg-radio-dot"></span>
                         <div class="flex-grow-1">
@@ -83,20 +93,30 @@
                                 <span class="fw-bold">Select custom hours</span>
                                 <i class="bi bi-chevron-down" id="custom-chevron"></i>
                             </div>
-                            <div id="custom-hours-wrap" class="mt-3" style="display:{{ $selectedHours && !in_array((int)$selectedHours, [6, 10]) ? 'block' : 'none' }};">
+                            <div id="custom-hours-wrap" class="mt-3" style="display:{{ $isCustomSelected ? 'block' : 'none' }};">
                                 <select class="form-select" name="custom_hours" id="custom_hours_select">
                                     <option value="">Select hours…</option>
-                                    @foreach([1, 2, 3, 4, 5, 7, 8, 9, 12, 15, 20] as $n)
+                                    @foreach($customOptions as $n)
+                                        @php
+                                            $matched = 0;
+                                            foreach ($tiers as $t) { if ($n >= (int) $t['hours']) $matched = max($matched, (float) $t['discount_pct']); }
+                                        @endphp
                                         <option value="{{ $n }}" {{ (int)$selectedHours === $n ? 'selected' : '' }}>
                                             {{ $n }} hour{{ $n > 1 ? 's' : '' }}
-                                            @if($n >= 10) — 10% OFF
-                                            @elseif($n >= 6) — 5% OFF
-                                            @endif
+                                            @if($matched > 0) — {{ rtrim(rtrim(number_format($matched, 2), '0'), '.') }}% OFF @endif
                                         </option>
                                     @endforeach
                                 </select>
                                 <div class="small text-muted mt-2">
-                                    <i class="bi bi-info-circle me-1"></i>Discounts apply at 6+ hours (5%) and 10+ hours (10%).
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    @if(empty($tiers))
+                                        Volume discounts are not currently active.
+                                    @else
+                                        Discounts apply at:
+                                        @foreach($tiers as $t)
+                                            <strong>{{ $t['hours'] }}+ hours ({{ rtrim(rtrim(number_format($t['discount_pct'], 2), '0'), '.') }}%)</strong>{{ $loop->last ? '.' : ', ' }}
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -208,24 +228,10 @@
                         <span class="fw-bold">Total Payment Due</span>
                         <span class="fw-bolder fs-5" id="os-total">$0.00</span>
                     </div>
-                    <p class="small text-muted mb-3">Or 4 payments of <span id="os-instalment">$0.00</span></p>
                 </div>
                 <button type="submit" form="amount-form" class="btn btn-warning w-100 fw-semibold">
                     Continue <i class="bi bi-chevron-right ms-1"></i>
                 </button>
-            </div>
-        </div>
-
-        {{-- Buy Now Pay Later --}}
-        <div class="bnpl-panel">
-            <div class="bnpl-title">
-                Buy Now Pay Later <i class="bi bi-info-circle text-muted small"></i>
-            </div>
-            <div class="bnpl-amount">4 payments of <span id="bnpl-amount">$0.00</span></div>
-            <div class="bnpl-badges">
-                <span class="bnpl-badge paypal"><i class="bi bi-paypal me-1"></i>Pay in 4</span>
-                <span class="bnpl-badge afterpay">afterpay&lt;&gt;</span>
-                <span class="bnpl-badge klarna">Klarna</span>
             </div>
         </div>
 
@@ -369,11 +375,16 @@
 (function() {
     var LESSON_PRICE = {{ $lessonPrice }};
     var PLATFORM_FEE_PERCENT = {{ (float) \App\Models\SiteSetting::get('platform_fee_percent', 4) }};
+    var DISCOUNT_TIERS = @json($tiers); // [{hours: N, discount_pct: P}, ...] sorted ascending
 
     function getDiscountPct(hours) {
-        if (hours >= 10) return 10;
-        if (hours >= 6) return 5;
-        return 0;
+        var best = 0;
+        for (var i = 0; i < DISCOUNT_TIERS.length; i++) {
+            if (hours >= DISCOUNT_TIERS[i].hours) {
+                if (DISCOUNT_TIERS[i].discount_pct > best) best = DISCOUNT_TIERS[i].discount_pct;
+            }
+        }
+        return best;
     }
 
     function formatMoney(n) {
@@ -397,7 +408,6 @@
         var afterDiscount = subtotal - discount;
         var fee = Math.round(afterDiscount * PLATFORM_FEE_PERCENT) / 100;
         var total = afterDiscount + fee;
-        var instalment = total / 4;
 
         document.getElementById('os-hours-label').textContent = hours + ' hr' + (hours !== 1 ? 's' : '') + ' Booking Credit';
         document.getElementById('os-subtotal').textContent = formatMoney(subtotal);
@@ -406,9 +416,6 @@
         document.getElementById('os-discount-badge').style.display = discountPct > 0 ? 'inline-block' : 'none';
         document.getElementById('os-fee').textContent = formatMoney(fee);
         document.getElementById('os-total').textContent = formatMoney(total);
-        document.getElementById('os-instalment').textContent = formatMoney(instalment);
-        var bnplAmt = document.getElementById('bnpl-amount');
-        if (bnplAmt) bnplAmt.textContent = formatMoney(instalment);
     }
 
     // Package radio toggle

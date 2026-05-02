@@ -6,11 +6,13 @@
 @section('content')
 @php
     $groups = [
-        'general'    => ['icon' => 'bi-gear',           'label' => 'General'],
-        'payment'    => ['icon' => 'bi-credit-card',    'label' => 'Payment Gateway'],
-        'commission' => ['icon' => 'bi-percent',        'label' => 'Fees & Commission'],
-        'email'      => ['icon' => 'bi-envelope',       'label' => 'Email / SMTP'],
-        'sms'        => ['icon' => 'bi-phone',          'label' => 'SMS (Twilio)'],
+        'general'    => ['icon' => 'bi-gear',              'label' => 'General'],
+        'payment'    => ['icon' => 'bi-credit-card',       'label' => 'Payment Gateway'],
+        'commission' => ['icon' => 'bi-percent',           'label' => 'Fees & Commission'],
+        'discounts'  => ['icon' => 'bi-tag',               'label' => 'Bulk Discounts'],
+        'referral'   => ['icon' => 'bi-people',            'label' => 'Referral Program'],
+        'email'      => ['icon' => 'bi-envelope',          'label' => 'Email / SMTP'],
+        'sms'        => ['icon' => 'bi-phone',             'label' => 'SMS (Twilio)'],
     ];
 @endphp
 
@@ -99,6 +101,49 @@
                                                        name="settings[{{ $s->key }}]"
                                                        value="{{ $s->value }}"
                                                        step="any">
+                                            @elseif($s->type === 'json')
+                                                @php
+                                                    $jsonValue = is_string($s->value) ? json_decode($s->value, true) : $s->value;
+                                                    if (! is_array($jsonValue)) $jsonValue = [];
+                                                @endphp
+                                                @if($s->key === 'hours_discount_tiers')
+                                                    {{-- Tier repeater: rows of {hours, discount_pct} --}}
+                                                    <div class="json-repeater" data-key="{{ $s->key }}">
+                                                        <div class="row g-2 mb-1 small text-muted fw-semibold">
+                                                            <div class="col-5">Buy at least (hours)</div>
+                                                            <div class="col-5">Discount (%)</div>
+                                                            <div class="col-2"></div>
+                                                        </div>
+                                                        <div class="repeater-rows">
+                                                            @foreach($jsonValue as $i => $tier)
+                                                                <div class="row g-2 mb-2 repeater-row">
+                                                                    <div class="col-5"><input type="number" min="1" class="form-control" data-tier-hours value="{{ $tier['hours'] ?? '' }}"></div>
+                                                                    <div class="col-5"><input type="number" min="0" max="100" step="0.01" class="form-control" data-tier-pct value="{{ $tier['discount_pct'] ?? '' }}"></div>
+                                                                    <div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm w-100 repeater-remove"><i class="bi bi-x-lg"></i></button></div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <button type="button" class="btn btn-outline-primary btn-sm repeater-add"><i class="bi bi-plus-lg"></i> Add tier</button>
+                                                        <input type="hidden" name="settings[{{ $s->key }}]" id="setting-{{ $s->key }}" value="{{ is_string($s->value) ? $s->value : json_encode($jsonValue) }}">
+                                                    </div>
+                                                @elseif($s->key === 'booking_hour_packages')
+                                                    {{-- Simple list repeater (single value per row) --}}
+                                                    <div class="json-list-repeater" data-key="{{ $s->key }}">
+                                                        <div class="repeater-rows">
+                                                            @foreach($jsonValue as $val)
+                                                                <div class="row g-2 mb-2 repeater-row">
+                                                                    <div class="col-10"><input type="number" min="1" class="form-control" data-list-value value="{{ $val }}"></div>
+                                                                    <div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm w-100 repeater-remove"><i class="bi bi-x-lg"></i></button></div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <button type="button" class="btn btn-outline-primary btn-sm repeater-add"><i class="bi bi-plus-lg"></i> Add option</button>
+                                                        <input type="hidden" name="settings[{{ $s->key }}]" id="setting-{{ $s->key }}" value="{{ is_string($s->value) ? $s->value : json_encode($jsonValue) }}">
+                                                    </div>
+                                                @else
+                                                    <textarea class="form-control" rows="4" id="setting-{{ $s->key }}" name="settings[{{ $s->key }}]" style="font-family:monospace;font-size:0.85rem;">{{ is_string($s->value) ? $s->value : json_encode($jsonValue, JSON_PRETTY_PRINT) }}</textarea>
+                                                    <div class="form-text text-muted">Raw JSON. Edit carefully.</div>
+                                                @endif
                                             @else
                                                 <input type="text"
                                                        class="form-control"
@@ -145,6 +190,80 @@
         btn.addEventListener('shown.bs.tab', e => {
             history.replaceState(null, '', e.target.dataset.bsTarget);
         });
+    });
+
+    // ── JSON tier repeater (hours_discount_tiers) ──
+    document.querySelectorAll('.json-repeater').forEach(function(panel) {
+        var rowsEl = panel.querySelector('.repeater-rows');
+        var hidden = panel.querySelector('input[type=hidden]');
+
+        function syncHidden() {
+            var rows = rowsEl.querySelectorAll('.repeater-row');
+            var data = [];
+            rows.forEach(function(r) {
+                var h = parseInt(r.querySelector('[data-tier-hours]').value, 10);
+                var p = parseFloat(r.querySelector('[data-tier-pct]').value);
+                if (h > 0 && p >= 0) data.push({ hours: h, discount_pct: p });
+            });
+            data.sort(function(a, b) { return a.hours - b.hours; });
+            hidden.value = JSON.stringify(data);
+        }
+
+        function bindRow(row) {
+            row.querySelectorAll('input').forEach(function(i) { i.addEventListener('input', syncHidden); });
+            var rm = row.querySelector('.repeater-remove');
+            if (rm) rm.addEventListener('click', function() { row.remove(); syncHidden(); });
+        }
+
+        rowsEl.querySelectorAll('.repeater-row').forEach(bindRow);
+
+        panel.querySelector('.repeater-add').addEventListener('click', function() {
+            var div = document.createElement('div');
+            div.className = 'row g-2 mb-2 repeater-row';
+            div.innerHTML = '<div class="col-5"><input type="number" min="1" class="form-control" data-tier-hours></div>'
+                + '<div class="col-5"><input type="number" min="0" max="100" step="0.01" class="form-control" data-tier-pct></div>'
+                + '<div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm w-100 repeater-remove"><i class="bi bi-x-lg"></i></button></div>';
+            rowsEl.appendChild(div);
+            bindRow(div);
+        });
+
+        syncHidden();
+    });
+
+    // ── Simple list repeater (booking_hour_packages) ──
+    document.querySelectorAll('.json-list-repeater').forEach(function(panel) {
+        var rowsEl = panel.querySelector('.repeater-rows');
+        var hidden = panel.querySelector('input[type=hidden]');
+
+        function syncHidden() {
+            var rows = rowsEl.querySelectorAll('.repeater-row');
+            var data = [];
+            rows.forEach(function(r) {
+                var v = parseInt(r.querySelector('[data-list-value]').value, 10);
+                if (v > 0) data.push(v);
+            });
+            data.sort(function(a, b) { return a - b; });
+            hidden.value = JSON.stringify(data);
+        }
+
+        function bindRow(row) {
+            row.querySelector('input').addEventListener('input', syncHidden);
+            var rm = row.querySelector('.repeater-remove');
+            if (rm) rm.addEventListener('click', function() { row.remove(); syncHidden(); });
+        }
+
+        rowsEl.querySelectorAll('.repeater-row').forEach(bindRow);
+
+        panel.querySelector('.repeater-add').addEventListener('click', function() {
+            var div = document.createElement('div');
+            div.className = 'row g-2 mb-2 repeater-row';
+            div.innerHTML = '<div class="col-10"><input type="number" min="1" class="form-control" data-list-value></div>'
+                + '<div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm w-100 repeater-remove"><i class="bi bi-x-lg"></i></button></div>';
+            rowsEl.appendChild(div);
+            bindRow(div);
+        });
+
+        syncHidden();
     });
 </script>
 @endpush

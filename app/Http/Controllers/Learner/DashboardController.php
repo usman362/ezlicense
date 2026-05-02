@@ -49,7 +49,7 @@ class DashboardController extends Controller
             }
             $lessonPrice = $profile && $profile->lesson_price !== null ? (float) $profile->lesson_price : null;
             $lessonDuration = $profile ? (int) ($profile->lesson_duration_minutes ?? 60) : 60;
-            $testPackagePrice = $profile && $profile->test_package_price !== null ? (float) $profile->test_package_price : 225;
+            $testPackagePrice = $profile && $profile->test_package_price !== null ? (float) $profile->test_package_price : (float) \App\Models\SiteSetting::get('default_test_package_price', 225);
             $transmission = $profile && $profile->transmission ? ucfirst(strtolower($profile->transmission)) : 'Auto';
             $myInstructor = [
                 'id' => $instructorUser->id,
@@ -86,7 +86,7 @@ class DashboardController extends Controller
                 }
                 $lessonPrice = $profile->lesson_price !== null ? (float) $profile->lesson_price : null;
                 $lessonDuration = (int) ($profile->lesson_duration_minutes ?? 60);
-                $testPackagePrice = $profile->test_package_price !== null ? (float) $profile->test_package_price : 225;
+                $testPackagePrice = $profile->test_package_price !== null ? (float) $profile->test_package_price : (float) \App\Models\SiteSetting::get('default_test_package_price', 225);
                 $transmission = $profile->transmission ? ucfirst(strtolower($profile->transmission)) : 'Auto';
                 $myInstructor = [
                     'id' => $instructorUser->id,

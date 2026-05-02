@@ -86,7 +86,7 @@ class PayoutService
 
             foreach ($instructorBookings as $booking) {
                 $gross = (float) $booking->amount;
-                $gstOnFees = $gstRegistered ? round($totalFeePerBooking / 11, 2) : 0;
+                $gstOnFees = $gstRegistered ? round($totalFeePerBooking * (float) \App\Models\SiteSetting::get('gst_rate_percent', 10) / (100 + (float) \App\Models\SiteSetting::get('gst_rate_percent', 10)), 2) : 0;
                 $net = max(round($gross - $totalFeePerBooking, 2), 0);
 
                 $grossTotal += $gross;
@@ -157,7 +157,8 @@ class PayoutService
         $serviceFee = $this->getServiceFee();
         $processingFee = $this->getProcessingFee();
         $totalFees = $serviceFee + $processingFee;
-        $gstOnFees = $gstRegistered ? round($totalFees / 11, 2) : 0;
+        $gstRatePct = (float) \App\Models\SiteSetting::get('gst_rate_percent', 10);
+        $gstOnFees = $gstRegistered ? round($totalFees * $gstRatePct / (100 + $gstRatePct), 2) : 0;
         $net = max(round($bookingAmount - $totalFees, 2), 0);
 
         return [

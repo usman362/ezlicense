@@ -142,7 +142,6 @@
                     <span class="fw-bold">Total Payment Due</span>
                     <span class="fw-bolder fs-5">${{ number_format($total, 2) }}</span>
                 </div>
-                <p class="small text-muted mb-3">Or 4 payments of ${{ number_format($total / 4, 2) }}</p>
 
                 {{-- Action buttons --}}
                 <form method="POST" action="{{ route('learner.bookings.test-package.store') }}">
@@ -155,19 +154,6 @@
                         Skip
                     </button>
                 </form>
-            </div>
-        </div>
-
-        {{-- Buy Now Pay Later --}}
-        <div class="bnpl-panel">
-            <div class="bnpl-title">
-                Buy Now Pay Later <i class="bi bi-info-circle text-muted small"></i>
-            </div>
-            <div class="bnpl-amount">4 payments of ${{ number_format($total / 4, 2) }}</div>
-            <div class="bnpl-badges">
-                <span class="bnpl-badge paypal"><i class="bi bi-paypal me-1"></i>Pay in 4</span>
-                <span class="bnpl-badge afterpay">afterpay&lt;&gt;</span>
-                <span class="bnpl-badge klarna">Klarna</span>
             </div>
         </div>
 

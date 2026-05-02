@@ -168,6 +168,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
 
+    // Coupons / Promo codes management
+    Route::get('/coupons', [App\Http\Controllers\Admin\CouponsController::class, 'index'])->name('coupons.index');
+    Route::get('/coupons/create', [App\Http\Controllers\Admin\CouponsController::class, 'create'])->name('coupons.create');
+    Route::post('/coupons', [App\Http\Controllers\Admin\CouponsController::class, 'store'])->name('coupons.store');
+    Route::get('/coupons/{coupon}/edit', [App\Http\Controllers\Admin\CouponsController::class, 'edit'])->name('coupons.edit');
+    Route::put('/coupons/{coupon}', [App\Http\Controllers\Admin\CouponsController::class, 'update'])->name('coupons.update');
+    Route::patch('/coupons/{coupon}/toggle', [App\Http\Controllers\Admin\CouponsController::class, 'toggle'])->name('coupons.toggle');
+    Route::delete('/coupons/{coupon}', [App\Http\Controllers\Admin\CouponsController::class, 'destroy'])->name('coupons.destroy');
+
     // Centralized Reviews management — full control panel across all instructors
     Route::get('/reviews', [App\Http\Controllers\Admin\ReviewsController::class, 'index'])->name('reviews.index');
     Route::post('/reviews/bulk', [App\Http\Controllers\Admin\ReviewsController::class, 'bulk'])->name('reviews.bulk');
@@ -266,6 +275,9 @@ Route::prefix('learner')->name('learner.')->group(function () {
     Route::post('/bookings/details', [App\Http\Controllers\Learner\BookingController::class, 'storeDetails'])->name('bookings.details.store');
     // Step 5: Payment
     Route::get('/bookings/payment', [App\Http\Controllers\Learner\BookingController::class, 'payment'])->name('bookings.payment');
+    // Coupon application (AJAX) — accessible to guests + auth learners during checkout
+    Route::post('/bookings/coupon/apply', [App\Http\Controllers\Learner\BookingController::class, 'applyCoupon'])->name('bookings.coupon.apply');
+    Route::post('/bookings/coupon/remove', [App\Http\Controllers\Learner\BookingController::class, 'removeCoupon'])->name('bookings.coupon.remove');
 });
 
 // ── Learner authenticated routes ──

@@ -258,6 +258,9 @@
                 <a class="nav-link {{ request()->routeIs('admin.gift-vouchers*') ? 'active' : '' }}" href="{{ route('admin.gift-vouchers.index') }}">
                     <i class="bi bi-gift"></i> Gift Vouchers
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons.index') }}">
+                    <i class="bi bi-ticket-perforated"></i> Coupons
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.service-categories*') ? 'active' : '' }}" href="{{ route('admin.service-categories.index') }}">
                     <i class="bi bi-tags"></i> Service Categories
                 </a>

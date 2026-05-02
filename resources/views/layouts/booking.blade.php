@@ -162,45 +162,6 @@
         }
         .trust-panel p:last-child { margin-bottom: 0; }
 
-        .bnpl-panel {
-            background: #fff;
-            border: 1px solid var(--sl-gray-200);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            margin-top: 1rem;
-        }
-        .bnpl-panel .bnpl-title {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--sl-gray-900);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            margin-bottom: 0.25rem;
-        }
-        .bnpl-panel .bnpl-amount {
-            font-size: 0.85rem;
-            color: var(--sl-gray-500);
-            margin-bottom: 0.75rem;
-        }
-        .bnpl-badges {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-        }
-        .bnpl-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.35rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .bnpl-badge.paypal { background: #f5f7ff; color: #003087; }
-        .bnpl-badge.afterpay { background: #d6f5e8; color: #000; }
-        .bnpl-badge.klarna { background: #ffb3c7; color: #17120f; }
-
         /* ── Footer ────────────────────────────────────────────────── */
         .booking-footer {
             text-align: center;

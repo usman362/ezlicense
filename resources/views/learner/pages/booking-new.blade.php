@@ -332,7 +332,6 @@
                         <span>Total Payment Due</span>
                         <span id="order-total">$0.00</span>
                     </div>
-                    <p class="small text-muted mb-0 mt-1">Or 4 payments of <span id="order-instalment">$0.00</span></p>
                 </div>
                 <button type="button" class="btn btn-outline-secondary w-100 mb-2" id="btn-add-another">
                     <i class="bi bi-plus-lg me-1"></i> Add Another Booking
@@ -344,19 +343,7 @@
         </div>
 
         @guest
-            {{-- BNPL + Trust signals — guest-only (logged-in learners don't need them) --}}
-            <div class="bnpl-panel">
-                <div class="bnpl-title">
-                    Buy Now Pay Later <i class="bi bi-info-circle text-muted small" title="Split your payment into 4 interest-free instalments"></i>
-                </div>
-                <div class="bnpl-amount">4 payments of <span id="bnpl-amount">$0.00</span></div>
-                <div class="bnpl-badges">
-                    <span class="bnpl-badge paypal"><i class="bi bi-paypal me-1"></i>Pay in 4</span>
-                    <span class="bnpl-badge afterpay">afterpay&lt;&gt;</span>
-                    <span class="bnpl-badge klarna">Klarna</span>
-                </div>
-            </div>
-
+            {{-- Trust signals — guest-only (logged-in learners don't need them) --}}
             <div class="trust-panel">
                 <h6><i class="bi bi-shield-check text-success me-1"></i>Purchase With Peace Of Mind</h6>
                 <p>Flexible rebooking if your plans change.</p>
@@ -380,6 +367,8 @@
 <input type="hidden" id="package_add_test" value="{{ ($package['add_test_package'] ?? false) ? '1' : '0' }}">
 <input type="hidden" id="package_test_price" value="{{ $package['test_package_price'] ?? 0 }}">
 <input type="hidden" id="instructor_service_area_ids" value="{{ json_encode($instructorProfile->serviceAreas->pluck('id')->all()) }}">
+{{-- Flag for JS to know whether the address autocomplete is wired --}}
+<script>window.__googleMapsConfigured = {{ !empty($googleMapsApiKey) ? 'true' : 'false' }};</script>
 @if(!empty($googleMapsApiKey))
 {{-- Google Maps JS API (Places library) — used for address autocomplete --}}
 <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&loading=async&callback=Function.prototype" async defer></script>
@@ -542,7 +531,8 @@
     }
     .time-slot-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+        /* Wider min so range labels like "9:00 am - 10:00 am" fit on one line */
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 0.5rem;
         margin-bottom: 1rem;
     }
@@ -552,13 +542,21 @@
         border: 1.5px solid var(--sl-gray-200, #e5e7eb);
         color: var(--sl-gray-900, #111827);
         font-weight: 600;
-        font-size: 0.9rem;
-        padding: 0.55rem 0.75rem;
+        font-size: 0.88rem;
+        padding: 0.55rem 0.5rem;
         border-radius: 10px;
         cursor: pointer;
         transition: all 0.15s ease;
         text-align: center;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0; /* allow grid item to shrink below content width if needed */
+    }
+    /* Smaller text on narrow viewports so the range still fits cleanly */
+    @media (max-width: 480px) {
+        .time-slot-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        .time-slot-btn { font-size: 0.8rem; padding: 0.5rem 0.35rem; }
     }
     .time-slot-btn:hover {
         border-color: var(--sl-accent-500, #ffd500);
@@ -816,12 +814,10 @@
     if (typeof validateFormState === 'function') validateFormState();
   };
 
-  // ── Address autocomplete using OpenStreetMap Nominatim (free, no API key) ──
-  // Returns real Australian street addresses, just like Google Places does
-  // ── Address Autocomplete (Google Places) ──
-  // Uses Google's AutocompleteService for predictions + PlacesService for full details.
-  // Keeps our custom dropdown UI for visual consistency with the rest of the app.
-  // Falls back to a plain input if no Google Maps API key is configured.
+  // ── Address Autocomplete (Hybrid) ──
+  // Primary: Google Places (when admin has configured an API key) — fast, accurate.
+  // Fallback: OpenStreetMap / Nominatim (no key required) — works out of the box.
+  // Same UX in both cases; data source differs.
   function initAddressAutocomplete(prefix) {
     var input = document.getElementById(prefix + '_address');
     var dropdown = document.getElementById(prefix + '_address_ac');
@@ -946,39 +942,142 @@
       });
     }
 
+    // ── OpenStreetMap fallback (used when no Google API key is configured) ──
+    function formatNominatim(item) {
+      var addr = item.address || {};
+      var streetParts = [];
+      if (addr.house_number) streetParts.push(addr.house_number);
+      if (addr.road) streetParts.push(addr.road);
+      var streetLine = streetParts.join(' ');
+      if (!streetLine) streetLine = (item.display_name || '').split(',')[0] || '';
+      var suburb = addr.suburb || addr.city || addr.town || addr.village || addr.municipality || '';
+      var stateShort = addr['ISO3166-2-lvl4'] ? addr['ISO3166-2-lvl4'].replace('AU-', '') : '';
+      var postcode = addr.postcode || '';
+      return {
+        streetLine: streetLine,
+        suburb: suburb,
+        state: stateShort || addr.state || '',
+        postcode: postcode,
+        full: streetLine + (suburb ? ', ' + suburb : '') + (postcode ? ' ' + postcode : ''),
+      };
+    }
+
+    function renderOsm(items) {
+      currentResults = items || [];
+      activeIndex = -1;
+      if (items.length === 0) {
+        dropdown.innerHTML = '<div class="suburb-ac-empty">No matches — try a different spelling or postcode</div>';
+      } else {
+        dropdown.innerHTML = items.map(function(item, i) {
+          var fmt = formatNominatim(item);
+          return '<div class="suburb-ac-item" data-idx="' + i + '">' +
+            '<i class="bi bi-geo-alt-fill text-muted me-1"></i>' +
+            '<span class="suburb-name">' + escapeHtml(fmt.streetLine) + '</span>' +
+            (fmt.suburb ? '<span class="suburb-meta ms-2">' + escapeHtml(fmt.suburb) + (fmt.state ? ' ' + escapeHtml(fmt.state) : '') + '</span>' : '') +
+          '</div>';
+        }).join('') + '<div class="px-3 py-1 text-end small text-muted" style="border-top:1px solid var(--sl-gray-100);">powered by <strong>OpenStreetMap</strong></div>';
+
+        Array.prototype.slice.call(dropdown.querySelectorAll('.suburb-ac-item')).forEach(function(el) {
+          el.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            var idx = parseInt(el.getAttribute('data-idx'), 10);
+            selectOsmItem(currentResults[idx]);
+          });
+        });
+      }
+      dropdown.classList.add('show');
+    }
+
+    function selectOsmItem(item) {
+      if (!item) return;
+      var fmt = formatNominatim(item);
+      input.value = fmt.full || item.display_name || '';
+      dropdown.classList.remove('show');
+      if (fmt.suburb || fmt.postcode) {
+        var query = fmt.postcode || fmt.suburb;
+        fetch('/api/suburbs/search?q=' + encodeURIComponent(query), {
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin'
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          var dbSuburbs = res.data || [];
+          var match = dbSuburbs.find(function(s) {
+            return (s.name || '').toLowerCase() === (fmt.suburb || '').toLowerCase()
+              && (!fmt.postcode || s.postcode === fmt.postcode);
+          }) || dbSuburbs.find(function(s) {
+            return (s.name || '').toLowerCase() === (fmt.suburb || '').toLowerCase();
+          }) || dbSuburbs[0];
+          if (match && window.__setSuburbFromMatch) {
+            window.__setSuburbFromMatch(prefix, match);
+          }
+        })
+        .catch(function() { /* silent */ });
+      }
+    }
+
     input.addEventListener('input', function() {
       var q = input.value.trim();
       if (q.length < 3) { dropdown.classList.remove('show'); return; }
-
-      // If Google Places API isn't loaded (no API key configured), degrade silently
-      if (!getServices()) {
-        dropdown.classList.remove('show');
-        return;
-      }
 
       dropdown.innerHTML = '<div class="suburb-ac-loading"><span class="spinner-border spinner-border-sm me-1"></span>Searching addresses...</div>';
       dropdown.classList.add('show');
 
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(function() {
-        autocompleteService.getPlacePredictions({
-          input: q,
-          componentRestrictions: { country: 'au' },
-          types: ['address'],
-          sessionToken: sessionToken,
-        }, function(predictions, status) {
-          if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-            render([]);
-            return;
+
+      // ── Branch: Google Places (preferred) vs OpenStreetMap (fallback) ──
+      if (window.__googleMapsConfigured) {
+        debounceTimer = setTimeout(function() {
+          // Google library loads async — wait up to ~3s for it to become available
+          var attempts = 0;
+          function tryFetch() {
+            if (!getServices()) {
+              attempts++;
+              if (attempts > 30) {
+                // Google never loaded — fall back to OSM so user isn't blocked
+                fetchOsmPredictions(q);
+                return;
+              }
+              setTimeout(tryFetch, 100);
+              return;
+            }
+            autocompleteService.getPlacePredictions({
+              input: q,
+              componentRestrictions: { country: 'au' },
+              types: ['address'],
+              sessionToken: sessionToken,
+            }, function(predictions, status) {
+              if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                render([]);
+                return;
+              }
+              if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                // Quota exceeded / billing issue / referrer mismatch — fall back to OSM
+                fetchOsmPredictions(q);
+                return;
+              }
+              render(predictions || []);
+            });
           }
-          if (status !== google.maps.places.PlacesServiceStatus.OK) {
-            dropdown.innerHTML = '<div class="suburb-ac-empty text-danger">Search failed — please try again</div>';
-            return;
-          }
-          render(predictions || []);
-        });
-      }, 200); // 200ms debounce — Google handles much higher rate than Nominatim
+          tryFetch();
+        }, 200);
+      } else {
+        // No Google key configured — use OSM (slower debounce respects 1 req/sec policy)
+        debounceTimer = setTimeout(function() { fetchOsmPredictions(q); }, 350);
+      }
     });
+
+    function fetchOsmPredictions(q) {
+      var url = 'https://nominatim.openstreetmap.org/search'
+        + '?q=' + encodeURIComponent(q)
+        + '&format=json&addressdetails=1&countrycodes=au&limit=6';
+      fetch(url, { headers: { 'Accept': 'application/json' } })
+        .then(function(r) { return r.json(); })
+        .then(function(items) { renderOsm(Array.isArray(items) ? items : []); })
+        .catch(function() {
+          dropdown.innerHTML = '<div class="suburb-ac-empty text-danger">Search failed — please try again</div>';
+        });
+    }
 
     input.addEventListener('keydown', function(e) {
       if (!dropdown.classList.contains('show')) return;
@@ -995,7 +1094,13 @@
         if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
       } else if (e.key === 'Enter' && activeIndex >= 0) {
         e.preventDefault();
-        selectPrediction(currentResults[activeIndex]);
+        var picked = currentResults[activeIndex];
+        // Pick the right selector based on result shape (Google has place_id, OSM has display_name)
+        if (picked && picked.place_id && typeof picked.description !== 'undefined') {
+          selectPrediction(picked);
+        } else {
+          selectOsmItem(picked);
+        }
       } else if (e.key === 'Escape') {
         dropdown.classList.remove('show');
       }
@@ -1076,7 +1181,12 @@
     if (el) el.addEventListener('change', validateFormState);
   });
   document.querySelectorAll('input[name="booking_type"]').forEach(function(r) {
-    r.addEventListener('change', validateFormState);
+    r.addEventListener('change', function() {
+      validateFormState();
+      // Re-render available time slots so the range reflects the new duration
+      var dateIso = document.getElementById('booking_date_iso').value;
+      if (dateIso) loadTimeSlots(dateIso);
+    });
   });
 
   function renderBookingsList() {
@@ -1228,6 +1338,33 @@
     return h + ':' + parts[1] + (am ? ' am' : ' pm');
   }
 
+  // Compute end time given a "HH:MM" start + duration in minutes.
+  // Returns "HH:MM" 24-hour format suitable for formatTimeLabel.
+  function addMinutesToTime(timeHm, minutes) {
+    if (!timeHm || timeHm.indexOf(':') === -1) return timeHm || '';
+    var parts = timeHm.split(':');
+    var h = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    var total = (h * 60) + m + minutes;
+    var endH = Math.floor(total / 60) % 24;
+    var endM = total % 60;
+    return (endH < 10 ? '0' + endH : endH) + ':' + (endM < 10 ? '0' + endM : endM);
+  }
+
+  // Returns "9:00 am - 10:00 am" for the currently-selected booking duration
+  function formatTimeRange(startHm) {
+    var minutes = getCurrentBookingDurationMinutes();
+    var endHm = addMinutesToTime(startHm, minutes);
+    return formatTimeLabel(startHm) + ' - ' + formatTimeLabel(endHm);
+  }
+
+  // Lesson duration in minutes based on the currently selected booking type
+  function getCurrentBookingDurationMinutes() {
+    if (document.getElementById('type-test') && document.getElementById('type-test').checked) return 150; // 2.5hr
+    if (document.getElementById('type-2hr') && document.getElementById('type-2hr').checked) return 120;
+    return 60;
+  }
+
   function selectTimeSlot(value, label) {
     var timeSelect = document.getElementById('booking_time');
     timeSelect.innerHTML = '<option value="' + value + '" selected>' + label + '</option>';
@@ -1265,7 +1402,7 @@
       var hour = parseInt(t.split(':')[0], 10);
       var slot = {
         time: t,
-        label: formatTimeLabel(t),
+        label: formatTimeRange(t), // e.g. "9:00 am - 10:00 am"
         value: dt || (dateStr + ' ' + t + ':00'),
       };
       if (hour < 12) groups.morning.push(slot);
@@ -1365,7 +1502,6 @@
     if (PACKAGE_ADD_TEST) afterDiscount += PACKAGE_TEST_PRICE;
     var fee = Math.round(afterDiscount * PLATFORM_FEE_PERCENT) / 100;
     var total = afterDiscount + fee;
-    var instalment = total / 4;
 
     wrap.innerHTML = orderItems.map(function(item, i) {
       var shortDate = (item.dateLabel || '').replace(/^[^,]+, (\d+)/, '$1').trim();
@@ -1382,9 +1518,6 @@
     }).join('');
     document.getElementById('order-fee').textContent = '$' + fee.toFixed(2);
     document.getElementById('order-total').textContent = '$' + total.toFixed(2);
-    document.getElementById('order-instalment').textContent = '$' + instalment.toFixed(2);
-    var bnplEl = document.getElementById('bnpl-amount');
-    if (bnplEl) bnplEl.textContent = '$' + instalment.toFixed(2);
 
     wrap.querySelectorAll('[data-remove]').forEach(function(btn) {
       btn.addEventListener('click', function() {

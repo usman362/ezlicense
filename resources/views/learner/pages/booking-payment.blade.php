@@ -176,36 +176,54 @@
                         <span>${{ number_format((float) ($order['test_package_price'] ?? 0), 2) }}</span>
                     </div>
                 @endif
-                <div class="d-flex justify-content-between small mb-1 mt-2">
+
+                {{-- Referral discount (auto-applied if user qualifies) --}}
+                <div class="d-flex justify-content-between small mb-1 mt-2 row-referral-discount" style="display:{{ !empty($order['referral_discount']) && $order['referral_discount'] > 0 ? 'flex' : 'none' }} !important;">
+                    <span><i class="bi bi-people-fill text-primary me-1"></i>Referral discount</span>
+                    <span class="text-success fw-semibold">-$<span id="row-referral-amount">{{ number_format((float) ($order['referral_discount'] ?? 0), 2) }}</span></span>
+                </div>
+
+                {{-- Coupon discount row (visible only when applied) --}}
+                <div class="d-flex justify-content-between small mb-1 mt-2 row-coupon-discount" style="display:{{ !empty($order['coupon_code']) ? 'flex' : 'none' }} !important;">
+                    <span><i class="bi bi-ticket-perforated text-success me-1"></i>Coupon (<span id="row-coupon-code">{{ $order['coupon_code'] ?? '' }}</span>)</span>
+                    <span class="text-success fw-semibold">-$<span id="row-coupon-amount">{{ number_format((float) ($order['coupon_discount'] ?? 0), 2) }}</span></span>
+                </div>
+
+                {{-- Coupon input --}}
+                <div class="mt-3 pt-3 border-top" id="coupon-input-wrap" style="display:{{ !empty($order['coupon_code']) ? 'none' : 'block' }};">
+                    <label class="form-label small text-muted mb-1"><i class="bi bi-ticket-perforated me-1"></i>Have a promo code?</label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="coupon-code" class="form-control text-uppercase" placeholder="Enter code" autocomplete="off" maxlength="50">
+                        <button type="button" id="coupon-apply-btn" class="btn btn-outline-primary">Apply</button>
+                    </div>
+                    <div id="coupon-message" class="small mt-1" style="min-height:1rem;"></div>
+                </div>
+                <div class="mt-3 pt-3 border-top" id="coupon-applied-wrap" style="display:{{ !empty($order['coupon_code']) ? 'block' : 'none' }};">
+                    <div class="d-flex align-items-center justify-content-between bg-success-subtle p-2 rounded">
+                        <span class="small text-success-emphasis">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            <strong id="coupon-applied-code">{{ $order['coupon_code'] ?? '' }}</strong> applied
+                        </span>
+                        <button type="button" id="coupon-remove-btn" class="btn btn-link btn-sm text-danger p-0">Remove</button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between small mb-1 mt-3">
                     <span>Platform Processing Fee</span>
-                    <span>${{ number_format((float) ($order['fee'] ?? 0), 2) }}</span>
-                    <i class="bi bi-info-circle text-muted ms-1" title="4% processing fee" style="cursor: help;"></i>
+                    <span>$<span id="order-fee">{{ number_format((float) ($order['fee'] ?? 0), 2) }}</span></span>
                 </div>
                 <div class="d-flex justify-content-between fw-bold pt-2 border-top mt-2">
                     <span>Total Payment Due</span>
-                    <span id="order-total">${{ number_format((float) ($order['total'] ?? 0), 2) }}</span>
+                    <span>$<span id="order-total-amount">{{ number_format((float) ($order['total'] ?? 0), 2) }}</span></span>
                 </div>
-                <p class="small text-muted mb-3 mt-1">Or 4 payments of <span id="order-instalment">${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</span></p>
                 <button type="submit" form="payment-form" class="btn btn-warning w-100 fw-semibold" id="btn-pay">
-                    Pay ${{ number_format((float) ($order['total'] ?? 0), 2) }}
+                    Pay $<span id="btn-pay-amount">{{ number_format((float) ($order['total'] ?? 0), 2) }}</span>
                 </button>
             </div>
         </div>
 
         @guest
-            {{-- BNPL + Trust signals — guest-only (logged-in learners don't need them) --}}
-            <div class="bnpl-panel">
-                <div class="bnpl-title">
-                    Buy Now Pay Later <i class="bi bi-info-circle text-muted small" title="Split your payment into 4 interest-free instalments"></i>
-                </div>
-                <div class="bnpl-amount">4 payments of ${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</div>
-                <div class="bnpl-badges">
-                    <span class="bnpl-badge paypal"><i class="bi bi-paypal me-1"></i>Pay in 4</span>
-                    <span class="bnpl-badge afterpay">afterpay&lt;&gt;</span>
-                    <span class="bnpl-badge klarna">Klarna</span>
-                </div>
-            </div>
-
+            {{-- Trust signals — guest-only (logged-in learners don't need them) --}}
             <div class="trust-panel">
                 <h6><i class="bi bi-shield-check text-success me-1"></i>Purchase With Peace Of Mind</h6>
                 <p>Flexible rebooking if your plans change.</p>
@@ -314,6 +332,97 @@
       btn.textContent = 'Pay ${{ number_format((float) ($order["total"] ?? 0), 2) }}';
     });
   });
+
+  // ── Coupon apply/remove ──
+  function fmt(n) { return Number(n).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function setMessage(text, isError) {
+    var el = document.getElementById('coupon-message');
+    if (!el) return;
+    el.textContent = text || '';
+    el.className = 'small mt-1 ' + (isError ? 'text-danger' : 'text-success');
+  }
+  function refreshTotalsUI(ord, code) {
+    if (typeof ord.fee !== 'undefined') document.getElementById('order-fee').textContent = fmt(ord.fee);
+    if (typeof ord.total !== 'undefined') {
+      document.getElementById('order-total-amount').textContent = fmt(ord.total);
+      document.getElementById('btn-pay-amount').textContent = fmt(ord.total);
+    }
+    if (typeof ord.coupon_discount !== 'undefined') {
+      var row = document.querySelector('.row-coupon-discount');
+      if (ord.coupon_discount > 0) {
+        row.style.display = 'flex';
+        document.getElementById('row-coupon-amount').textContent = fmt(ord.coupon_discount);
+        document.getElementById('row-coupon-code').textContent = code || ord.coupon_code || '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  }
+
+  var applyBtn = document.getElementById('coupon-apply-btn');
+  var removeBtn = document.getElementById('coupon-remove-btn');
+  var codeInput = document.getElementById('coupon-code');
+
+  if (applyBtn) {
+    applyBtn.addEventListener('click', function() {
+      var code = (codeInput.value || '').trim().toUpperCase();
+      if (!code) { setMessage('Please enter a code.', true); return; }
+      applyBtn.disabled = true;
+      applyBtn.textContent = '...';
+      setMessage('', false);
+      fetch('{{ route("learner.bookings.coupon.apply") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ code: code }),
+      })
+      .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
+      .then(function(res) {
+        applyBtn.disabled = false;
+        applyBtn.textContent = 'Apply';
+        if (!res.ok) {
+          setMessage(res.body.message || 'Could not apply coupon.', true);
+          return;
+        }
+        setMessage(res.body.message, false);
+        refreshTotalsUI(res.body.order || {}, code);
+        document.getElementById('coupon-input-wrap').style.display = 'none';
+        document.getElementById('coupon-applied-wrap').style.display = 'block';
+        document.getElementById('coupon-applied-code').textContent = code;
+      })
+      .catch(function() {
+        applyBtn.disabled = false;
+        applyBtn.textContent = 'Apply';
+        setMessage('Network error — please try again.', true);
+      });
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function() {
+      removeBtn.disabled = true;
+      fetch('{{ route("learner.bookings.coupon.remove") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        credentials: 'same-origin',
+        body: JSON.stringify({}),
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        removeBtn.disabled = false;
+        if (res.ok) {
+          var ord = res.order || {};
+          ord.coupon_discount = 0;
+          refreshTotalsUI(ord);
+          document.getElementById('coupon-input-wrap').style.display = 'block';
+          document.getElementById('coupon-applied-wrap').style.display = 'none';
+          if (codeInput) codeInput.value = '';
+          setMessage('', false);
+        }
+      })
+      .catch(function() { removeBtn.disabled = false; });
+    });
+  }
 })();
 </script>
 @endpush

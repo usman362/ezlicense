@@ -298,7 +298,6 @@
                     <span class="fw-bold">Total Payment Due</span>
                     <span class="fw-bolder fs-5">${{ number_format((float) ($order['total'] ?? 0), 2) }}</span>
                 </div>
-                <p class="small text-muted mb-3">Or 4 payments of ${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</p>
 
                 <button type="submit" form="reg-form" class="btn btn-warning w-100 fw-semibold">
                     Continue to Payment <i class="bi bi-chevron-right ms-1"></i>
@@ -312,19 +311,6 @@
                         <input type="text" class="form-control form-control-sm" name="referral_code" form="reg-form" placeholder="Enter referral code" value="{{ old('referral_code', $sd['referral_code'] ?? '') }}">
                     </div>
                 </div>
-            </div>
-        </div>
-
-        {{-- Buy Now Pay Later --}}
-        <div class="bnpl-panel">
-            <div class="bnpl-title">
-                Buy Now Pay Later <i class="bi bi-info-circle text-muted small"></i>
-            </div>
-            <div class="bnpl-amount">4 payments of ${{ number_format(((float) ($order['total'] ?? 0)) / 4, 2) }}</div>
-            <div class="bnpl-badges">
-                <span class="bnpl-badge paypal"><i class="bi bi-paypal me-1"></i>Pay in 4</span>
-                <span class="bnpl-badge afterpay">afterpay&lt;&gt;</span>
-                <span class="bnpl-badge klarna">Klarna</span>
             </div>
         </div>
 
