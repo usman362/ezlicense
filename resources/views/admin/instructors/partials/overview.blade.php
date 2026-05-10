@@ -188,7 +188,7 @@
             <div class="card-body">
                 <table class="table table-sm table-borderless mb-3 small">
                     <tr><td class="text-muted" style="width:55%">Weighted Rating</td><td class="fw-bold">{{ number_format($instructor->weighted_rating ?? 4.00, 2) }} / 5.00</td></tr>
-                    <tr><td class="text-muted">Review Count</td><td>{{ $instructor->reviews()->where('is_approved', true)->count() ?? 0 }}</td></tr>
+                    <tr><td class="text-muted">Review Count</td><td>{{ $instructor->reviews()->where('status', 'approved')->count() ?? 0 }}</td></tr>
                     <tr><td class="text-muted">Completed Lessons</td><td>{{ $instructor->total_completed_lessons ?? 0 }}</td></tr>
                     <tr><td class="text-muted">5★ Streak</td><td>{{ $instructor->consecutive_five_stars ?? 0 }}</td></tr>
                     <tr><td class="text-muted">Recovery Deficit</td><td>{{ $instructor->recovery_deficit ?? 0 }}</td></tr>
