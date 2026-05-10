@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $ntState = State::where('code', 'NT')->first();
-        $tasState = State::where('code', 'TAS')->first();
+        // Ensure both states exist before inserting suburbs (idempotent: safe to re-run)
+        $ntState = State::firstOrCreate(['code' => 'NT'], ['name' => 'Northern Territory']);
+        $tasState = State::firstOrCreate(['code' => 'TAS'], ['name' => 'Tasmania']);
 
         // NT suburbs - Darwin area
         $ntDarwinSuburbs = [

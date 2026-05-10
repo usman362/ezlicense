@@ -8,8 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Ensure NT state exists
-        State::firstOrCreate(['code' => 'NT'], ['name' => 'Northern Territory']);
+        // Ensure all 8 Australian states/territories exist before seeding suburbs.
+        // Idempotent — safe on fresh DBs and re-runs.
+        $allStates = [
+            'NSW' => 'New South Wales',
+            'VIC' => 'Victoria',
+            'QLD' => 'Queensland',
+            'WA'  => 'Western Australia',
+            'SA'  => 'South Australia',
+            'TAS' => 'Tasmania',
+            'ACT' => 'Australian Capital Territory',
+            'NT'  => 'Northern Territory',
+        ];
+        foreach ($allStates as $code => $name) {
+            State::firstOrCreate(['code' => $code], ['name' => $name]);
+        }
 
         $suburbsByState = [
             'NSW' => [
