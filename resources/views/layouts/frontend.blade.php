@@ -39,10 +39,7 @@
                     <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licences</a>
                     <span class="divider">|</span>
                     <a href="{{ route('instructor-academy') }}">Secure Licences Instructor Academy</a>
-                    <span class="divider">|</span>
-                    <a href="{{ route('services.categories') }}">Find Services</a>
-                    <span class="divider">|</span>
-                    <a href="{{ route('services.become-provider') }}">Become a Provider</a>
+                    {{-- DISABLED for Phase 1 launch — Find Services + Become a Provider --}}
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -97,6 +94,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('prices-packages') }}">Prices &amp; Packages</a>
                         </li>
+                        {{-- DISABLED for Phase 1 launch — Home Services dropdown
+                             Re-enable when Service Providers feature is ready.
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navServices" role="button" data-bs-toggle="dropdown" aria-expanded="false">Home Services</a>
                             <ul class="dropdown-menu" aria-labelledby="navServices">
@@ -109,6 +108,7 @@
                                 <li><a class="dropdown-item fw-semibold text-success" href="{{ route('services.become-provider') }}">Become a Provider →</a></li>
                             </ul>
                         </li>
+                        --}}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navResources" role="button" data-bs-toggle="dropdown" aria-expanded="false">Free Learner Resources</a>
                             <ul class="dropdown-menu" aria-labelledby="navResources">
@@ -171,11 +171,13 @@
                         <li><a href="{{ route('instructor.login') }}">Instructor Login</a></li>
                         <li><a href="{{ route('policies.instructor-conduct') }}">Code of Conduct</a></li>
                     </ul>
+                    {{-- DISABLED for Phase 1 launch — Home Services footer block
                     <h6 class="mt-4">Home Services</h6>
                     <ul class="list-unstyled mb-0" style="line-height:2;">
                         <li><a href="{{ route('services.categories') }}">Browse Services</a></li>
                         <li><a href="{{ route('services.become-provider') }}">Become a Provider</a></li>
                     </ul>
+                    --}}
                 </div>
 
                 <div class="col-lg-2 col-md-4 col-6">

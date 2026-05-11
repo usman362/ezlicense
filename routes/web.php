@@ -431,43 +431,62 @@ Route::prefix('api')->middleware('web')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Public browse
-Route::get('/become-a-provider', [App\Http\Controllers\ServiceController::class, 'becomeProvider'])->name('services.become-provider');
-Route::get('/services', [App\Http\Controllers\ServiceController::class, 'categories'])->name('services.categories');
-Route::get('/services/{slug}', [App\Http\Controllers\ServiceController::class, 'browse'])->name('services.browse');
-Route::get('/services/{slug}/{provider}', [App\Http\Controllers\ServiceController::class, 'show'])->name('services.show');
+/*
+| ──────────────────────────────────────────────────────────────────
+| DISABLED for Phase 1 launch — Public services browse + bookings.
+| We're focused only on learner / driving instructor flows for now.
+| ──────────────────────────────────────────────────────────────────
+| Route::get('/become-a-provider', [App\Http\Controllers\ServiceController::class, 'becomeProvider'])->name('services.become-provider');
+| Route::get('/services', [App\Http\Controllers\ServiceController::class, 'categories'])->name('services.categories');
+| Route::get('/services/{slug}', [App\Http\Controllers\ServiceController::class, 'browse'])->name('services.browse');
+| Route::get('/services/{slug}/{provider}', [App\Http\Controllers\ServiceController::class, 'show'])->name('services.show');
+|
+| Route::middleware(['auth'])->group(function () {
+|     Route::get('/services/{provider}/book', [App\Http\Controllers\ServiceBookingController::class, 'create'])->name('service-bookings.create');
+|     Route::post('/services/{provider}/book', [App\Http\Controllers\ServiceBookingController::class, 'store'])->name('service-bookings.store');
+|     Route::get('/my-service-bookings', [App\Http\Controllers\ServiceBookingController::class, 'index'])->name('service-bookings.index');
+|     Route::get('/service-bookings/{serviceBooking}', [App\Http\Controllers\ServiceBookingController::class, 'show'])->name('service-bookings.show');
+| });
+*/
 
-// Customer bookings (auth required)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/services/{provider}/book', [App\Http\Controllers\ServiceBookingController::class, 'create'])->name('service-bookings.create');
-    Route::post('/services/{provider}/book', [App\Http\Controllers\ServiceBookingController::class, 'store'])->name('service-bookings.store');
-    Route::get('/my-service-bookings', [App\Http\Controllers\ServiceBookingController::class, 'index'])->name('service-bookings.index');
-    Route::get('/service-bookings/{serviceBooking}', [App\Http\Controllers\ServiceBookingController::class, 'show'])->name('service-bookings.show');
-});
-
-// Service provider dashboard
-Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.')->group(function () {
-    Route::get('/onboarding', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'onboardingCreate'])->name('onboarding.create');
-    Route::post('/onboarding', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'onboardingStore'])->name('onboarding.store');
-    Route::get('/dashboard', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/availability', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'index'])->name('availability.index');
-    Route::post('/availability/slots', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'storeSlot'])->name('availability.slots.store');
-    Route::delete('/availability/slots/{slot}', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'destroySlot'])->name('availability.slots.destroy');
-});
+/*
+| ──────────────────────────────────────────────────────────────────
+| DISABLED for Phase 1 launch — Service provider portal.
+| Only learner / driving instructor flows are active for now.
+| Re-enable when expanding to other service categories.
+| ──────────────────────────────────────────────────────────────────
+| Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.')->group(function () {
+|     Route::get('/onboarding', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'onboardingCreate'])->name('onboarding.create');
+|     Route::post('/onboarding', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'onboardingStore'])->name('onboarding.store');
+|     Route::get('/dashboard', [App\Http\Controllers\ServiceProvider\DashboardController::class, 'index'])->name('dashboard');
+|     Route::get('/availability', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'index'])->name('availability.index');
+|     Route::post('/availability/slots', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'storeSlot'])->name('availability.slots.store');
+|     Route::delete('/availability/slots/{slot}', [App\Http\Controllers\ServiceProvider\AvailabilityController::class, 'destroySlot'])->name('availability.slots.destroy');
+| });
+*/
 
 // Admin
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('email-logs', [App\Http\Controllers\Admin\EmailLogsController::class, 'index'])->name('email-logs.index');
     Route::get('feedback', [App\Http\Controllers\Admin\FeedbackController::class, 'index'])->name('feedback.index');
     Route::patch('feedback/{feedback}', [App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
-    Route::resource('service-categories', App\Http\Controllers\Admin\ServiceCategoryController::class)->except(['show']);
-    Route::get('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'index'])->name('service-providers.index');
-    Route::get('service-providers/create', [App\Http\Controllers\Admin\ServiceProviderController::class, 'create'])->name('service-providers.create');
-    Route::post('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'store'])->name('service-providers.store');
-    Route::get('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'show'])->name('service-providers.show');
-    Route::get('service-providers/{serviceProvider}/edit', [App\Http\Controllers\Admin\ServiceProviderController::class, 'edit'])->name('service-providers.edit');
-    Route::put('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'update'])->name('service-providers.update');
-    Route::delete('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'destroy'])->name('service-providers.destroy');
-    Route::post('service-providers/{serviceProvider}/approve', [App\Http\Controllers\Admin\ServiceProviderController::class, 'approve'])->name('service-providers.approve');
-    Route::post('service-providers/{serviceProvider}/reject', [App\Http\Controllers\Admin\ServiceProviderController::class, 'reject'])->name('service-providers.reject');
+    /*
+    | ──────────────────────────────────────────────────────────────────
+    | DISABLED for Phase 1 launch — Service Providers & Categories.
+    | We're focused only on driving instructor / car services for now.
+    | Other service categories (mechanic, panel beating, tyres, etc.)
+    | will be re-enabled in a future phase. Sidebar links are also
+    | commented out in resources/views/layouts/admin.blade.php.
+    | ──────────────────────────────────────────────────────────────────
+    | Route::resource('service-categories', App\Http\Controllers\Admin\ServiceCategoryController::class)->except(['show']);
+    | Route::get('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'index'])->name('service-providers.index');
+    | Route::get('service-providers/create', [App\Http\Controllers\Admin\ServiceProviderController::class, 'create'])->name('service-providers.create');
+    | Route::post('service-providers', [App\Http\Controllers\Admin\ServiceProviderController::class, 'store'])->name('service-providers.store');
+    | Route::get('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'show'])->name('service-providers.show');
+    | Route::get('service-providers/{serviceProvider}/edit', [App\Http\Controllers\Admin\ServiceProviderController::class, 'edit'])->name('service-providers.edit');
+    | Route::put('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'update'])->name('service-providers.update');
+    | Route::delete('service-providers/{serviceProvider}', [App\Http\Controllers\Admin\ServiceProviderController::class, 'destroy'])->name('service-providers.destroy');
+    | Route::post('service-providers/{serviceProvider}/approve', [App\Http\Controllers\Admin\ServiceProviderController::class, 'approve'])->name('service-providers.approve');
+    | Route::post('service-providers/{serviceProvider}/reject', [App\Http\Controllers\Admin\ServiceProviderController::class, 'reject'])->name('service-providers.reject');
+    */
 });

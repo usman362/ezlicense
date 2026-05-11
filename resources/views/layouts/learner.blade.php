@@ -222,6 +222,7 @@
                         <i class="bi bi-wallet2"></i>
                         <span>Wallet</span>
                     </a>
+                    {{-- DISABLED for Phase 1 launch — service bookings + find services
                     <a class="nav-link {{ request()->routeIs('service-bookings.*') ? 'active' : '' }}" href="{{ route('service-bookings.index') }}">
                         <i class="bi bi-tools"></i>
                         <span>My Service Bookings</span>
@@ -230,6 +231,7 @@
                         <i class="bi bi-search"></i>
                         <span>Find Services</span>
                     </a>
+                    --}}
                     <div class="nav-divider"></div>
                     <a class="nav-link {{ request()->routeIs('learner.invite*') ? 'active' : '' }}" href="{{ route('learner.invite') }}">
                         <i class="bi bi-gift"></i>

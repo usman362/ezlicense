@@ -261,12 +261,17 @@
                 <a class="nav-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons.index') }}">
                     <i class="bi bi-ticket-perforated"></i> Coupons
                 </a>
+                {{-- ── DISABLED: Service Providers / Categories ──
+                     For Phase 1 launch we're focused only on driving instructor / car services.
+                     Other service categories (mechanic, panel-beating, tyre shops, etc.) will be
+                     re-enabled in a future phase. Routes are also commented out in routes/web.php.
                 <a class="nav-link {{ request()->routeIs('admin.service-categories*') ? 'active' : '' }}" href="{{ route('admin.service-categories.index') }}">
                     <i class="bi bi-tags"></i> Service Categories
                 </a>
                 <a class="nav-link {{ request()->routeIs('admin.service-providers*') ? 'active' : '' }}" href="{{ route('admin.service-providers.index') }}">
                     <i class="bi bi-people"></i> Service Providers
                 </a>
+                --}}
                 <a class="nav-link {{ request()->routeIs('admin.feedback*') ? 'active' : '' }}" href="{{ route('admin.feedback.index') }}">
                     <i class="bi bi-chat-left-heart"></i> User Feedback
                 </a>
