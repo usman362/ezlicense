@@ -991,36 +991,100 @@ a:hover > .card,
     justify-content: center !important;
   }
 
-  /* Hamburger button — uses Bootstrap Icons (bi-list ↔ bi-x-lg), EzLicence style */
+  /* Hamburger button — borderless, icon-only (matches EzLicence clean style) */
   .frontend-header .navbar-toggler {
-    border: 1px solid var(--sl-gray-200);
-    padding: 0;
-    border-radius: 8px;
-    width: 44px;
-    height: 44px;
-    background: #fff;
+    border: 0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    width: auto;
+    height: auto;
+    background: transparent;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: var(--sl-gray-900, #111);
     line-height: 1;
+    -webkit-tap-highlight-color: transparent;
   }
-  .frontend-header .navbar-toggler:focus { box-shadow: none; outline: none; }
+  .frontend-header .navbar-toggler:focus,
+  .frontend-header .navbar-toggler:active,
+  .frontend-header .navbar-toggler:hover {
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent;
+    border: 0;
+  }
   /* Hide Bootstrap's default SVG icon (we use bi-list / bi-x-lg instead) */
   .frontend-header .navbar-toggler .navbar-toggler-icon { display: none; }
 
   /* Default state: show hamburger (bi-list), hide X (bi-x-lg) */
   .frontend-header .navbar-toggler .nav-icon-open,
   .frontend-header .navbar-toggler .nav-icon-close {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     line-height: 1;
-    transition: opacity 0.15s ease;
+    color: var(--sl-gray-900, #111);
   }
   .frontend-header .navbar-toggler .nav-icon-close { display: none; }
 
   /* Open state (aria-expanded="true"): swap icons → show X, hide hamburger */
   .frontend-header .navbar-toggler[aria-expanded="true"] .nav-icon-open { display: none; }
   .frontend-header .navbar-toggler[aria-expanded="true"] .nav-icon-close { display: inline-block; }
+
+  /* ── Mobile dropdown styling — EzLicence-style: chevron right, clean rows ── */
+
+  /* Hide Bootstrap's default tiny ▾ caret — we use bi-chevron-down on the right */
+  .frontend-header .navbar-nav .dropdown-toggle::after { display: none; }
+
+  /* Custom right-side chevron — appears via ::after pseudo using Bootstrap Icons font */
+  .frontend-header .navbar-nav .dropdown-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 0.5rem !important;
+  }
+  .frontend-header .navbar-nav .dropdown-toggle::after {
+    content: "\F282"; /* bi-chevron-down glyph */
+    display: inline-block !important;
+    font-family: 'bootstrap-icons' !important;
+    border: 0 !important;
+    width: auto;
+    height: auto;
+    font-size: 1rem;
+    color: var(--sl-gray-500, #6b7280);
+    transition: transform 0.2s ease;
+    margin: 0;
+    vertical-align: middle;
+  }
+  .frontend-header .navbar-nav .dropdown-toggle[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+    color: var(--sl-primary-600);
+  }
+
+  /* Dropdown menu items — clean flat list, no inner boxes */
+  .frontend-header .navbar-nav .dropdown-menu {
+    background: var(--sl-gray-50, #fafafa) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0.25rem 0 0.5rem !important;
+  }
+  .frontend-header .navbar-nav .dropdown-item {
+    padding: 0.6rem 1.25rem !important;
+    font-size: 0.95rem;
+    color: var(--sl-gray-700, #374151);
+    border: 0 !important;
+    background: transparent !important;
+  }
+  .frontend-header .navbar-nav .dropdown-item:hover,
+  .frontend-header .navbar-nav .dropdown-item:focus {
+    background: rgba(245, 158, 11, 0.08) !important;
+    color: var(--sl-primary-600, #ea580c) !important;
+  }
+  .frontend-header .navbar-nav .dropdown-divider {
+    margin: 0.25rem 1rem;
+    border-top-color: var(--sl-gray-200, #e5e7eb);
+  }
 
   /* Buttons: bigger touch target */
   .btn { min-height: 44px; padding-top: 0.6rem; padding-bottom: 0.6rem; }
