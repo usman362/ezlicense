@@ -963,14 +963,17 @@ a:hover > .card,
   }
   .frontend-header .dropdown-item { padding: 0.6rem 0.5rem !important; }
 
-  /* Mobile menu structure: stack columns, Book Online at TOP, full-width items */
-  .frontend-header .navbar-collapse {
+  /* Mobile menu structure: stack columns, Book Online at TOP, full-width items
+     IMPORTANT: only apply flex layout when menu is .show — otherwise Bootstrap
+     can't hide it (the !important display would override .collapse's display:none). */
+  .frontend-header .navbar-collapse.show,
+  .frontend-header .navbar-collapse.collapsing {
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
   }
   .frontend-header .navbar-collapse > ul {
-    width: 100% !important;
+    width: 100%;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
@@ -986,6 +989,57 @@ a:hover > .card,
     padding: 0.95rem 1rem !important;
     font-size: 1.05rem;
     justify-content: center !important;
+  }
+
+  /* Hamburger button — animated to X when open (matches EzLicence) */
+  .frontend-header .navbar-toggler {
+    border: 1px solid var(--sl-gray-200);
+    padding: 0;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    position: relative;
+    background: #fff;
+  }
+  .frontend-header .navbar-toggler:focus { box-shadow: none; }
+
+  /* Override Bootstrap's hamburger image — turn the inner span into the MIDDLE bar */
+  .frontend-header .navbar-toggler .navbar-toggler-icon {
+    background-image: none !important;
+    background: var(--sl-gray-900, #111);
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease;
+  }
+  /* Top + bottom bars via pseudo-elements */
+  .frontend-header .navbar-toggler::before,
+  .frontend-header .navbar-toggler::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 20px;
+    height: 2px;
+    background: var(--sl-gray-900, #111);
+    border-radius: 1px;
+    transition: transform 0.25s ease, top 0.25s ease;
+  }
+  .frontend-header .navbar-toggler::before { top: 14px; transform: translateX(-50%); }
+  .frontend-header .navbar-toggler::after  { top: 28px; transform: translateX(-50%); }
+
+  /* Open state (aria-expanded="true") = X icon */
+  .frontend-header .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon { opacity: 0; }
+  .frontend-header .navbar-toggler[aria-expanded="true"]::before {
+    top: 21px;
+    transform: translate(-50%, 0) rotate(45deg);
+  }
+  .frontend-header .navbar-toggler[aria-expanded="true"]::after {
+    top: 21px;
+    transform: translate(-50%, 0) rotate(-45deg);
   }
 
   /* Buttons: bigger touch target */
