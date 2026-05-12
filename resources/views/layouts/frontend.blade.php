@@ -65,7 +65,8 @@
                     <span class="ez">Secure</span><span class="ez-l">L</span><span class="icence">icences</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#frontendNav" aria-controls="frontendNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                    <i class="bi bi-list nav-icon-open"></i>
+                    <i class="bi bi-x-lg nav-icon-close"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="frontendNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">

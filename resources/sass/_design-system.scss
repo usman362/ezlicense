@@ -991,56 +991,36 @@ a:hover > .card,
     justify-content: center !important;
   }
 
-  /* Hamburger button — animated to X when open (matches EzLicence) */
+  /* Hamburger button — uses Bootstrap Icons (bi-list ↔ bi-x-lg), EzLicence style */
   .frontend-header .navbar-toggler {
     border: 1px solid var(--sl-gray-200);
     padding: 0;
     border-radius: 8px;
     width: 44px;
     height: 44px;
-    position: relative;
     background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sl-gray-900, #111);
+    line-height: 1;
   }
-  .frontend-header .navbar-toggler:focus { box-shadow: none; }
+  .frontend-header .navbar-toggler:focus { box-shadow: none; outline: none; }
+  /* Hide Bootstrap's default SVG icon (we use bi-list / bi-x-lg instead) */
+  .frontend-header .navbar-toggler .navbar-toggler-icon { display: none; }
 
-  /* Override Bootstrap's hamburger image — turn the inner span into the MIDDLE bar */
-  .frontend-header .navbar-toggler .navbar-toggler-icon {
-    background-image: none !important;
-    background: var(--sl-gray-900, #111);
-    width: 20px;
-    height: 2px;
-    border-radius: 1px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    transition: opacity 0.2s ease;
+  /* Default state: show hamburger (bi-list), hide X (bi-x-lg) */
+  .frontend-header .navbar-toggler .nav-icon-open,
+  .frontend-header .navbar-toggler .nav-icon-close {
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: opacity 0.15s ease;
   }
-  /* Top + bottom bars via pseudo-elements */
-  .frontend-header .navbar-toggler::before,
-  .frontend-header .navbar-toggler::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    width: 20px;
-    height: 2px;
-    background: var(--sl-gray-900, #111);
-    border-radius: 1px;
-    transition: transform 0.25s ease, top 0.25s ease;
-  }
-  .frontend-header .navbar-toggler::before { top: 14px; transform: translateX(-50%); }
-  .frontend-header .navbar-toggler::after  { top: 28px; transform: translateX(-50%); }
+  .frontend-header .navbar-toggler .nav-icon-close { display: none; }
 
-  /* Open state (aria-expanded="true") = X icon */
-  .frontend-header .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon { opacity: 0; }
-  .frontend-header .navbar-toggler[aria-expanded="true"]::before {
-    top: 21px;
-    transform: translate(-50%, 0) rotate(45deg);
-  }
-  .frontend-header .navbar-toggler[aria-expanded="true"]::after {
-    top: 21px;
-    transform: translate(-50%, 0) rotate(-45deg);
-  }
+  /* Open state (aria-expanded="true"): swap icons → show X, hide hamburger */
+  .frontend-header .navbar-toggler[aria-expanded="true"] .nav-icon-open { display: none; }
+  .frontend-header .navbar-toggler[aria-expanded="true"] .nav-icon-close { display: inline-block; }
 
   /* Buttons: bigger touch target */
   .btn { min-height: 44px; padding-top: 0.6rem; padding-bottom: 0.6rem; }
