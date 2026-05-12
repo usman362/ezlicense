@@ -1134,6 +1134,25 @@ a:hover > .card,
   /* Stats / KPI big numbers — scale down */
   .display-6.fw-bolder, .display-5.fw-bolder { font-size: 1.5rem !important; }
 
+  /* KPI cards on mobile — icon stacks above, no absolute positioning to avoid label clipping */
+  .kpi-card { padding: 1rem !important; }
+  .kpi-card .kpi-icon {
+    position: static !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1.05rem !important;
+    margin-bottom: 0.5rem;
+  }
+  .kpi-card .kpi-label {
+    font-size: 0.75rem !important;
+    white-space: normal;
+    line-height: 1.2;
+  }
+  .kpi-card .kpi-value {
+    font-size: 1.4rem !important;
+    line-height: 1.2;
+  }
+
   /* Hero sections — reduce vertical padding */
   .ez-hero, .hero-gradient {
     min-height: auto !important;
