@@ -29,8 +29,8 @@
     </style>
 </head>
 <body>
-    {{-- Top bar: left = Support | Instruct with Secure Licences | Secure Licences Instructor Academy; right = Learner Login | Instructor Login (or Dashboard when logged in) --}}
-    <div class="frontend-topbar py-2">
+    {{-- Top utility bar — DESKTOP ONLY (mobile uses hamburger menu for these links) --}}
+    <div class="frontend-topbar py-2 d-none d-lg-block">
         <div class="container">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex flex-wrap align-items-center gap-1">
@@ -39,7 +39,6 @@
                     <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licences</a>
                     <span class="divider">|</span>
                     <a href="{{ route('instructor-academy') }}">Secure Licences Instructor Academy</a>
-                    {{-- DISABLED for Phase 1 launch — Find Services + Become a Provider --}}
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -128,11 +127,55 @@
                             </ul>
                         </li>
                     </ul>
-                    <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
-                        {{-- NEW: Prominent "Book Online" CTA button — matches EzLicence reference --}}
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-2 book-online-wrap">
+                        {{-- "Book Online" CTA — first in mobile menu, on the right on desktop --}}
                         <li class="nav-item">
-                            <a class="btn btn-warning fw-bold px-3 py-2 d-inline-flex align-items-center gap-1" href="{{ route('find-instructor') }}" style="border-radius: 8px;">
+                            <a class="btn btn-warning fw-bold px-3 py-2 d-flex d-lg-inline-flex align-items-center justify-content-center gap-1" href="{{ route('find-instructor') }}" style="border-radius: 8px;">
                                 Book Online <i class="bi bi-chevron-right small"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    {{-- MOBILE ONLY footer section: Dashboard/Login + Support/Contact --}}
+                    <ul class="navbar-nav d-lg-none mobile-footer-nav mt-2">
+                        @auth
+                            @php
+                                $dashUrl = Auth::user()->isLearner()
+                                    ? route('learner.dashboard')
+                                    : (Auth::user()->isInstructor() ? route('instructor.dashboard') : route('home'));
+                            @endphp
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center justify-content-between" href="{{ $dashUrl }}">
+                                    <span><i class="bi bi-speedometer2 me-2"></i>Dashboard</span>
+                                    <i class="bi bi-chevron-right small text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('frontend-logout-form').submit();">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Log out
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('learner.login') }}">
+                                    <i class="bi bi-person me-2"></i>Learner Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('instructor.login') }}">
+                                    <i class="bi bi-person-badge me-2"></i>Instructor Login
+                                </a>
+                            </li>
+                        @endauth
+                        <li class="nav-item"><hr class="my-1" style="opacity:0.1;"></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('support') }}">
+                                <i class="bi bi-life-preserver me-2"></i>Support
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('contact') }}">
+                                <i class="bi bi-envelope me-2"></i>Contact
                             </a>
                         </li>
                     </ul>
@@ -141,6 +184,11 @@
         </nav>
     </header>
     <form id="frontend-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+
+    {{-- Floating help button (bottom right) — visible on all screen sizes --}}
+    <a href="{{ route('support') }}" class="floating-help-btn" title="Need help?" aria-label="Need help?">
+        <i class="bi bi-question-lg"></i>
+    </a>
 
     <main>
         @yield('content')
