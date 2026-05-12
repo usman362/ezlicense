@@ -1152,30 +1152,58 @@ a:hover > .card,
   .row.g-4 { --bs-gutter-y: 1rem; --bs-gutter-x: 1rem; }
   .row.g-5 { --bs-gutter-y: 1.25rem; --bs-gutter-x: 1.25rem; }
 
-  /* Footer — compact mobile spacing, smaller headings, no overlap with floating help button */
-  .frontend-footer-new { padding: 2rem 0 5rem !important; /* extra bottom for ? button clearance */ }
-  .frontend-footer-new .container > .row { --bs-gutter-y: 0.75rem; }
+  /* Footer mobile — EzLicence reference style: single-column stack, normal-case headings */
+  .frontend-footer-new {
+    padding: 2.5rem 0 5rem !important; /* extra bottom for ? button clearance */
+  }
+  /* Force every footer column to full-width on mobile (override col-6 / col-md-4 etc) */
+  .frontend-footer-new .container > .row > [class*="col-"] {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-bottom: 1.5rem;
+  }
+  .frontend-footer-new .container > .row > [class*="col-"]:last-child { margin-bottom: 0; }
+  .frontend-footer-new .container > .row { --bs-gutter-y: 0; }
+
+  /* Section headings — normal title case, readable size (not micro labels) */
   .frontend-footer-new h6 {
-    margin-top: 1rem;
-    margin-bottom: 0.4rem !important;
-    font-size: 0.8rem !important;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--sl-gray-300, #d1d5db);
+    margin-top: 0;
+    margin-bottom: 0.75rem !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #fff;
     font-weight: 700;
   }
   /* Override the inline style="line-height:2" on footer lists */
-  .frontend-footer-new ul[style*="line-height"] { line-height: 1.55 !important; }
-  .frontend-footer-new ul li { margin-bottom: 0.1rem; }
+  .frontend-footer-new ul[style*="line-height"] { line-height: 1.85 !important; }
+  .frontend-footer-new ul li { margin-bottom: 0; }
   .frontend-footer-new ul a {
-    font-size: 0.88rem;
-    padding: 0.15rem 0;
+    font-size: 0.95rem;
+    padding: 0.1rem 0;
     display: inline-block;
   }
+
+  /* Logo + tagline block on mobile */
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child {
+    margin-bottom: 2rem;
+    text-align: left;
+  }
   .frontend-footer-new .social-link { width: 36px; height: 36px; }
+
+  /* Final divider + copyright row */
   .frontend-footer-new .footer-divider { margin: 1rem 0 0.75rem; }
-  .frontend-footer-new .d-flex.flex-wrap.justify-content-between { font-size: 0.7rem !important; gap: 0.5rem !important; }
-  .frontend-footer-new .d-flex.flex-wrap.justify-content-between .d-flex { flex-wrap: wrap !important; }
+  .frontend-footer-new .d-flex.flex-wrap.justify-content-between {
+    font-size: 0.78rem !important;
+    gap: 0.5rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .frontend-footer-new .d-flex.flex-wrap.justify-content-between .d-flex {
+    flex-wrap: wrap !important;
+    gap: 0.6rem !important;
+  }
 
   /* Common "white-space:nowrap" overflows — allow wrap */
   .btn { white-space: normal; }
