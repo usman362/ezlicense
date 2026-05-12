@@ -1152,10 +1152,30 @@ a:hover > .card,
   .row.g-4 { --bs-gutter-y: 1rem; --bs-gutter-x: 1rem; }
   .row.g-5 { --bs-gutter-y: 1.25rem; --bs-gutter-x: 1.25rem; }
 
-  /* Footer — better mobile spacing */
-  .frontend-footer-new { padding: 2rem 0 1.5rem; }
-  .frontend-footer-new h6 { margin-top: 1rem; font-size: 0.95rem; }
+  /* Footer — compact mobile spacing, smaller headings, no overlap with floating help button */
+  .frontend-footer-new { padding: 2rem 0 5rem !important; /* extra bottom for ? button clearance */ }
+  .frontend-footer-new .container > .row { --bs-gutter-y: 0.75rem; }
+  .frontend-footer-new h6 {
+    margin-top: 1rem;
+    margin-bottom: 0.4rem !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sl-gray-300, #d1d5db);
+    font-weight: 700;
+  }
+  /* Override the inline style="line-height:2" on footer lists */
+  .frontend-footer-new ul[style*="line-height"] { line-height: 1.55 !important; }
+  .frontend-footer-new ul li { margin-bottom: 0.1rem; }
+  .frontend-footer-new ul a {
+    font-size: 0.88rem;
+    padding: 0.15rem 0;
+    display: inline-block;
+  }
   .frontend-footer-new .social-link { width: 36px; height: 36px; }
+  .frontend-footer-new .footer-divider { margin: 1rem 0 0.75rem; }
+  .frontend-footer-new .d-flex.flex-wrap.justify-content-between { font-size: 0.7rem !important; gap: 0.5rem !important; }
+  .frontend-footer-new .d-flex.flex-wrap.justify-content-between .d-flex { flex-wrap: wrap !important; }
 
   /* Common "white-space:nowrap" overflows — allow wrap */
   .btn { white-space: normal; }
