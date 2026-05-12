@@ -1152,57 +1152,96 @@ a:hover > .card,
   .row.g-4 { --bs-gutter-y: 1rem; --bs-gutter-x: 1rem; }
   .row.g-5 { --bs-gutter-y: 1.25rem; --bs-gutter-x: 1.25rem; }
 
-  /* Footer mobile — EzLicence reference style: single-column stack, normal-case headings */
+  /* Footer mobile — EzLicence reference style: LIGHT background, centered, small gray headings */
   .frontend-footer-new {
+    background: var(--sl-gray-50, #f8f9fa) !important;
+    color: var(--sl-gray-700, #374151) !important;
     padding: 2.5rem 0 5rem !important; /* extra bottom for ? button clearance */
+    text-align: center;
   }
+
   /* Force every footer column to full-width on mobile (override col-6 / col-md-4 etc) */
   .frontend-footer-new .container > .row > [class*="col-"] {
     flex: 0 0 100% !important;
     max-width: 100% !important;
     width: 100% !important;
     margin-bottom: 1.5rem;
+    text-align: center !important;
   }
   .frontend-footer-new .container > .row > [class*="col-"]:last-child { margin-bottom: 0; }
   .frontend-footer-new .container > .row { --bs-gutter-y: 0; }
 
-  /* Section headings — normal title case, readable size (not micro labels) */
+  /* Logo block: centered at top */
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child {
+    margin-bottom: 1.5rem;
+  }
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child > a {
+    display: inline-flex !important;
+    margin: 0 auto 0.5rem;
+  }
+  /* Logo text color: dark on light bg */
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child > a span:not(.ez-l):not([style*="background"]) {
+    color: var(--sl-gray-900, #111) !important;
+  }
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child > a span:first-child,
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child > a span:last-child {
+    color: var(--sl-gray-900, #111) !important;
+  }
+  /* Hide the tagline + social icons on mobile to match EzLicence's clean footer top */
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child p,
+  .frontend-footer-new .container > .row > [class*="col-"]:first-child .d-flex {
+    display: none !important;
+  }
+
+  /* Section headings — small, light gray, normal title case, centered */
   .frontend-footer-new h6 {
     margin-top: 0;
-    margin-bottom: 0.75rem !important;
-    font-size: 1.05rem !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.85rem !important;
     letter-spacing: 0;
     text-transform: none;
-    color: #fff;
-    font-weight: 700;
+    color: var(--sl-gray-500, #6b7280) !important;
+    font-weight: 600;
   }
-  /* Override the inline style="line-height:2" on footer lists */
+
+  /* List items: clean centered, dark on light */
   .frontend-footer-new ul[style*="line-height"] { line-height: 1.85 !important; }
-  .frontend-footer-new ul li { margin-bottom: 0; }
+  .frontend-footer-new ul {
+    text-align: center;
+    padding-left: 0 !important;
+  }
+  .frontend-footer-new ul li {
+    margin-bottom: 0;
+    list-style: none;
+  }
   .frontend-footer-new ul a {
     font-size: 0.95rem;
-    padding: 0.1rem 0;
+    padding: 0.15rem 0;
     display: inline-block;
+    color: var(--sl-gray-800, #1f2937) !important;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .frontend-footer-new ul a:hover { color: var(--sl-primary-600, #ea580c) !important; }
+
+  /* Footer divider — subtle on light bg */
+  .frontend-footer-new .footer-divider {
+    margin: 1.5rem 0 1rem;
+    border-top: 1px solid var(--sl-gray-200, #e5e7eb);
   }
 
-  /* Logo + tagline block on mobile */
-  .frontend-footer-new .container > .row > [class*="col-"]:first-child {
-    margin-bottom: 2rem;
-    text-align: left;
-  }
-  .frontend-footer-new .social-link { width: 36px; height: 36px; }
-
-  /* Final divider + copyright row */
-  .frontend-footer-new .footer-divider { margin: 1rem 0 0.75rem; }
+  /* Copyright + trust badges row */
   .frontend-footer-new .d-flex.flex-wrap.justify-content-between {
     font-size: 0.78rem !important;
-    gap: 0.5rem !important;
+    gap: 0.75rem !important;
     flex-direction: column !important;
-    align-items: flex-start !important;
+    align-items: center !important;
+    color: var(--sl-gray-500, #6b7280) !important;
   }
   .frontend-footer-new .d-flex.flex-wrap.justify-content-between .d-flex {
     flex-wrap: wrap !important;
-    gap: 0.6rem !important;
+    gap: 0.75rem !important;
+    justify-content: center !important;
   }
 
   /* Common "white-space:nowrap" overflows — allow wrap */
