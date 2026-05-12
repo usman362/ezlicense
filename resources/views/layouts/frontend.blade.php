@@ -77,10 +77,11 @@
                                 <li><a class="dropdown-item" href="{{ route('international-licence') }}">International Licence Conversions</a></li>
                                 <li><a class="dropdown-item" href="{{ route('refresher-lessons') }}">Refresher Lessons</a></li>
                                 <li><a class="dropdown-item" href="{{ route('gift-vouchers') }}">Gift Vouchers</a></li>
+                                <li><a class="dropdown-item" href="{{ route('prices-packages') }}">Prices &amp; Packages</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navLocations" role="button" data-bs-toggle="dropdown" aria-expanded="false">Locations</a>
+                            <a class="nav-link dropdown-toggle" href="#" id="navLocations" role="button" data-bs-toggle="dropdown" aria-expanded="false">Driving Lesson Locations</a>
                             <ul class="dropdown-menu" aria-labelledby="navLocations">
                                 <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Sydney">Sydney Driving Lessons</a></li>
                                 <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Melbourne">Melbourne Driving Lessons</a></li>
@@ -91,8 +92,16 @@
                                 <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Canberra">Canberra Driving Lessons</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('prices-packages') }}">Prices &amp; Packages</a>
+                        {{-- NEW: Consolidated "For Instructors" dropdown — matches EzLicence reference --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navForInstructors" role="button" data-bs-toggle="dropdown" aria-expanded="false">For Instructors</a>
+                            <ul class="dropdown-menu" aria-labelledby="navForInstructors">
+                                <li><a class="dropdown-item" href="{{ route('instruct-with-us') }}"><i class="bi bi-person-badge me-1"></i>Become an Instructor</a></li>
+                                <li><a class="dropdown-item" href="{{ route('instructor-academy') }}"><i class="bi bi-mortarboard me-1"></i>Instructor Academy</a></li>
+                                <li><a class="dropdown-item" href="{{ route('industry-insights') }}"><i class="bi bi-newspaper me-1"></i>Industry Insights</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('instructor.login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Instructor Login</a></li>
+                            </ul>
                         </li>
                         {{-- DISABLED for Phase 1 launch — Home Services dropdown
                              Re-enable when Service Providers feature is ready.
@@ -120,7 +129,12 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
-                        {{-- No user dropdown on frontend; Dashboard link is in top bar when logged in --}}
+                        {{-- NEW: Prominent "Book Online" CTA button — matches EzLicence reference --}}
+                        <li class="nav-item">
+                            <a class="btn btn-warning fw-bold px-3 py-2 d-inline-flex align-items-center gap-1" href="{{ route('find-instructor') }}" style="border-radius: 8px;">
+                                Book Online <i class="bi bi-chevron-right small"></i>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -200,6 +214,47 @@
                         <li><a href="{{ route('support') }}">Support</a></li>
                         <li><a href="{{ route('terms') }}">Terms</a></li>
                         <li><a href="{{ route('privacy') }}">Privacy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- NEW: Extra footer rows — matches EzLicence reference (state/city specific links + state practice tests) --}}
+            <div class="row g-4 mb-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                <div class="col-lg-4 col-md-12 col-12">
+                    <h6>Learner Tests Online</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('practice-test') }}">FREE Practice Learners Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=NSW">NSW Driver Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=VIC">VIC Learner Permit Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=QLD">QLD Road Rules Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=WA">WA Road Rules Theory Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=SA">SA Learner Theory Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=TAS">TAS Driver Knowledge Test</a></li>
+                        <li><a href="{{ route('practice-test') }}?state=ACT">ACT Road Rules Knowledge Test</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 col-12">
+                    <h6>Driving Instructors by State</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('find-instructor') }}?q=NSW">NSW Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=VIC">VIC Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=QLD">QLD Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=WA">WA Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=SA">SA Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=TAS">TAS Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=ACT">ACT Driving Instructors</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 col-12">
+                    <h6>Driving Instructors by City</h6>
+                    <ul class="list-unstyled mb-0" style="line-height:2;">
+                        <li><a href="{{ route('find-instructor') }}?q=Sydney">Sydney Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Melbourne">Melbourne Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Brisbane">Brisbane Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Perth">Perth Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Adelaide">Adelaide Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Hobart">Hobart Driving Instructors</a></li>
+                        <li><a href="{{ route('find-instructor') }}?q=Canberra">Canberra Driving Instructors</a></li>
                     </ul>
                 </div>
             </div>
