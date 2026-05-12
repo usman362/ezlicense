@@ -843,3 +843,238 @@ a:hover > .card,
   min-width: 24px;
 }
 .sl-stepper .step.done + .step-connector { background: var(--sl-success); }
+
+
+/* ============================================================
+   MOBILE RESPONSIVE — comprehensive fixes
+   ============================================================ */
+
+/* ── Tablet & below (≤991px) ── */
+@media (max-width: 991.98px) {
+
+  /* Display headings — keep desktop sizes but cap them so they don't overflow */
+  .display-1 { font-size: clamp(2.25rem, 7vw, 3.5rem) !important; line-height: 1.1; }
+  .display-2 { font-size: clamp(2rem, 6.5vw, 3rem) !important;  line-height: 1.1; }
+  .display-3 { font-size: clamp(1.85rem, 6vw, 2.75rem) !important; line-height: 1.15; }
+  .display-4 { font-size: clamp(1.65rem, 5vw, 2.4rem) !important; line-height: 1.2; }
+  .display-5 { font-size: clamp(1.5rem, 4.5vw, 2.1rem) !important; line-height: 1.2; }
+  .display-6 { font-size: clamp(1.35rem, 4vw, 1.85rem) !important; line-height: 1.25; }
+
+  h1 { font-size: clamp(1.5rem, 5vw, 2.25rem); }
+  h2 { font-size: clamp(1.3rem, 4.3vw, 2rem); }
+  h3 { font-size: clamp(1.2rem, 4vw, 1.75rem); }
+
+  /* Container padding tighter */
+  .container { padding-left: 1rem; padding-right: 1rem; }
+
+  /* Section spacing */
+  .section    { padding: 2.5rem 0; }
+  .section-lg { padding: 3rem 0; }
+
+  /* Cards: smaller radius + padding */
+  .card-body { padding: 1rem !important; }
+  .card-body.p-4, .card-body.p-5, .card-body.p-lg-5 { padding: 1.25rem !important; }
+}
+
+/* ── Mobile (≤767px) ── */
+@media (max-width: 767.98px) {
+
+  /* Body base — slightly tighter */
+  body { font-size: 0.95rem; }
+
+  /* Frontend top utility bar — hide secondary links on mobile, keep only login */
+  .frontend-topbar {
+    padding: 0.4rem 0 !important;
+    font-size: 0.72rem;
+  }
+  .frontend-topbar .container > .d-flex {
+    justify-content: center !important;
+  }
+  .frontend-topbar .container > .d-flex > div:first-child {
+    /* "Support | Instruct with... | Instructor Academy" — hide on mobile, available in burger */
+    display: none !important;
+  }
+
+  /* Frontend header: cleaner mobile */
+  .frontend-header .navbar { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .frontend-header .logo { font-size: 1.15rem; }
+  .frontend-header .logo .ez-l { width: 26px; height: 26px; font-size: 0.95rem; }
+
+  /* Expanded mobile menu — make it scrollable + spaced */
+  .frontend-header .navbar-collapse {
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--sl-gray-100);
+    padding-top: 0.75rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .frontend-header .navbar-nav .nav-link {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--sl-gray-100);
+  }
+  .frontend-header .navbar-nav .dropdown-menu {
+    border: 0 !important;
+    box-shadow: none !important;
+    padding-left: 1rem !important;
+    background: transparent !important;
+  }
+  .frontend-header .dropdown-item { padding: 0.6rem 0.5rem !important; }
+
+  /* "Book Online" CTA in mobile menu — make it stand out at top */
+  .frontend-header .navbar-nav.ms-auto .btn-warning {
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem !important;
+    font-size: 1.05rem;
+    justify-content: center !important;
+  }
+
+  /* Buttons: bigger touch target */
+  .btn { min-height: 44px; padding-top: 0.6rem; padding-bottom: 0.6rem; }
+  .btn-lg { min-height: 52px; padding-top: 0.8rem; padding-bottom: 0.8rem; font-size: 1rem; }
+  .btn-sm { min-height: 36px; }
+
+  /* Form inputs: bigger touch target */
+  .form-control, .form-select {
+    min-height: 44px;
+    font-size: 1rem; /* prevents iOS zoom on focus */
+  }
+  .form-control-lg, .form-select-lg { min-height: 52px; font-size: 1.05rem; }
+  .form-control-sm, .form-select-sm { min-height: 38px; font-size: 0.9rem; }
+  .form-label { font-size: 0.9rem; margin-bottom: 0.35rem; }
+
+  /* Cards: tighter */
+  .card { border-radius: 14px !important; }
+  .card-body, .card-body.p-3, .card-body.p-4 { padding: 1rem !important; }
+  .card-body.p-5, .card-body.p-lg-5 { padding: 1.25rem !important; }
+
+  /* Icon bubble — smaller on mobile */
+  .icon-bubble { width: 48px; height: 48px; font-size: 1.25rem; }
+  .icon-bubble-sm { width: 36px; height: 36px; font-size: 1rem; }
+
+  /* Tables: scroll wrapper */
+  .table-responsive { font-size: 0.875rem; }
+  .table > :not(caption) > * > * { padding: 0.5rem 0.4rem; }
+
+  /* Modals: full screen feel on mobile */
+  .modal-dialog { margin: 0.5rem; }
+  .modal-content { border-radius: 14px; }
+  .modal-body { padding: 1rem; }
+  .modal-header, .modal-footer { padding: 0.75rem 1rem; }
+
+  /* Dropdowns — wider on mobile */
+  .dropdown-menu { font-size: 0.95rem; }
+
+  /* Pagination — center + smaller */
+  .pagination { justify-content: center; flex-wrap: wrap; gap: 2px; }
+  .page-link { padding: 0.4rem 0.7rem; font-size: 0.9rem; }
+
+  /* Stepper — compact, hide labels on small */
+  .sl-stepper .step-label { display: none; }
+  .sl-stepper .step-circle { width: 28px; height: 28px; font-size: 0.85rem; }
+  .sl-stepper .step-connector { min-width: 12px; margin: 0 0.25rem; }
+
+  /* Stats / KPI big numbers — scale down */
+  .display-6.fw-bolder, .display-5.fw-bolder { font-size: 1.5rem !important; }
+
+  /* Hero sections — reduce vertical padding */
+  .ez-hero, .hero-gradient {
+    min-height: auto !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* Padding utility overrides — reduce excessive on mobile */
+  .py-5  { padding-top: 2rem !important;   padding-bottom: 2rem !important; }
+  .py-4  { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+  .pt-5  { padding-top: 2rem !important; }
+  .pb-5  { padding-bottom: 2rem !important; }
+  .my-5  { margin-top: 2rem !important;   margin-bottom: 2rem !important; }
+
+  /* Spacing between sections of stacked content */
+  .row.g-4 { --bs-gutter-y: 1rem; --bs-gutter-x: 1rem; }
+  .row.g-5 { --bs-gutter-y: 1.25rem; --bs-gutter-x: 1.25rem; }
+
+  /* Footer — better mobile spacing */
+  .frontend-footer-new { padding: 2rem 0 1.5rem; }
+  .frontend-footer-new h6 { margin-top: 1rem; font-size: 0.95rem; }
+  .frontend-footer-new .social-link { width: 36px; height: 36px; }
+
+  /* Common "white-space:nowrap" overflows — allow wrap */
+  .btn { white-space: normal; }
+
+  /* Booking layout — order summary should be tighter */
+  .booking-sidebar, .booking-summary { font-size: 0.9rem; }
+  .booking-sidebar .h4, .booking-summary .h4 { font-size: 1.15rem; }
+
+  /* Trust panel + tip box */
+  .trust-panel { padding: 1rem !important; font-size: 0.85rem; }
+  .trust-panel h6 { font-size: 0.9rem; }
+  .tip-box { padding: 0.75rem !important; }
+
+  /* Form-check (radios/checkboxes) — better touch */
+  .form-check { padding-left: 1.75rem; min-height: 1.75rem; }
+  .form-check-input { width: 1.2em; height: 1.2em; margin-left: -1.75rem; }
+
+  /* Dashboard sidebars (learner/instructor/admin) — already collapse on mobile,
+     ensure links are large enough to tap */
+  .nav-link i.bi { font-size: 1.05rem; }
+
+  /* Time slot picker — already tier-driven, but ensure no overflow */
+  .time-slot-btn { font-size: 0.85rem !important; padding: 0.5rem 0.4rem !important; }
+
+  /* Package selector cards in booking-amount — full width tap */
+  .package-option { padding: 0.85rem !important; }
+}
+
+/* ── Small mobile (≤480px) ── */
+@media (max-width: 479.98px) {
+
+  /* Even tighter padding/font on smallest screens */
+  body { font-size: 0.92rem; }
+  .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .card-body { padding: 0.85rem !important; }
+
+  /* Hero text very compact */
+  .display-3 { font-size: 1.65rem !important; }
+  .display-4 { font-size: 1.5rem !important; }
+  .display-5 { font-size: 1.35rem !important; }
+
+  /* Logo even smaller */
+  .frontend-header .logo { font-size: 1.05rem; }
+  .frontend-header .logo .ez-l { width: 22px; height: 22px; font-size: 0.85rem; }
+
+  /* KPI numbers */
+  .display-6.fw-bolder { font-size: 1.25rem !important; }
+
+  /* Stepper — hide everything except active dot */
+  .sl-stepper .step:not(.active):not(.done) .step-circle { opacity: 0.5; }
+
+  /* Time slot — 2 columns on tiny screens */
+  .time-slot-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ── Landscape phone (orientation: landscape, max-height short) ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .ez-hero, .hero-gradient {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+  .navbar-collapse { max-height: 60vh; }
+}
+
+/* ── Print + utilities ── */
+@media (max-width: 767.98px) {
+  /* Allow text to wrap inside flex items */
+  .d-flex > * { min-width: 0; }
+
+  /* Prevent horizontal scrollbars from oversized children */
+  html, body { overflow-x: hidden; }
+
+  /* Image responsiveness */
+  img { max-width: 100%; height: auto; }
+
+  /* Long words don't break layout */
+  .text-break, p, h1, h2, h3, h4, h5, h6 { overflow-wrap: anywhere; }
+}
