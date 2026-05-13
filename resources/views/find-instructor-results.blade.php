@@ -40,9 +40,29 @@
                 <i class="bi bi-sliders me-1"></i>Filters
                 <span class="filter-badge ms-1" id="active-filter-count" style="display:none;">0</span>
             </button>
-            <button type="button" class="btn btn-outline-secondary results-toolbar-btn" id="open-sort-btn">
-                <i class="bi bi-arrow-down-up me-1"></i>Sort
-            </button>
+            {{-- Sort dropdown wrapper --}}
+            <div class="sort-dropdown-wrap" id="sort-dropdown-wrap">
+                <button type="button" class="btn btn-outline-secondary results-toolbar-btn sort-trigger" id="open-sort-btn" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-arrow-down-up me-1"></i>Sort
+                </button>
+                <div class="sort-dropdown-menu" id="sort-dropdown-menu" hidden>
+                    <button type="button" class="sort-option-item" data-sort="best_match">
+                        <span>Recommended</span><i class="bi bi-check2 sort-tick"></i>
+                    </button>
+                    <button type="button" class="sort-option-item" data-sort="next_available">
+                        <span>Next available booking time</span><i class="bi bi-check2 sort-tick"></i>
+                    </button>
+                    <button type="button" class="sort-option-item" data-sort="rating">
+                        <span>Highest rated</span><i class="bi bi-check2 sort-tick"></i>
+                    </button>
+                    <button type="button" class="sort-option-item" data-sort="price">
+                        <span>Price low to high</span><i class="bi bi-check2 sort-tick"></i>
+                    </button>
+                    <button type="button" class="sort-option-item" data-sort="price_high">
+                        <span>Price high to low</span><i class="bi bi-check2 sort-tick"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -163,20 +183,76 @@
     </div>
 </div>
 
-{{-- Sort modal --}}
-<div class="modal fade" id="sortModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
+{{-- Filters modal (EzLicence-style: Availability + Advanced sections with collapsible groups) --}}
+<div class="modal fade fi-filters-modal" id="filtersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Sort by</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-0">
-                <div class="list-group list-group-flush">
-                    <button type="button" class="list-group-item list-group-item-action sort-option" data-sort="best_match"><i class="bi bi-stars me-2"></i>Best match</button>
-                    <button type="button" class="list-group-item list-group-item-action sort-option" data-sort="rating"><i class="bi bi-star-fill me-2 text-warning"></i>Highest rated</button>
-                    <button type="button" class="list-group-item list-group-item-action sort-option" data-sort="price"><i class="bi bi-currency-dollar me-2 text-success"></i>Lowest price</button>
-                    <button type="button" class="list-group-item list-group-item-action sort-option" data-sort="price_high"><i class="bi bi-currency-dollar me-2"></i>Highest price</button>
-                    <button type="button" class="list-group-item list-group-item-action sort-option" data-sort="experience"><i class="bi bi-clock-history me-2"></i>Most experience</button>
-                    <button type="button" class="list-group-item list-group-item-action sort-option" data-sort="lessons"><i class="bi bi-graph-up me-2"></i>Most lessons completed</button>
+            <div class="modal-header align-items-start">
+                <div>
+                    <h5 class="modal-title fw-bolder mb-1">Filters</h5>
+                    <p class="text-muted small mb-0" id="filters-modal-subtitle"></p>
                 </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                {{-- Availability accordion --}}
+                <details class="fi-section" open>
+                    <summary class="fi-section-title">
+                        <span>Availability</span>
+                        <i class="bi bi-chevron-up fi-chevron"></i>
+                    </summary>
+                    <div class="fi-section-body">
+                        <div class="fi-group-label">Day</div>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="day" value="next_4_days"><span>Next 4 days</span><span class="fi-count" data-count-for="day:next_4_days">0</span></label>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="day" value="next_7_days"><span>Next 7 days</span><span class="fi-count" data-count-for="day:next_7_days">0</span></label>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="day" value="weekend"><span>Weekend (Saturday or Sunday)</span><span class="fi-count" data-count-for="day:weekend">0</span></label>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="day" value="select_dates"><span>Select dates</span><span class="fi-count" data-count-for="day:select_dates">0</span></label>
+
+                        <div class="fi-group-label mt-3">Time</div>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="time" value="am"><span>AM</span><span class="fi-count" data-count-for="time:am">0</span></label>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="time" value="pm"><span>PM</span><span class="fi-count" data-count-for="time:pm">0</span></label>
+                    </div>
+                </details>
+
+                {{-- Advanced accordion --}}
+                <details class="fi-section" open>
+                    <summary class="fi-section-title">
+                        <span>Advanced</span>
+                        <i class="bi bi-chevron-up fi-chevron"></i>
+                    </summary>
+                    <div class="fi-section-body">
+                        <div class="fi-group-label">Driving Test Location</div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-12">
+                                <label class="form-label small mb-1">Test Date</label>
+                                <input type="date" class="form-control form-control-sm" id="fi-test-date">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small mb-1">Driving Test Centre</label>
+                                <select class="form-select form-select-sm" id="fi-test-centre">
+                                    <option value="">Select a driving test centre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="fi-group-label">Instructor's Gender</div>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="gender" value="male"><span>Male</span><span class="fi-count" data-count-for="gender:male">0</span></label>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="gender" value="female"><span>Female</span><span class="fi-count" data-count-for="gender:female">0</span></label>
+                        <label class="fi-check"><input type="checkbox" data-filter-group="gender" value="non-binary"><span>Non-binary</span><span class="fi-count" data-count-for="gender:non-binary">0</span></label>
+
+                        <div class="fi-group-label mt-3">Language</div>
+                        <div id="fi-language-list">
+                            {{-- Populated by JS based on results --}}
+                        </div>
+                        <p class="text-muted small mb-0 mt-3">Can't see your language? This just means we don't have instructors with that language in your selected area right now. Try searching in a different location!</p>
+                    </div>
+                </details>
+            </div>
+            <div class="modal-footer fi-footer">
+                <div class="fi-active-chips flex-grow-1" id="fi-active-chips">
+                    {{-- Active filter chips appear here --}}
+                </div>
+                <button type="button" class="btn btn-warning fw-bold fi-show-btn" id="fi-show-btn">Show <span id="fi-show-count">0</span> Instructors</button>
             </div>
         </div>
     </div>

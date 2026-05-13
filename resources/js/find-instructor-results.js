@@ -15,11 +15,11 @@ const isLearner = !!window.isLearner;
 
 // ── Mutable state ──
 let allInstructors = []; // raw API data
-let currentSort = 'best_match'; // best_match | rating | price | price_high | experience | lessons | next_available
-let activeFilters = new Set(); // 'female_only', 'available_4_days', etc.
-
+let currentSort = 'best_match'; // best_match | rating | price | price_high | next_available
+// activeFilters keys: "group:value" e.g. "gender:female", "language:Hindi", "day:next_4_days"
+let activeFilters = new Set();
+let filtersModal;
 let availabilityModal;
-let sortModal;
 let availabilityInstructor = null;
 
 // ── Helpers ──
@@ -193,17 +193,33 @@ function attachCardHandlers(card, inst) {
 }
 
 // ── Sort + filter ──
+// Helpers to read filter state
+function getFilterValuesByGroup(group) {
+  const values = new Set();
+  activeFilters.forEach((key) => {
+    const [g, v] = key.split(':');
+    if (g === group) values.add(v);
+  });
+  return values;
+}
+
 function applySortAndFilter(instructors) {
   let list = [...instructors];
 
-  // Apply filters
-  if (activeFilters.has('female_only')) {
-    list = list.filter((i) => (i.gender || '').toLowerCase() === 'female');
+  // Gender filter: OR within group
+  const genders = getFilterValuesByGroup('gender');
+  if (genders.size > 0) {
+    list = list.filter((i) => genders.has((i.gender || '').toLowerCase()));
   }
-  if (activeFilters.has('available_4_days')) {
-    // We don't have a real "available in 4 days" signal — best-effort: show all active instructors
-    // (placeholder filter; future enhancement would check actual availability slots)
+  // Language filter: instructor must have at least one matching language
+  const languages = getFilterValuesByGroup('language');
+  if (languages.size > 0) {
+    list = list.filter((i) => {
+      const instLangs = Array.isArray(i.languages) ? i.languages : (i.languages ? String(i.languages).split(',').map((s) => s.trim()) : []);
+      return instLangs.some((l) => languages.has(l));
+    });
   }
+  // (Day / Time / Test Date / Test Centre filters are placeholders — require real availability data to wire up.)
 
   // Apply sort
   switch (currentSort) {
@@ -223,12 +239,10 @@ function applySortAndFilter(instructors) {
       list.sort((a, b) => (Number(b.completed_lessons_count) || 0) - (Number(a.completed_lessons_count) || 0));
       break;
     case 'next_available':
-      // Without real availability data, fall back to most recently active (proxy: highest reviews)
       list.sort((a, b) => (Number(b.reviews_count) || 0) - (Number(a.reviews_count) || 0));
       break;
     case 'best_match':
     default:
-      // Best match: weighted by rating + completed_lessons
       list.sort((a, b) => {
         const sa = (Number(a.average_rating) || 0) * 10 + (Number(a.completed_lessons_count) || 0) * 0.1;
         const sb = (Number(b.average_rating) || 0) * 10 + (Number(b.completed_lessons_count) || 0) * 0.1;
@@ -289,69 +303,213 @@ function renderResults() {
 
 // ── Filter pill UI ──
 function refreshFilterPillUI() {
+  // Pills at top of page
   document.querySelectorAll('.filter-pill').forEach((p) => {
     const sort = p.dataset.sort;
-    const filter = p.dataset.filter;
-    const active = (sort && currentSort === sort) || (filter && activeFilters.has(filter));
+    const filter = p.dataset.pill; // legacy
+    let active = false;
+    if (sort && currentSort === sort) active = true;
+    if (filter === 'female_only' && activeFilters.has('gender:female')) active = true;
     p.classList.toggle('active', !!active);
   });
+
+  // Filter count badge on "Filters" toolbar button (counts modal filters only, not sort)
   const badge = document.getElementById('active-filter-count');
-  const total = activeFilters.size + (currentSort !== 'best_match' ? 1 : 0);
+  const total = activeFilters.size;
   if (badge) {
     badge.textContent = total;
     badge.style.display = total > 0 ? 'inline-block' : 'none';
   }
+
+  // Modal checkboxes — sync with state
+  document.querySelectorAll('#filtersModal input[type=checkbox][data-filter-group]').forEach((cb) => {
+    const key = `${cb.dataset.filterGroup}:${cb.value}`;
+    cb.checked = activeFilters.has(key);
+  });
+
+  // Sort dropdown: show checkmark on selected option
+  document.querySelectorAll('.sort-option-item').forEach((opt) => {
+    opt.classList.toggle('selected', opt.dataset.sort === currentSort);
+  });
 }
 
 function wireFilterPills() {
+  // Top filter pills
   document.querySelectorAll('.filter-pill').forEach((pill) => {
     pill.addEventListener('click', () => {
       const sort = pill.dataset.sort;
-      const filter = pill.dataset.filter;
+      const pillId = pill.dataset.pill;
       if (sort) {
         currentSort = currentSort === sort ? 'best_match' : sort;
-      } else if (filter) {
-        if (activeFilters.has(filter)) activeFilters.delete(filter);
-        else activeFilters.add(filter);
+      } else if (pillId === 'female_only') {
+        const key = 'gender:female';
+        if (activeFilters.has(key)) activeFilters.delete(key);
+        else activeFilters.add(key);
       }
       refreshFilterPillUI();
       renderResults();
     });
   });
 
-  // Sort modal options
-  document.querySelectorAll('.sort-option').forEach((opt) => {
-    opt.addEventListener('click', () => {
-      currentSort = opt.dataset.sort;
-      refreshFilterPillUI();
-      renderResults();
-      if (sortModal) sortModal.hide();
-    });
-  });
-
-  // Sort button → open modal
+  // ── Sort dropdown ──
   const sortBtn = document.getElementById('open-sort-btn');
-  if (sortBtn) {
-    sortBtn.addEventListener('click', () => {
-      const el = document.getElementById('sortModal');
-      if (!sortModal && window.bootstrap && window.bootstrap.Modal && el) {
-        sortModal = new window.bootstrap.Modal(el);
+  const sortMenu = document.getElementById('sort-dropdown-menu');
+  if (sortBtn && sortMenu) {
+    // Ensure menu doesn't overflow viewport — reposition after opening
+    function positionMenu() {
+      // Reset any custom inline positioning so CSS defaults apply first
+      sortMenu.style.left = '';
+      sortMenu.style.right = '';
+      const rect = sortMenu.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      if (rect.left < 8) {
+        // Spilling off left edge — switch from right-anchored to left-anchored,
+        // and offset so the menu sits at viewport edge with 8px gutter
+        const btnRect = sortBtn.getBoundingClientRect();
+        sortMenu.style.right = 'auto';
+        // shift so menu's left edge is 8px from viewport
+        sortMenu.style.left = (8 - btnRect.left) + 'px';
+      } else if (rect.right > vw - 8) {
+        sortMenu.style.left = 'auto';
+        sortMenu.style.right = '0px';
       }
-      if (sortModal) sortModal.show();
+    }
+    sortBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wasHidden = sortMenu.hidden;
+      sortMenu.hidden = !wasHidden;
+      sortBtn.setAttribute('aria-expanded', String(wasHidden));
+      if (wasHidden) {
+        // menu just opened — adjust position next frame
+        requestAnimationFrame(positionMenu);
+      }
+    });
+    window.addEventListener('resize', () => { if (!sortMenu.hidden) positionMenu(); });
+    document.addEventListener('click', (e) => {
+      if (!sortBtn.contains(e.target) && !sortMenu.contains(e.target)) {
+        sortMenu.hidden = true;
+        sortBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.querySelectorAll('.sort-option-item').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        currentSort = opt.dataset.sort;
+        sortMenu.hidden = true;
+        sortBtn.setAttribute('aria-expanded', 'false');
+        refreshFilterPillUI();
+        renderResults();
+      });
     });
   }
 
-  // Filters button → just open sort modal too for now (could be expanded later)
+  // ── Filters modal ──
   const filtersBtn = document.getElementById('open-filters-btn');
   if (filtersBtn) {
     filtersBtn.addEventListener('click', () => {
-      const el = document.getElementById('sortModal');
-      if (!sortModal && window.bootstrap && window.bootstrap.Modal && el) {
-        sortModal = new window.bootstrap.Modal(el);
+      const el = document.getElementById('filtersModal');
+      if (!filtersModal && window.bootstrap && window.bootstrap.Modal && el) {
+        filtersModal = new window.bootstrap.Modal(el);
       }
-      if (sortModal) sortModal.show();
+      populateFiltersModal();
+      if (filtersModal) filtersModal.show();
     });
   }
+  document.querySelectorAll('#filtersModal input[type=checkbox][data-filter-group]').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      const key = `${cb.dataset.filterGroup}:${cb.value}`;
+      if (cb.checked) activeFilters.add(key); else activeFilters.delete(key);
+      refreshFilterPillUI();
+      refreshFiltersModalChips();
+      renderResults();
+      updateShowCount();
+    });
+  });
+  const showBtn = document.getElementById('fi-show-btn');
+  if (showBtn) showBtn.addEventListener('click', () => { if (filtersModal) filtersModal.hide(); });
+}
+
+// ── Filters modal: populate counts + language list ──
+function populateFiltersModal() {
+  const subtitle = document.getElementById('filters-modal-subtitle');
+  if (subtitle) {
+    const trans = (params.transmission || '').toLowerCase();
+    const transLabel = trans === 'manual' ? 'Manual ' : (trans === 'auto' ? 'Auto ' : '');
+    const loc = params.locationLabel || 'your area';
+    subtitle.textContent = `${transLabel}Instructors in ${loc}`;
+  }
+
+  // Counts by gender (count from raw data, not filtered)
+  const counts = { gender: { male: 0, female: 0, 'non-binary': 0 }, day: {}, time: {}, language: {} };
+  allInstructors.forEach((i) => {
+    const g = (i.gender || '').toLowerCase();
+    if (counts.gender[g] !== undefined) counts.gender[g]++;
+    // Languages (if API exposes them in future)
+    const langs = Array.isArray(i.languages) ? i.languages : (i.languages ? String(i.languages).split(',').map((s) => s.trim()) : []);
+    langs.forEach((l) => { if (l) counts.language[l] = (counts.language[l] || 0) + 1; });
+  });
+  // Day/Time counts — fallback to total available (no real availability data wired yet)
+  ['next_4_days', 'next_7_days', 'weekend', 'select_dates'].forEach((d) => counts.day[d] = allInstructors.length);
+  counts.time.am = allInstructors.length;
+  counts.time.pm = allInstructors.length;
+
+  document.querySelectorAll('.fi-count[data-count-for]').forEach((el) => {
+    const [group, value] = (el.dataset.countFor || '').split(':');
+    el.textContent = (counts[group] && counts[group][value]) || 0;
+  });
+
+  // Render language checkboxes (alphabetical)
+  const langWrap = document.getElementById('fi-language-list');
+  if (langWrap) {
+    const langs = Object.keys(counts.language).sort();
+    if (langs.length === 0) {
+      langWrap.innerHTML = '<p class="text-muted small mb-0">No language data available for these instructors yet.</p>';
+    } else {
+      langWrap.innerHTML = langs.map((l) => {
+        const key = `language:${l}`;
+        return `<label class="fi-check"><input type="checkbox" data-filter-group="language" value="${escapeHtml(l)}"${activeFilters.has(key) ? ' checked' : ''}><span>${escapeHtml(l)}</span><span class="fi-count">${counts.language[l]}</span></label>`;
+      }).join('');
+      // Re-wire change handlers for newly-added checkboxes
+      langWrap.querySelectorAll('input[type=checkbox]').forEach((cb) => {
+        cb.addEventListener('change', () => {
+          const key = `${cb.dataset.filterGroup}:${cb.value}`;
+          if (cb.checked) activeFilters.add(key); else activeFilters.delete(key);
+          refreshFilterPillUI();
+          refreshFiltersModalChips();
+          renderResults();
+          updateShowCount();
+        });
+      });
+    }
+  }
+
+  refreshFiltersModalChips();
+  updateShowCount();
+}
+
+function refreshFiltersModalChips() {
+  const chipsWrap = document.getElementById('fi-active-chips');
+  if (!chipsWrap) return;
+  if (activeFilters.size === 0) { chipsWrap.innerHTML = ''; return; }
+  chipsWrap.innerHTML = Array.from(activeFilters).map((key) => {
+    const [, value] = key.split(':');
+    const label = value.replace(/_/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase());
+    return `<button type="button" class="fi-chip" data-remove-filter="${escapeHtml(key)}"><i class="bi bi-x"></i> ${escapeHtml(label)}</button>`;
+  }).join('');
+  chipsWrap.querySelectorAll('[data-remove-filter]').forEach((b) => {
+    b.addEventListener('click', () => {
+      activeFilters.delete(b.dataset.removeFilter);
+      refreshFilterPillUI();
+      refreshFiltersModalChips();
+      renderResults();
+      updateShowCount();
+    });
+  });
+}
+
+function updateShowCount() {
+  const el = document.getElementById('fi-show-count');
+  if (!el) return;
+  el.textContent = applySortAndFilter(allInstructors).length;
 }
 
 // ── Availability modal ──
