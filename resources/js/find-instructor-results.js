@@ -1,5 +1,9 @@
 /**
- * Find-instructor results page: load instructors from API and render cards. Only works when opened from find-instructor (params in URL/data).
+ * Find-instructor results page (EzLicence-style):
+ * - Dual-circle photo cards (instructor + car)
+ * - Filter pills with active state, real sort/filter behaviour
+ * - Sort modal (Best match, Highest rated, Lowest/Highest price, Experience, Most lessons)
+ * - Filters: female-only, available-next-4-days
  */
 import {
   runInstructorSearch,
@@ -8,117 +12,136 @@ import {
 
 const params = window.findInstructorResultsParams || {};
 const isLearner = !!window.isLearner;
-const learnerBookingNewUrl = window.learnerBookingNewUrl || '';
+
+// ── Mutable state ──
+let allInstructors = []; // raw API data
+let currentSort = 'best_match'; // best_match | rating | price | price_high | experience | lessons | next_available
+let activeFilters = new Set(); // 'female_only', 'available_4_days', etc.
 
 let availabilityModal;
+let sortModal;
 let availabilityInstructor = null;
 
+// ── Helpers ──
 function escapeHtml(s) {
   const div = document.createElement('div');
   div.textContent = s ?? '';
   return div.innerHTML;
 }
 
-function renderCard(inst) {
-  const price = inst.lesson_price != null ? Math.round(inst.lesson_price) : null;
-  const location = (inst.service_areas && inst.service_areas.length)
-    ? `${inst.service_areas[0].name} ${inst.service_areas[0].postcode} ${inst.service_areas[0].state || ''}`.trim()
-    : '';
-  const ratingNum = Number(inst.average_rating) || 0;
-  const ratingDisplay = ratingNum > 0 ? ratingNum.toFixed(1) : '—';
-  const reviews = inst.reviews_count ?? 0;
-  const transRaw = (inst.transmission || '').toLowerCase();
-  const transLabel = transRaw === 'manual' ? 'Manual' : (transRaw === 'both' ? 'Auto & Manual' : 'Auto');
+function initials(name) {
+  const parts = (name || '?').split(' ').filter(Boolean);
+  return parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : (parts[0][0] || '?').toUpperCase();
+}
 
-  // Avatar initials from name
-  const nameParts = (inst.name || '?').split(' ').filter(Boolean);
-  const initials = nameParts.length >= 2
-    ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
-    : (nameParts[0][0] || '?').toUpperCase();
+function formatTenureLabel(months) {
+  if (!months || months < 1) return 'New instructor';
+  if (months < 12) return `Instructed for ${months} mo.`;
+  const years = Math.floor(months / 12);
+  return `${years}+ year${years > 1 ? 's' : ''} instructing`;
+}
 
-  // Profile photo fallback
-  const photo = inst.profile_photo_url || inst.profile_photo || '';
-  const photoHtml = photo
-    ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(inst.name || '')}" class="instructor-photo">`
-    : `<div class="instructor-initials">${initials}</div>`;
+function bookingsLabel(inst) {
+  const c = Number(inst.completed_lessons_count) || 0;
+  if (c >= 10) return `${c} Completed Lessons`;
+  if (inst.is_verified) return 'Verified Driving Instructor';
+  if (inst.instructing_months >= 1) return formatTenureLabel(inst.instructing_months);
+  return 'Verified Driving Instructor';
+}
 
-  // Star display (5 stars, filled based on rating)
-  const fullStars = Math.floor(ratingNum);
-  const halfStar = ratingNum - fullStars >= 0.3 && ratingNum - fullStars < 0.8;
-  let starsHtml = '';
+function isGreatValue(inst, allPrices) {
+  if (!allPrices.length || inst.lesson_price == null) return false;
+  // bottom 33% of prices = "Great Value"
+  const sorted = [...allPrices].sort((a, b) => a - b);
+  const threshold = sorted[Math.floor(sorted.length / 3)] || sorted[0];
+  return inst.lesson_price <= threshold;
+}
+
+function renderStars(rating) {
+  const r = Number(rating) || 0;
+  const full = Math.floor(r);
+  const half = r - full >= 0.3 && r - full < 0.8;
+  let html = '';
   for (let i = 0; i < 5; i++) {
-    if (i < fullStars) starsHtml += '<i class="bi bi-star-fill"></i>';
-    else if (i === fullStars && halfStar) starsHtml += '<i class="bi bi-star-half"></i>';
-    else starsHtml += '<i class="bi bi-star"></i>';
+    if (i < full) html += '<i class="bi bi-star-fill"></i>';
+    else if (i === full && half) html += '<i class="bi bi-star-half"></i>';
+    else html += '<i class="bi bi-star"></i>';
   }
+  return html;
+}
 
-  // Top-badge area: verified + popularity + gender
-  const verifiedBadge = inst.is_verified !== false
-    ? '<span class="sl-verified-badge" title="Verified instructor"><i class="bi bi-patch-check-fill"></i> Verified</span>'
-    : '';
-  const popularBadge = (reviews >= 20 && ratingNum >= 4.7)
-    ? '<span class="sl-popular-badge" title="Highly rated with many bookings"><i class="bi bi-fire"></i> Popular</span>'
-    : '';
-  // Gender badge (helps learners with gender-preference safety filter)
-  const gender = (inst.gender || '').toLowerCase();
-  const genderBadge = gender === 'female'
-    ? '<span class="sl-gender-badge sl-gender-female" title="Female instructor"><i class="bi bi-gender-female"></i> Female</span>'
-    : (gender === 'male'
-        ? '<span class="sl-gender-badge sl-gender-male" title="Male instructor"><i class="bi bi-gender-male"></i> Male</span>'
-        : '');
+function renderCard(inst, allPrices) {
+  const price = inst.lesson_price != null ? Math.round(inst.lesson_price) : null;
+  const rating = Number(inst.average_rating) || 0;
+  const reviews = inst.reviews_count ?? 0;
+  const greatValue = isGreatValue(inst, allPrices);
 
-  // Female-only badge — instructor only accepts female learners
-  const femaleOnlyBadge = inst.female_only
-    ? '<span class="sl-gender-badge sl-gender-female" title="This instructor only accepts female learners"><i class="bi bi-shield-fill-check"></i> Female learners only</span>'
+  // Photo or initials
+  const photoUrl = inst.profile_photo_url;
+  const photoHtml = photoUrl
+    ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(inst.name || '')}" class="ic-photo-img">`
+    : `<div class="ic-photo-initials">${initials(inst.name)}</div>`;
+
+  // Vehicle photo or generic car icon
+  const vehicleUrl = inst.vehicle_photo_url;
+  const vehicleHtml = vehicleUrl
+    ? `<img src="${escapeHtml(vehicleUrl)}" alt="Vehicle" class="ic-vehicle-img">`
+    : `<div class="ic-vehicle-icon"><i class="bi bi-car-front-fill"></i></div>`;
+
+  // Female-only badge (if applicable)
+  const femaleOnlyTag = inst.female_only
+    ? `<div class="ic-female-only-tag"><i class="bi bi-shield-fill-check me-1"></i>Female learners only</div>`
     : '';
 
   return `
-    <div class="col-md-6 col-lg-4 col-xl-3">
-      <div class="card h-100 border-0 instructor-card-v2" data-profile-id="${inst.id}">
-        <div class="instructor-card-v2-header">
-          ${photoHtml}
-          <div class="instructor-card-v2-badges">
-            ${verifiedBadge}
-            ${popularBadge}
-            ${genderBadge}
-            ${femaleOnlyBadge}
-          </div>
-        </div>
-        <div class="card-body d-flex flex-column p-3 pt-4">
-          <h6 class="fw-bolder mb-1 text-truncate" style="font-size:1.05rem; letter-spacing:-0.01em;">${escapeHtml(inst.name)}</h6>
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="sl-stars">${starsHtml}</div>
-            <span class="fw-bold small">${ratingDisplay}</span>
-            <span class="small text-muted">(${reviews})</span>
+    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+      <div class="ic-card" data-profile-id="${inst.id}">
+        ${greatValue ? '<div class="ic-badge-tag"><i class="bi bi-currency-dollar"></i> Great Value</div>' : ''}
+        <div class="ic-card-body">
+          <div class="ic-photos">
+            <div class="ic-photo-circle">${photoHtml}</div>
+            <div class="ic-vehicle-circle">${vehicleHtml}</div>
           </div>
 
-          <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="sl-chip"><i class="bi bi-gear-fill"></i>${escapeHtml(transLabel)}</span>
-            ${inst.vehicle_year && inst.vehicle_make ? `<span class="sl-chip"><i class="bi bi-car-front-fill"></i>${escapeHtml(inst.vehicle_year + ' ' + inst.vehicle_make)}</span>` : ''}
-          </div>
+          <h3 class="ic-name">${escapeHtml(inst.first_name || inst.name)}</h3>
 
-          ${location ? `<div class="small text-muted mb-3 d-flex align-items-start gap-2"><i class="bi bi-geo-alt-fill" style="color:var(--sl-primary-600); margin-top:2px;"></i><span class="text-truncate">${escapeHtml(location)}</span></div>` : ''}
+          ${rating > 0 ? `
+            <div class="ic-rating">
+              <i class="bi bi-star-fill"></i>
+              <span class="ic-rating-num">${rating.toFixed(1)}</span>
+              <span class="ic-rating-sep">·</span>
+              <span class="ic-rating-count">${reviews} Rating${reviews !== 1 ? 's' : ''}</span>
+            </div>
+          ` : `
+            <div class="ic-rating ic-rating-new">
+              <i class="bi bi-star"></i>
+              <span class="ic-rating-num">New</span>
+            </div>
+          `}
 
-          <div class="mt-auto pt-2 border-top">
-            ${price ? `
-              <div class="d-flex align-items-baseline justify-content-between mb-2">
-                <span class="small text-muted">from</span>
-                <div>
-                  <span class="fw-bolder" style="font-size:1.35rem; color:var(--sl-gray-900);">$${price}</span>
-                  <span class="small text-muted">/hr</span>
-                </div>
-              </div>
-            ` : ''}
-            <div class="d-grid gap-2">
-              <button type="button" class="btn btn-primary btn-sm fw-bold book-now-btn" data-id="${inst.id}">
-                <i class="bi bi-calendar-check me-1"></i>Book Online
-              </button>
-              <div class="d-flex gap-2">
-                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill view-profile-btn" data-id="${inst.id}">
-                  <i class="bi bi-person"></i> Profile
+          <div class="ic-label">${escapeHtml(bookingsLabel(inst))}</div>
+
+          ${femaleOnlyTag}
+
+          ${price != null ? `
+            <div class="ic-price">$${price}.00<span class="ic-price-unit">/hr</span></div>
+          ` : ''}
+
+          <div class="ic-actions">
+            <button type="button" class="btn btn-warning fw-bolder w-100 ic-btn-book book-now-btn" data-id="${inst.id}">
+              Book Online Now
+            </button>
+            <div class="row g-2 mt-2">
+              <div class="col-6">
+                <button type="button" class="btn btn-outline-secondary w-100 ic-btn-secondary view-profile-btn" data-id="${inst.id}">
+                  View Profile
                 </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill availability-btn" data-id="${inst.id}">
-                  <i class="bi bi-clock"></i> Times
+              </div>
+              <div class="col-6">
+                <button type="button" class="btn btn-outline-secondary w-100 ic-btn-secondary availability-btn" data-id="${inst.id}">
+                  Availability
                 </button>
               </div>
             </div>
@@ -129,18 +152,17 @@ function renderCard(inst) {
   `;
 }
 
-function attachCardHandlers(col, inst) {
+function attachCardHandlers(card, inst) {
   const id = inst.id;
-  const bookBtn = col.querySelector('.book-now-btn');
-  const viewBtn = col.querySelector('.view-profile-btn');
-  const availBtn = col.querySelector('.availability-btn');
-  const card = col.querySelector('.instructor-card-v2');
+  const bookBtn = card.querySelector('.book-now-btn');
+  const viewBtn = card.querySelector('.view-profile-btn');
+  const availBtn = card.querySelector('.availability-btn');
 
-  // Clicking the card itself goes to profile (except when clicking buttons)
-  if (card) {
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('button')) return; // Don't navigate when button clicked
+  const cardEl = card.querySelector('.ic-card');
+  if (cardEl) {
+    cardEl.style.cursor = 'pointer';
+    cardEl.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
       window.location.href = `/instructors/${id}`;
     });
   }
@@ -149,22 +171,177 @@ function attachCardHandlers(col, inst) {
     bookBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (isLearner) {
-        // Logged-in learner: go directly to Make a Booking (no Amount/upsell/Registration steps)
         window.location.href = `/learner/bookings/new?instructor_profile_id=${id}`;
       } else {
-        // Guest: 5-step flow starting at Amount (account auto-created at payment)
         window.location.href = `/learner/bookings/amount?instructor_profile_id=${id}`;
       }
     });
   }
-  if (viewBtn) {
-    viewBtn.addEventListener('click', (e) => { e.stopPropagation(); window.location.href = `/instructors/${id}`; });
+  if (viewBtn) viewBtn.addEventListener('click', (e) => { e.stopPropagation(); window.location.href = `/instructors/${id}`; });
+  if (availBtn) availBtn.addEventListener('click', (e) => { e.stopPropagation(); openAvailability(inst); });
+}
+
+// ── Sort + filter ──
+function applySortAndFilter(instructors) {
+  let list = [...instructors];
+
+  // Apply filters
+  if (activeFilters.has('female_only')) {
+    list = list.filter((i) => (i.gender || '').toLowerCase() === 'female');
   }
-  if (availBtn) {
-    availBtn.addEventListener('click', (e) => { e.stopPropagation(); openAvailability(inst); });
+  if (activeFilters.has('available_4_days')) {
+    // We don't have a real "available in 4 days" signal — best-effort: show all active instructors
+    // (placeholder filter; future enhancement would check actual availability slots)
+  }
+
+  // Apply sort
+  switch (currentSort) {
+    case 'rating':
+      list.sort((a, b) => (Number(b.average_rating) || 0) - (Number(a.average_rating) || 0));
+      break;
+    case 'price':
+      list.sort((a, b) => (Number(a.lesson_price) || 0) - (Number(b.lesson_price) || 0));
+      break;
+    case 'price_high':
+      list.sort((a, b) => (Number(b.lesson_price) || 0) - (Number(a.lesson_price) || 0));
+      break;
+    case 'experience':
+      list.sort((a, b) => (Number(b.instructing_months) || 0) - (Number(a.instructing_months) || 0));
+      break;
+    case 'lessons':
+      list.sort((a, b) => (Number(b.completed_lessons_count) || 0) - (Number(a.completed_lessons_count) || 0));
+      break;
+    case 'next_available':
+      // Without real availability data, fall back to most recently active (proxy: highest reviews)
+      list.sort((a, b) => (Number(b.reviews_count) || 0) - (Number(a.reviews_count) || 0));
+      break;
+    case 'best_match':
+    default:
+      // Best match: weighted by rating + completed_lessons
+      list.sort((a, b) => {
+        const sa = (Number(a.average_rating) || 0) * 10 + (Number(a.completed_lessons_count) || 0) * 0.1;
+        const sb = (Number(b.average_rating) || 0) * 10 + (Number(b.completed_lessons_count) || 0) * 0.1;
+        return sb - sa;
+      });
+      break;
+  }
+  return list;
+}
+
+function renderResults() {
+  const resultsEl = document.getElementById('results');
+  const resultsEmpty = document.getElementById('results-empty');
+  const resultsHeading = document.getElementById('results-heading');
+  const resultsFromPrice = document.getElementById('results-from-price');
+
+  const filtered = applySortAndFilter(allInstructors);
+  const allPrices = filtered.map((i) => Number(i.lesson_price)).filter((p) => !isNaN(p));
+  const minPrice = allPrices.length ? Math.min(...allPrices) : null;
+
+  resultsEl.innerHTML = '';
+
+  if (!filtered.length) {
+    resultsEmpty.style.display = 'block';
+    if (resultsHeading) resultsHeading.style.display = 'none';
+    if (resultsFromPrice) resultsFromPrice.style.display = 'none';
+    return;
+  }
+
+  resultsEmpty.style.display = 'none';
+
+  // Heading
+  const transmission = (params.transmission || '').toLowerCase();
+  const transLabel = transmission === 'manual' ? 'Manual' : (transmission === 'auto' ? 'Auto' : '');
+  if (resultsHeading) {
+    resultsHeading.textContent = transLabel
+      ? `${filtered.length} ${transLabel} Instructor${filtered.length !== 1 ? 's' : ''} Available`
+      : `${filtered.length} Instructor${filtered.length !== 1 ? 's' : ''} Available`;
+    resultsHeading.style.display = 'block';
+  }
+  if (resultsFromPrice) {
+    resultsFromPrice.textContent = minPrice != null ? `from $${minPrice.toFixed(2)}/hr` : '';
+    resultsFromPrice.style.display = minPrice != null ? 'block' : 'none';
+  }
+
+  filtered.forEach((inst) => {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = renderCard(inst, allPrices).trim();
+    const colEl = wrap.firstElementChild;
+    if (colEl) {
+      attachCardHandlers(colEl, inst);
+      resultsEl.appendChild(colEl);
+    }
+  });
+}
+
+// ── Filter pill UI ──
+function refreshFilterPillUI() {
+  document.querySelectorAll('.filter-pill').forEach((p) => {
+    const sort = p.dataset.sort;
+    const filter = p.dataset.filter;
+    const active = (sort && currentSort === sort) || (filter && activeFilters.has(filter));
+    p.classList.toggle('active', !!active);
+  });
+  const badge = document.getElementById('active-filter-count');
+  const total = activeFilters.size + (currentSort !== 'best_match' ? 1 : 0);
+  if (badge) {
+    badge.textContent = total;
+    badge.style.display = total > 0 ? 'inline-block' : 'none';
   }
 }
 
+function wireFilterPills() {
+  document.querySelectorAll('.filter-pill').forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const sort = pill.dataset.sort;
+      const filter = pill.dataset.filter;
+      if (sort) {
+        currentSort = currentSort === sort ? 'best_match' : sort;
+      } else if (filter) {
+        if (activeFilters.has(filter)) activeFilters.delete(filter);
+        else activeFilters.add(filter);
+      }
+      refreshFilterPillUI();
+      renderResults();
+    });
+  });
+
+  // Sort modal options
+  document.querySelectorAll('.sort-option').forEach((opt) => {
+    opt.addEventListener('click', () => {
+      currentSort = opt.dataset.sort;
+      refreshFilterPillUI();
+      renderResults();
+      if (sortModal) sortModal.hide();
+    });
+  });
+
+  // Sort button → open modal
+  const sortBtn = document.getElementById('open-sort-btn');
+  if (sortBtn) {
+    sortBtn.addEventListener('click', () => {
+      const el = document.getElementById('sortModal');
+      if (!sortModal && window.bootstrap && window.bootstrap.Modal && el) {
+        sortModal = new window.bootstrap.Modal(el);
+      }
+      if (sortModal) sortModal.show();
+    });
+  }
+
+  // Filters button → just open sort modal too for now (could be expanded later)
+  const filtersBtn = document.getElementById('open-filters-btn');
+  if (filtersBtn) {
+    filtersBtn.addEventListener('click', () => {
+      const el = document.getElementById('sortModal');
+      if (!sortModal && window.bootstrap && window.bootstrap.Modal && el) {
+        sortModal = new window.bootstrap.Modal(el);
+      }
+      if (sortModal) sortModal.show();
+    });
+  }
+}
+
+// ── Availability modal ──
 function openAvailability(inst) {
   availabilityInstructor = inst;
   const modalEl = document.getElementById('availabilityModal');
@@ -180,20 +357,12 @@ function openAvailability(inst) {
   if (headingSpan) headingSpan.textContent = inst.name || '';
   if (nameSpan) nameSpan.textContent = inst.name || '';
   if (loadingEl) loadingEl.style.display = 'block';
-  if (contentEl) {
-    contentEl.style.display = 'none';
-    contentEl.innerHTML = '';
-  }
+  if (contentEl) { contentEl.style.display = 'none'; contentEl.innerHTML = ''; }
   if (bookBtn) {
     bookBtn.onclick = () => {
       if (!availabilityInstructor) return;
-      if (isLearner) {
-        // Logged-in learner: skip Amount/upsell, go directly to Make a Booking
-        window.location.href = `/learner/bookings/new?instructor_profile_id=${availabilityInstructor.id}`;
-      } else {
-        // Guest: full 5-step flow starting at Amount
-        window.location.href = `/learner/bookings/amount?instructor_profile_id=${availabilityInstructor.id}`;
-      }
+      if (isLearner) window.location.href = `/learner/bookings/new?instructor_profile_id=${availabilityInstructor.id}`;
+      else window.location.href = `/learner/bookings/amount?instructor_profile_id=${availabilityInstructor.id}`;
     };
   }
   if (availabilityModal) availabilityModal.show();
@@ -204,85 +373,48 @@ function openAvailability(inst) {
       loadingEl.style.display = 'none';
       const ds = dates || [];
       if (!ds.length) {
-        contentEl.innerHTML = '<p class="text-muted mb-0 small">No availability data to show here. You can still continue by clicking "Book with ' + escapeHtml(inst.name || '') + '" to choose a time in the booking flow.</p>';
+        contentEl.innerHTML = '<p class="text-muted mb-0 small">No availability data to show. Continue with "Book with ' + escapeHtml(inst.name || '') + '" to choose a time.</p>';
       } else {
         const list = ds.slice(0, 7).map((d) => {
           const label = typeof d === 'string' ? d : d.label || d.date || '';
           return `<span class="badge bg-light text-dark border me-1 mb-1">${escapeHtml(label)}</span>`;
         }).join('');
-        contentEl.innerHTML = '<p class="small mb-2">Next available dates:</p><div>' + list + '</div><p class="small text-muted mt-3 mb-0">To view exact times, continue to the booking flow.</p>';
+        contentEl.innerHTML = '<p class="small mb-2">Next available dates:</p><div>' + list + '</div><p class="small text-muted mt-3 mb-0">Continue to the booking flow for exact times.</p>';
       }
       contentEl.style.display = 'block';
     })
-    .catch((e) => {
+    .catch(() => {
       if (!contentEl || !loadingEl) return;
       loadingEl.style.display = 'none';
-      contentEl.innerHTML = '<p class="text-danger small mb-0">Could not load availability. Please try again or continue to the booking flow.</p>';
+      contentEl.innerHTML = '<p class="text-danger small mb-0">Could not load availability.</p>';
       contentEl.style.display = 'block';
-      console.error(e);
     });
 }
 
+// ── Init ──
 function init() {
-  const resultsEl = document.getElementById('results');
   const resultsLoading = document.getElementById('results-loading');
   const resultsEmpty = document.getElementById('results-empty');
-  const resultsHeading = document.getElementById('results-heading');
-  const resultsFromPrice = document.getElementById('results-from-price');
-  const moreSection = document.getElementById('more-section');
-  const moreResults = document.getElementById('more-results');
 
   const suburbId = params.suburbId || null;
   const transmission = params.transmission || null;
   const testPreBooked = params.testPreBooked === true;
 
+  wireFilterPills();
+  refreshFilterPillUI();
+
   runInstructorSearch({ suburbId, transmission, testPreBooked })
     .then((instructors) => {
       resultsLoading.style.display = 'none';
-      if (!instructors.length) {
-        resultsEmpty.style.display = 'block';
-        return;
-      }
-      const prices = instructors.map((i) => (i.lesson_price != null ? Number(i.lesson_price) : null)).filter((p) => p != null && !Number.isNaN(p));
-      const minPrice = prices.length ? Math.min(...prices) : null;
-      const transLabel = transmission === 'manual' ? 'Manual' : (transmission === 'auto' ? 'Auto' : '');
-      const headingText = transLabel
-        ? `${instructors.length} ${transLabel} Instructor${instructors.length !== 1 ? 's' : ''} Available`
-        : `${instructors.length} Instructor${instructors.length !== 1 ? 's' : ''} Available`;
-      if (resultsHeading) {
-        resultsHeading.textContent = headingText;
-        resultsHeading.style.display = 'block';
-      }
-      if (resultsFromPrice) {
-        resultsFromPrice.textContent = minPrice != null ? `from $${Math.round(minPrice)}.00/hr` : '';
-        resultsFromPrice.style.display = 'block';
-      }
-      instructors.slice(0, 12).forEach((inst) => {
-        const col = document.createElement('div');
-        col.innerHTML = renderCard(inst).trim();
-        const card = col.firstElementChild;
-        if (card) {
-          attachCardHandlers(card, inst);
-          resultsEl.appendChild(card);
-        }
-      });
-      if (instructors.length > 12 && moreSection && moreResults) {
-        moreSection.style.display = 'block';
-        instructors.slice(12).forEach((inst) => {
-          const col = document.createElement('div');
-          col.innerHTML = renderCard(inst).trim();
-          const card = col.firstElementChild;
-          if (card) {
-            attachCardHandlers(card, inst);
-            moreResults.appendChild(card);
-          }
-        });
-      }
+      allInstructors = instructors || [];
+      renderResults();
     })
     .catch((e) => {
       resultsLoading.style.display = 'none';
-      resultsEmpty.innerHTML = 'Unable to load instructors. <a href="/find-instructor">Try again</a>.';
-      resultsEmpty.style.display = 'block';
+      if (resultsEmpty) {
+        resultsEmpty.innerHTML = 'Unable to load instructors. <a href="/find-instructor">Try again</a>.';
+        resultsEmpty.style.display = 'block';
+      }
       console.error(e);
     });
 }

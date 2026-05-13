@@ -49,23 +49,43 @@ class InstructorSearchController extends Controller
             $query->where('offers_test_package', true);
         }
 
-        $instructors = $query->withCount('reviews')
+        $instructors = $query->withCount(['reviews', 'bookings as completed_lessons_count' => function ($q) {
+                $q->where('status', 'completed');
+            }])
             ->get()
             ->map(function (InstructorProfile $p) {
+                // Months instructing — based on user registration date
+                $instructingMonths = $p->user->created_at
+                    ? (int) $p->user->created_at->diffInMonths(now())
+                    : null;
+
+                // Photo URLs (storage path → public URL)
+                $profilePhotoUrl = $p->profile_photo ? asset('storage/' . $p->profile_photo) : null;
+                $vehiclePhotoUrl = $p->vehicle_photo ? asset('storage/' . $p->vehicle_photo) : null;
+
                 return [
                     'id' => $p->id,
                     'user_id' => $p->user_id,
                     'name' => $p->user->name,
+                    'first_name' => $p->user->first_name ?? explode(' ', $p->user->name)[0],
                     'gender' => $p->user->gender ? strtolower($p->user->gender) : null,
                     'female_only' => $p->isFemaleOnly(),
                     'bio' => $p->bio,
                     'transmission' => $p->transmission,
                     'vehicle' => $this->formatVehicle($p),
+                    'vehicle_make' => $p->vehicle_make,
+                    'vehicle_model' => $p->vehicle_model,
+                    'vehicle_year' => $p->vehicle_year,
                     'lesson_price' => (float) $p->lesson_price,
                     'test_package_price' => $p->test_package_price ? (float) $p->test_package_price : null,
                     'offers_test_package' => $p->offers_test_package,
                     'average_rating' => round($p->averageRating(), 1),
                     'reviews_count' => $p->reviewsCount(),
+                    'completed_lessons_count' => (int) $p->completed_lessons_count,
+                    'instructing_months' => $instructingMonths,
+                    'is_verified' => $p->verification_status === 'verified',
+                    'profile_photo_url' => $profilePhotoUrl,
+                    'vehicle_photo_url' => $vehiclePhotoUrl,
                     'service_areas' => $p->serviceAreas->map(fn ($s) => [
                         'id' => $s->id,
                         'name' => $s->name,
