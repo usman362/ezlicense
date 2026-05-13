@@ -64,19 +64,82 @@
         <a href="{{ route('find-instructor') }}" class="btn btn-warning btn-sm fw-bold">Try a different search</a>
     </div>
 
-    {{-- Checked, Verified, Trusted --}}
-    <section class="py-4 py-lg-5 bg-light rounded-4 mt-4 mb-4">
-        <div class="container">
-            <h2 class="h5 fw-bold mb-3">Checked, Verified, Trusted!</h2>
-            <p class="text-muted small mb-2">All instructors are:</p>
-            <ul class="list-unstyled small mb-0">
-                <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Home-grown verified Working with Children Check</li>
-                <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Independently Insured</li>
-                <li class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Professional and safe driving instructors</li>
-            </ul>
-        </div>
-    </section>
 </div>
+
+{{-- Checked, Verified, Trusted! — with illustration --}}
+<section class="cvt-section py-5">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-md-5 text-center">
+                <svg viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" class="cvt-illustration" aria-hidden="true">
+                    {{-- Simple flat-line illustration: instructor with clipboard --}}
+                    <g fill="none" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="120" cy="55" r="22"/>
+                        <path d="M105 50 Q115 45 135 50"/>
+                        <circle cx="113" cy="55" r="1.5" fill="#1f2937"/>
+                        <circle cx="127" cy="55" r="1.5" fill="#1f2937"/>
+                        <path d="M114 64 Q120 67 126 64"/>
+                        {{-- Body --}}
+                        <path d="M90 85 Q90 80 100 78 L140 78 Q150 80 150 85 L150 160 L90 160 Z"/>
+                        {{-- Arms --}}
+                        <path d="M90 100 L70 130"/>
+                        <path d="M150 100 L175 130"/>
+                        {{-- Clipboard --}}
+                        <rect x="155" y="100" width="48" height="62" rx="3" fill="#fef3c7" stroke="#1f2937"/>
+                        <line x1="163" y1="115" x2="195" y2="115"/>
+                        <line x1="163" y1="125" x2="195" y2="125"/>
+                        <line x1="163" y1="135" x2="190" y2="135"/>
+                        {{-- Check marks --}}
+                        <polyline points="165,115 168,118 172,113" stroke="#10b981" fill="none"/>
+                        <polyline points="165,125 168,128 172,123" stroke="#10b981" fill="none"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="col-md-7">
+                <h2 class="fw-bolder mb-3" style="font-size: 1.85rem; letter-spacing:-0.02em;">Checked, Verified, Trusted!</h2>
+                <p class="text-muted mb-3" style="font-size: 1rem;">All instructors:</p>
+                <ul class="list-unstyled mb-0 cvt-checks">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Have a valid Working with Children Check</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Are fully insured</li>
+                    <li class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Have dual controls</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- Learn to drive today! — search CTA section --}}
+<section class="learn-cta-section py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bolder mb-2" style="font-size: 1.85rem; letter-spacing:-0.02em;">Learn to drive today!</h2>
+            <p class="text-muted mb-0">Join over 100,000+ learners driving with Secure Licences.</p>
+        </div>
+        <form action="{{ route('find-instructor.results') }}" method="get" id="cta-find-form" class="row g-3 align-items-end">
+            <input type="hidden" name="suburb_id" id="cta-suburb-id" value="">
+            <input type="hidden" name="q" id="cta-q" value="">
+            <div class="col-12 col-md-4">
+                <label class="form-label small fw-semibold mb-1">Pick-up Location <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="cta-suburb-input" placeholder="Enter your suburb" autocomplete="off" data-list-id="cta-suburb-list">
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-semibold mb-1">Transmission <span class="text-danger">*</span></label>
+                <select name="transmission" class="form-select">
+                    <option value="">Auto</option>
+                    <option value="auto">Auto</option>
+                    <option value="manual">Manual</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-semibold mb-1">Test pre-booked?</label>
+                <input type="date" name="test_date" class="form-control">
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-warning fw-bold w-100"><i class="bi bi-search me-1"></i>Search</button>
+            </div>
+        </form>
+    </div>
+</section>
 
 {{-- Availability modal --}}
 <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
@@ -124,10 +187,10 @@
 @push('scripts')
     <script>
         window.findInstructorResultsParams = {
-            suburbId: {{ json_encode($suburb_id) }},
-            transmission: {{ json_encode($transmission) }},
+            suburbId: {!! json_encode($suburb_id) !!},
+            transmission: {!! json_encode($transmission) !!},
             testPreBooked: {{ $test_pre_booked ? 'true' : 'false' }},
-            locationLabel: {{ json_encode($q) }},
+            locationLabel: {!! json_encode($q) !!},
         };
         window.isLearner = {{ auth()->check() && auth()->user()->isLearner() ? 'true' : 'false' }};
         window.learnerBookingNewUrl = "{{ auth()->check() && auth()->user()->isLearner() ? route('learner.bookings.new') : '' }}";

@@ -76,7 +76,10 @@ function renderCard(inst, allPrices) {
   const price = inst.lesson_price != null ? Math.round(inst.lesson_price) : null;
   const rating = Number(inst.average_rating) || 0;
   const reviews = inst.reviews_count ?? 0;
+  const completed = Number(inst.completed_lessons_count) || 0;
   const greatValue = isGreatValue(inst, allPrices);
+  // Top Instructor: rating >= 4.7 AND reviews >= 30 (or completed >= 100)
+  const topInstructor = (rating >= 4.7 && reviews >= 30) || completed >= 100;
 
   // Photo or initials
   const photoUrl = inst.profile_photo_url;
@@ -95,10 +98,18 @@ function renderCard(inst, allPrices) {
     ? `<div class="ic-female-only-tag"><i class="bi bi-shield-fill-check me-1"></i>Female learners only</div>`
     : '';
 
+  // Decide which top badge to show (Top Instructor beats Great Value)
+  let topBadge = '';
+  if (topInstructor) {
+    topBadge = '<div class="ic-badge-tag ic-badge-top"><i class="bi bi-trophy-fill"></i> Top Instructor</div>';
+  } else if (greatValue) {
+    topBadge = '<div class="ic-badge-tag"><i class="bi bi-currency-dollar"></i> Great Value</div>';
+  }
+
   return `
     <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
       <div class="ic-card" data-profile-id="${inst.id}">
-        ${greatValue ? '<div class="ic-badge-tag"><i class="bi bi-currency-dollar"></i> Great Value</div>' : ''}
+        ${topBadge}
         <div class="ic-card-body">
           <div class="ic-photos">
             <div class="ic-photo-circle">${photoHtml}</div>
@@ -249,13 +260,15 @@ function renderResults() {
 
   resultsEmpty.style.display = 'none';
 
-  // Heading
+  // Heading — transmission word in bold/accent (matches EzLicence reference: "29 Auto Instructors Available")
   const transmission = (params.transmission || '').toLowerCase();
   const transLabel = transmission === 'manual' ? 'Manual' : (transmission === 'auto' ? 'Auto' : '');
   if (resultsHeading) {
-    resultsHeading.textContent = transLabel
-      ? `${filtered.length} ${transLabel} Instructor${filtered.length !== 1 ? 's' : ''} Available`
-      : `${filtered.length} Instructor${filtered.length !== 1 ? 's' : ''} Available`;
+    if (transLabel) {
+      resultsHeading.innerHTML = `${filtered.length} <span class="ic-heading-trans">${transLabel}</span> Instructor${filtered.length !== 1 ? 's' : ''} Available`;
+    } else {
+      resultsHeading.textContent = `${filtered.length} Instructor${filtered.length !== 1 ? 's' : ''} Available`;
+    }
     resultsHeading.style.display = 'block';
   }
   if (resultsFromPrice) {

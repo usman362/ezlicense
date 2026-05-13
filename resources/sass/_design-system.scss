@@ -983,6 +983,23 @@ a:hover > .card,
   font-weight: 700;
 }
 
+/* Top Instructor variant — green pill with trophy */
+.ic-badge-tag.ic-badge-top {
+  background: #d1fae5;
+  color: #065f46;
+  font-weight: 700;
+}
+.ic-badge-tag.ic-badge-top i {
+  background: #10b981;
+  color: #fff;
+}
+
+/* Bold transmission word in heading: "29 Auto Instructors Available" */
+.ic-heading-trans {
+  font-weight: 900;
+  color: var(--sl-gray-900, #111);
+}
+
 .ic-photos {
   display: flex;
   justify-content: center;
@@ -1112,6 +1129,38 @@ a:hover > .card,
 .ic-btn-secondary:hover {
   background: var(--sl-gray-50, #f9fafb);
   border-color: var(--sl-gray-400, #9ca3af);
+}
+
+/* ── Checked, Verified, Trusted section (after results) ── */
+.cvt-section {
+  background: #fff;
+  border-top: 1px solid var(--sl-gray-100, #f3f4f6);
+  border-bottom: 1px solid var(--sl-gray-100, #f3f4f6);
+}
+.cvt-illustration {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+}
+.cvt-checks li {
+  font-size: 1rem;
+  color: var(--sl-gray-800, #1f2937);
+}
+.cvt-checks li i { font-size: 1.1rem; }
+
+/* ── Learn to drive today! CTA section ── */
+.learn-cta-section {
+  background: var(--sl-gray-50, #f9fafb);
+}
+.learn-cta-section .form-control,
+.learn-cta-section .form-select {
+  height: 46px;
+  border-radius: 8px;
+  border-color: var(--sl-gray-200, #e5e7eb);
+}
+.learn-cta-section .btn-warning {
+  height: 46px;
+  border-radius: 8px;
 }
 
 
