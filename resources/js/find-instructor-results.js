@@ -51,12 +51,46 @@ function bookingsLabel(inst) {
   return 'Verified Driving Instructor';
 }
 
-function isGreatValue(inst, allPrices) {
-  if (!allPrices.length || inst.lesson_price == null) return false;
-  // bottom 33% of prices = "Great Value"
-  const sorted = [...allPrices].sort((a, b) => a - b);
-  const threshold = sorted[Math.floor(sorted.length / 3)] || sorted[0];
-  return inst.lesson_price <= threshold;
+/**
+ * Decide which (single) badge to show on an instructor card, or NONE for normal instructors.
+ *
+ * Priority (only ONE badge shown — first match wins):
+ *   1. 'top'         — exceptional rating + bookings volume
+ *   2. 'high_demand' — popular / busy instructor
+ *   3. 'great_value' — genuinely cheap AND already proven by some lessons/reviews
+ *   4. null          — no badge (this is the default for most instructors)
+ *
+ * Thresholds are intentionally strict so badges feel meaningful, not spammy.
+ */
+function getInstructorBadge(inst, allPrices) {
+  const rating = Number(inst.average_rating) || 0;
+  const reviews = Number(inst.reviews_count) || 0;
+  const completed = Number(inst.completed_lessons_count) || 0;
+  const price = Number(inst.lesson_price);
+
+  // ── 1. Top Instructor ──
+  // Either (a) excellent rating AND many reviews, OR (b) a LOT of completed lessons.
+  const isTop = (rating >= 4.8 && reviews >= 30) || completed >= 150;
+  if (isTop) return 'top';
+
+  // ── 2. High Demand ──
+  // Active instructor with high booking volume OR review activity.
+  // (Must have at least one of: lots of lessons OR lots of reviews.)
+  const isHighDemand = completed >= 80 || reviews >= 25;
+  if (isHighDemand) return 'high_demand';
+
+  // ── 3. Great Value ──
+  // Significantly below market median AND proven (≥5 reviews OR ≥10 lessons).
+  if (allPrices.length >= 2 && !isNaN(price)) {
+    const sorted = [...allPrices].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const cheapEnough = price <= median * 0.85; // at least 15% below median
+    const proven = reviews >= 5 || completed >= 10;
+    if (cheapEnough && proven) return 'great_value';
+  }
+
+  // ── 4. No badge (default for most instructors) ──
+  return null;
 }
 
 function renderStars(rating) {
@@ -76,10 +110,7 @@ function renderCard(inst, allPrices) {
   const price = inst.lesson_price != null ? Math.round(inst.lesson_price) : null;
   const rating = Number(inst.average_rating) || 0;
   const reviews = inst.reviews_count ?? 0;
-  const completed = Number(inst.completed_lessons_count) || 0;
-  const greatValue = isGreatValue(inst, allPrices);
-  // Top Instructor: rating >= 4.7 AND reviews >= 30 (or completed >= 100)
-  const topInstructor = (rating >= 4.7 && reviews >= 30) || completed >= 100;
+  const badgeType = getInstructorBadge(inst, allPrices);
 
   // Photo or initials
   const photoUrl = inst.profile_photo_url;
@@ -98,12 +129,15 @@ function renderCard(inst, allPrices) {
     ? `<div class="ic-female-only-tag"><i class="bi bi-shield-fill-check me-1"></i>Female learners only</div>`
     : '';
 
-  // Decide which top badge to show (Top Instructor beats Great Value)
+  // Decide which top badge to show — single source of truth from getInstructorBadge().
+  // Most instructors get NO badge (badgeType === null) — this is intentional.
   let topBadge = '';
-  if (topInstructor) {
+  if (badgeType === 'top') {
     topBadge = '<div class="ic-badge-tag ic-badge-top"><i class="bi bi-trophy-fill"></i> Top Instructor</div>';
-  } else if (greatValue) {
-    topBadge = '<div class="ic-badge-tag"><i class="bi bi-currency-dollar"></i> Great Value</div>';
+  } else if (badgeType === 'high_demand') {
+    topBadge = '<div class="ic-badge-tag ic-badge-demand"><i class="bi bi-fire"></i> High Demand</div>';
+  } else if (badgeType === 'great_value') {
+    topBadge = '<div class="ic-badge-tag ic-badge-value"><i class="bi bi-currency-dollar"></i> Great Value</div>';
   }
 
   return `

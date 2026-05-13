@@ -994,6 +994,28 @@ a:hover > .card,
   color: #fff;
 }
 
+/* High Demand variant — warm orange pill with fire icon */
+.ic-badge-tag.ic-badge-demand {
+  background: #ffedd5;
+  color: #9a3412;
+  font-weight: 700;
+}
+.ic-badge-tag.ic-badge-demand i {
+  background: #f97316;
+  color: #fff;
+}
+
+/* Great Value variant — neutral gray pill with dollar (explicit class for clarity) */
+.ic-badge-tag.ic-badge-value {
+  background: var(--sl-gray-100, #f3f4f6);
+  color: var(--sl-gray-700, #374151);
+  font-weight: 600;
+}
+.ic-badge-tag.ic-badge-value i {
+  background: var(--sl-gray-300, #d1d5db);
+  color: var(--sl-gray-700, #374151);
+}
+
 /* Bold transmission word in heading: "29 Auto Instructors Available" */
 .ic-heading-trans {
   font-weight: 900;
