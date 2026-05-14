@@ -1300,26 +1300,24 @@ a:hover > .card,
 .ipp-hero {
   position: relative;
   background: var(--sl-accent-500, #fbbf24);
-  padding: 1rem 0 6rem;
+  padding: 0.85rem 0 3.5rem; /* shorter banner — photos overlap into white below */
   overflow: hidden;
 }
 .ipp-hero-inner {
   position: relative;
   z-index: 2;
-  padding-top: 0.5rem;
+  padding-top: 0.25rem;
 }
-/* L-plate watermark pattern: SVG yellow square with white 'L' inside, repeated low-opacity */
+/* L-plate watermark pattern: small subtle upright Ls tiled across the banner */
 .ipp-hero-bg-pattern {
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><rect x='6' y='6' width='28' height='28' rx='4' fill='%23ffffff' fill-opacity='0.18'/><text x='20' y='28' font-family='Arial, sans-serif' font-size='22' font-weight='900' fill='%23000' fill-opacity='0.10' text-anchor='middle'>L</text></svg>");
-  background-size: 80px 80px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><rect x='18' y='18' width='24' height='24' rx='3' fill='%23ffffff' fill-opacity='0.22'/><text x='30' y='38' font-family='Arial, sans-serif' font-size='18' font-weight='800' fill='%23000' fill-opacity='0.18' text-anchor='middle'>L</text></svg>");
+  background-size: 60px 60px;
   background-repeat: repeat;
-  opacity: 0.9;
+  opacity: 1;
   z-index: 1;
   pointer-events: none;
-  transform: rotate(-8deg) scale(1.2);
-  transform-origin: center;
 }
 .ipp-back {
   display: inline-flex;
@@ -1332,9 +1330,9 @@ a:hover > .card,
 }
 .ipp-back:hover { color: var(--sl-gray-700, #374151); }
 
-/* Profile header (overlaps the yellow banner) */
+/* Profile header (overlaps the yellow banner so photos sit mostly in white area) */
 .ipp-profile-header {
-  margin-top: -4rem;
+  margin-top: -5rem;
   position: relative;
   z-index: 3;
 }
@@ -1346,13 +1344,13 @@ a:hover > .card,
   flex-shrink: 0;
 }
 .ipp-photo-circle {
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   background: #fff;
   border: 5px solid #fff;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.15);
+  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.15);
   flex-shrink: 0;
 }
 .ipp-photo-circle img {
@@ -1384,12 +1382,12 @@ a:hover > .card,
 }
 
 .ipp-name {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 2.75rem;
+  font-weight: 900;
   letter-spacing: -0.025em;
   color: var(--sl-gray-900, #111);
   margin: 0 0 0.5rem;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 .ipp-rating-row {
   display: inline-flex;
@@ -1738,11 +1736,13 @@ a:hover > .card,
 
 /* Mobile responsiveness for profile page */
 @media (max-width: 767.98px) {
-  .ipp-hero { padding: 0.75rem 0 4.5rem; }
-  .ipp-profile-header { margin-top: -3rem; }
-  .ipp-photo-circle { width: 110px; height: 110px; }
-  .ipp-photo-initials { font-size: 2rem; }
-  .ipp-photo-vehicle-icon { font-size: 1.75rem; }
+  .ipp-hero { padding: 0.6rem 0 2.5rem; }
+  .ipp-hero-bg-pattern { background-size: 44px 44px; }
+  .ipp-profile-header { margin-top: -3.5rem; }
+  .ipp-photo-circle { width: 120px; height: 120px; border-width: 4px; }
+  .ipp-photos { gap: 10px; }
+  .ipp-photo-initials { font-size: 2.2rem; }
+  .ipp-photo-vehicle-icon { font-size: 1.85rem; }
   .ipp-name { font-size: 1.65rem; }
   .ipp-rating-row { font-size: 0.9rem; }
   .ipp-card { padding: 1.25rem; }
@@ -1750,7 +1750,7 @@ a:hover > .card,
   .ipp-bio { font-size: 0.95rem; }
   .ipp-pricing-amount { font-size: 1.4rem; }
   .ipp-map { height: 220px; }
-  /* Reviews header stays in one line but smaller text on mobile */
+  /* Reviews header allows wrap on mobile */
   .ipp-review-head { flex-wrap: wrap; }
   .ipp-payment-icons { gap: 0.35rem; }
   .ipp-pay-icon { width: 44px; height: 26px; font-size: 0.65rem; }
