@@ -236,9 +236,29 @@
                         <p>Book directly into your instructor's calendar.</p>
                     </div>
                 </div>
-                <a href="{{ route('support') }}" class="ipp-more-info">
-                    <i class="bi bi-info-circle"></i> More info about bookings <i class="bi bi-chevron-down ms-1 small"></i>
-                </a>
+
+                {{-- Expandable: 'More info about bookings' --}}
+                <details class="ipp-info-accordion">
+                    <summary>
+                        <i class="bi bi-info-circle"></i>
+                        <span>More info about bookings</span>
+                        <i class="bi bi-chevron-down ipp-info-chev"></i>
+                    </summary>
+                    <ol class="ipp-info-list">
+                        <li>At the completion of the booking process you can leave notes for your instructor about your preferences (optional).</li>
+                        <li>
+                            Your online account is created during the booking process:
+                            <ul>
+                                <li>Review / edit your bookings &amp; profile details</li>
+                                <li>Book / purchase additional lessons or a test package</li>
+                                <li>Reschedule bookings booking at no cost (up to 24 hours before start time)</li>
+                                <li>Change your instructor or pick up address</li>
+                            </ul>
+                        </li>
+                        <li>Your instructor's contact details are displayed in your online account, the instructor also receives your contact details.</li>
+                        <li>Your chosen instructor will meet you with their dual controlled vehicle at the location/date/time selected — no need to confirm.</li>
+                    </ol>
+                </details>
             </aside>
 
             {{-- Vehicle card --}}
