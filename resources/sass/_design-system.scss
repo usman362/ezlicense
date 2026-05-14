@@ -1292,6 +1292,372 @@ a:hover > .card,
 .fi-chip:hover { background: var(--sl-gray-200, #e5e7eb); }
 .fi-chip i { font-size: 0.85rem; }
 
+/* ============================================================
+   INSTRUCTOR PUBLIC PROFILE PAGE — EzLicence-style layout
+   ============================================================ */
+
+/* Yellow hero banner */
+.ipp-hero {
+  position: relative;
+  background: var(--sl-accent-500, #fbbf24);
+  padding: 1rem 0 4.5rem;
+  overflow: hidden;
+}
+.ipp-hero-inner {
+  position: relative;
+  z-index: 2;
+  padding-top: 0.5rem;
+}
+.ipp-hero-bg-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.045) 8px, transparent 9px),
+    radial-gradient(rgba(0, 0, 0, 0.045) 5px, transparent 6px);
+  background-size: 80px 80px, 40px 40px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.4;
+  z-index: 1;
+  pointer-events: none;
+}
+.ipp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--sl-gray-900, #111);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+.ipp-back:hover { color: var(--sl-gray-700, #374151); }
+
+/* Profile header (overlaps the yellow banner) */
+.ipp-profile-header {
+  margin-top: -2.5rem;
+  position: relative;
+  z-index: 3;
+}
+
+.ipp-photos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.ipp-photo-circle {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid #fff;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.15);
+  flex-shrink: 0;
+}
+.ipp-photo-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ipp-photo-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--sl-primary-700, #c2410c);
+  background: linear-gradient(135deg, var(--sl-accent-300, #fcd34d), var(--sl-accent-500, #fbbf24));
+}
+.ipp-photo-vehicle { background: var(--sl-gray-50, #f9fafb); }
+.ipp-photo-vehicle-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--sl-gray-400, #9ca3af);
+}
+
+.ipp-name {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--sl-gray-900, #111);
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+.ipp-rating-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--sl-gray-700, #374151);
+}
+.ipp-stars { display: inline-flex; gap: 1px; color: var(--sl-accent-500, #fbbf24); font-size: 1.05rem; }
+.ipp-stars-small { font-size: 0.9rem; }
+.ipp-stars .ipp-star-empty { color: var(--sl-gray-300, #d1d5db); }
+.ipp-rating-text { font-weight: 600; color: var(--sl-gray-800, #1f2937); }
+
+.ipp-divider {
+  margin: 1.75rem 0 0;
+  border-color: var(--sl-gray-200, #e5e7eb);
+  opacity: 1;
+}
+
+/* Page body */
+.ipp-body { padding-top: 2rem; padding-bottom: 4rem; }
+.ipp-section { margin-bottom: 2.5rem; }
+.ipp-section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--sl-gray-900, #111);
+  margin-bottom: 1rem;
+}
+.ipp-bio {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--sl-gray-800, #1f2937);
+  margin-bottom: 1.5rem;
+}
+
+.ipp-quick-info {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ipp-quick-info li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0;
+  font-size: 0.95rem;
+  color: var(--sl-gray-800, #1f2937);
+}
+.ipp-quick-info li i {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sl-gray-500, #6b7280);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.ipp-quick-info a { color: var(--sl-primary-600, #ea580c); text-decoration: underline; }
+
+.ipp-lang-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ipp-lang-pill {
+  display: inline-block;
+  padding: 0.45rem 1rem;
+  background: var(--sl-gray-100, #f3f4f6);
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--sl-gray-800, #1f2937);
+}
+
+/* Reviews */
+.ipp-reviews { padding-bottom: 1rem; }
+.ipp-review-item { padding: 1.25rem 0; border-bottom: 1px solid var(--sl-gray-100, #f3f4f6); }
+.ipp-review-item:first-of-type { padding-top: 0; }
+.ipp-review-item:last-of-type { border-bottom: 0; }
+.ipp-review-head { display: flex; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.5rem; }
+.ipp-review-name { display: inline-block; font-weight: 700; color: var(--sl-gray-900, #111); margin-right: 0.5rem; }
+.ipp-review-date { font-size: 0.85rem; color: var(--sl-gray-500, #6b7280); }
+.ipp-review-text { color: var(--sl-gray-700, #374151); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+.ipp-review-pagination { display: flex; justify-content: center; margin-top: 1.5rem; }
+.ipp-review-pagination .page-link { color: var(--sl-gray-800, #1f2937); border-radius: 6px; margin: 0 2px; }
+.ipp-review-pagination .page-item.active .page-link { background: var(--sl-accent-500, #fbbf24); border-color: var(--sl-accent-500, #fbbf24); color: var(--sl-gray-900, #111); }
+
+/* Sidebar cards */
+.ipp-card {
+  background: #fff;
+  border: 1px solid var(--sl-gray-100, #f3f4f6);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.ipp-card-heading { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; color: var(--sl-gray-900, #111); }
+
+/* Pricing card */
+.ipp-pricing-title { font-size: 1.1rem; font-weight: 700; color: var(--sl-gray-900, #111); }
+.ipp-pricing-sub { font-size: 0.85rem; color: var(--sl-gray-500, #6b7280); margin-top: 0.15rem; }
+.ipp-pricing-amount { font-size: 1.65rem; font-weight: 800; color: var(--sl-gray-900, #111); letter-spacing: -0.01em; }
+.ipp-pricing-unit { font-size: 0.95rem; font-weight: 600; color: var(--sl-gray-600, #4b5563); }
+.ipp-pricing-tier {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--sl-gray-100, #f3f4f6);
+  font-size: 0.95rem;
+  color: var(--sl-gray-800, #1f2937);
+}
+.ipp-pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0;
+  font-size: 0.95rem;
+  color: var(--sl-gray-800, #1f2937);
+}
+.ipp-save-badge {
+  background: #d1fae5;
+  color: #065f46;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+.ipp-help-icon { color: var(--sl-gray-400, #9ca3af); font-size: 0.85rem; cursor: help; }
+
+.ipp-book-btn {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: var(--sl-gray-900, #111);
+}
+.ipp-availability-btn {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--sl-gray-800, #1f2937);
+  border-color: var(--sl-gray-200, #e5e7eb);
+}
+.ipp-availability-btn:hover { background: var(--sl-gray-50, #f9fafb); border-color: var(--sl-gray-400, #9ca3af); }
+
+.ipp-payment-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sl-gray-100, #f3f4f6);
+}
+.ipp-pay-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--sl-gray-50, #f9fafb);
+  border: 1px solid var(--sl-gray-100, #f3f4f6);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--sl-gray-700, #374151);
+}
+.ipp-pay-icon i { font-size: 1rem; }
+
+/* Features card */
+.ipp-feature {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--sl-gray-100, #f3f4f6);
+}
+.ipp-feature:last-of-type { border-bottom: 0; padding-bottom: 0.5rem; }
+.ipp-feature-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sl-gray-100, #f3f4f6);
+  color: var(--sl-gray-700, #374151);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+.ipp-feature h3 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.15rem; color: var(--sl-gray-900, #111); }
+.ipp-feature p { font-size: 0.85rem; color: var(--sl-gray-600, #4b5563); margin: 0; line-height: 1.4; }
+.ipp-more-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  color: var(--sl-gray-800, #1f2937);
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.ipp-more-info:hover { color: var(--sl-primary-600, #ea580c); }
+
+/* Vehicle card */
+.ipp-vehicle-thumb {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--sl-gray-50, #f9fafb);
+  flex-shrink: 0;
+}
+.ipp-vehicle-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ipp-vehicle-thumb-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: var(--sl-gray-400, #9ca3af);
+}
+
+/* Map */
+.ipp-map-wrap { position: relative; }
+.ipp-map {
+  width: 100%;
+  height: 280px;
+  border-radius: 10px;
+  background: var(--sl-gray-100, #f3f4f6);
+}
+.ipp-map-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--sl-gray-50, #f9fafb);
+  border-radius: 10px;
+  color: var(--sl-gray-500, #6b7280);
+  font-size: 0.85rem;
+  padding: 1rem;
+  text-align: center;
+}
+.ipp-map-fallback i { font-size: 1.5rem; }
+
+/* Mobile responsiveness for profile page */
+@media (max-width: 767.98px) {
+  .ipp-hero { padding: 0.75rem 0 3.5rem; }
+  .ipp-profile-header { margin-top: -2rem; }
+  .ipp-photo-circle { width: 100px; height: 100px; }
+  .ipp-photo-initials { font-size: 2rem; }
+  .ipp-name { font-size: 1.85rem; }
+  .ipp-rating-row { font-size: 0.9rem; }
+  .ipp-card { padding: 1.25rem; }
+  .ipp-section-title { font-size: 1.1rem; }
+  .ipp-bio { font-size: 0.95rem; }
+  .ipp-pricing-amount { font-size: 1.4rem; }
+  .ipp-map { height: 220px; }
+}
+
+
 /* ── Checked, Verified, Trusted section (after results) ── */
 .cvt-section {
   background: #fff;
