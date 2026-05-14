@@ -1300,7 +1300,7 @@ a:hover > .card,
 .ipp-hero {
   position: relative;
   background: var(--sl-accent-500, #fbbf24);
-  padding: 0.85rem 0 3.5rem; /* shorter banner — photos overlap into white below */
+  padding: 0.85rem 0 4.5rem; /* banner has its own height — photos overlap by ~50% below */
   overflow: hidden;
 }
 .ipp-hero-inner {
@@ -1330,9 +1330,9 @@ a:hover > .card,
 }
 .ipp-back:hover { color: var(--sl-gray-700, #374151); }
 
-/* Profile header (overlaps the yellow banner so photos sit mostly in white area) */
+/* Profile header (photos straddle the yellow→white boundary at ~50/50) */
 .ipp-profile-header {
-  margin-top: -5rem;
+  margin-top: -3.5rem;
   position: relative;
   z-index: 3;
 }
@@ -1340,19 +1340,21 @@ a:hover > .card,
 .ipp-photos {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 0;
   flex-shrink: 0;
 }
 .ipp-photo-circle {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   background: #fff;
-  border: 5px solid #fff;
+  border: 4px solid #fff;
   overflow: hidden;
-  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.15);
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.12);
   flex-shrink: 0;
 }
+/* Vehicle photo slightly overlaps the instructor photo on the right — matches reference */
+.ipp-photo-vehicle { margin-left: -14px; }
 .ipp-photo-circle img {
   width: 100%;
   height: 100%;
@@ -1382,12 +1384,12 @@ a:hover > .card,
 }
 
 .ipp-name {
-  font-size: 2.75rem;
+  font-size: 2.25rem;
   font-weight: 900;
   letter-spacing: -0.025em;
   color: var(--sl-gray-900, #111);
-  margin: 0 0 0.5rem;
-  line-height: 1.05;
+  margin: 0 0 0.4rem;
+  line-height: 1.1;
 }
 .ipp-rating-row {
   display: inline-flex;
@@ -1736,14 +1738,14 @@ a:hover > .card,
 
 /* Mobile responsiveness for profile page */
 @media (max-width: 767.98px) {
-  .ipp-hero { padding: 0.6rem 0 2.5rem; }
+  .ipp-hero { padding: 0.6rem 0 3rem; }
   .ipp-hero-bg-pattern { background-size: 44px 44px; }
-  .ipp-profile-header { margin-top: -3.5rem; }
-  .ipp-photo-circle { width: 120px; height: 120px; border-width: 4px; }
-  .ipp-photos { gap: 10px; }
-  .ipp-photo-initials { font-size: 2.2rem; }
-  .ipp-photo-vehicle-icon { font-size: 1.85rem; }
-  .ipp-name { font-size: 1.65rem; }
+  .ipp-profile-header { margin-top: -2.5rem; }
+  .ipp-photo-circle { width: 110px; height: 110px; border-width: 3px; }
+  .ipp-photo-vehicle { margin-left: -10px; }
+  .ipp-photo-initials { font-size: 1.95rem; }
+  .ipp-photo-vehicle-icon { font-size: 1.75rem; }
+  .ipp-name { font-size: 1.55rem; }
   .ipp-rating-row { font-size: 0.9rem; }
   .ipp-card { padding: 1.25rem; }
   .ipp-section-title { font-size: 1.1rem; }
