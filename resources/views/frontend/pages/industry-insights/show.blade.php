@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', ($post->meta_title ?: $post->title) . ' — Secure Licences Blog')
+@section('title', ($post->meta_title ?: $post->title) . ' — Industry Insights | Secure Licences')
 @section('meta_description', $post->meta_description ?: Str::limit(strip_tags($post->excerpt ?: $post->body), 160))
 
 @section('content')
@@ -10,9 +10,9 @@
         <nav aria-label="breadcrumb" class="cl-hero-breadcrumb mb-3">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">Blog</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('industry-insights') }}">Industry Insights</a></li>
                 @if($post->category)
-                    <li class="breadcrumb-item"><a href="{{ route('blog.index', ['category' => $post->category->slug]) }}">{{ $post->category->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('industry-insights', ['category' => $post->category->slug]) }}">{{ $post->category->name }}</a></li>
                 @endif
                 <li class="breadcrumb-item active">{{ Str::limit($post->title, 50) }}</li>
             </ol>
@@ -21,7 +21,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-10 text-center">
                 @if($post->category)
-                    <a href="{{ route('blog.index', ['category' => $post->category->slug]) }}" class="blog-show-tag">
+                    <a href="{{ route('industry-insights', ['category' => $post->category->slug]) }}" class="blog-show-tag">
                         <i class="bi bi-tag-fill me-1"></i>{{ $post->category->name }}
                     </a>
                 @endif
@@ -70,7 +70,6 @@
 <section class="py-5">
     <div class="container">
         <div class="row g-5">
-            {{-- Main content --}}
             <div class="col-lg-8">
                 <article class="blog-prose">
                     {!! nl2br(e($post->body)) !!}
@@ -80,7 +79,7 @@
                 <div class="blog-share">
                     <div class="blog-share-label">
                         <i class="bi bi-share-fill"></i>
-                        <span>Share this article</span>
+                        <span>Share this insight</span>
                     </div>
                     <div class="blog-share-btns">
                         <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}" target="_blank" rel="noopener" class="blog-share-btn blog-share-fb" aria-label="Share on Facebook">
@@ -95,7 +94,7 @@
                         <a href="https://api.whatsapp.com/send?text={{ urlencode($post->title . ' — ' . request()->url()) }}" target="_blank" rel="noopener" class="blog-share-btn blog-share-wa" aria-label="Share on WhatsApp">
                             <i class="bi bi-whatsapp"></i>
                         </a>
-                        <button type="button" class="blog-share-btn blog-share-copy" onclick="navigator.clipboard.writeText(window.location.href).then(function(){this.classList.add('copied');var b=event.currentTarget;b.classList.add('copied');setTimeout(function(){b.classList.remove('copied');},1800);}.bind(this))" aria-label="Copy link">
+                        <button type="button" class="blog-share-btn blog-share-copy" onclick="navigator.clipboard.writeText(window.location.href).then(function(){var b=event.currentTarget;b.classList.add('copied');setTimeout(function(){b.classList.remove('copied');},1800);}.bind(this))" aria-label="Copy link">
                             <i class="bi bi-link-45deg"></i>
                             <span class="blog-share-copied">Copied!</span>
                         </button>
@@ -107,7 +106,7 @@
                     <div class="blog-author-avatar">{{ strtoupper(substr($post->author?->name ?? 'A', 0, 1)) }}</div>
                     <div>
                         <h4>About {{ $post->author?->name ?? 'Admin' }}</h4>
-                        <p class="mb-0">Contributor at Secure Licences — sharing practical tips, learner resources, and updates from across Australia's driving instructor community.</p>
+                        <p class="mb-0">Contributor at Secure Licences — sharing market analysis, industry trends and expert commentary from across Australia's driving instructor community.</p>
                     </div>
                 </div>
             </div>
@@ -115,17 +114,16 @@
             {{-- Sidebar --}}
             <div class="col-lg-4">
                 <div class="blog-sidebar">
-                    {{-- Categories --}}
                     <div class="blog-side-card">
                         <h5><i class="bi bi-tags me-2"></i>Categories</h5>
                         <ul class="blog-side-cats">
                             @foreach($categories as $cat)
-                                @if($cat->posts_count > 0)
+                                @if($cat->insights_count > 0)
                                     <li>
-                                        <a href="{{ route('blog.index', ['category' => $cat->slug]) }}"
+                                        <a href="{{ route('industry-insights', ['category' => $cat->slug]) }}"
                                            class="{{ $post->category && $post->category->slug === $cat->slug ? 'active' : '' }}">
                                             <span>{{ $cat->name }}</span>
-                                            <span class="blog-side-count">{{ $cat->posts_count }}</span>
+                                            <span class="blog-side-count">{{ $cat->insights_count }}</span>
                                         </a>
                                     </li>
                                 @endif
@@ -133,18 +131,16 @@
                         </ul>
                     </div>
 
-                    {{-- Newsletter --}}
                     <div class="blog-side-card blog-side-newsletter">
                         <i class="bi bi-envelope-paper-heart-fill"></i>
-                        <h5>Get driving tips weekly</h5>
-                        <p>Subscribe to our newsletter for fresh tips, learner resources and exclusive offers.</p>
+                        <h5>Industry updates in your inbox</h5>
+                        <p>Subscribe to get fresh market trends, reports and analysis from the driving industry.</p>
                         <form onsubmit="event.preventDefault(); this.querySelector('input').value=''; alert('Thanks for subscribing!');">
                             <input type="email" class="form-control mb-2" placeholder="you@email.com" required>
                             <button type="submit" class="btn btn-warning fw-bold w-100">Subscribe</button>
                         </form>
                     </div>
 
-                    {{-- CTA --}}
                     <div class="blog-side-card blog-side-cta">
                         <i class="bi bi-car-front-fill"></i>
                         <h5>Ready to drive?</h5>
@@ -157,24 +153,24 @@
     </div>
 </section>
 
-{{-- ─────────── RELATED ARTICLES ─────────── --}}
+{{-- ─────────── RELATED ─────────── --}}
 @if($related->count() > 0)
 <section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-4">
             <span class="blog-eyebrow"><i class="bi bi-collection me-1"></i>You might also like</span>
-            <h2 class="cl-section-title">Related Articles</h2>
+            <h2 class="cl-section-title">Related Insights</h2>
         </div>
         <div class="row g-4">
             @foreach($related as $rp)
                 <div class="col-md-6 col-lg-4">
                     <article class="blog-card">
-                        <a href="{{ route('blog.show', $rp->slug) }}" class="blog-card-img-link">
+                        <a href="{{ route('industry-insights.show', $rp->slug) }}" class="blog-card-img-link">
                             <div class="blog-card-img">
                                 @if($rp->getImageUrl())
                                     <img src="{{ $rp->getImageUrl() }}" alt="{{ $rp->title }}" loading="lazy">
                                 @else
-                                    <div class="blog-img-placeholder"><i class="bi bi-journal-text"></i></div>
+                                    <div class="blog-img-placeholder"><i class="bi bi-graph-up"></i></div>
                                 @endif
                                 @if($rp->category)
                                     <span class="blog-card-tag">{{ $rp->category->name }}</span>
@@ -183,7 +179,7 @@
                         </a>
                         <div class="blog-card-body">
                             <h3 class="blog-card-title">
-                                <a href="{{ route('blog.show', $rp->slug) }}">{{ $rp->title }}</a>
+                                <a href="{{ route('industry-insights.show', $rp->slug) }}">{{ $rp->title }}</a>
                             </h3>
                             @if($rp->excerpt)
                                 <p class="blog-card-excerpt">{{ Str::limit($rp->excerpt, 90) }}</p>
@@ -203,8 +199,8 @@
             @endforeach
         </div>
         <div class="text-center mt-4">
-            <a href="{{ route('blog.index') }}" class="btn btn-outline-warning fw-bold">
-                <i class="bi bi-arrow-right me-1"></i>Browse all articles
+            <a href="{{ route('industry-insights') }}" class="btn btn-outline-warning fw-bold">
+                <i class="bi bi-arrow-right me-1"></i>Browse all insights
             </a>
         </div>
     </div>

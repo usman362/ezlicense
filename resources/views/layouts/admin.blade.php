@@ -255,6 +255,9 @@
                 <a class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}" href="{{ route('admin.blog.index') }}">
                     <i class="bi bi-journal-richtext"></i> Blog
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.industry-insights*') ? 'active' : '' }}" href="{{ route('admin.industry-insights.index') }}">
+                    <i class="bi bi-graph-up-arrow"></i> Industry Insights
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.gift-vouchers*') ? 'active' : '' }}" href="{{ route('admin.gift-vouchers.index') }}">
                     <i class="bi bi-gift"></i> Gift Vouchers
                 </a>

@@ -248,7 +248,7 @@
                     <li class="mb-2 d-flex align-items-start gap-2"><i class="bi bi-check-circle-fill" style="color:var(--sl-accent-500); font-size:1.25rem; margin-top:0.15rem;"></i> <span>Use of your instructor's vehicle for the test</span></li>
                     <li class="mb-2 d-flex align-items-start gap-2"><i class="bi bi-check-circle-fill" style="color:var(--sl-accent-500); font-size:1.25rem; margin-top:0.15rem;"></i> <span>Drop-off once your result is in</span></li>
                 </ul>
-                <a href="{{ route('find-instructor') }}" class="btn btn-warning btn-lg fw-bold mt-3 px-5">
+                <a href="{{ route('driving-test-packages') }}" class="btn btn-warning btn-lg fw-bold mt-3 px-5">
                     Book your test package<i class="bi bi-arrow-right ms-2"></i>
                 </a>
                 <p class="small mt-3 mb-0" style="color: rgba(255,255,255,0.5);">Not available in ACT, SA and TAS.</p>

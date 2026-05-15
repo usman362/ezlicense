@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Blog — Driving Tips, News & Resources | Secure Licences')
+@section('title', 'Industry Insights — Driving Industry News, Trends & Analysis | Secure Licences')
 
 @section('content')
 
@@ -16,21 +16,21 @@
         <nav aria-label="breadcrumb" class="blog-hero-breadcrumb mb-3">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item active">Blog</li>
+                <li class="breadcrumb-item active">Industry Insights</li>
             </ol>
         </nav>
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
-                <span class="blog-hero-eyebrow"><i class="bi bi-journal-bookmark-fill me-1"></i>Driving Tips · News · Resources</span>
+                <span class="blog-hero-eyebrow"><i class="bi bi-graph-up-arrow me-1"></i>Market Trends · Analysis · Reports</span>
                 <h1 class="blog-hero-title">
-                    The Secure Licences <span class="blog-hero-title-accent">Blog</span>
+                    Industry <span class="blog-hero-title-accent">Insights</span>
                 </h1>
                 <p class="blog-hero-sub">
-                    Driving tips, learner resources, test guides and expert advice — everything you need to feel confident on the road.
+                    Stay informed with the latest news, market trends, and expert analysis from across Australia's driving instruction industry.
                 </p>
-                <form action="{{ route('blog.index') }}" method="GET" class="blog-hero-search">
+                <form action="{{ route('industry-insights') }}" method="GET" class="blog-hero-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="q" class="form-control" placeholder="Search articles, tips, guides…" value="{{ request('q') }}">
+                    <input type="text" name="q" class="form-control" placeholder="Search insights, reports, trends…" value="{{ request('q') }}">
                     <button type="submit" class="btn btn-warning fw-bold">Search</button>
                 </form>
             </div>
@@ -42,16 +42,16 @@
 <section class="blog-cat-bar">
     <div class="container">
         <div class="blog-cat-pills">
-            <a href="{{ route('blog.index') }}" class="blog-cat-pill {{ ! request('category') ? 'active' : '' }}">
-                <i class="bi bi-grid-fill me-1"></i>All Posts
+            <a href="{{ route('industry-insights') }}" class="blog-cat-pill {{ ! request('category') ? 'active' : '' }}">
+                <i class="bi bi-grid-fill me-1"></i>All Insights
                 <span class="blog-cat-count">{{ $posts->total() }}</span>
             </a>
             @foreach($categories as $cat)
-                @if($cat->posts_count > 0)
-                    <a href="{{ route('blog.index', ['category' => $cat->slug]) }}"
+                @if($cat->insights_count > 0)
+                    <a href="{{ route('industry-insights', ['category' => $cat->slug]) }}"
                        class="blog-cat-pill {{ request('category') === $cat->slug ? 'active' : '' }}">
                         {{ $cat->name }}
-                        <span class="blog-cat-count">{{ $cat->posts_count }}</span>
+                        <span class="blog-cat-count">{{ $cat->insights_count }}</span>
                     </a>
                 @endif
             @endforeach
@@ -59,14 +59,14 @@
     </div>
 </section>
 
-{{-- ─────────── FEATURED POSTS (only on landing without filters) ─────────── --}}
+{{-- ─────────── FEATURED INSIGHTS (only on landing without filters) ─────────── --}}
 @if($featured->count() > 0 && !request('q') && !request('category'))
 <section class="py-5 bg-light">
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
             <div>
-                <span class="blog-eyebrow"><i class="bi bi-star-fill me-1"></i>Editor's Picks</span>
-                <h2 class="cl-section-title mb-0">Featured Articles</h2>
+                <span class="blog-eyebrow"><i class="bi bi-star-fill me-1"></i>Spotlight</span>
+                <h2 class="cl-section-title mb-0">Featured Insights</h2>
             </div>
             <a href="#latest" class="text-decoration-none fw-semibold text-warning-emphasis small">Browse all →</a>
         </div>
@@ -74,14 +74,13 @@
         <div class="row g-4">
             @foreach($featured as $idx => $fp)
                 @if($idx === 0)
-                    {{-- Big hero card (left) --}}
                     <div class="col-lg-7">
-                        <a href="{{ route('blog.show', $fp->slug) }}" class="blog-feature-card blog-feature-card-lg">
+                        <a href="{{ route('industry-insights.show', $fp->slug) }}" class="blog-feature-card blog-feature-card-lg">
                             <div class="blog-feature-img">
                                 @if($fp->getImageUrl())
                                     <img src="{{ $fp->getImageUrl() }}" alt="{{ $fp->title }}" loading="lazy">
                                 @else
-                                    <div class="blog-img-placeholder"><i class="bi bi-journal-text"></i></div>
+                                    <div class="blog-img-placeholder"><i class="bi bi-graph-up"></i></div>
                                 @endif
                                 @if($fp->category)
                                     <span class="blog-feature-tag">{{ $fp->category->name }}</span>
@@ -105,16 +104,15 @@
                 @endif
             @endforeach
 
-            {{-- 2 smaller cards stacked (right) --}}
             <div class="col-lg-5">
                 <div class="d-flex flex-column gap-4 h-100">
                     @foreach($featured->skip(1)->take(2) as $fp)
-                        <a href="{{ route('blog.show', $fp->slug) }}" class="blog-feature-card blog-feature-card-sm">
+                        <a href="{{ route('industry-insights.show', $fp->slug) }}" class="blog-feature-card blog-feature-card-sm">
                             <div class="blog-feature-img-sm">
                                 @if($fp->getImageUrl())
                                     <img src="{{ $fp->getImageUrl() }}" alt="{{ $fp->title }}" loading="lazy">
                                 @else
-                                    <div class="blog-img-placeholder"><i class="bi bi-journal-text"></i></div>
+                                    <div class="blog-img-placeholder"><i class="bi bi-graph-up"></i></div>
                                 @endif
                             </div>
                             <div class="blog-feature-body-sm">
@@ -137,24 +135,24 @@
 </section>
 @endif
 
-{{-- ─────────── LATEST POSTS GRID ─────────── --}}
+{{-- ─────────── LATEST GRID ─────────── --}}
 <section id="latest" class="py-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
             <div>
-                <span class="blog-eyebrow"><i class="bi bi-newspaper me-1"></i>Fresh off the press</span>
+                <span class="blog-eyebrow"><i class="bi bi-newspaper me-1"></i>Fresh analysis</span>
                 <h2 class="cl-section-title mb-0">
                     @if(request('q'))
                         Results for "{{ request('q') }}"
                     @elseif(request('category'))
                         {{ optional($categories->firstWhere('slug', request('category')))->name ?? 'Category' }}
                     @else
-                        Latest Articles
+                        Latest Insights
                     @endif
                 </h2>
             </div>
             @if(request('q') || request('category'))
-                <a href="{{ route('blog.index') }}" class="btn btn-sm btn-outline-secondary fw-semibold">
+                <a href="{{ route('industry-insights') }}" class="btn btn-sm btn-outline-secondary fw-semibold">
                     <i class="bi bi-x-circle me-1"></i>Clear filters
                 </a>
             @endif
@@ -162,22 +160,22 @@
 
         @if($posts->count() === 0)
             <div class="blog-empty">
-                <i class="bi bi-journal-x"></i>
-                <h3>No articles found</h3>
-                <p>Try a different search term or browse all posts.</p>
-                <a href="{{ route('blog.index') }}" class="btn btn-warning fw-bold">View all posts</a>
+                <i class="bi bi-graph-up"></i>
+                <h3>No insights found</h3>
+                <p>Try a different search term or browse all insights.</p>
+                <a href="{{ route('industry-insights') }}" class="btn btn-warning fw-bold">View all insights</a>
             </div>
         @else
             <div class="row g-4">
                 @foreach($posts as $post)
                     <div class="col-md-6 col-lg-4">
                         <article class="blog-card">
-                            <a href="{{ route('blog.show', $post->slug) }}" class="blog-card-img-link">
+                            <a href="{{ route('industry-insights.show', $post->slug) }}" class="blog-card-img-link">
                                 <div class="blog-card-img">
                                     @if($post->getImageUrl())
                                         <img src="{{ $post->getImageUrl() }}" alt="{{ $post->title }}" loading="lazy">
                                     @else
-                                        <div class="blog-img-placeholder"><i class="bi bi-journal-text"></i></div>
+                                        <div class="blog-img-placeholder"><i class="bi bi-graph-up"></i></div>
                                     @endif
                                     @if($post->category)
                                         <span class="blog-card-tag">{{ $post->category->name }}</span>
@@ -186,7 +184,7 @@
                             </a>
                             <div class="blog-card-body">
                                 <h3 class="blog-card-title">
-                                    <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
+                                    <a href="{{ route('industry-insights.show', $post->slug) }}">{{ $post->title }}</a>
                                 </h3>
                                 @if($post->excerpt)
                                     <p class="blog-card-excerpt">{{ Str::limit($post->excerpt, 100) }}</p>
@@ -213,7 +211,7 @@
     </div>
 </section>
 
-{{-- ─────────── NEWSLETTER / CTA ─────────── --}}
+{{-- ─────────── BOTTOM CTA ─────────── --}}
 <section class="py-5 blog-cta-section">
     <div class="container">
         <div class="row align-items-center g-4">

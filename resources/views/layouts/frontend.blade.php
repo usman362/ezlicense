@@ -83,13 +83,13 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navLocations" role="button" data-bs-toggle="dropdown" aria-expanded="false">Driving Lesson Locations</a>
                             <ul class="dropdown-menu" aria-labelledby="navLocations">
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Sydney">Sydney Driving Lessons</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Melbourne">Melbourne Driving Lessons</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Brisbane">Brisbane Driving Lessons</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Perth">Perth Driving Lessons</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Adelaide">Adelaide Driving Lessons</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Hobart">Hobart Driving Lessons</a></li>
-                                <li><a class="dropdown-item" href="{{ route('find-instructor') }}?q=Canberra">Canberra Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'sydney') }}">Sydney Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'melbourne') }}">Melbourne Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'brisbane') }}">Brisbane Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'perth') }}">Perth Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'adelaide') }}">Adelaide Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'hobart') }}">Hobart Driving Lessons</a></li>
+                                <li><a class="dropdown-item" href="{{ route('city.landing', 'canberra') }}">Canberra Driving Lessons</a></li>
                             </ul>
                         </li>
                         {{-- NEW: Consolidated "For Instructors" dropdown — matches EzLicence reference --}}
@@ -128,10 +128,10 @@
                             </ul>
                         </li>
                     </ul>
-                    <ul class="navbar-nav ms-auto align-items-lg-center gap-2 book-online-wrap">
-                        {{-- "Book Online" CTA — first in mobile menu, on the right on desktop --}}
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-2 book-online-wrap d-lg-none">
+                        {{-- "Book Online" CTA — mobile menu only (hidden on desktop) --}}
                         <li class="nav-item">
-                            <a class="btn btn-warning fw-bold px-3 py-2 d-flex d-lg-inline-flex align-items-center justify-content-center gap-1" href="{{ route('find-instructor') }}" style="border-radius: 8px;">
+                            <a class="btn btn-warning fw-bold px-3 py-2 d-flex align-items-center justify-content-center gap-1" href="{{ route('find-instructor') }}" style="border-radius: 8px;">
                                 Book Online <i class="bi bi-chevron-right small"></i>
                             </a>
                         </li>
@@ -297,13 +297,13 @@
                 <div class="col-lg-4 col-md-6 col-12">
                     <h6>Driving Instructors by City</h6>
                     <ul class="list-unstyled mb-0" style="line-height:2;">
-                        <li><a href="{{ route('find-instructor') }}?q=Sydney">Sydney Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Melbourne">Melbourne Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Brisbane">Brisbane Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Perth">Perth Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Adelaide">Adelaide Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Hobart">Hobart Driving Instructors</a></li>
-                        <li><a href="{{ route('find-instructor') }}?q=Canberra">Canberra Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'sydney') }}">Sydney Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'melbourne') }}">Melbourne Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'brisbane') }}">Brisbane Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'perth') }}">Perth Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'adelaide') }}">Adelaide Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'hobart') }}">Hobart Driving Instructors</a></li>
+                        <li><a href="{{ route('city.landing', 'canberra') }}">Canberra Driving Instructors</a></li>
                     </ul>
                 </div>
             </div>

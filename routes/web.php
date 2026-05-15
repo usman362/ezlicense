@@ -61,8 +61,12 @@ Route::prefix('policies')->name('policies.')->group(function () {
 Route::get('/driving-test-packages', fn () => view('frontend.pages.driving-test-packages'))->name('driving-test-packages');
 Route::get('/international-licence-conversions', fn () => view('frontend.pages.international-licence'))->name('international-licence');
 Route::get('/refresher-lessons', fn () => view('frontend.pages.refresher-lessons'))->name('refresher-lessons');
+// City-specific landing pages (Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart, Canberra)
+Route::get('/driving-lessons/{city}', [App\Http\Controllers\CityLandingController::class, 'show'])->name('city.landing');
 Route::get('/prices-and-packages', fn () => view('frontend.pages.prices-packages'))->name('prices-packages');
-Route::get('/industry-insights', fn () => view('frontend.pages.industry-insights'))->name('industry-insights');
+// Industry Insights (dynamic, admin-managed)
+Route::get('/industry-insights', [App\Http\Controllers\IndustryInsightController::class, 'index'])->name('industry-insights');
+Route::get('/industry-insights/{slug}', [App\Http\Controllers\IndustryInsightController::class, 'show'])->name('industry-insights.show');
 Route::get('/instruct-with-us', fn () => view('frontend.pages.instruct-with-us'))->name('instruct-with-us');
 Route::get('/instructor-academy', fn () => view('frontend.pages.instructor-academy'))->name('instructor-academy');
 Route::get('/gift-vouchers', fn () => view('frontend.pages.gift-vouchers'))->name('gift-vouchers');
@@ -208,6 +212,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/blog/{blogPost}', [App\Http\Controllers\Admin\BlogController::class, 'update'])->name('blog.update');
     Route::get('/blog/categories', [App\Http\Controllers\Admin\BlogController::class, 'categories'])->name('blog.categories');
 
+    // Industry Insights management (clones blog structure)
+    Route::get('/industry-insights/categories', [App\Http\Controllers\Admin\IndustryInsightController::class, 'categories'])->name('industry-insights.categories');
+    Route::get('/industry-insights', [App\Http\Controllers\Admin\IndustryInsightController::class, 'index'])->name('industry-insights.index');
+    Route::get('/industry-insights/create', [App\Http\Controllers\Admin\IndustryInsightController::class, 'create'])->name('industry-insights.create');
+    Route::post('/industry-insights', [App\Http\Controllers\Admin\IndustryInsightController::class, 'store'])->name('industry-insights.store');
+    Route::get('/industry-insights/{industryInsight}/edit', [App\Http\Controllers\Admin\IndustryInsightController::class, 'edit'])->name('industry-insights.edit');
+    Route::put('/industry-insights/{industryInsight}', [App\Http\Controllers\Admin\IndustryInsightController::class, 'update'])->name('industry-insights.update');
+
     // Settings
     Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
@@ -344,6 +356,17 @@ Route::prefix('api')->middleware('web')->group(function () {
         Route::post('categories', [App\Http\Controllers\Admin\BlogController::class, 'categoryStore']);
         Route::put('categories/{blogCategory}', [App\Http\Controllers\Admin\BlogController::class, 'categoryUpdate']);
         Route::delete('categories/{blogCategory}', [App\Http\Controllers\Admin\BlogController::class, 'categoryDestroy']);
+    });
+
+    // Admin industry-insights API routes (clones blog API)
+    Route::middleware(['auth', 'role:admin'])->prefix('admin/industry-insights')->group(function () {
+        Route::get('list', [App\Http\Controllers\Admin\IndustryInsightController::class, 'list']);
+        Route::delete('{industryInsight}', [App\Http\Controllers\Admin\IndustryInsightController::class, 'destroy']);
+        Route::patch('{industryInsight}/toggle-featured', [App\Http\Controllers\Admin\IndustryInsightController::class, 'toggleFeatured']);
+        Route::get('categories/list', [App\Http\Controllers\Admin\IndustryInsightController::class, 'categoryList']);
+        Route::post('categories', [App\Http\Controllers\Admin\IndustryInsightController::class, 'categoryStore']);
+        Route::put('categories/{industryInsightCategory}', [App\Http\Controllers\Admin\IndustryInsightController::class, 'categoryUpdate']);
+        Route::delete('categories/{industryInsightCategory}', [App\Http\Controllers\Admin\IndustryInsightController::class, 'categoryDestroy']);
     });
 
     // Admin calendar API (all bookings across all instructors)
