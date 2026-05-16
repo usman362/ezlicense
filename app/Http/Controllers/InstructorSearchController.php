@@ -59,9 +59,9 @@ class InstructorSearchController extends Controller
                     ? (int) $p->user->created_at->diffInMonths(now())
                     : null;
 
-                // Photo URLs (storage path → public URL)
-                $profilePhotoUrl = $p->profile_photo ? asset('storage/' . $p->profile_photo) : null;
-                $vehiclePhotoUrl = $p->vehicle_photo ? asset('storage/' . $p->vehicle_photo) : null;
+                // Photo URLs (DigitalOcean Spaces)
+                $profilePhotoUrl = $p->profile_photo ? \Storage::disk('spaces')->url($p->profile_photo) : null;
+                $vehiclePhotoUrl = $p->vehicle_photo ? \Storage::disk('spaces')->url($p->vehicle_photo) : null;
 
                 return [
                     'id' => $p->id,

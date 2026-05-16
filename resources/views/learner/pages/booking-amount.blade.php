@@ -166,7 +166,7 @@
                             <div class="text-muted small mb-2">Instructor</div>
                             <div class="d-flex align-items-center gap-3">
                                 @if($instructorProfile->profile_photo)
-                                    <img src="{{ asset('storage/' . $instructorProfile->profile_photo) }}" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;" alt="{{ $instructorProfile->user->name }}">
+                                    <img src="{{ \Storage::disk('spaces')->url($instructorProfile->profile_photo) }}" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;" alt="{{ $instructorProfile->user->name }}">
                                 @else
                                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bolder text-white" style="width:56px;height:56px;background:linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500));">{{ strtoupper(substr($instructorProfile->user->name ?? 'I', 0, 1)) }}</div>
                                 @endif

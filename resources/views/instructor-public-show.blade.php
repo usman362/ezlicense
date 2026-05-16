@@ -52,14 +52,14 @@
         <div class="ipp-photos">
             <div class="ipp-photo-circle">
                 @if($p->profile_photo)
-                    <img src="{{ asset('storage/' . $p->profile_photo) }}" alt="{{ $u->name }}">
+                    <img src="{{ \Storage::disk('spaces')->url($p->profile_photo) }}" alt="{{ $u->name }}">
                 @else
                     <div class="ipp-photo-initials">{{ strtoupper(substr($firstName, 0, 1)) }}</div>
                 @endif
             </div>
             <div class="ipp-photo-circle ipp-photo-vehicle">
                 @if($p->vehicle_photo)
-                    <img src="{{ asset('storage/' . $p->vehicle_photo) }}" alt="{{ $vehicleLabel }}">
+                    <img src="{{ \Storage::disk('spaces')->url($p->vehicle_photo) }}" alt="{{ $vehicleLabel }}">
                 @else
                     <div class="ipp-photo-vehicle-icon"><i class="bi bi-car-front-fill"></i></div>
                 @endif
@@ -267,7 +267,7 @@
                 <div class="d-flex gap-3 align-items-start">
                     <div class="ipp-vehicle-thumb">
                         @if($p->vehicle_photo)
-                            <img src="{{ asset('storage/' . $p->vehicle_photo) }}" alt="{{ $vehicleLabel }}">
+                            <img src="{{ \Storage::disk('spaces')->url($p->vehicle_photo) }}" alt="{{ $vehicleLabel }}">
                         @else
                             <div class="ipp-vehicle-thumb-icon"><i class="bi bi-car-front-fill"></i></div>
                         @endif

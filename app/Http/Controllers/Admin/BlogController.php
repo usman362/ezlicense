@@ -84,7 +84,7 @@ class BlogController extends Controller
         ]);
 
         if ($request->hasFile('featured_image')) {
-            $data['featured_image'] = $request->file('featured_image')->store('blog', 'public');
+            $data['featured_image'] = $request->file('featured_image')->store('blog', 'spaces');
         }
 
         $data['author_id'] = auth()->id();
@@ -117,10 +117,10 @@ class BlogController extends Controller
 
         if ($request->hasFile('featured_image')) {
             // Delete old image
-            if ($blogPost->featured_image && Storage::disk('public')->exists($blogPost->featured_image)) {
-                Storage::disk('public')->delete($blogPost->featured_image);
+            if ($blogPost->featured_image && Storage::disk('spaces')->exists($blogPost->featured_image)) {
+                Storage::disk('spaces')->delete($blogPost->featured_image);
             }
-            $data['featured_image'] = $request->file('featured_image')->store('blog', 'public');
+            $data['featured_image'] = $request->file('featured_image')->store('blog', 'spaces');
         }
 
         $data['is_featured'] = $request->boolean('is_featured');
@@ -137,8 +137,8 @@ class BlogController extends Controller
     /* ─── Delete ─── */
     public function destroy(BlogPost $blogPost)
     {
-        if ($blogPost->featured_image && Storage::disk('public')->exists($blogPost->featured_image)) {
-            Storage::disk('public')->delete($blogPost->featured_image);
+        if ($blogPost->featured_image && Storage::disk('spaces')->exists($blogPost->featured_image)) {
+            Storage::disk('spaces')->delete($blogPost->featured_image);
         }
         $blogPost->delete();
 

@@ -75,6 +75,6 @@ class CustomerVehicle extends Model
      */
     public function getPhotoUrl(): ?string
     {
-        return $this->photo ? asset('storage/' . $this->photo) : null;
+        return $this->photo ? \Storage::disk('spaces')->url($this->photo) : null;
     }
 }

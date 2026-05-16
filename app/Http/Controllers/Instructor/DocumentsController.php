@@ -98,9 +98,13 @@ class DocumentsController extends Controller
 
         $dir = 'instructor-documents/'.$profile->id;
 
+        // Sensitive documents — stored privately on DigitalOcean Spaces.
+        // Use signed temporaryUrl() in admin views to grant time-limited access.
+        $storeOpts = ['disk' => 'spaces', 'visibility' => 'private'];
+
         if (in_array($type, ['drivers_licence', 'instructor_licence'], true)) {
             if ($request->hasFile('front_file')) {
-                $path = $request->file('front_file')->store($dir);
+                $path = $request->file('front_file')->store($dir, $storeOpts);
                 InstructorDocument::create([
                     'instructor_profile_id' => $profile->id,
                     'type' => $type,
@@ -111,7 +115,7 @@ class DocumentsController extends Controller
                 ]);
             }
             if ($request->hasFile('back_file')) {
-                $path = $request->file('back_file')->store($dir);
+                $path = $request->file('back_file')->store($dir, $storeOpts);
                 InstructorDocument::create([
                     'instructor_profile_id' => $profile->id,
                     'type' => $type,
@@ -127,7 +131,7 @@ class DocumentsController extends Controller
         } else {
             $path = null;
             if ($request->hasFile('file')) {
-                $path = $request->file('file')->store($dir);
+                $path = $request->file('file')->store($dir, $storeOpts);
             }
             $profile->update(['wwcc_number' => $request->input('wwcc_number') ?: $profile->wwcc_number]);
             InstructorDocument::create([

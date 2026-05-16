@@ -84,7 +84,7 @@ class IndustryInsightController extends Controller
         ]);
 
         if ($request->hasFile('featured_image')) {
-            $data['featured_image'] = $request->file('featured_image')->store('industry-insights', 'public');
+            $data['featured_image'] = $request->file('featured_image')->store('industry-insights', 'spaces');
         }
 
         $data['author_id'] = auth()->id();
@@ -116,10 +116,10 @@ class IndustryInsightController extends Controller
         ]);
 
         if ($request->hasFile('featured_image')) {
-            if ($industryInsight->featured_image && Storage::disk('public')->exists($industryInsight->featured_image)) {
-                Storage::disk('public')->delete($industryInsight->featured_image);
+            if ($industryInsight->featured_image && Storage::disk('spaces')->exists($industryInsight->featured_image)) {
+                Storage::disk('spaces')->delete($industryInsight->featured_image);
             }
-            $data['featured_image'] = $request->file('featured_image')->store('industry-insights', 'public');
+            $data['featured_image'] = $request->file('featured_image')->store('industry-insights', 'spaces');
         }
 
         $data['is_featured'] = $request->boolean('is_featured');
@@ -136,8 +136,8 @@ class IndustryInsightController extends Controller
     /* ─── Delete ─── */
     public function destroy(IndustryInsight $industryInsight)
     {
-        if ($industryInsight->featured_image && Storage::disk('public')->exists($industryInsight->featured_image)) {
-            Storage::disk('public')->delete($industryInsight->featured_image);
+        if ($industryInsight->featured_image && Storage::disk('spaces')->exists($industryInsight->featured_image)) {
+            Storage::disk('spaces')->delete($industryInsight->featured_image);
         }
         $industryInsight->delete();
 

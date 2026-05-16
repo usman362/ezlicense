@@ -11,7 +11,7 @@
                     <div class="col-md-6">
                         <div class="d-flex align-items-center gap-3 mb-3">
                             @if($instructor->profile_photo)
-                                <img src="{{ asset('storage/' . $instructor->profile_photo) }}" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;" alt="Profile">
+                                <img src="{{ \Storage::disk('spaces')->url($instructor->profile_photo) }}" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;" alt="Profile">
                             @else
                                 <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
                                     <span class="fw-bold text-primary fs-5">{{ strtoupper(substr($instructor->user->name ?? 'I', 0, 1)) }}</span>
@@ -65,7 +65,7 @@
                             <tr><td class="text-muted">Transmission</td><td><span class="badge bg-light text-dark">{{ ucfirst($instructor->transmission ?? 'N/A') }}</span></td></tr>
                         </table>
                         @if($instructor->vehicle_photo)
-                            <img src="{{ asset('storage/' . $instructor->vehicle_photo) }}" class="rounded mt-2" style="max-height:100px;" alt="Vehicle">
+                            <img src="{{ \Storage::disk('spaces')->url($instructor->vehicle_photo) }}" class="rounded mt-2" style="max-height:100px;" alt="Vehicle">
                         @endif
                     </div>
                     <div class="col-md-6">
@@ -111,7 +111,7 @@
                                         <td class="small text-muted">{{ $doc->created_at->format('d M Y') }}</td>
                                         <td class="text-end">
                                             @if($doc->file_path)
-                                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-eye me-1"></i>View</a>
+                                                <a href="{{ $doc->getSignedUrl() }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-eye me-1"></i>View</a>
                                             @endif
                                             @if($doc->status !== 'verified')
                                                 <form method="POST" action="{{ route('admin.instructors.update-document-status', $doc) }}" class="d-inline">

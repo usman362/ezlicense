@@ -61,7 +61,7 @@ class ServiceJobController extends Controller
         $photosPaths = [];
         if ($request->hasFile('vehicle_photos')) {
             foreach ($request->file('vehicle_photos') as $photo) {
-                $photosPaths[] = $photo->store("job-photos/{$user->id}", 'public');
+                $photosPaths[] = $photo->store("job-photos/{$user->id}", 'spaces');
             }
         }
 

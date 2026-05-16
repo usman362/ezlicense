@@ -1368,22 +1368,39 @@ a:hover > .card,
   background: #fff;
 }
 .cl-hero-toggle .btn {
-  background: transparent;
-  border: 0;
+  --bs-btn-bg: var(--sl-gray-100, #f3f4f6);
+  --bs-btn-hover-bg: var(--sl-gray-200, #e5e7eb);
+  --bs-btn-active-bg: var(--sl-gray-200, #e5e7eb);
+  --bs-btn-color: var(--sl-gray-500, #6b7280);
+  --bs-btn-hover-color: var(--sl-gray-800, #1f2937);
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-border-color: transparent;
+  background-color: var(--sl-gray-100, #f3f4f6);
+  border: 1px solid transparent;
   font-size: 0.92rem;
   font-weight: 600;
-  color: var(--sl-gray-600, #4b5563);
+  color: var(--sl-gray-500, #6b7280);
   padding: 0.55rem 1rem;
   border-radius: 8px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.cl-hero-toggle .btn-check:checked + .btn {
-  background: var(--sl-gray-50, #f9fafb);
+.cl-hero-toggle .btn:hover {
+  background-color: var(--sl-gray-200, #e5e7eb);
+  color: var(--sl-gray-800, #1f2937);
+}
+.cl-hero-toggle .btn-check:checked + .btn,
+.cl-hero-toggle .btn-check:checked + .btn:hover {
+  --bs-btn-bg: #fff;
+  --bs-btn-hover-bg: #fff;
+  --bs-btn-color: var(--sl-gray-900, #111);
+  --bs-btn-hover-color: var(--sl-gray-900, #111);
+  --bs-btn-border-color: var(--sl-gray-300, #d1d5db);
+  --bs-btn-hover-border-color: var(--sl-gray-300, #d1d5db);
+  background-color: #fff;
   color: var(--sl-gray-900, #111);
   font-weight: 700;
-}
-.cl-hero-toggle .btn-check:not(:checked) + .btn {
-  background: var(--sl-gray-100, #f3f4f6);
-  color: var(--sl-gray-500, #6b7280);
+  border: 1px solid var(--sl-gray-300, #d1d5db);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .cl-hero-suburb-wrap {
@@ -2475,15 +2492,58 @@ a:hover > .card,
 .dtp-form-row .dtp-search-btn { flex: 0 0 auto; min-width: 130px; padding: 0.55rem 1.25rem; }
 .dtp-suburb-input { min-width: 220px; }
 
+/* Hide any static bi-check-lg icons in markup — we'll draw the check via CSS so it
+   actually moves to whichever option is selected (Auto OR Manual). */
+.dtp-trans-toggle .btn .bi-check-lg,
+.cl-hero-toggle  .btn .bi-check-lg { display: none !important; }
+
 .dtp-trans-toggle .btn {
-  background: #fff;
-  border: 1px solid var(--sl-gray-200, #e5e7eb);
-  color: var(--sl-gray-800, #1f2937);
+  /* Override Bootstrap's --bs-btn-bg variable so :hover / :focus / :active don't fall back to transparent */
+  --bs-btn-bg: var(--sl-gray-100, #f3f4f6);
+  --bs-btn-hover-bg: var(--sl-gray-200, #e5e7eb);
+  --bs-btn-active-bg: var(--sl-gray-200, #e5e7eb);
+  --bs-btn-color: var(--sl-gray-500, #6b7280);
+  --bs-btn-hover-color: var(--sl-gray-800, #1f2937);
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-border-color: transparent;
+  background-color: var(--sl-gray-100, #f3f4f6);
+  border: 1px solid transparent;
+  color: var(--sl-gray-500, #6b7280);
   font-weight: 600;
   padding: 0.55rem 1rem;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.dtp-trans-toggle .btn-check:checked + .btn { background: #fff; color: var(--sl-gray-900, #111); border-color: var(--sl-gray-300, #d1d5db); }
-.dtp-trans-toggle .btn-check:checked + .btn .bi-check-lg { color: var(--sl-success, #10b981); }
+.dtp-trans-toggle .btn:hover {
+  background-color: var(--sl-gray-200, #e5e7eb);
+  color: var(--sl-gray-800, #1f2937);
+}
+.dtp-trans-toggle .btn-check:checked + .btn,
+.dtp-trans-toggle .btn-check:checked + .btn:hover {
+  --bs-btn-bg: #fff;
+  --bs-btn-hover-bg: #fff;
+  --bs-btn-color: var(--sl-gray-900, #111);
+  --bs-btn-hover-color: var(--sl-gray-900, #111);
+  --bs-btn-border-color: var(--sl-gray-300, #d1d5db);
+  --bs-btn-hover-border-color: var(--sl-gray-300, #d1d5db);
+  background-color: #fff;
+  color: var(--sl-gray-900, #111);
+  border-color: var(--sl-gray-300, #d1d5db);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+/* CSS-drawn green check appears only on whichever label is currently selected */
+.dtp-trans-toggle .btn-check:checked + .btn::before,
+.cl-hero-toggle  .btn-check:checked + .btn::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  border-right: 3px solid var(--sl-success, #10b981);
+  border-bottom: 3px solid var(--sl-success, #10b981);
+  transform: rotate(45deg);
+  margin: 0 0.5rem 3px 0;
+  vertical-align: middle;
+}
 
 .dtp-test-centre { padding: 0.65rem 0.85rem; font-size: 0.95rem; }
 .dtp-note {
@@ -4078,6 +4138,371 @@ a:hover > .card,
   .pt-state-section { padding: 2.25rem 0; }
   .pt-state-name { font-size: 1.45rem; }
   .pt-state-testname { font-size: 0.95rem; }
+}
+
+/* ============================================================
+   SUPPORT / CONTACT PAGE (.sup-*)
+   ============================================================ */
+
+/* Contact method cards (extends .pp-conf-card) — make them clickable */
+.sup-method-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+.sup-method-card:hover {
+  color: inherit;
+  text-decoration: none;
+}
+.sup-method-card p { word-break: break-word; }
+.sup-method-time {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--sl-accent-700, #b45309);
+  background: #fef3c7;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}
+
+/* Sidebar info list on contact form section */
+.sup-info-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+.sup-info-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--sl-gray-100, #f3f4f6);
+}
+.sup-info-list li:last-child { border-bottom: 0; }
+.sup-info-list li i {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: var(--sl-accent-700, #b45309);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+.sup-info-list li strong {
+  display: block;
+  color: var(--sl-gray-900, #111);
+  font-weight: 800;
+  margin-bottom: 0.1rem;
+}
+.sup-info-list li span {
+  font-size: 0.88rem;
+  color: var(--sl-gray-600, #4b5563);
+  line-height: 1.5;
+}
+
+/* Contact form card */
+.sup-form-card {
+  background: #fff;
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 16px;
+  padding: 2rem 2rem 1.75rem;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.06);
+}
+.sup-form-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--sl-gray-900, #111);
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.015em;
+}
+.sup-form-input {
+  position: relative;
+}
+.sup-form-input > i {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--sl-gray-400, #9ca3af);
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 2;
+}
+.sup-form-input .form-control,
+.sup-form-input .form-select {
+  height: 46px;
+  padding-left: 2.5rem;
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sup-form-input .form-control:focus,
+.sup-form-input .form-select:focus {
+  border-color: var(--sl-accent-400, #fbbf24);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+}
+.sup-form-textarea {
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sup-form-textarea:focus {
+  border-color: var(--sl-accent-400, #fbbf24);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+}
+
+/* Learner / Instructor split CTA cards */
+.sup-split-card {
+  background: #fff;
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  text-align: center;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sup-split-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(17, 24, 39, 0.08);
+}
+.sup-split-card-learner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fcd34d;
+}
+.sup-split-card-instructor {
+  background: linear-gradient(135deg, var(--sl-gray-900, #111) 0%, #1f2937 100%);
+  border-color: var(--sl-gray-900, #111);
+  color: #fff;
+}
+.sup-split-card-instructor h3,
+.sup-split-card-instructor p { color: #fff; }
+.sup-split-card-instructor p { opacity: 0.85; }
+.sup-split-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.sup-split-card-learner .sup-split-icon { color: var(--sl-accent-700, #b45309); }
+.sup-split-card-instructor .sup-split-icon { color: var(--sl-accent-400, #fbbf24); }
+.sup-split-card h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.65rem;
+}
+.sup-split-card p {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+/* Mobile tweaks */
+@media (max-width: 767.98px) {
+  .sup-form-card { padding: 1.5rem 1.25rem; }
+  .sup-split-card { padding: 1.5rem 1.25rem; }
+}
+
+/* ============================================================
+   INSTRUCT-WITH-US PAGE (.iwu-*)
+   ============================================================ */
+
+/* Earnings calculator */
+.iwu-calc {
+  background: #fff;
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.05);
+}
+.iwu-calc-field { margin-bottom: 1.25rem; }
+.iwu-calc .text-warning-emphasis { color: var(--sl-accent-700, #b45309) !important; }
+.iwu-calc .form-range { accent-color: var(--sl-accent-500, #fbbf24); }
+.iwu-calc-result {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1.25rem 1rem;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  text-align: center;
+}
+.iwu-calc-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sl-accent-700, #b45309);
+  margin-bottom: 0.25rem;
+}
+.iwu-calc-num {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 900;
+  color: var(--sl-gray-900, #111);
+  letter-spacing: -0.015em;
+}
+.iwu-illu { width: 100%; max-width: 400px; height: auto; display: inline-block; }
+
+/* "How it works" 4 numbered steps (also reused by instructor-academy) */
+.iwu-steps { counter-reset: iwu-step; }
+.iwu-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sl-gray-900, #111);
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+.iwu-step-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 0.85rem;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: var(--sl-accent-600, #d97706);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.iwu-step-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--sl-gray-900, #111);
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   INSTRUCTOR ACADEMY PAGE (.ia-*)
+   ============================================================ */
+
+.ia-curriculum-perks {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+}
+.ia-curriculum-perks li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--sl-gray-800, #1f2937);
+}
+.ia-curriculum-perks li i {
+  color: var(--sl-success, #10b981);
+  font-size: 1.15rem;
+}
+
+/* Curriculum modules (native <details> accordion) */
+.ia-modules { display: flex; flex-direction: column; gap: 0.5rem; }
+.ia-module {
+  background: #fff;
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.ia-module:hover { border-color: var(--sl-accent-300, #fcd34d); }
+.ia-module[open] {
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
+  border-color: var(--sl-accent-400, #fbbf24);
+}
+.ia-module summary {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  color: var(--sl-gray-900, #111);
+}
+.ia-module summary::-webkit-details-marker { display: none; }
+.ia-module-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: var(--sl-accent-700, #b45309);
+  font-weight: 900;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.ia-module-title { flex: 1; min-width: 0; }
+.ia-module-chev {
+  color: var(--sl-gray-400, #9ca3af);
+  font-size: 1.15rem;
+  transition: transform 0.2s ease;
+}
+.ia-module[open] .ia-module-chev { transform: rotate(180deg); color: var(--sl-accent-600, #d97706); }
+.ia-module-body {
+  padding: 0 1.1rem 1rem 4.05rem;
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--sl-gray-600, #4b5563);
+  line-height: 1.6;
+}
+
+/* Certification badge SVG container */
+.ia-cert-badge {
+  display: inline-block;
+  position: relative;
+  filter: drop-shadow(0 16px 36px rgba(217, 119, 6, 0.25));
+}
+.ia-cert-svg { width: 100%; max-width: 280px; height: auto; }
+
+/* Cert key points list */
+.ia-cert-points {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+}
+.ia-cert-points li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.65rem 0;
+  font-size: 0.95rem;
+  color: var(--sl-gray-700, #374151);
+  line-height: 1.55;
+}
+.ia-cert-points li i {
+  color: var(--sl-accent-600, #d97706);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Mobile tweaks */
+@media (max-width: 767.98px) {
+  .iwu-calc { padding: 1.25rem 1rem; }
+  .iwu-calc-result { grid-template-columns: 1fr; gap: 0.65rem; padding: 1rem; }
+  .iwu-step-icon { width: 60px; height: 60px; font-size: 1.65rem; }
+  .ia-module summary { padding: 0.75rem 0.85rem; gap: 0.6rem; }
+  .ia-module-num { width: 30px; height: 30px; font-size: 0.8rem; }
+  .ia-module-body { padding-left: 3rem; }
 }
 
 /* ============================================================

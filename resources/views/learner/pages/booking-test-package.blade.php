@@ -38,7 +38,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <div class="p-plate">P</div>
                             @if($instructorProfile->profile_photo)
-                                <img src="{{ asset('storage/' . $instructorProfile->profile_photo) }}" class="rounded-circle" style="width:48px;height:48px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.1);" alt="Instructor">
+                                <img src="{{ \Storage::disk('spaces')->url($instructorProfile->profile_photo) }}" class="rounded-circle" style="width:48px;height:48px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.1);" alt="Instructor">
                             @else
                                 <div class="rounded-circle d-flex align-items-center justify-content-center fw-bolder text-white" style="width:48px;height:48px;background:linear-gradient(135deg, var(--sl-primary-500), var(--sl-teal-500));border:2px solid #fff;">{{ strtoupper(substr($instructorProfile->user->name ?? 'I', 0, 1)) }}</div>
                             @endif

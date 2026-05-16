@@ -34,7 +34,7 @@ class DashboardController extends Controller
                 'id' => $profile->id,
                 'bio' => $profile->bio,
                 'profile_photo' => $profile->profile_photo,
-                'profile_photo_url' => $profile->profile_photo ? asset('storage/' . $profile->profile_photo) : null,
+                'profile_photo_url' => $profile->profile_photo ? \Storage::disk('spaces')->url($profile->profile_photo) : null,
                 'profile_description' => $profile->profile_description,
                 'languages' => $profile->languages ?? [],
                 'association_member' => $profile->association_member ?? false,
@@ -51,7 +51,7 @@ class DashboardController extends Controller
                 'vehicle_year' => $profile->vehicle_year,
                 'vehicle_safety_rating' => $profile->vehicle_safety_rating,
                 'vehicle_photo' => $profile->vehicle_photo,
-                'vehicle_photo_url' => $profile->vehicle_photo ? asset('storage/' . $profile->vehicle_photo) : null,
+                'vehicle_photo_url' => $profile->vehicle_photo ? \Storage::disk('spaces')->url($profile->vehicle_photo) : null,
                 'wwcc_number' => $profile->wwcc_number,
                 'wwcc_verified_at' => $profile->wwcc_verified_at?->toIso8601String(),
                 'accreditation_details' => $profile->accreditation_details,
@@ -158,17 +158,17 @@ class DashboardController extends Controller
         }
 
         // Delete old photo
-        if ($profile->profile_photo && \Storage::disk('public')->exists($profile->profile_photo)) {
-            \Storage::disk('public')->delete($profile->profile_photo);
+        if ($profile->profile_photo && \Storage::disk('spaces')->exists($profile->profile_photo)) {
+            \Storage::disk('spaces')->delete($profile->profile_photo);
         }
 
-        $path = $request->file('profile_photo')->store('instructor-photos', 'public');
+        $path = $request->file('profile_photo')->store('instructor-photos', 'spaces');
         $profile->update(['profile_photo' => $path]);
 
         return response()->json([
             'data' => [
                 'message' => 'Profile photo uploaded.',
-                'profile_photo_url' => asset('storage/' . $path),
+                'profile_photo_url' => \Storage::disk('spaces')->url($path),
             ],
         ]);
     }
@@ -189,17 +189,17 @@ class DashboardController extends Controller
         }
 
         // Delete old photo
-        if ($profile->vehicle_photo && \Storage::disk('public')->exists($profile->vehicle_photo)) {
-            \Storage::disk('public')->delete($profile->vehicle_photo);
+        if ($profile->vehicle_photo && \Storage::disk('spaces')->exists($profile->vehicle_photo)) {
+            \Storage::disk('spaces')->delete($profile->vehicle_photo);
         }
 
-        $path = $request->file('vehicle_photo')->store('vehicle-photos', 'public');
+        $path = $request->file('vehicle_photo')->store('vehicle-photos', 'spaces');
         $profile->update(['vehicle_photo' => $path]);
 
         return response()->json([
             'data' => [
                 'message' => 'Vehicle photo uploaded.',
-                'vehicle_photo_url' => asset('storage/' . $path),
+                'vehicle_photo_url' => \Storage::disk('spaces')->url($path),
             ],
         ]);
     }

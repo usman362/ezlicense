@@ -60,6 +60,29 @@ return [
             'report' => false,
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | DigitalOcean Spaces (S3-compatible) — public media storage
+        |--------------------------------------------------------------------------
+        |
+        | Used for all user-uploaded media: instructor photos, vehicle photos,
+        | blog/insight featured images, etc. Defaults to Sydney (syd1).
+        |
+        */
+        'spaces' => [
+            'driver' => 's3',
+            'key' => env('SPACES_KEY'),
+            'secret' => env('SPACES_SECRET'),
+            'region' => env('SPACES_REGION', 'syd1'),
+            'bucket' => env('SPACES_BUCKET'),
+            'endpoint' => env('SPACES_ENDPOINT', 'https://'.env('SPACES_REGION', 'syd1').'.digitaloceanspaces.com'),
+            'url' => env('SPACES_URL'),
+            'use_path_style_endpoint' => false,
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

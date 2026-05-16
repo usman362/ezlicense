@@ -41,4 +41,25 @@ class InstructorDocument extends Model
     {
         return $this->belongsTo(InstructorProfile::class);
     }
+
+    /**
+     * Generate a signed temporary URL to view this document on Spaces.
+     * Default expiry is 30 minutes — long enough for a review session but
+     * short enough that leaked links go stale quickly.
+     */
+    public function getSignedUrl(int $minutes = 30): ?string
+    {
+        if (! $this->file_path) {
+            return null;
+        }
+
+        try {
+            return \Storage::disk('spaces')->temporaryUrl(
+                $this->file_path,
+                now()->addMinutes($minutes)
+            );
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

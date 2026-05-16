@@ -82,7 +82,7 @@ class VehicleController extends Controller
         // Handle photo upload
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo')
-                ->store("vehicles/{$user->id}", 'public');
+                ->store("vehicles/{$user->id}", 'spaces');
         }
 
         // If this is primary, un-primary existing ones
@@ -130,10 +130,10 @@ class VehicleController extends Controller
         if ($request->hasFile('photo')) {
             // Delete old photo
             if ($vehicle->photo) {
-                Storage::disk('public')->delete($vehicle->photo);
+                Storage::disk('spaces')->delete($vehicle->photo);
             }
             $validated['photo'] = $request->file('photo')
-                ->store("vehicles/{$vehicle->user_id}", 'public');
+                ->store("vehicles/{$vehicle->user_id}", 'spaces');
         }
 
         if (!empty($validated['is_primary'])) {
@@ -159,7 +159,7 @@ class VehicleController extends Controller
         }
 
         if ($vehicle->photo) {
-            Storage::disk('public')->delete($vehicle->photo);
+            Storage::disk('spaces')->delete($vehicle->photo);
         }
 
         $vehicle->delete();

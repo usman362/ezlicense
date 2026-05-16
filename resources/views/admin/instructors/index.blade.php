@@ -147,13 +147,13 @@
                     @if($ip->profile_photo)
                         <div>
                             <div class="small text-muted mb-1">Profile Photo</div>
-                            <img src="{{ asset('storage/' . $ip->profile_photo) }}" class="rounded" style="max-height:100px;" alt="Profile">
+                            <img src="{{ \Storage::disk('spaces')->url($ip->profile_photo) }}" class="rounded" style="max-height:100px;" alt="Profile">
                         </div>
                     @endif
                     @if($ip->vehicle_photo)
                         <div>
                             <div class="small text-muted mb-1">Vehicle Photo</div>
-                            <img src="{{ asset('storage/' . $ip->vehicle_photo) }}" class="rounded" style="max-height:100px;" alt="Vehicle">
+                            <img src="{{ \Storage::disk('spaces')->url($ip->vehicle_photo) }}" class="rounded" style="max-height:100px;" alt="Vehicle">
                         </div>
                     @endif
                 </div>
@@ -189,7 +189,7 @@
                                         </td>
                                         <td class="small">
                                             @if($doc->file_path)
-                                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-primary"><i class="bi bi-file-earmark me-1"></i>View</a>
+                                                <a href="{{ $doc->getSignedUrl() }}" target="_blank" rel="noopener" class="text-primary"><i class="bi bi-file-earmark me-1"></i>View</a>
                                             @else
                                                 —
                                             @endif

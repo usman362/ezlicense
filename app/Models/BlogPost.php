@@ -78,6 +78,6 @@ class BlogPost extends Model
     {
         if (! $this->featured_image) return null;
         if (Str::startsWith($this->featured_image, ['http://', 'https://'])) return $this->featured_image;
-        return asset('storage/' . $this->featured_image);
+        return \Storage::disk('spaces')->url($this->featured_image);
     }
 }

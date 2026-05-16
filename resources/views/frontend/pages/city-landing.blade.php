@@ -153,7 +153,7 @@
                             <div class="cl-inst-card">
                                 <div class="cl-inst-photo">
                                     @if($p->profile_photo)
-                                        <img src="{{ asset('storage/' . $p->profile_photo) }}" alt="{{ $p->user->name }}">
+                                        <img src="{{ \Storage::disk('spaces')->url($p->profile_photo) }}" alt="{{ $p->user->name }}">
                                     @else
                                         <div class="cl-inst-initials">{{ strtoupper(substr($p->user->first_name ?? $p->user->name, 0, 1)) }}</div>
                                     @endif

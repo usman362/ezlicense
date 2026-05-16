@@ -282,19 +282,23 @@
             </a>
 
             <div class="auth-brand-content">
-                <span class="auth-brand-eyebrow"><i class="bi bi-star-fill me-1"></i>Australia's #1 Platform</span>
-                <h1 class="auth-brand-headline">
-                    Learn to drive with <span class="highlight">confidence</span>.
-                </h1>
-                <p class="auth-brand-sub">
-                    Join 100,000+ learners who found their perfect instructor on Secure Licences.
-                </p>
-                <ul class="auth-brand-features">
-                    <li><i class="bi bi-check-lg"></i><span>Verified, WWCC-checked instructors in every suburb</span></li>
-                    <li><i class="bi bi-check-lg"></i><span>Instant online booking with real-time availability</span></li>
-                    <li><i class="bi bi-check-lg"></i><span>Transparent pricing, no hidden fees</span></li>
-                    <li><i class="bi bi-check-lg"></i><span>Switch instructors any time — no questions asked</span></li>
-                </ul>
+                @hasSection('brand_content')
+                    @yield('brand_content')
+                @else
+                    <span class="auth-brand-eyebrow"><i class="bi bi-star-fill me-1"></i>Australia's #1 Platform</span>
+                    <h1 class="auth-brand-headline">
+                        Learn to drive with <span class="highlight">confidence</span>.
+                    </h1>
+                    <p class="auth-brand-sub">
+                        Join 100,000+ learners who found their perfect instructor on Secure Licences.
+                    </p>
+                    <ul class="auth-brand-features">
+                        <li><i class="bi bi-check-lg"></i><span>Verified, WWCC-checked instructors in every suburb</span></li>
+                        <li><i class="bi bi-check-lg"></i><span>Instant online booking with real-time availability</span></li>
+                        <li><i class="bi bi-check-lg"></i><span>Transparent pricing, no hidden fees</span></li>
+                        <li><i class="bi bi-check-lg"></i><span>Switch instructors any time — no questions asked</span></li>
+                    </ul>
+                @endif
             </div>
 
             <div class="auth-brand-footer">
