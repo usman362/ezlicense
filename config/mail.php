@@ -45,7 +45,8 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            // Fail fast if SMTP is unreachable instead of hanging the request 30+ seconds.
+            'timeout' => env('MAIL_SMTP_TIMEOUT', 10),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 

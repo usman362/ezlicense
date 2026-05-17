@@ -4,12 +4,19 @@ namespace App\Notifications;
 
 use App\Models\InstructorInvite;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class InstructorInviteNotification extends Notification
+class InstructorInviteNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+
+    /** Retry up to 3 times if SMTP fails (transient errors) */
+    public $tries = 3;
+
+    /** Hard cap each attempt at 30 seconds — prevents stuck jobs */
+    public $timeout = 30;
 
     public function __construct(public InstructorInvite $invite)
     {
