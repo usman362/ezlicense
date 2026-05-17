@@ -32,17 +32,15 @@
         @enderror
     </div>
 
-    <div class="auth-input-wrap">
-        <i class="bi bi-people"></i>
-        <select id="role" class="form-control @error('role') is-invalid @enderror" name="role" required>
-            <option value="" disabled {{ old('role') ? '' : 'selected' }}>I am a...</option>
-            <option value="learner" {{ old('role') === 'learner' ? 'selected' : '' }}>Learner (book lessons)</option>
-            <option value="instructor" {{ old('role') === 'instructor' ? 'selected' : '' }}>Instructor (teach lessons)</option>
-        </select>
-        @error('role')
-            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-        @enderror
-    </div>
+    {{-- Public signup is locked to learner role. Instructors join via admin invite only. --}}
+    <input type="hidden" name="role" value="learner">
+    <p class="small text-muted mb-3" style="margin-top:-0.5rem;">
+        <i class="bi bi-info-circle me-1"></i>
+        Looking to become an instructor? <a href="{{ route('instruct-with-us') }}" class="auth-register-link">Request an invite</a>.
+    </p>
+    @error('role')
+        <div class="alert alert-warning small">{{ $message }}</div>
+    @enderror
 
     <div class="auth-input-wrap">
         <i class="bi bi-lock"></i>

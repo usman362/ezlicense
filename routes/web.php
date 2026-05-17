@@ -107,6 +107,12 @@ Route::get('/instructor/login', function () {
     return view('auth.instructor-login');
 })->name('instructor.login')->middleware('guest');
 
+// Instructor invite — magic-link signup (single-use, 7-day expiry)
+Route::middleware('guest')->group(function () {
+    Route::get('/instructor/invite/{token}', [App\Http\Controllers\InstructorInviteController::class, 'show'])->name('instructor.invite.show');
+    Route::post('/instructor/invite/{token}/register', [App\Http\Controllers\InstructorInviteController::class, 'register'])->name('instructor.invite.register');
+});
+
 Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
 // Admin panel
@@ -211,6 +217,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/blog/{blogPost}/edit', [App\Http\Controllers\Admin\BlogController::class, 'edit'])->name('blog.edit');
     Route::put('/blog/{blogPost}', [App\Http\Controllers\Admin\BlogController::class, 'update'])->name('blog.update');
     Route::get('/blog/categories', [App\Http\Controllers\Admin\BlogController::class, 'categories'])->name('blog.categories');
+
+    // Instructor invites (magic-link onboarding)
+    Route::get('/instructor-invites', [App\Http\Controllers\Admin\InstructorInviteController::class, 'index'])->name('instructor-invites.index');
+    Route::post('/instructor-invites', [App\Http\Controllers\Admin\InstructorInviteController::class, 'store'])->name('instructor-invites.store');
+    Route::post('/instructor-invites/{instructorInvite}/resend', [App\Http\Controllers\Admin\InstructorInviteController::class, 'resend'])->name('instructor-invites.resend');
+    Route::patch('/instructor-invites/{instructorInvite}/cancel', [App\Http\Controllers\Admin\InstructorInviteController::class, 'cancel'])->name('instructor-invites.cancel');
+    Route::delete('/instructor-invites/{instructorInvite}', [App\Http\Controllers\Admin\InstructorInviteController::class, 'destroy'])->name('instructor-invites.destroy');
 
     // Industry Insights management (clones blog structure)
     Route::get('/industry-insights/categories', [App\Http\Controllers\Admin\IndustryInsightController::class, 'categories'])->name('industry-insights.categories');

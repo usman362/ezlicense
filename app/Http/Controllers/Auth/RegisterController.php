@@ -79,8 +79,12 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'string', 'max:20'],
-            'role' => ['required', 'in:learner,instructor'],
+            // Instructors can only join via admin invite (see InstructorInviteController).
+            // Public signup is locked to learner role to maintain instructor quality control.
+            'role' => ['required', 'in:learner'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'role.in' => 'Instructor accounts are by invitation only. Please contact us at instructors@securelicences.com.au to request an invite.',
         ]);
     }
 
