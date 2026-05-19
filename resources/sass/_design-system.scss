@@ -4506,6 +4506,72 @@ a:hover > .card,
 }
 
 /* ============================================================
+   SHARE PROFILE PANEL (instructor dashboard)
+   ============================================================ */
+
+.share-profile-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 60%);
+  border: 1px solid var(--sl-accent-200, #fde68a) !important;
+}
+.share-profile-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--sl-accent-500, #fbbf24);
+  color: var(--sl-gray-900, #111);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+  flex-shrink: 0;
+}
+.share-profile-input .form-control {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+  color: var(--sl-gray-700, #374151);
+  background: var(--sl-gray-50, #f9fafb);
+}
+.share-profile-input .form-control:focus {
+  background: #fff;
+  border-color: var(--sl-accent-400, #fbbf24);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+}
+.share-profile-input .input-group-text {
+  background: var(--sl-gray-50, #f9fafb);
+  border-color: var(--sl-gray-200, #e5e7eb);
+}
+
+/* Per-brand share buttons */
+.share-btn {
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  background: #fff;
+  color: var(--sl-gray-700, #374151);
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.share-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(17,24,39,0.08); color: #fff; text-decoration: none; }
+.share-btn-wa:hover    { background: #25d366; border-color: #25d366; }
+.share-btn-fb:hover    { background: #1877f2; border-color: #1877f2; }
+.share-btn-li:hover    { background: #0a66c2; border-color: #0a66c2; }
+.share-btn-tw:hover    { background: #0f172a; border-color: #0f172a; }
+.share-btn-email:hover { background: var(--sl-accent-600, #d97706); border-color: var(--sl-accent-600, #d97706); }
+.share-btn-qr:hover    { background: var(--sl-gray-900, #111); border-color: var(--sl-gray-900, #111); }
+
+.share-qr-wrap {
+  display: inline-block;
+  padding: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(17,24,39,0.05);
+}
+
+/* ============================================================
    BLOG (.blog-*)  — index + single-post
    ============================================================ */
 

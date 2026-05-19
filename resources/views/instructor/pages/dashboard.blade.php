@@ -11,6 +11,108 @@
     </ol>
 </nav>
 
+{{-- ─────────── Share Profile Panel ─────────── --}}
+@php
+    $sl_profile = \Illuminate\Support\Facades\Auth::user()?->instructorProfile;
+    $sl_shareUrl = $sl_profile?->shareUrl();
+    $sl_shareText = 'Check out my driving instructor profile on Secure Licences:';
+@endphp
+@if($sl_shareUrl)
+<div class="card border-0 shadow-sm mb-4 share-profile-card">
+    <div class="card-body p-3 p-md-4">
+        <div class="d-flex align-items-start gap-3 flex-wrap">
+            <div class="share-profile-icon flex-shrink-0">
+                <i class="bi bi-link-45deg"></i>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+                <h6 class="mb-2 fw-bold"><i class="bi bi-share-fill me-1 text-warning"></i>Your shareable profile link</h6>
+                <p class="text-muted small mb-2">
+                    Share this link on your CV, WhatsApp, Facebook or anywhere — people can view your profile and book lessons directly.
+                </p>
+
+                <div class="input-group share-profile-input mb-2">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-globe text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0" id="share-profile-url" value="{{ $sl_shareUrl }}" readonly>
+                    <button type="button" class="btn btn-warning fw-bold" id="share-profile-copy-btn">
+                        <i class="bi bi-clipboard me-1"></i><span>Copy</span>
+                    </button>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="https://wa.me/?text={{ urlencode($sl_shareText . ' ' . $sl_shareUrl) }}" target="_blank" rel="noopener" class="btn btn-sm share-btn share-btn-wa">
+                        <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($sl_shareUrl) }}" target="_blank" rel="noopener" class="btn btn-sm share-btn share-btn-fb">
+                        <i class="bi bi-facebook me-1"></i>Facebook
+                    </a>
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode($sl_shareUrl) }}" target="_blank" rel="noopener" class="btn btn-sm share-btn share-btn-li">
+                        <i class="bi bi-linkedin me-1"></i>LinkedIn
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?text={{ urlencode($sl_shareText) }}&url={{ urlencode($sl_shareUrl) }}" target="_blank" rel="noopener" class="btn btn-sm share-btn share-btn-tw">
+                        <i class="bi bi-twitter-x me-1"></i>X
+                    </a>
+                    <a href="mailto:?subject={{ urlencode('My driving instructor profile') }}&body={{ urlencode($sl_shareText . ' ' . $sl_shareUrl) }}" class="btn btn-sm share-btn share-btn-email">
+                        <i class="bi bi-envelope me-1"></i>Email
+                    </a>
+                    <button type="button" class="btn btn-sm share-btn share-btn-qr" data-bs-toggle="modal" data-bs-target="#shareQrModal">
+                        <i class="bi bi-qr-code me-1"></i>QR Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- QR Code Modal --}}
+<div class="modal fade" id="shareQrModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-qr-code me-2"></i>Your profile QR code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="small text-muted mb-3">Print this QR code on flyers or business cards — anyone can scan it to view your profile and book lessons.</p>
+                <div class="share-qr-wrap">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ urlencode($sl_shareUrl) }}&size=300x300&margin=10" alt="Profile QR code" class="img-fluid" id="share-qr-img">
+                </div>
+                <div class="small text-muted mt-2">{{ $sl_shareUrl }}</div>
+            </div>
+            <div class="modal-footer">
+                <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ urlencode($sl_shareUrl) }}&size=600x600&margin=20&format=png" download="securelicences-profile-qr.png" class="btn btn-warning fw-bold w-100">
+                    <i class="bi bi-download me-1"></i>Download high-res PNG
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+(function () {
+    const btn = document.getElementById('share-profile-copy-btn');
+    const input = document.getElementById('share-profile-url');
+    if (!btn || !input) return;
+    btn.addEventListener('click', function () {
+        input.select();
+        navigator.clipboard.writeText(input.value).then(() => {
+            const span = btn.querySelector('span');
+            const orig = span.textContent;
+            span.textContent = 'Copied!';
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-success');
+            setTimeout(() => {
+                span.textContent = orig;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-warning');
+            }, 1800);
+        });
+    });
+})();
+</script>
+@endpush
+@endif
+
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <h5 class="mb-0">Bookings</h5>
     <div class="d-flex align-items-center gap-2">

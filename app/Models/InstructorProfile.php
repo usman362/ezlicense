@@ -14,6 +14,7 @@ class InstructorProfile extends Model
 
     protected $fillable = [
         'user_id',
+        'public_slug',
         'bio',
         'profile_photo',
         'profile_description',
@@ -324,5 +325,83 @@ class InstructorProfile extends Model
             return true;
         }
         return strtolower((string) ($user->gender ?? '')) === 'female';
+    }
+
+    /* ─────────────── Public-shareable slug + URL ─────────────── */
+
+    /**
+     * Auto-generate a unique slug when the profile is created if none was set.
+     * Slug is derived from the user's name and stays the same unless explicitly
+     * changed via the instructor's settings.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $p) {
+            if (empty($p->public_slug)) {
+                $p->public_slug = self::generateUniqueSlug($p->user?->name ?? null, null);
+            }
+        });
+    }
+
+    /**
+     * Generate a URL-safe, unique slug — falls back to "instructor-{n}" if name is empty.
+     * Pass $excludeId to allow saving the same slug back to the same row (edit case).
+     */
+    public static function generateUniqueSlug(?string $name, ?int $excludeId = null): string
+    {
+        $base = \Illuminate\Support\Str::slug($name ?: '') ?: 'instructor';
+        $slug = $base;
+        $i = 1;
+        while (self::where('public_slug', $slug)
+                    ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+                    ->exists()) {
+            $slug = $base . '-' . ++$i;
+        }
+        return $slug;
+    }
+
+    /**
+     * Validate that a user-supplied slug is allowed (format + uniqueness).
+     * Returns the cleaned slug, or null if invalid.
+     */
+    public static function sanitizeSlug(string $raw, ?int $excludeId = null): ?string
+    {
+        $slug = strtolower(trim($raw));
+        $slug = preg_replace('/[^a-z0-9\-]/', '-', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+        $slug = trim($slug, '-');
+
+        if (strlen($slug) < 3 || strlen($slug) > 60) return null;
+
+        // Reserve a few obvious paths
+        $reserved = ['admin', 'api', 'login', 'register', 'dashboard', 'home', 'i', 'instructor', 'instructors', 'profile', 'logout'];
+        if (in_array($slug, $reserved, true)) return null;
+
+        if (self::where('public_slug', $slug)
+                ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+                ->exists()) {
+            return null;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Pretty public profile URL — e.g. https://securelicences.com.au/i/john-smith
+     * Falls back to the numeric route if no slug is set yet.
+     */
+    public function publicUrl(): string
+    {
+        return $this->public_slug
+            ? url('/i/' . $this->public_slug)
+            : route('instructors.show', $this);
+    }
+
+    /**
+     * Short URL specifically for sharing (alias of publicUrl for clarity).
+     */
+    public function shareUrl(): string
+    {
+        return $this->publicUrl();
     }
 }

@@ -36,9 +36,23 @@ Route::get('/find-instructor/results', function (\Illuminate\Http\Request $reque
 })->name('find-instructor.results');
 
 Route::get('/instructors/{instructorProfile}', function (App\Models\InstructorProfile $instructorProfile) {
+    // If this instructor has a friendly slug, send the visitor to the pretty URL
+    // so links shared from the old numeric URL still work + the address bar looks clean.
+    if ($instructorProfile->public_slug) {
+        return redirect()->route('instructors.public', ['slug' => $instructorProfile->public_slug], 301);
+    }
     $instructorProfile->load(['user', 'serviceAreas']);
     return view('instructor-public-show', ['instructorProfile' => $instructorProfile]);
 })->name('instructors.show');
+
+// Public shareable profile URL — instructors can put this on their CV / WhatsApp / socials
+// Example: https://securelicences.com.au/i/john-smith
+Route::get('/i/{slug}', function (string $slug) {
+    $instructorProfile = App\Models\InstructorProfile::where('public_slug', $slug)
+        ->with(['user', 'serviceAreas'])
+        ->firstOrFail();
+    return view('instructor-public-show', ['instructorProfile' => $instructorProfile]);
+})->name('instructors.public');
 
 // Static pages
 Route::get('/about', fn () => view('frontend.pages.about'))->name('about');
