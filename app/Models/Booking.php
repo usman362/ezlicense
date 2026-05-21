@@ -102,6 +102,12 @@ class Booking extends Model
         'lesson_ended_at',
         'google_event_id',
         'google_event_id_learner',
+        'refund_amount',
+        'refund_method',
+        'refund_reason',
+        'refund_reference',
+        'refunded_at',
+        'refunded_by_user_id',
     ];
 
     protected function casts(): array
@@ -116,6 +122,8 @@ class Booking extends Model
             'referral_discount_amount' => 'decimal:2',
             'platform_fee' => 'decimal:2',
             'instructor_net_amount' => 'decimal:2',
+            'refund_amount' => 'decimal:2',
+            'refunded_at' => 'datetime',
             'test_pre_booked' => 'boolean',
             'is_guest_booking' => 'boolean',
             'cancellation_policy_accepted' => 'boolean',

@@ -325,6 +325,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Bookings management
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
+    Route::post('/bookings/{booking}/refund', [App\Http\Controllers\Admin\BookingsController::class, 'refund'])->name('bookings.refund');
 
     // Coupons / Promo codes management
     Route::get('/coupons', [App\Http\Controllers\Admin\CouponsController::class, 'index'])->name('coupons.index');

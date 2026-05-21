@@ -336,6 +336,127 @@
                         </div>
                     </div>
                 </form>
+
+                {{-- ── Refund section ── --}}
+                <hr>
+                @php
+                    $alreadyRefunded = (float) ($b->refund_amount ?? 0);
+                    $fullyRefunded   = $alreadyRefunded > 0 && $alreadyRefunded >= (float) $b->amount;
+                    $remainingRefundable = max(0, (float) $b->amount - $alreadyRefunded);
+                @endphp
+                <h6 class="mb-2">
+                    <i class="bi bi-cash-coin text-success me-1"></i>Refund
+                    @if($alreadyRefunded > 0)
+                        <span class="badge bg-{{ $fullyRefunded ? 'success' : 'warning' }} ms-1">
+                            ${{ number_format($alreadyRefunded, 2) }} refunded
+                        </span>
+                    @endif
+                </h6>
+
+                @if($alreadyRefunded > 0)
+                    <div class="border rounded p-2 mb-2 small bg-light">
+                        <div><strong>Method:</strong>
+                            {{ match($b->refund_method) {
+                                'wallet'           => 'Wallet credit',
+                                'original_payment' => 'Original payment method',
+                                'manual_bank'      => 'Bank transfer',
+                                default            => '—',
+                            } }}
+                        </div>
+                        @if($b->refund_reason)
+                            <div><strong>Reason:</strong> {{ $b->refund_reason }}</div>
+                        @endif
+                        @if($b->refund_reference)
+                            <div><strong>Reference:</strong> <code>{{ $b->refund_reference }}</code></div>
+                        @endif
+                        @if($b->refunded_at)
+                            <div class="text-muted">Processed {{ $b->refunded_at->diffForHumans() }} by {{ optional(\App\Models\User::find($b->refunded_by_user_id))->name ?? 'admin' }}</div>
+                        @endif
+                    </div>
+                @endif
+
+                @if($fullyRefunded)
+                    <p class="small text-muted mb-0"><i class="bi bi-check-circle-fill text-success"></i> This booking is fully refunded. Learner has been emailed a receipt.</p>
+                @elseif($remainingRefundable <= 0 || (float) $b->amount <= 0)
+                    <p class="small text-muted mb-0">No refundable amount (booking value is $0 or already refunded).</p>
+                @else
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#refund-modal-{{ $b->id }}">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>{{ $alreadyRefunded > 0 ? 'Issue partial refund' : 'Issue refund' }}
+                    </button>
+                    <small class="text-muted ms-2">Up to ${{ number_format($remainingRefundable, 2) }} available</small>
+
+                    {{-- Refund modal --}}
+                    <div class="modal fade" id="refund-modal-{{ $b->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <form method="POST" action="{{ route('admin.bookings.refund', $b) }}">
+                                @csrf
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            <i class="bi bi-cash-coin text-success me-2"></i>Issue refund — Booking #{{ $b->id }}
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="alert alert-light border small mb-3">
+                                            <div><strong>Learner:</strong> {{ optional($b->learner)->name ?? '—' }}</div>
+                                            <div><strong>Booking amount:</strong> ${{ number_format((float) $b->amount, 2) }}</div>
+                                            @if($alreadyRefunded > 0)
+                                                <div><strong>Already refunded:</strong> ${{ number_format($alreadyRefunded, 2) }}</div>
+                                            @endif
+                                            <div><strong>Refundable now:</strong> ${{ number_format($remainingRefundable, 2) }}</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Refund amount ($) <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" name="amount" step="0.01" min="0.01" max="{{ $remainingRefundable }}" value="{{ $remainingRefundable }}" class="form-control" required>
+                                                <button type="button" class="btn btn-outline-secondary" onclick="this.parentElement.querySelector('input').value={{ $remainingRefundable }}">Full</button>
+                                            </div>
+                                            <div class="form-text">Enter a partial amount to issue a partial refund.</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Refund method <span class="text-danger">*</span></label>
+                                            <select name="method" class="form-select" required>
+                                                <option value="wallet">Wallet credit — instant, learner uses on next booking</option>
+                                                <option value="original_payment">Original payment method (card) — record manually</option>
+                                                <option value="manual_bank">Manual bank transfer — record reference</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Reason <span class="text-danger">*</span></label>
+                                            <textarea name="reason" rows="2" maxlength="500" class="form-control" required placeholder="e.g. Instructor cancelled at short notice"></textarea>
+                                            <div class="form-text">Shown to the learner in the refund email and recorded for your records.</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Reference <span class="text-muted">(optional)</span></label>
+                                            <input type="text" name="reference" maxlength="100" class="form-control" placeholder="Stripe refund ID, bank transfer ref, etc.">
+                                        </div>
+
+                                        @if($b->status !== 'cancelled')
+                                            <div class="form-check">
+                                                <input type="checkbox" name="also_cancel" value="1" class="form-check-input" id="cancel-{{ $b->id }}">
+                                                <label class="form-check-label" for="cancel-{{ $b->id }}">
+                                                    Also cancel this booking
+                                                </label>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-warning fw-bold">
+                                            <i class="bi bi-send-fill me-1"></i>Process refund &amp; email learner
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

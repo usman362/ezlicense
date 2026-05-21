@@ -63,6 +63,44 @@ class BookingCancelled extends Notification
             $mail->line("A new booking has been proposed for **{$newDate}** at **{$newTime}**. Please log in to accept or decline.");
         }
 
+        // ── Refund breakdown (when a refund has been issued with the cancellation) ──
+        if ($b->refund_amount !== null && (float) $b->refund_amount > 0) {
+            $original     = number_format((float) $b->amount, 2);
+            $refunded     = number_format((float) $b->refund_amount, 2);
+            $cancelFee    = max(0, (float) $b->amount - (float) $b->refund_amount);
+            $cancelFeeFmt = number_format($cancelFee, 2);
+            $methodLabel  = match ($b->refund_method) {
+                'wallet'           => 'Secure Licences wallet credit',
+                'original_payment' => 'Original payment method (card)',
+                'manual_bank'      => 'Bank transfer',
+                default            => 'Refund processed',
+            };
+            $timeline = match ($b->refund_method) {
+                'wallet'           => 'Credit is available in your wallet right now.',
+                'original_payment' => 'Card refunds typically take 5–10 business days to show on your statement.',
+                'manual_bank'      => 'Bank transfers usually clear within 1–3 business days.',
+                default            => 'You should see this refund shortly.',
+            };
+
+            $mail->line('**Refund summary**')
+                 ->line("Original amount paid: \${$original}");
+            if ($cancelFee > 0) {
+                $mail->line("Cancellation fee retained: −\${$cancelFeeFmt}");
+            }
+            $mail->line("**Refunded: \${$refunded}**")
+                 ->line("Refund method: {$methodLabel}")
+                 ->line($timeline);
+        } elseif ($b->refund_amount !== null && (float) $b->refund_amount === 0.0) {
+            // Explicit no-refund (e.g. late cancellation, fee = 100%)
+            $original = number_format((float) $b->amount, 2);
+            $mail->line('**Refund summary**')
+                 ->line("Original amount paid: \${$original}")
+                 ->line('Per our cancellation policy, no refund is being issued for this booking.');
+            if ($b->refund_reason) {
+                $mail->line("Note: {$b->refund_reason}");
+            }
+        }
+
         return $mail
             ->action('View My Bookings', url('/learner/dashboard'))
             ->line("If you have questions, please contact support.");

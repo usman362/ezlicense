@@ -4,12 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\LearnerTransaction;
+use App\Models\LearnerWallet;
 use App\Models\User;
+use App\Notifications\BookingCancelled;
 use App\Notifications\LessonConfirmationRequest;
+use App\Notifications\RefundProcessed;
 use App\Notifications\ReviewRequested;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class BookingsController extends Controller
@@ -70,6 +76,107 @@ class BookingsController extends Controller
         }
 
         return redirect()->back()->with('message', "Booking #{$booking->id} status updated to " . ucfirst($booking->status) . ".");
+    }
+
+    /**
+     * Issue a refund on a booking. Admin chooses method:
+     *   - wallet           → instant credit to learner's Secure Licences wallet
+     *   - original_payment → manual: card refund processed externally (Stripe/etc.); just records the reference
+     *   - manual_bank      → manual: bank transfer outside platform; just records the reference
+     *
+     * Always:
+     *   - Updates booking refund_* fields + sets payment_status='refunded' (or 'partially_refunded' if partial)
+     *   - Sends RefundProcessed email to learner with full receipt
+     *   - Optionally auto-cancels the booking (admin checkbox)
+     */
+    public function refund(Request $request, Booking $booking)
+    {
+        $data = $request->validate([
+            'amount'      => ['required', 'numeric', 'min:0.01', 'max:' . max(0.01, (float) $booking->amount)],
+            'method'      => ['required', 'in:wallet,original_payment,manual_bank'],
+            'reason'      => ['required', 'string', 'max:500'],
+            'reference'   => ['nullable', 'string', 'max:100'],
+            'also_cancel' => ['nullable', 'boolean'],
+        ]);
+
+        // Already fully refunded? Block double-processing.
+        if ($booking->payment_status === Booking::PAYMENT_REFUNDED && (float) $booking->refund_amount >= (float) $booking->amount) {
+            return back()->withErrors(['amount' => 'This booking is already fully refunded.']);
+        }
+
+        $amount    = round((float) $data['amount'], 2);
+        $isFull    = $amount >= (float) $booking->amount;
+        $method    = $data['method'];
+        $alsoCancel= ! empty($data['also_cancel']);
+
+        try {
+            DB::transaction(function () use ($booking, $amount, $method, $data, $alsoCancel, $isFull) {
+                // 1) Wallet credit (if applicable)
+                if ($method === 'wallet') {
+                    $wallet = LearnerWallet::firstOrCreate(
+                        ['user_id' => $booking->learner_id],
+                        ['balance' => 0, 'non_refundable_credit' => 0]
+                    );
+                    $wallet->balance = (float) $wallet->balance + $amount;
+                    $wallet->save();
+
+                    LearnerTransaction::create([
+                        'user_id'       => $booking->learner_id,
+                        'type'          => LearnerTransaction::TYPE_REFUND,
+                        'description'   => "Refund for booking #{$booking->id}: " . ($data['reason'] ?: 'no reason given'),
+                        'amount'        => $amount, // positive — credit
+                        'balance_after' => $wallet->balance,
+                        'booking_id'    => $booking->id,
+                    ]);
+                }
+
+                // 2) Update the booking
+                $booking->update([
+                    'refund_amount'         => $amount,
+                    'refund_method'         => $method,
+                    'refund_reason'         => $data['reason'],
+                    'refund_reference'      => $data['reference'] ?? null,
+                    'refunded_at'           => now(),
+                    'refunded_by_user_id'   => Auth::id(),
+                    'payment_status'        => $isFull ? Booking::PAYMENT_REFUNDED : ($booking->payment_status ?: Booking::PAYMENT_REFUNDED),
+                ]);
+
+                // 3) Auto-cancel the booking if admin asked
+                if ($alsoCancel && $booking->status !== Booking::STATUS_CANCELLED) {
+                    $booking->update([
+                        'status'              => Booking::STATUS_CANCELLED,
+                        'cancelled_at'        => now(),
+                        'cancelled_by_id'     => Auth::id(),
+                        'cancellation_reason' => 'Cancelled by admin (refund issued)',
+                        'cancellation_message'=> $data['reason'],
+                    ]);
+                }
+            });
+
+            // 4) Email the learner the refund receipt (silent failure — refund still saved)
+            try {
+                $learner = User::find($booking->learner_id);
+                if ($learner) {
+                    $learner->notify(new RefundProcessed($booking->fresh()));
+                    // If we also cancelled, send the upgraded BookingCancelled email which
+                    // now includes the refund breakdown
+                    if ($alsoCancel) {
+                        $learner->notify(new BookingCancelled($booking->fresh(), $data['reason'], 'Refund of $' . number_format($amount, 2) . ' has been processed.'));
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Refund email failed for booking {$booking->id}: " . $e->getMessage());
+            }
+
+            $msg = "Refund of \${$amount} processed for booking #{$booking->id}";
+            $msg .= $alsoCancel ? ' (and booking cancelled). ' : '. ';
+            $msg .= 'Learner has been emailed a receipt.';
+
+            return back()->with('message', $msg);
+        } catch (\Throwable $e) {
+            Log::error("Refund failed for booking {$booking->id}: " . $e->getMessage());
+            return back()->withErrors(['amount' => 'Something went wrong processing the refund: ' . $e->getMessage()]);
+        }
     }
 
     /**
