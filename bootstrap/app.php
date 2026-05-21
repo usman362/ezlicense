@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureInstructorOnboarded;
 use App\Http\Middleware\EnsureUserRole;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => EnsureUserRole::class,
+            'instructor.onboarded' => EnsureInstructorOnboarded::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {

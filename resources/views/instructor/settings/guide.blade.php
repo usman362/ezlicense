@@ -4,13 +4,13 @@
 @section('heading', 'Settings › Guide')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('instructor.settings.personal-details') }}">Settings</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Guide</li>
-    </ol>
-</nav>
+
+<div class="sett-page">
+@include('instructor.settings.partials.header', [
+    'current'     => 'guide',
+    'title'       => 'Getting Started Guide',
+    'description' => 'Step-by-step walkthrough to set up your instructor profile and start receiving bookings.',
+])
 
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
@@ -164,4 +164,6 @@
         </div>
     </div>
 </div>
+
+</div> {{-- /.sett-page --}}
 @endsection

@@ -144,6 +144,20 @@ class DocumentsController extends Controller
             ]);
         }
 
+        // Auto-advance verification_status to 'documents_submitted' once all 3
+        // required doc types are uploaded (still requires admin approval to become 'verified').
+        $requiredTypes = ['drivers_licence', 'instructor_licence', 'wwcc'];
+        $submittedTypes = InstructorDocument::where('instructor_profile_id', $profile->id)
+            ->whereIn('type', $requiredTypes)
+            ->where('status', '!=', InstructorDocument::STATUS_REJECTED)
+            ->pluck('type')
+            ->unique();
+
+        if ($submittedTypes->count() === count($requiredTypes)
+            && in_array($profile->verification_status, ['pending', 'rejected'], true)) {
+            $profile->update(['verification_status' => 'documents_submitted']);
+        }
+
         return response()->json(['data' => ['message' => 'Submitted for review.']]);
     }
 

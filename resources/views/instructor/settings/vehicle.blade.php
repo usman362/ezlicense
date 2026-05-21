@@ -4,26 +4,13 @@
 @section('heading', 'Settings › Vehicle')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('instructor.settings.personal-details') }}">Settings</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Vehicles</li>
-    </ol>
-</nav>
 
-<ul class="nav nav-tabs border-0 small mb-4">
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.personal-details') }}">Personal Details</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.profile') }}">Profile</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{{ route('instructor.settings.vehicle') }}">Vehicles</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.service-area') }}">Service Area</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.opening-hours') }}">Opening Hours</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.calendar-settings') }}">Calendar Settings</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
-</ul>
+<div class="sett-page">
+@include('instructor.settings.partials.header', [
+    'current'     => 'vehicle',
+    'title'       => 'Vehicle Details',
+    'description' => 'Your driving school car — make, model, transmission, photo and safety rating shown to learners.',
+])
 
 <div class="card border-0 shadow-sm">
     <div class="card-body">
@@ -102,4 +89,6 @@
 @push('scripts')
     @vite('resources/js/instructor-settings-vehicle.js')
 @endpush
+
+</div> {{-- /.sett-page --}}
 @endsection

@@ -4,199 +4,256 @@
 @section('heading', 'Settings › Calendar Settings')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('instructor.settings.personal-details') }}">Settings</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Calendar Settings</li>
-    </ol>
-</nav>
 
-<ul class="nav nav-tabs border-0 small mb-4">
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.personal-details') }}">Personal Details</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.profile') }}">Profile</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.vehicle') }}">Vehicles</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.service-area') }}">Service Area</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.opening-hours') }}">Opening Hours</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{{ route('instructor.settings.calendar-settings') }}">Calendar Settings</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
-</ul>
+<div class="sett-page">
+@include('instructor.settings.partials.header', [
+    'current'     => 'calendar-settings',
+    'title'       => 'Calendar Settings',
+    'description' => 'Booking notice, travel buffers, smart scheduling and how bookings appear in your calendar.',
+])
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div id="calendar-settings-loading" class="text-muted">Loading…</div>
-        <form id="calendar-settings-form" style="display: none;">
-            <div class="mb-4">
-                <h6 class="fw-bold mb-1">Travel Buffer</h6>
-                <p class="small text-muted mb-2">Time between lessons.</p>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Same Transmission</label>
-                        <select name="travel_buffer_same_mins" class="form-select">
-                            <option value="0">0 mins</option>
-                            <option value="15">15 mins</option>
-                            <option value="30">30 mins</option>
-                            <option value="45">45 mins</option>
-                            <option value="60">60 mins</option>
-                            <option value="90">90 mins</option>
-                            <option value="120">120 mins</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Synced Calendar Events</label>
-                        <select name="travel_buffer_synced_mins" class="form-select">
-                            <option value="0">0 mins</option>
-                            <option value="15">15 mins</option>
-                            <option value="30">30 mins</option>
-                            <option value="45">45 mins</option>
-                            <option value="60">60 mins</option>
-                            <option value="90">90 mins</option>
-                            <option value="120">120 mins</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <h6 class="fw-bold mb-1">Scheduling Window</h6>
-                <p class="small text-muted mb-2">Limit the time range during which bookings can be made.</p>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Minimum prior notice for bookings</label>
-                        <select name="min_prior_notice_hours" class="form-select">
-                            <option value="0">0 hours</option>
-                            <option value="1">1 hour</option>
-                            <option value="2">2 hours</option>
-                            <option value="3">3 hours</option>
-                            <option value="5">5 hours</option>
-                            <option value="12">12 hours</option>
-                            <option value="24">24 hours</option>
-                            <option value="48">48 hours</option>
-                            <option value="168">7 days</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Maximum advance notice for bookings</label>
-                        <select name="max_advance_notice_days" class="form-select">
-                            <option value="7">7 days</option>
-                            <option value="14">14 days</option>
-                            <option value="30">30 days</option>
-                            <option value="45">45 days</option>
-                            <option value="60">60 days</option>
-                            <option value="75">75 days</option>
-                            <option value="90">90 days</option>
-                            <option value="180">180 days</option>
-                            <option value="365">365 days</option>
-                        </select>
-                    </div>
-                </div>
-                <p class="small mt-2 mb-0"><a href="#" class="text-muted">How notice periods work</a></p>
-            </div>
-
-            <div class="mb-4">
-                <h6 class="fw-bold mb-1">Smart Scheduling</h6>
-                <p class="small text-muted mb-2">Reduces awkward time gaps between bookings. <a href="#">Learn more</a></p>
-                <div class="d-flex align-items-center flex-wrap gap-3">
-                    <div class="form-check form-switch mb-0">
-                        <input type="checkbox" name="smart_scheduling_enabled" class="form-check-input" id="smart-scheduling" value="1">
-                        <label class="form-check-label" for="smart-scheduling">Smart Scheduling</label>
-                    </div>
-                    <div class="d-flex gap-2" id="smart-scheduling-buffer-wrap">
-                        <div class="form-check">
-                            <input type="radio" name="smart_scheduling_buffer_hrs" class="form-check-input" id="buffer-1hr" value="1">
-                            <label class="form-check-label" for="buffer-1hr">1hr</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="radio" name="smart_scheduling_buffer_hrs" class="form-check-input" id="buffer-2hr" value="2">
-                            <label class="form-check-label" for="buffer-2hr">2hr</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <h6 class="fw-bold mb-1">Attach calendar event to booking emails</h6>
-                <p class="small text-muted mb-2">Would you like us to attach a calendar event (.ics) to your booking emails?</p>
-                <p class="small text-warning mb-2">If your email app already adds events automatically — or if your calendar is connected to Secure Licences — you may get duplicate events.</p>
-                <div class="d-flex gap-3">
-                    <div class="form-check">
-                        <input type="radio" name="attach_ics_to_emails" class="form-check-input" id="attach-ics-yes" value="1">
-                        <label class="form-check-label" for="attach-ics-yes">Yes — Add the calendar event</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" name="attach_ics_to_emails" class="form-check-input" id="attach-ics-no" value="0">
-                        <label class="form-check-label" for="attach-ics-no">No — Don't add the calendar event</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <h6 class="fw-bold mb-1">Default Calendar View</h6>
-                <p class="small text-muted mb-2">The default view when viewing the calendar on desktop browsers. Default view is day when viewing on mobile.</p>
-                <div class="d-flex gap-3">
-                    <div class="form-check">
-                        <input type="radio" name="default_calendar_view" class="form-check-input" id="view-day" value="day">
-                        <label class="form-check-label" for="view-day">Day</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" name="default_calendar_view" class="form-check-input" id="view-week" value="week">
-                        <label class="form-check-label" for="view-week">Week</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" name="default_calendar_view" class="form-check-input" id="view-month" value="month">
-                        <label class="form-check-label" for="view-month">Month</label>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+<div id="calendar-settings-loading" class="sett-loading">
+    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading calendar settings…
 </div>
 
-{{-- Calendar Sync Card --}}
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <h5 class="card-title mb-2"><i class="bi bi-phone me-2"></i>Sync with your phone</h5>
-        <p class="text-muted small mb-3">Subscribe to your booking calendar on your phone. New bookings, reschedules, and cancellations will automatically appear in your phone's calendar app.</p>
+<form id="calendar-settings-form" style="display: none;">
 
-        <div id="calendar-sync-section">
+    {{-- ─── Travel Buffer ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon"><i class="bi bi-stopwatch-fill"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Travel Buffer</h3>
+                    <p class="sett-section-desc mb-0">How much breathing room between back-to-back lessons.</p>
+                </div>
+            </div>
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Between same-transmission lessons</label>
+                    <select name="travel_buffer_same_mins" class="form-select">
+                        <option value="0">No buffer</option>
+                        <option value="15">15 mins</option>
+                        <option value="30">30 mins</option>
+                        <option value="45">45 mins</option>
+                        <option value="60">60 mins</option>
+                        <option value="90">90 mins</option>
+                        <option value="120">120 mins</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Between Secure Licences &amp; synced events</label>
+                    <select name="travel_buffer_synced_mins" class="form-select">
+                        <option value="0">No buffer</option>
+                        <option value="15">15 mins</option>
+                        <option value="30">30 mins</option>
+                        <option value="45">45 mins</option>
+                        <option value="60">60 mins</option>
+                        <option value="90">90 mins</option>
+                        <option value="120">120 mins</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── Scheduling Window ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon sett-rate-icon-blue"><i class="bi bi-calendar-range-fill"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Booking Window</h3>
+                    <p class="sett-section-desc mb-0">How far in advance &mdash; or how close to last-minute &mdash; learners can book.</p>
+                </div>
+            </div>
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Minimum advance notice</label>
+                    <select name="min_prior_notice_hours" class="form-select">
+                        <option value="0">No minimum (instant bookings)</option>
+                        <option value="1">1 hour</option>
+                        <option value="2">2 hours</option>
+                        <option value="3">3 hours</option>
+                        <option value="5">5 hours</option>
+                        <option value="12">12 hours</option>
+                        <option value="24">24 hours</option>
+                        <option value="48">48 hours</option>
+                        <option value="168">7 days</option>
+                    </select>
+                    <div class="form-text">Block bookings that come in less than this much notice.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Maximum advance booking</label>
+                    <select name="max_advance_notice_days" class="form-select">
+                        <option value="7">7 days ahead</option>
+                        <option value="14">14 days ahead</option>
+                        <option value="30">30 days ahead</option>
+                        <option value="45">45 days ahead</option>
+                        <option value="60">60 days ahead</option>
+                        <option value="75">75 days ahead</option>
+                        <option value="90">90 days ahead</option>
+                        <option value="180">180 days ahead</option>
+                        <option value="365">365 days ahead</option>
+                    </select>
+                    <div class="form-text">How far into the future learners can book.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── Smart Scheduling ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon sett-rate-icon-green"><i class="bi bi-magic"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Smart Scheduling</h3>
+                    <p class="sett-section-desc mb-0">Reduces awkward time gaps between bookings by clustering them together.</p>
+                </div>
+            </div>
+            <div class="sett-toggle-row mt-3">
+                <div class="form-check form-switch sett-switch">
+                    <input type="checkbox" name="smart_scheduling_enabled" class="form-check-input" id="smart-scheduling" value="1">
+                    <label class="form-check-label fw-semibold" for="smart-scheduling">Enable Smart Scheduling</label>
+                </div>
+                <div class="sett-btn-group" id="smart-scheduling-buffer-wrap">
+                    <span class="sett-btn-group-label">Cluster within:</span>
+                    <div class="btn-group" role="group">
+                        <input type="radio" name="smart_scheduling_buffer_hrs" class="btn-check" id="buffer-1hr" value="1" autocomplete="off">
+                        <label class="btn btn-sett-pill" for="buffer-1hr">1 hour</label>
+                        <input type="radio" name="smart_scheduling_buffer_hrs" class="btn-check" id="buffer-2hr" value="2" autocomplete="off">
+                        <label class="btn btn-sett-pill" for="buffer-2hr">2 hours</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── Email Calendar Attachments ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon sett-rate-icon-purple"><i class="bi bi-envelope-paper-fill"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Email Calendar Events</h3>
+                    <p class="sett-section-desc mb-0">Attach a calendar invite (.ics) to every booking email.</p>
+                </div>
+            </div>
+            <div class="sett-callout mt-3" style="background: #fef9c3; border-color: #fde047; color: #854d0e;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>If your email app adds events automatically — or your calendar is already synced — you may get duplicate events.</div>
+            </div>
+            <div class="sett-radio-group mt-3">
+                <label class="sett-radio-card">
+                    <input type="radio" name="attach_ics_to_emails" id="attach-ics-yes" value="1">
+                    <span class="sett-radio-content">
+                        <span class="sett-radio-label">Yes, attach calendar events</span>
+                        <span class="sett-radio-desc">Send .ics with every email</span>
+                    </span>
+                </label>
+                <label class="sett-radio-card">
+                    <input type="radio" name="attach_ics_to_emails" id="attach-ics-no" value="0">
+                    <span class="sett-radio-content">
+                        <span class="sett-radio-label">No, don't attach</span>
+                        <span class="sett-radio-desc">Just plain text emails</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── Default Calendar View ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon"><i class="bi bi-grid-3x2-gap-fill"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Default Calendar View</h3>
+                    <p class="sett-section-desc mb-0">How your calendar opens by default on desktop. Mobile always opens to day view.</p>
+                </div>
+            </div>
+            <div class="sett-radio-group sett-radio-group-3 mt-3">
+                <label class="sett-radio-card">
+                    <input type="radio" name="default_calendar_view" id="view-day" value="day">
+                    <span class="sett-radio-content">
+                        <i class="bi bi-calendar-day sett-radio-icon"></i>
+                        <span class="sett-radio-label">Day</span>
+                    </span>
+                </label>
+                <label class="sett-radio-card">
+                    <input type="radio" name="default_calendar_view" id="view-week" value="week">
+                    <span class="sett-radio-content">
+                        <i class="bi bi-calendar-week sett-radio-icon"></i>
+                        <span class="sett-radio-label">Week</span>
+                    </span>
+                </label>
+                <label class="sett-radio-card">
+                    <input type="radio" name="default_calendar_view" id="view-month" value="month">
+                    <span class="sett-radio-content">
+                        <i class="bi bi-calendar-month sett-radio-icon"></i>
+                        <span class="sett-radio-label">Month</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+</form>
+
+{{-- ─── Calendar Sync (phone) ─── --}}
+<div class="sett-card">
+    <div class="sett-card-body">
+        <div class="sett-rate-header">
+            <div class="sett-rate-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"><i class="bi bi-phone-fill"></i></div>
+            <div>
+                <h3 class="sett-section-title">Sync with your phone</h3>
+                <p class="sett-section-desc mb-0">New bookings, reschedules and cancellations appear automatically in your phone calendar.</p>
+            </div>
+        </div>
+
+        <div id="calendar-sync-section" class="mt-3">
             <div class="d-flex flex-wrap gap-2 mb-3">
-                <a href="#" id="apple-cal-btn" class="btn btn-outline-dark btn-sm" target="_blank">
+                <a href="#" id="apple-cal-btn" class="btn btn-outline-dark" target="_blank">
                     <i class="bi bi-apple me-1"></i>Apple Calendar
                 </a>
-                <a href="#" id="google-cal-btn" class="btn btn-outline-primary btn-sm" target="_blank">
+                <a href="#" id="google-cal-btn" class="btn btn-outline-primary" target="_blank">
                     <i class="bi bi-google me-1"></i>Google Calendar
                 </a>
-                <button class="btn btn-outline-secondary btn-sm" id="copy-cal-url-btn">
+                <button class="btn btn-outline-secondary" id="copy-cal-url-btn">
                     <i class="bi bi-clipboard me-1"></i>Copy URL
                 </button>
             </div>
 
-            <div class="bg-light rounded p-2 mb-3">
-                <code class="small text-break" id="calendar-feed-url">Loading...</code>
+            <div class="sett-code-box mb-3">
+                <i class="bi bi-link-45deg text-muted"></i>
+                <code id="calendar-feed-url">Loading…</code>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
                 <button class="btn btn-outline-warning btn-sm" id="regenerate-cal-btn">
                     <i class="bi bi-arrow-clockwise me-1"></i>Regenerate URL
                 </button>
-                <span class="small text-muted">This will invalidate any previously subscribed calendars.</span>
+                <span class="small text-muted">This invalidates any previously subscribed calendars.</span>
             </div>
         </div>
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+<div class="sett-save-bar">
     <div>
-        <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" id="discard-calendar-btn" style="display: none;">Discard Changes</button>
-        <span id="calendar-settings-message" class="ms-3"></span>
+        <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" id="discard-calendar-btn" style="display: none;">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Discard changes
+        </button>
+        <span id="calendar-settings-message" class="sett-save-bar-msg ms-2"></span>
     </div>
-    <button type="button" class="btn btn-primary" id="save-calendar-btn">Save Changes</button>
+    <button type="button" class="btn btn-warning fw-bold" id="save-calendar-btn">
+        <i class="bi bi-check-lg me-1"></i>Save Changes
+    </button>
 </div>
 
 @push('scripts')
     @vite('resources/js/instructor-settings-calendar.js')
 @endpush
+
+</div> {{-- /.sett-page --}}
 @endsection

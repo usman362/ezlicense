@@ -341,6 +341,28 @@
                         <li><a class="nav-link {{ request()->routeIs('instructor.settings.banking') ? 'active' : '' }}" href="{{ route('instructor.settings.banking') }}"><i class="bi bi-bank"></i> <span>Banking</span></a></li>
                     </ul>
                 </div>
+
+                <div class="nav-divider"></div>
+                <div class="nav-section-label">Account</div>
+
+                @php
+                    $sl_unreadCount = Auth::user()?->unreadNotifications()->count() ?? 0;
+                @endphp
+                <a class="nav-link {{ request()->routeIs('instructor.notifications') ? 'active' : '' }}" href="{{ route('instructor.notifications') }}">
+                    <i class="bi bi-bell"></i>
+                    <span>Notifications</span>
+                    @if($sl_unreadCount > 0)
+                        <span class="ms-auto badge bg-warning text-dark" style="font-size:0.65rem;">{{ $sl_unreadCount > 99 ? '99+' : $sl_unreadCount }}</span>
+                    @endif
+                </a>
+                <a class="nav-link {{ request()->routeIs('instructor.support') ? 'active' : '' }}" href="{{ route('instructor.support') }}">
+                    <i class="bi bi-life-preserver"></i>
+                    <span>Support</span>
+                </a>
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#contactTeamModal" role="button">
+                    <i class="bi bi-envelope"></i>
+                    <span>Contact</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -404,6 +426,10 @@
             </div>
         </main>
     </div>
+
+    {{-- Global "Contact our team" modal — triggered by sidebar Contact link --}}
+    @include('instructor.partials.contact-modal')
+
     @stack('scripts')
 </body>
 </html>

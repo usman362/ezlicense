@@ -4,85 +4,196 @@
 @section('heading', 'Settings › Documents')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('instructor.settings.personal-details') }}">Settings</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Documents</li>
-    </ol>
-</nav>
 
-<ul class="nav nav-tabs border-0 small mb-3">
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.personal-details') }}">Personal Details</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.profile') }}">Profile</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.vehicle') }}">Vehicles</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.service-area') }}">Service Area</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.opening-hours') }}">Opening Hours</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.calendar-settings') }}">Calendar Settings</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
-</ul>
+<div class="sett-page">
+@include('instructor.settings.partials.header', [
+    'current'     => 'documents',
+    'title'       => 'Verification Documents',
+    'description' => 'Upload your driving instructor licence, WWCC and insurance. Stored privately on encrypted cloud storage.',
+])
 
-<ul class="nav nav-tabs border-0 small mb-4">
-    <li class="nav-item"><a class="nav-link active" href="#" id="tab-your-documents" data-bs-toggle="tab">Your Documents</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="#" id="tab-submissions-history" data-bs-toggle="tab">Submissions History</a></li>
-</ul>
+@php
+    $sl_profile = Auth::user()?->instructorProfile;
+    $sl_vstatus = $sl_profile?->verification_status ?? 'pending';
+    $sl_isRejected = $sl_vstatus === 'rejected';
+    $sl_adminNotes = $sl_profile?->admin_notes;
+@endphp
 
-<div id="documents-loading" class="text-muted">Loading…</div>
+@if(session('onboarding_notice') || in_array($sl_vstatus, ['pending', 'rejected'], true))
+    <div class="onb-banner {{ $sl_isRejected ? 'onb-banner-danger' : 'onb-banner-warning' }} mb-3">
+        <div class="onb-banner-icon">
+            <i class="bi {{ $sl_isRejected ? 'bi-exclamation-triangle-fill' : 'bi-rocket-takeoff-fill' }}"></i>
+        </div>
+        <div class="onb-banner-body">
+            <h3 class="onb-banner-title">
+                {{ $sl_isRejected ? 'Your documents need attention' : 'Welcome! Upload your documents to get started' }}
+            </h3>
+            <p class="onb-banner-text">
+                @if($sl_isRejected)
+                    Our admin has flagged something with your verification. Please review the feedback below and re-upload the affected documents to continue.
+                @else
+                    {{ session('onboarding_notice') ?: 'Until your driver licence, instructor licence and WWCC are uploaded and approved, your account stays in setup mode. You can\'t accept bookings or use other portal features yet.' }}
+                @endif
+            </p>
+            @if($sl_isRejected && $sl_adminNotes)
+                <div class="onb-banner-feedback">
+                    <strong><i class="bi bi-chat-left-text me-1"></i>Admin feedback:</strong>
+                    <p class="mb-0">{{ $sl_adminNotes }}</p>
+                </div>
+            @endif
+        </div>
+    </div>
+    <style>
+    .onb-banner {
+        display: flex; gap: 1rem; align-items: flex-start;
+        padding: 1.1rem 1.4rem; border-radius: 14px;
+    }
+    .onb-banner-warning { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #fcd34d; color: #92400e; }
+    .onb-banner-danger  { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 1px solid #fca5a5; color: #991b1b; }
+    .onb-banner-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        background: rgba(255,255,255,0.5);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; flex-shrink: 0;
+    }
+    .onb-banner-body { flex: 1; min-width: 0; }
+    .onb-banner-title { font-size: 1.05rem; font-weight: 800; margin: 0 0 0.25rem; }
+    .onb-banner-text { font-size: 0.92rem; line-height: 1.55; margin: 0; }
+    .onb-banner-feedback {
+        margin-top: 0.85rem; padding: 0.7rem 0.9rem;
+        background: rgba(255,255,255,0.55); border-radius: 8px;
+        font-size: 0.88rem; line-height: 1.5;
+    }
+    </style>
+@endif
+
+<div class="sett-callout">
+    <i class="bi bi-shield-fill-check"></i>
+    <div>
+        All documents are stored privately on encrypted cloud storage and only viewable by our verification team via signed time-limited URLs.
+        Verification typically completes within <strong>24-48 hours</strong>.
+    </div>
+</div>
+
+<div class="sett-doc-subtabs mb-3">
+    <button type="button" class="sett-doc-subtab active" id="tab-your-documents" data-bs-toggle="tab">
+        <i class="bi bi-folder-fill me-1"></i>Your Documents
+    </button>
+    <button type="button" class="sett-doc-subtab" id="tab-submissions-history" data-bs-toggle="tab">
+        <i class="bi bi-clock-history me-1"></i>Submissions History
+    </button>
+</div>
+
+<div id="documents-loading" class="sett-loading">
+    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading your documents…
+</div>
 
 <div id="panel-your-documents" class="tab-pane-content">
-    <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div>
-                    <h6 class="fw-bold mb-1">Driver's Licence (C)</h6>
-                    <p class="small text-muted mb-1">Expiration date: <span id="doc-drivers-expiry">—</span></p>
-                    <div class="small">
-                        <div><span id="doc-drivers-front-status" class="text-muted">Driver's Licence (C) - Front —</span></div>
-                        <div><span id="doc-drivers-back-status" class="text-muted">Driver's Licence (C) - Back —</span></div>
+
+    {{-- Driver's Licence --}}
+    <div class="sett-doc-card" data-status-target="drivers">
+        <div class="sett-doc-stripe" id="doc-drivers-stripe"></div>
+        <div class="sett-doc-body">
+            <div class="sett-doc-icon"><i class="bi bi-person-vcard-fill"></i></div>
+            <div class="sett-doc-main">
+                <div class="sett-doc-head">
+                    <h3 class="sett-doc-title">Driver's Licence (C)</h3>
+                    <span class="sett-doc-status" id="doc-drivers-overall"><i class="bi bi-circle"></i>Not submitted</span>
+                </div>
+                <div class="sett-doc-meta">
+                    <span class="sett-doc-meta-item"><i class="bi bi-calendar-event"></i>Expires <span id="doc-drivers-expiry">—</span></span>
+                </div>
+                <div class="sett-doc-parts">
+                    <div class="sett-doc-part">
+                        <span class="sett-doc-part-label">Front</span>
+                        <span id="doc-drivers-front-status" class="sett-doc-part-status text-muted">—</span>
+                    </div>
+                    <div class="sett-doc-part">
+                        <span class="sett-doc-part-label">Back</span>
+                        <span id="doc-drivers-back-status" class="sett-doc-part-status text-muted">—</span>
                     </div>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-primary" data-doc-modal="drivers_licence"><i class="bi bi-upload me-1"></i> Submit New Document</button>
             </div>
+            <button type="button" class="btn btn-warning fw-bold sett-doc-btn" data-doc-modal="drivers_licence">
+                <i class="bi bi-upload me-1"></i>Upload
+            </button>
         </div>
     </div>
-    <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div>
-                    <h6 class="fw-bold mb-1">Driving Instructor's Licence (C)</h6>
-                    <p class="small text-muted mb-1">Expiration date: <span id="doc-instructor-expiry">—</span></p>
-                    <div class="small"><span id="doc-instructor-status" class="text-muted">Driving Instructor's Licence (C) —</span></div>
+
+    {{-- Instructor Licence --}}
+    <div class="sett-doc-card" data-status-target="instructor">
+        <div class="sett-doc-stripe" id="doc-instructor-stripe"></div>
+        <div class="sett-doc-body">
+            <div class="sett-doc-icon sett-doc-icon-blue"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="sett-doc-main">
+                <div class="sett-doc-head">
+                    <h3 class="sett-doc-title">Driving Instructor's Licence (C)</h3>
+                    <span class="sett-doc-status" id="doc-instructor-overall"><i class="bi bi-circle"></i>Not submitted</span>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-primary" data-doc-modal="instructor_licence"><i class="bi bi-upload me-1"></i> Submit New Document</button>
+                <div class="sett-doc-meta">
+                    <span class="sett-doc-meta-item"><i class="bi bi-calendar-event"></i>Expires <span id="doc-instructor-expiry">—</span></span>
+                </div>
+                <div class="sett-doc-parts">
+                    <div class="sett-doc-part">
+                        <span class="sett-doc-part-label">Document</span>
+                        <span id="doc-instructor-status" class="sett-doc-part-status text-muted">—</span>
+                    </div>
+                </div>
             </div>
+            <button type="button" class="btn btn-warning fw-bold sett-doc-btn" data-doc-modal="instructor_licence">
+                <i class="bi bi-upload me-1"></i>Upload
+            </button>
         </div>
     </div>
-    <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div>
-                    <h6 class="fw-bold mb-1">Working With Children Check (WWCC)</h6>
-                    <p class="small text-muted mb-1">Expiration date: <span id="doc-wwcc-expiry">—</span></p>
-                    <div class="small"><span id="doc-wwcc-status" class="text-muted">WWCC —</span></div>
+
+    {{-- WWCC --}}
+    <div class="sett-doc-card" data-status-target="wwcc">
+        <div class="sett-doc-stripe" id="doc-wwcc-stripe"></div>
+        <div class="sett-doc-body">
+            <div class="sett-doc-icon sett-doc-icon-green"><i class="bi bi-shield-check"></i></div>
+            <div class="sett-doc-main">
+                <div class="sett-doc-head">
+                    <h3 class="sett-doc-title">Working With Children Check (WWCC)</h3>
+                    <span class="sett-doc-status" id="doc-wwcc-overall"><i class="bi bi-circle"></i>Not submitted</span>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-primary" data-doc-modal="wwcc"><i class="bi bi-upload me-1"></i> Submit New Document</button>
+                <div class="sett-doc-meta">
+                    <span class="sett-doc-meta-item"><i class="bi bi-calendar-event"></i>Expires <span id="doc-wwcc-expiry">—</span></span>
+                </div>
+                <div class="sett-doc-parts">
+                    <div class="sett-doc-part">
+                        <span class="sett-doc-part-label">Document</span>
+                        <span id="doc-wwcc-status" class="sett-doc-part-status text-muted">—</span>
+                    </div>
+                </div>
             </div>
+            <button type="button" class="btn btn-warning fw-bold sett-doc-btn" data-doc-modal="wwcc">
+                <i class="bi bi-upload me-1"></i>Upload
+            </button>
         </div>
     </div>
 </div>
 
 <div id="panel-submissions-history" class="tab-pane-content" style="display: none;">
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <table class="table table-sm mb-0">
-                <thead><tr><th>Submission date</th><th>Status</th><th>Document</th></tr></thead>
-                <tbody id="submissions-tbody"></tbody>
-            </table>
-            <p id="submissions-empty" class="text-muted small mb-0 mt-2" style="display: none;">No instructor submissions found.</p>
+    <div class="sett-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 bk-history-table">
+                    <thead>
+                        <tr>
+                            <th>Submitted</th>
+                            <th>Document</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissions-tbody"></tbody>
+                </table>
+            </div>
         </div>
+    </div>
+    <div id="submissions-empty" class="bk-empty" style="display: none;">
+        <i class="bi bi-folder2-open bk-empty-icon"></i>
+        <h5>No submissions yet</h5>
+        <p>Once you upload documents above, your submission history will appear here.</p>
     </div>
 </div>
 
@@ -187,4 +298,6 @@
 @push('scripts')
     @vite('resources/js/instructor-settings-documents.js')
 @endpush
+
+</div> {{-- /.sett-page --}}
 @endsection

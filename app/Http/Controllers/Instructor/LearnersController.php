@@ -10,6 +10,7 @@ use App\Notifications\InstructorLearnerInviteNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -86,7 +87,29 @@ class LearnersController extends Controller
 
         $learners = $learners->sortBy(fn ($l) => $l['learner']['name'] ?? '')->values();
 
-        return response()->json(['data' => $learners]);
+        // DataTable-style pagination — manual since we built the collection from multiple sources
+        $perPage = max(5, min(100, (int) $request->input('per_page', 10)));
+        $page = max(1, (int) $request->input('page', 1));
+        $total = $learners->count();
+        $paged = $learners->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $paginator = new LengthAwarePaginator(
+            $paged,
+            $total,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return response()->json([
+            'data'         => $paged,
+            'total'        => $total,
+            'per_page'     => $perPage,
+            'current_page' => $page,
+            'last_page'    => $paginator->lastPage(),
+            'from'         => $paginator->firstItem(),
+            'to'           => $paginator->lastItem(),
+        ]);
     }
 
     /**

@@ -176,54 +176,104 @@
 {{-- Bookings --}}
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <h6 class="fw-bold mb-3">Bookings</h6>
-        <ul class="nav nav-tabs border-0 small mb-3" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tab-upcoming" data-bs-toggle="tab" data-bs-target="#panel-upcoming" type="button" role="tab">Upcoming</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-services" data-bs-toggle="tab" data-bs-target="#panel-services" type="button" role="tab">Services</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-history" data-bs-toggle="tab" data-bs-target="#panel-history" type="button" role="tab">History</button>
-            </li>
-        </ul>
+        <div class="bk-tabs-wrap mb-3">
+            <ul class="nav bk-pill-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-upcoming" data-bs-toggle="tab" data-bs-target="#panel-upcoming" type="button" role="tab">
+                        <i class="bi bi-calendar-event me-1"></i>Upcoming
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-services" data-bs-toggle="tab" data-bs-target="#panel-services" type="button" role="tab">
+                        <i class="bi bi-grid-3x3-gap me-1"></i>Services
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-history" data-bs-toggle="tab" data-bs-target="#panel-history" type="button" role="tab">
+                        <i class="bi bi-clock-history me-1"></i>History
+                        <span class="bk-tab-count" id="count-history">0</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
         <div class="tab-content">
+            {{-- Upcoming --}}
             <div class="tab-pane fade show active" id="panel-upcoming" role="tabpanel">
-                <div id="upcoming-loading" class="text-muted small py-3">Loading…</div>
-                <div id="upcoming-list" style="display: none;"></div>
-                <div id="upcoming-empty" class="text-muted small py-3" style="display: none;">You have no upcoming bookings to view at this time.</div>
-            </div>
-            <div class="tab-pane fade" id="panel-services" role="tabpanel">
-                <div id="services-loading" class="text-muted small py-3">Loading…</div>
-                <div id="services-cards" class="row g-3" style="display: none;"></div>
-                <div id="services-empty" class="text-muted small py-3" style="display: none;">You don't have an instructor yet. <a href="{{ route('find-instructor') }}">Find an instructor</a> to book lessons and packages.</div>
-            </div>
-            <div class="tab-pane fade" id="panel-history" role="tabpanel">
-                <div id="history-loading" class="text-muted small py-3">Loading…</div>
-                <div id="history-wrap" style="display: none;">
-                    <h6 class="fw-bold mb-2">Booking History</h6>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 small">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Booking</th>
-                                    <th>Instructor</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Location</th>
-                                    <th>Status</th>
-                                    <th>Payment</th>
-                                    <th>Review</th>
-                                    <th class="text-end"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-tbody"></tbody>
-                        </table>
-                    </div>
-                    <nav id="history-pagination" class="mt-2" aria-label="History pagination"></nav>
+                <div id="upcoming-loading" class="bk-loading">
+                    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading upcoming bookings…
                 </div>
-                <div id="history-empty" class="text-muted small py-3" style="display: none;">You have no booking history.</div>
+                <div id="upcoming-list" style="display: none;"></div>
+                <div id="upcoming-empty" class="bk-empty" style="display: none;">
+                    <i class="bi bi-calendar-x bk-empty-icon"></i>
+                    <h5>No upcoming bookings</h5>
+                    <p>Once you book a lesson, it'll show up here. Find a verified instructor in your suburb to get started.</p>
+                    <a href="{{ route('find-instructor') }}" class="btn btn-warning fw-bold btn-sm">
+                        <i class="bi bi-search me-1"></i>Find an Instructor
+                    </a>
+                </div>
+            </div>
+
+            {{-- Services --}}
+            <div class="tab-pane fade" id="panel-services" role="tabpanel">
+                <div id="services-loading" class="bk-loading">
+                    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading services…
+                </div>
+                <div id="services-cards" class="row g-3" style="display: none;"></div>
+                <div id="services-empty" class="bk-empty" style="display: none;">
+                    <i class="bi bi-grid-3x3-gap bk-empty-icon"></i>
+                    <h5>No instructor selected yet</h5>
+                    <p>Browse and book a lesson with a verified driving instructor — your services and packages will appear here.</p>
+                    <a href="{{ route('find-instructor') }}" class="btn btn-warning fw-bold btn-sm">
+                        <i class="bi bi-search me-1"></i>Find an Instructor
+                    </a>
+                </div>
+            </div>
+
+            {{-- History --}}
+            <div class="tab-pane fade" id="panel-history" role="tabpanel">
+                <div class="bk-toolbar mb-3" id="history-toolbar" style="display: none;">
+                    <div class="bk-results-info" id="history-results-info"></div>
+                    <div class="bk-perpage">
+                        <span class="bk-perpage-label">Show</span>
+                        <select class="bk-perpage-select" id="history-perpage-select">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="bk-perpage-label">per page</span>
+                    </div>
+                </div>
+                <div id="history-loading" class="bk-loading">
+                    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading booking history…
+                </div>
+                <div id="history-wrap" class="card border-0 shadow-sm bk-history-card" style="display: none;">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0 bk-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Booking</th>
+                                        <th>Instructor</th>
+                                        <th>Date &amp; Time</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Review</th>
+                                        <th class="text-end"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <nav id="history-pagination" class="bk-pagination-wrap mt-3" style="display: none;" aria-label="History pagination"></nav>
+                <div id="history-empty" class="bk-empty" style="display: none;">
+                    <i class="bi bi-archive bk-empty-icon"></i>
+                    <h5>No booking history</h5>
+                    <p>Past lessons (completed or cancelled) will appear here once you've taken some.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -429,36 +479,112 @@ window.__loadLearnerDashboard = function() {
       if (kpiCompleted) kpiCompleted.textContent = stats.completed_count != null ? stats.completed_count : '0';
       if (kpiHours) kpiHours.innerHTML = (stats.total_hours != null ? stats.total_hours : '0') + '<span class="kpi-unit">hrs</span>';
 
-      // Upcoming bookings
+      // ── Helpers for the new card UI ──
+      function initialOf(name) {
+        if (!name) return '?';
+        var parts = name.trim().split(/\s+/);
+        return ((parts[0][0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+      }
+      function relativeDayLabel(iso) {
+        var d = new Date(iso);
+        var now = new Date();
+        var midToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        var midDate  = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        var diffDays = Math.round((midDate - midToday) / 86400000);
+        if (diffDays < 0)  return 'Past';
+        if (diffDays === 0) return 'Today';
+        if (diffDays === 1) return 'Tomorrow';
+        if (diffDays <= 7)  return 'This week';
+        if (diffDays <= 30) return 'Later';
+        return 'Upcoming';
+      }
+      function dateBlock(iso) {
+        var d = new Date(iso);
+        var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        var days   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+        return '<div class="bk-date-block">' +
+          '<div class="bk-date-month">' + months[d.getMonth()] + '</div>' +
+          '<div class="bk-date-day">' + d.getDate() + '</div>' +
+          '<div class="bk-date-wd">' + days[d.getDay()] + '</div>' +
+        '</div>';
+      }
+      function timeRange(iso, mins) {
+        var d   = new Date(iso);
+        var end = new Date(d.getTime() + (mins || 60) * 60000);
+        function f(x) {
+          var h = x.getHours(), m = x.getMinutes();
+          var ap = h >= 12 ? 'pm' : 'am';
+          h = h % 12; if (h === 0) h = 12;
+          return h + ':' + (m < 10 ? '0' : '') + m + ap;
+        }
+        return f(d) + ' – ' + f(end);
+      }
+
+      // ── Upcoming bookings (card design) ──
       document.getElementById('upcoming-loading').style.display = 'none';
       if (upcoming.length === 0) {
         document.getElementById('upcoming-list').style.display = 'none';
-        document.getElementById('upcoming-empty').style.display = 'block';
+        document.getElementById('upcoming-empty').style.display = 'flex';
       } else {
         document.getElementById('upcoming-empty').style.display = 'none';
         document.getElementById('upcoming-list').style.display = 'block';
-        document.getElementById('upcoming-list').innerHTML = '<ul class="list-unstyled mb-0">' + upcoming.map(function(b) {
-          var typeLabel = (b.type === 'test_package') ? 'Test Package' : ((b.duration_minutes || 60) / 60) + ' hr Lesson';
-          var canModify = (b.status === 'confirmed' || b.status === 'proposed' || b.status === 'pending')
-                          && new Date(b.scheduled_at).getTime() > Date.now();
-          return '<li class="border-bottom py-2 small d-flex justify-content-between align-items-start gap-2">' +
-            '<div>' +
-              '<strong>' + formatDate(b.scheduled_at) + '</strong> ' + formatTime(b.scheduled_at, b.duration_minutes) + '<br>' +
-              (b.instructor_name ? esc(b.instructor_name) + ' · ' : '') + typeLabel + (b.location ? ' · ' + esc(b.location) : '') +
-            '</div>' +
-            (canModify ? (
-              '<div class="dropdown flex-shrink-0">' +
-                '<button class="btn btn-sm btn-outline-secondary border-0 px-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Manage">' +
-                  '<i class="bi bi-three-dots-vertical"></i>' +
-                '</button>' +
-                '<ul class="dropdown-menu dropdown-menu-end small">' +
-                  '<li><button type="button" class="dropdown-item learner-action-reschedule" data-booking=\'' + JSON.stringify(b).replace(/'/g, '&#39;') + '\'><i class="bi bi-arrow-repeat me-2"></i>Reschedule</button></li>' +
-                  '<li><button type="button" class="dropdown-item text-danger learner-action-cancel" data-booking=\'' + JSON.stringify(b).replace(/'/g, '&#39;') + '\'><i class="bi bi-x-circle me-2"></i>Cancel</button></li>' +
-                '</ul>' +
-              '</div>'
-            ) : '') +
-          '</li>';
-        }).join('') + '</ul>';
+
+        // Group by relative day
+        var groups = {}; var order = [];
+        upcoming.forEach(function(b) {
+          var g = relativeDayLabel(b.scheduled_at);
+          if (!groups[g]) { groups[g] = []; order.push(g); }
+          groups[g].push(b);
+        });
+        var groupOrder = ['Today', 'Tomorrow', 'This week', 'Later', 'Upcoming', 'Past'];
+        order.sort(function(a, b) { return groupOrder.indexOf(a) - groupOrder.indexOf(b); });
+
+        document.getElementById('upcoming-list').innerHTML = order.map(function(g) {
+          return '<div class="bk-group-label"><span>' + g + '</span><span class="bk-group-count">' + groups[g].length + '</span></div>' +
+            groups[g].map(function(b) {
+              var typeLabel = (b.type === 'test_package') ? 'Test Package' : ((b.duration_minutes || 60) / 60) + ' hr Lesson';
+              var canModify = (b.status === 'confirmed' || b.status === 'proposed' || b.status === 'pending')
+                              && new Date(b.scheduled_at).getTime() > Date.now();
+              var instrName = b.instructor_name ? esc(b.instructor_name) : '—';
+              var statusBadge = (b.status === 'confirmed')
+                ? '<span class="bk-status bk-status-confirmed"><i class="bi bi-check-circle-fill"></i>Confirmed</span>'
+                : '<span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>' + esc((b.status || '').charAt(0).toUpperCase() + (b.status || '').slice(1)) + '</span>';
+              var manageMenu = canModify ? (
+                '<div class="dropdown ms-2">' +
+                  '<button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Manage">' +
+                    '<i class="bi bi-three-dots-vertical"></i>' +
+                  '</button>' +
+                  '<ul class="dropdown-menu dropdown-menu-end small">' +
+                    '<li><button type="button" class="dropdown-item learner-action-reschedule" data-booking=\'' + JSON.stringify(b).replace(/'/g, '&#39;') + '\'><i class="bi bi-arrow-repeat me-2"></i>Reschedule</button></li>' +
+                    '<li><button type="button" class="dropdown-item text-danger learner-action-cancel" data-booking=\'' + JSON.stringify(b).replace(/'/g, '&#39;') + '\'><i class="bi bi-x-circle me-2"></i>Cancel</button></li>' +
+                  '</ul>' +
+                '</div>'
+              ) : '';
+              return '<div class="bk-card" data-booking-id="' + b.id + '">' +
+                dateBlock(b.scheduled_at) +
+                '<div class="bk-card-body">' +
+                  '<div class="bk-card-head">' +
+                    '<div class="bk-card-time"><i class="bi bi-clock me-1"></i>' + timeRange(b.scheduled_at, b.duration_minutes) + '</div>' +
+                    statusBadge +
+                  '</div>' +
+                  '<div class="bk-card-learner">' +
+                    '<span class="bk-avatar">' + initialOf(instrName) + '</span>' +
+                    '<div class="bk-learner-info">' +
+                      '<div class="bk-learner-name">' + instrName + '</div>' +
+                      '<div class="bk-card-meta">' +
+                        '<span><i class="bi bi-car-front-fill"></i>' + typeLabel + '</span>' +
+                        (b.location ? '<span><i class="bi bi-geo-alt-fill"></i>' + esc(b.location) + '</span>' : '') +
+                      '</div>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="bk-card-actions">' +
+                    '<span class="bk-card-id">#' + b.id + '</span>' +
+                    manageMenu +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+            }).join('');
+        }).join('');
 
         // Wire up cancel/reschedule buttons (uses modals from learner-calendar.js)
         document.querySelectorAll('.learner-action-cancel').forEach(function(btn) {
@@ -533,64 +659,99 @@ window.__loadLearnerDashboard = function() {
       document.getElementById('upcoming-empty').textContent = 'Unable to load upcoming bookings.';
     });
 
-  // History tab: load when shown
+  // History tab: load when shown — DataTable-style with per-page + ellipsis pagination
+  var historyPerPage = 10;
+
+  document.getElementById('history-perpage-select').addEventListener('change', function() {
+    historyPerPage = parseInt(this.value, 10) || 10;
+    loadHistory(1);
+  });
+
+  function _learnerInitial(name) {
+    if (!name) return '?';
+    var parts = name.trim().split(/\s+/);
+    return ((parts[0][0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+  function _historyTimeRange(iso, mins) {
+    var d   = new Date(iso);
+    var end = new Date(d.getTime() + (mins || 60) * 60000);
+    function f(x) {
+      var h = x.getHours(), m = x.getMinutes();
+      var ap = h >= 12 ? 'pm' : 'am';
+      h = h % 12; if (h === 0) h = 12;
+      return h + ':' + (m < 10 ? '0' : '') + m + ap;
+    }
+    return f(d) + ' – ' + f(end);
+  }
+
   function loadHistory(page) {
     page = page || 1;
     document.getElementById('history-loading').style.display = 'block';
     document.getElementById('history-wrap').style.display = 'none';
     document.getElementById('history-empty').style.display = 'none';
-    fetch('/api/bookings?tab=history&page=' + page, opts)
+    document.getElementById('history-pagination').style.display = 'none';
+    document.getElementById('history-toolbar').style.display = 'none';
+
+    fetch('/api/bookings?tab=history&page=' + page + '&per_page=' + historyPerPage, opts)
       .then(function(r) { return r.json(); })
       .then(function(data) {
         document.getElementById('history-loading').style.display = 'none';
         var items = data.data || [];
+
+        // Update count badge in tab
+        var countEl = document.getElementById('count-history');
+        if (countEl) countEl.textContent = (data.total || 0);
+
         if (items.length === 0) {
-          document.getElementById('history-empty').style.display = 'block';
-          document.getElementById('history-wrap').style.display = 'none';
+          document.getElementById('history-empty').style.display = 'flex';
           return;
         }
-        document.getElementById('history-empty').style.display = 'none';
         document.getElementById('history-wrap').style.display = 'block';
+        document.getElementById('history-toolbar').style.display = 'flex';
+
+        // Results info top-right
+        var total = data.total || items.length;
+        var from  = data.from || ((data.current_page - 1) * data.per_page + 1);
+        var to    = data.to   || Math.min(from + items.length - 1, total);
+        document.getElementById('history-results-info').innerHTML =
+          'Showing <strong>' + from + '</strong>–<strong>' + to + '</strong> of <strong>' + total + '</strong>';
+
+        // Table body
         var tbody = document.getElementById('history-tbody');
         tbody.innerHTML = items.map(function(b) {
-          // ── Status badge: Completed / Cancelled / Rescheduled ──
+          // Status (Completed / Cancelled / Rescheduled)
           var isRescheduled = b.status === 'cancelled'
             && (b.cancellation_reason_code === 'rescheduled'
                 || (b.cancellation_reason && /resched/i.test(b.cancellation_reason)));
-          var status, statusClass;
-          if (isRescheduled) { status = 'RESCHEDULED'; statusClass = 'bg-secondary text-white'; }
-          else if (b.status === 'cancelled') { status = 'CANCELLED'; statusClass = 'bg-danger text-white'; }
-          else { status = 'COMPLETED'; statusClass = 'bg-success text-white'; }
+          var statusBadge;
+          if (isRescheduled) statusBadge = '<span class="bk-status bk-status-cancelled" style="background:#e5e7eb;color:#374151;"><i class="bi bi-arrow-repeat"></i>Rescheduled</span>';
+          else if (b.status === 'cancelled') statusBadge = '<span class="bk-status bk-status-cancelled"><i class="bi bi-x-circle-fill"></i>Cancelled</span>';
+          else statusBadge = '<span class="bk-status bk-status-completed"><i class="bi bi-check-circle-fill"></i>Completed</span>';
 
-          // ── Payment badge with amount ──
-          var ps = (b.payment_status || '').toLowerCase();
-          var payLabel = ps ? ps.charAt(0).toUpperCase() + ps.slice(1) : '—';
-          var amount = b.amount != null ? '$' + Number(b.amount).toFixed(2) : '';
-          var payClass = ps === 'refunded' ? 'bg-primary text-white'
-                        : ps === 'paid' ? 'bg-success text-white'
-                        : ps === 'pending' ? 'bg-warning text-dark'
-                        : ps === 'failed' ? 'bg-danger text-white'
-                        : '';
-          var payCell = ps
-            ? '<span class="badge ' + payClass + '">' + payLabel + '</span>' +
-              (amount ? '<div class="text-muted" style="font-size:0.72rem;line-height:1;margin-top:2px;">' + amount + '</div>' : '')
-            : '—';
-
-          var loc = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
-          var instrName = (b.instructor && b.instructor.name) ? esc(b.instructor.name) : '—';
-          var initial = instrName !== '—' ? instrName.charAt(0) : '?';
-          var instructorProfileId = b.instructor_profile_id || '';
-
-          // ── Cancellation reason (shown inline under status badge) ──
+          // Cancellation reason inline
           var cancelReasonLine = '';
           if (b.status === 'cancelled' && b.cancellation_reason && !isRescheduled) {
             var reason = b.cancellation_reason.length > 50 ? b.cancellation_reason.substr(0, 50) + '…' : b.cancellation_reason;
-            cancelReasonLine = '<div class="text-muted" style="font-size:0.72rem;line-height:1.1;margin-top:3px;" title="' + esc(b.cancellation_reason) + '">' + esc(reason) + '</div>';
+            cancelReasonLine = '<div class="bk-cancel-reason" title="' + esc(b.cancellation_reason) + '">' + esc(reason) + '</div>';
           } else if (isRescheduled) {
-            cancelReasonLine = '<div class="text-muted" style="font-size:0.72rem;line-height:1.1;margin-top:3px;">Replaced by new booking</div>';
+            cancelReasonLine = '<div class="bk-cancel-reason">Replaced by new booking</div>';
           }
 
-          // ── Review cell ──
+          // Payment badge + amount
+          var ps = (b.payment_status || '').toLowerCase();
+          var amount = b.amount != null ? '$' + Number(b.amount).toFixed(2) : '';
+          var payBadge = '—';
+          if (ps === 'paid')        payBadge = '<span class="bk-pay bk-pay-paid"><i class="bi bi-check-lg"></i>Paid</span>';
+          else if (ps === 'refunded') payBadge = '<span class="bk-pay bk-pay-refunded"><i class="bi bi-arrow-counterclockwise"></i>Refunded</span>';
+          else if (ps === 'failed')   payBadge = '<span class="bk-pay bk-pay-failed"><i class="bi bi-x-lg"></i>Failed</span>';
+          else if (ps === 'pending')  payBadge = '<span class="bk-pay bk-pay-pending"><i class="bi bi-clock"></i>Pending</span>';
+          if (ps && amount) payBadge += '<div class="bk-pay-amount">' + amount + '</div>';
+
+          var loc = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
+          var instrName = (b.instructor && b.instructor.name) ? esc(b.instructor.name) : '—';
+          var instructorProfileId = b.instructor_profile_id || '';
+
+          // Review cell
           var reviewCell = '—';
           if (b.status === 'completed') {
             if (b.review && b.review.id) {
@@ -598,20 +759,20 @@ window.__loadLearnerDashboard = function() {
               for (var s = 1; s <= 5; s++) {
                 starsHtml += '<i class="bi bi-star' + (s <= b.review.rating ? '-fill text-warning' : ' text-muted') + '"></i>';
               }
-              reviewCell = '<span title="You rated ' + b.review.rating + '/5" class="small">' + starsHtml + '</span>';
+              reviewCell = '<span title="You rated ' + b.review.rating + '/5" class="bk-stars">' + starsHtml + '</span>';
             } else {
               reviewCell = '<button type="button" class="btn btn-outline-warning btn-sm py-0 px-2 leave-review-btn" ' +
                 'data-booking-id="' + b.id + '" ' +
                 'data-instructor-name="' + instrName + '">' +
-                '<i class="bi bi-star me-1"></i>Leave Review</button>';
+                '<i class="bi bi-star me-1"></i>Review</button>';
             }
           }
 
-          // ── Actions menu (Rebook + View Details) ──
+          // Actions menu
           var rebookUrl = window.learnerBookingNewUrl + (instructorProfileId ? ('?instructor_profile_id=' + instructorProfileId) : '');
           var actionsCell =
             '<div class="dropdown">' +
-              '<button class="btn btn-sm btn-outline-secondary border-0 px-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More">' +
+              '<button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More">' +
                 '<i class="bi bi-three-dots-vertical"></i>' +
               '</button>' +
               '<ul class="dropdown-menu dropdown-menu-end small">' +
@@ -621,67 +782,68 @@ window.__loadLearnerDashboard = function() {
             '</div>';
 
           return '<tr>' +
-            '<td>#' + b.id + '</td>' +
-            '<td><span class="rounded-circle bg-light border d-inline-flex align-items-center justify-content-center me-1" style="width:24px;height:24px;font-size:0.7rem;">' + initial + '</span>' + instrName + '</td>' +
-            '<td>' + formatDate(b.scheduled_at) + '</td>' +
-            '<td>' + formatTime(b.scheduled_at, b.duration_minutes) + '</td>' +
-            '<td>' + esc(loc) + '</td>' +
-            '<td><span class="badge ' + statusClass + '">' + status + '</span>' + cancelReasonLine + '</td>' +
-            '<td>' + payCell + '</td>' +
+            '<td class="bk-history-id">#' + b.id + '</td>' +
+            '<td><div class="d-flex align-items-center gap-2"><span class="bk-avatar bk-avatar-sm">' + _learnerInitial(instrName) + '</span><span class="fw-semibold">' + instrName + '</span></div></td>' +
+            '<td class="small text-nowrap">' + formatDate(b.scheduled_at) + '<br><span class="text-muted">' + _historyTimeRange(b.scheduled_at, b.duration_minutes) + '</span></td>' +
+            '<td class="small"><i class="bi bi-geo-alt me-1 text-muted"></i>' + esc(loc) + '</td>' +
+            '<td>' + statusBadge + cancelReasonLine + '</td>' +
+            '<td>' + payBadge + '</td>' +
             '<td>' + reviewCell + '</td>' +
             '<td class="text-end">' + actionsCell + '</td>' +
           '</tr>';
         }).join('');
 
-        // Delegate click for Leave Review buttons
+        // Wire Leave Review buttons
         tbody.querySelectorAll('.leave-review-btn').forEach(function(btn) {
           btn.addEventListener('click', function() {
             openReviewModal(btn.getAttribute('data-booking-id'), btn.getAttribute('data-instructor-name'));
           });
         });
+
+        // DataTable-style pagination
         var pagination = document.getElementById('history-pagination');
-        if (data.last_page > 1) {
-          var cur = data.current_page || 1;
-          var last = data.last_page;
-          var parts = [];
+        var cur  = data.current_page || 1;
+        var last = data.last_page    || 1;
+        if (total === 0) { pagination.style.display = 'none'; return; }
 
-          // Prev
-          if (cur > 1) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur - 1) + '">‹</a></li>');
-          else parts.push('<li class="page-item disabled"><span class="page-link">‹</span></li>');
-
-          // Windowed page numbers: current ± 2 with first/last shortcuts and ellipses
-          var windowStart = Math.max(1, cur - 2);
-          var windowEnd = Math.min(last, cur + 2);
-
-          if (windowStart > 1) {
-            parts.push('<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>');
-            if (windowStart > 2) parts.push('<li class="page-item disabled"><span class="page-link">…</span></li>');
-          }
-          for (var i = windowStart; i <= windowEnd; i++) {
-            if (i === cur) parts.push('<li class="page-item active"><span class="page-link">' + i + '</span></li>');
-            else parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>');
-          }
-          if (windowEnd < last) {
-            if (windowEnd < last - 1) parts.push('<li class="page-item disabled"><span class="page-link">…</span></li>');
-            parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + last + '">' + last + '</a></li>');
-          }
-
-          // Next
-          if (cur < last) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur + 1) + '">›</a></li>');
-          else parts.push('<li class="page-item disabled"><span class="page-link">›</span></li>');
-
-          pagination.innerHTML = '<ul class="pagination pagination-sm mb-0">' + parts.join('') + '</ul>';
-          pagination.querySelectorAll('a[data-page]').forEach(function(a) {
-            a.addEventListener('click', function(e) { e.preventDefault(); loadHistory(parseInt(a.getAttribute('data-page'), 10)); });
-          });
-        } else {
-          pagination.innerHTML = '';
+        function pageList() {
+          var pages = [];
+          if (last <= 7) { for (var i = 1; i <= last; i++) pages.push(i); return pages; }
+          pages.push(1);
+          var start = Math.max(2, cur - 2);
+          var end   = Math.min(last - 1, cur + 2);
+          if (start > 2) pages.push('…');
+          for (var j = start; j <= end; j++) pages.push(j);
+          if (end < last - 1) pages.push('…');
+          pages.push(last);
+          return pages;
         }
+
+        var btns = [];
+        btns.push('<button type="button" class="bk-page-btn" data-page="1" ' + (cur === 1 ? 'disabled' : '') + ' aria-label="First page"><i class="bi bi-chevron-double-left"></i></button>');
+        btns.push('<button type="button" class="bk-page-btn" data-page="' + Math.max(1, cur - 1) + '" ' + (cur === 1 ? 'disabled' : '') + ' aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>');
+        pageList().forEach(function(p) {
+          if (p === '…') btns.push('<span class="bk-page-ellipsis">…</span>');
+          else btns.push('<button type="button" class="bk-page-btn bk-page-num ' + (p === cur ? 'active' : '') + '" data-page="' + p + '">' + p + '</button>');
+        });
+        btns.push('<button type="button" class="bk-page-btn" data-page="' + Math.min(last, cur + 1) + '" ' + (cur === last ? 'disabled' : '') + ' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>');
+        btns.push('<button type="button" class="bk-page-btn" data-page="' + last + '" ' + (cur === last ? 'disabled' : '') + ' aria-label="Last page"><i class="bi bi-chevron-double-right"></i></button>');
+
+        pagination.innerHTML = '<div class="bk-pagination-controls">' + btns.join('') + '</div>';
+        pagination.style.display = (last > 1) ? 'flex' : 'none';
+        pagination.querySelectorAll('button[data-page]').forEach(function(b) {
+          b.addEventListener('click', function() {
+            if (b.disabled) return;
+            var p = parseInt(b.getAttribute('data-page'), 10);
+            if (!p || p === cur) return;
+            loadHistory(p);
+            document.getElementById('history-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
       })
       .catch(function() {
         document.getElementById('history-loading').style.display = 'none';
-        document.getElementById('history-empty').textContent = 'Unable to load booking history.';
-        document.getElementById('history-empty').style.display = 'block';
+        document.getElementById('history-empty').style.display = 'flex';
       });
   }
   document.getElementById('tab-history').addEventListener('shown.bs.tab', function() { loadHistory(1); });

@@ -112,8 +112,13 @@ class BookingController extends Controller
             $query->orderBy('scheduled_at', 'desc');
         }
 
+        // Allow client-controlled page size, clamped to a safe range.
+        $perPage = (int) $request->input('per_page', 10);
+        $perPage = max(5, min(100, $perPage));
+
         $bookings = $query->with(['learner:id,name,email,phone', 'instructor:id,name,email,phone', 'suburb.state', 'review'])
-            ->paginate(20);
+            ->paginate($perPage)
+            ->withQueryString();
 
         $items = $bookings->getCollection()->map(fn (Booking $b) => $this->formatBooking($b));
         $bookings->setCollection($items);

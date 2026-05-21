@@ -4,104 +4,177 @@
 @section('heading', 'Settings › Pricing')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('instructor.settings.personal-details') }}">Settings</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Pricing</li>
-    </ol>
-</nav>
 
-<ul class="nav nav-tabs border-0 small mb-4">
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.personal-details') }}">Personal Details</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.profile') }}">Profile</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.vehicle') }}">Vehicles</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.service-area') }}">Service Area</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.opening-hours') }}">Opening Hours</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.calendar-settings') }}">Calendar Settings</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{{ route('instructor.settings.pricing') }}">Pricing</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.documents') }}">Documents</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.banking') }}">Banking</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" href="{{ route('instructor.settings.guide') }}">Guide</a></li>
-</ul>
+<div class="sett-page">
+@include('instructor.settings.partials.header', [
+    'current'     => 'pricing',
+    'title'       => 'Lesson & Package Pricing',
+    'description' => 'Set hourly rates for Secure Licences learners and your own private learners. Includes test package pricing.',
+])
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div id="pricing-loading" class="text-muted">Loading…</div>
-        <div id="pricing-content" style="display: none;">
-            <p class="small text-muted mb-3">
-                <strong>Secure Licences Learners:</strong> from Secure Licences marketplace.<br>
-                <strong>Private Learners:</strong> invited to Secure Licences by you.
-            </p>
+<div class="sett-callout">
+    <i class="bi bi-info-circle-fill"></i>
+    <div>
+        <strong>Secure Licences learners</strong> come from our marketplace.
+        <strong>Private learners</strong> are people you've invited yourself (your existing clients).
+        You can charge different rates for each.
+    </div>
+</div>
 
-            <div class="mb-4">
-                <h6 class="fw-bold mb-1">Lesson</h6>
-                <p class="small text-muted mb-2">Price per booking hour</p>
-                <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                    <span class="d-inline-flex align-items-center gap-2">
-                        <span class="rounded-circle bg-warning" style="width:10px;height:10px;"></span>
-                        <span>Secure Licences</span>
-                    </span>
-                    <span id="lesson-securelicences-display" class="fw-medium">$0.00</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-primary lesson-securelicences-edit">Edit</button>
-                    <span id="lesson-securelicences-edit-wrap" class="d-none align-items-center gap-2">
-                        <input type="number" id="lesson-securelicences-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
-                        <button type="button" class="btn btn-sm btn-primary lesson-securelicences-save">Save</button>
-                        <button type="button" class="btn btn-sm btn-link p-0 lesson-securelicences-cancel">Cancel</button>
-                    </span>
-                </div>
-                <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                    <span class="d-inline-flex align-items-center gap-2">
-                        <span class="rounded-circle bg-primary" style="width:10px;height:10px;"></span>
-                        <span>Private</span>
-                    </span>
-                    <span id="lesson-private-display" class="fw-medium">$0.00</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-primary lesson-private-edit">Edit</button>
-                    <span id="lesson-private-edit-wrap" class="d-none align-items-center gap-2">
-                        <input type="number" id="lesson-private-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
-                        <button type="button" class="btn btn-sm btn-primary lesson-private-save">Save</button>
-                        <button type="button" class="btn btn-sm btn-link p-0 lesson-private-cancel">Cancel</button>
-                    </span>
+<div id="pricing-loading" class="sett-loading">
+    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading pricing…
+</div>
+
+<div id="pricing-content" style="display: none;">
+
+    {{-- ─── Lesson Pricing ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon"><i class="bi bi-car-front-fill"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Hourly Lessons</h3>
+                    <p class="sett-section-desc mb-0">Rate per booking hour. Most instructors charge $65 – $85/hr.</p>
                 </div>
             </div>
 
-            <div class="mb-0">
-                <h6 class="fw-bold mb-1">Test Package</h6>
-                <p class="small text-muted mb-2">Pick up 1hr before, 45-minute pre-test warm-up, and drop-off after result</p>
-                <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                    <span class="d-inline-flex align-items-center gap-2">
-                        <span class="rounded-circle bg-warning" style="width:10px;height:10px;"></span>
-                        <span>Secure Licences</span>
-                    </span>
-                    <span id="test-securelicences-display" class="fw-medium">$0.00</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-primary test-securelicences-edit">Edit</button>
-                    <span id="test-securelicences-edit-wrap" class="d-none align-items-center gap-2">
-                        <input type="number" id="test-securelicences-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
-                        <button type="button" class="btn btn-sm btn-primary test-securelicences-save">Save</button>
-                        <button type="button" class="btn btn-sm btn-link p-0 test-securelicences-cancel">Cancel</button>
-                    </span>
+            <div class="row g-3 mt-3">
+                {{-- Secure Licences rate --}}
+                <div class="col-md-6">
+                    <div class="sett-rate-card sett-rate-marketplace">
+                        <div class="sett-rate-card-head">
+                            <span class="sett-rate-tag sett-rate-tag-sl"><i class="bi bi-shop-window"></i>Secure Licences</span>
+                            <button type="button" class="sett-rate-edit-btn lesson-securelicences-edit" aria-label="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                        </div>
+                        <div class="sett-rate-display">
+                            <span class="sett-rate-currency">$</span>
+                            <span class="sett-rate-amount" id="lesson-securelicences-display">0.00</span>
+                            <span class="sett-rate-per">/hr</span>
+                        </div>
+                        <div id="lesson-securelicences-edit-wrap" class="sett-rate-edit-wrap d-none">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="lesson-securelicences-input" class="form-control" min="0" step="0.01" placeholder="0.00">
+                                <span class="input-group-text">/hr</span>
+                            </div>
+                            <div class="sett-rate-edit-actions">
+                                <button type="button" class="btn btn-sm btn-warning fw-bold lesson-securelicences-save">Save</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary lesson-securelicences-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                    <span class="d-inline-flex align-items-center gap-2">
-                        <span class="rounded-circle bg-primary" style="width:10px;height:10px;"></span>
-                        <span>Private</span>
-                    </span>
-                    <span id="test-private-display" class="fw-medium">$0.00</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-primary test-private-edit">Edit</button>
-                    <span id="test-private-edit-wrap" class="d-none align-items-center gap-2">
-                        <input type="number" id="test-private-input" class="form-control form-control-sm d-inline-block" style="width:100px;" min="0" step="0.01" placeholder="0.00">
-                        <button type="button" class="btn btn-sm btn-primary test-private-save">Save</button>
-                        <button type="button" class="btn btn-sm btn-link p-0 test-private-cancel">Cancel</button>
-                    </span>
+
+                {{-- Private rate --}}
+                <div class="col-md-6">
+                    <div class="sett-rate-card sett-rate-private">
+                        <div class="sett-rate-card-head">
+                            <span class="sett-rate-tag sett-rate-tag-pv"><i class="bi bi-person-heart"></i>Private learners</span>
+                            <button type="button" class="sett-rate-edit-btn lesson-private-edit" aria-label="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                        </div>
+                        <div class="sett-rate-display">
+                            <span class="sett-rate-currency">$</span>
+                            <span class="sett-rate-amount" id="lesson-private-display">0.00</span>
+                            <span class="sett-rate-per">/hr</span>
+                        </div>
+                        <div id="lesson-private-edit-wrap" class="sett-rate-edit-wrap d-none">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="lesson-private-input" class="form-control" min="0" step="0.01" placeholder="0.00">
+                                <span class="input-group-text">/hr</span>
+                            </div>
+                            <div class="sett-rate-edit-actions">
+                                <button type="button" class="btn btn-sm btn-warning fw-bold lesson-private-save">Save</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary lesson-private-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<span id="pricing-message" class="text-success"></span>
+    {{-- ─── Test Package Pricing ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon sett-rate-icon-blue"><i class="bi bi-patch-check-fill"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Test Day Package</h3>
+                    <p class="sett-section-desc mb-0">Pick-up 1 hour before, 45-min warm-up lesson, use of car for the test, drop-off after result.</p>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-3">
+                {{-- Secure Licences rate --}}
+                <div class="col-md-6">
+                    <div class="sett-rate-card sett-rate-marketplace">
+                        <div class="sett-rate-card-head">
+                            <span class="sett-rate-tag sett-rate-tag-sl"><i class="bi bi-shop-window"></i>Secure Licences</span>
+                            <button type="button" class="sett-rate-edit-btn test-securelicences-edit" aria-label="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                        </div>
+                        <div class="sett-rate-display">
+                            <span class="sett-rate-currency">$</span>
+                            <span class="sett-rate-amount" id="test-securelicences-display">0.00</span>
+                            <span class="sett-rate-per">/package</span>
+                        </div>
+                        <div id="test-securelicences-edit-wrap" class="sett-rate-edit-wrap d-none">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="test-securelicences-input" class="form-control" min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="sett-rate-edit-actions">
+                                <button type="button" class="btn btn-sm btn-warning fw-bold test-securelicences-save">Save</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary test-securelicences-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Private rate --}}
+                <div class="col-md-6">
+                    <div class="sett-rate-card sett-rate-private">
+                        <div class="sett-rate-card-head">
+                            <span class="sett-rate-tag sett-rate-tag-pv"><i class="bi bi-person-heart"></i>Private learners</span>
+                            <button type="button" class="sett-rate-edit-btn test-private-edit" aria-label="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                        </div>
+                        <div class="sett-rate-display">
+                            <span class="sett-rate-currency">$</span>
+                            <span class="sett-rate-amount" id="test-private-display">0.00</span>
+                            <span class="sett-rate-per">/package</span>
+                        </div>
+                        <div id="test-private-edit-wrap" class="sett-rate-edit-wrap d-none">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="test-private-input" class="form-control" min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="sett-rate-edit-actions">
+                                <button type="button" class="btn btn-sm btn-warning fw-bold test-private-save">Save</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary test-private-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <span id="pricing-message" class="sett-save-bar-msg success"></span>
+    </div>
+</div>
 
 @push('scripts')
     @vite('resources/js/instructor-settings-pricing.js')
 @endpush
+
+</div> {{-- /.sett-page --}}
 @endsection

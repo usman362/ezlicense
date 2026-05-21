@@ -12,55 +12,93 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-    <h5 class="mb-0">Learners</h5>
+    <div>
+        <h4 class="fw-bolder mb-0">My Learners</h4>
+        <p class="text-muted small mb-0">Everyone you've taught or invited.</p>
+    </div>
     <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-outline-secondary" id="invite-learner-btn">
-            <i class="bi bi-person-plus me-1"></i> Invite Learner
+        <button type="button" class="btn btn-outline-secondary fw-semibold" id="invite-learner-btn">
+            <i class="bi bi-person-plus-fill me-1"></i>Invite Learner
         </button>
-        <button type="button" class="btn btn-warning" id="propose-booking-btn" data-learner-id="" data-learner-name="">
-            <i class="bi bi-car-front me-1"></i> Propose Booking
+        <button type="button" class="btn btn-warning fw-bold" id="propose-booking-btn" data-learner-id="" data-learner-name="">
+            <i class="bi bi-car-front-fill me-1"></i>Propose Booking
         </button>
     </div>
 </div>
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-my-learners" data-bs-toggle="tab" data-bs-target="#my-learners" type="button">My Learners</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-pending" data-bs-toggle="tab" data-bs-target="#pending-invites" type="button">Pending Invites</button>
-    </li>
-</ul>
-
-<div class="mb-3">
-    <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <input type="text" class="form-control" id="learners-search" placeholder="Search by learner name or phone number">
-    </div>
+{{-- Pill tabs with count badges --}}
+<div class="bk-tabs-wrap mb-3">
+    <ul class="nav bk-pill-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-my-learners" data-bs-toggle="tab" data-bs-target="#my-learners" type="button">
+                <i class="bi bi-people-fill me-1"></i>My Learners
+                <span class="bk-tab-count" id="count-my-learners">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-pending" data-bs-toggle="tab" data-bs-target="#pending-invites" type="button">
+                <i class="bi bi-envelope-paper-fill me-1"></i>Pending Invites
+                <span class="bk-tab-count bk-tab-count-amber" id="count-pending-invites">0</span>
+            </button>
+        </li>
+    </ul>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
-        <div id="learners-loading" class="p-4 text-muted text-center">Loading…</div>
-        <div id="learners-table-wrap" style="display: none;">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Learner Details</th>
-                            <th>Guardian Details</th>
-                            <th>Booking Hours Completed</th>
-                            <th>Upcoming Bookings</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="learners-tbody"></tbody>
-                </table>
-            </div>
+{{-- Toolbar — search + per-page + results info --}}
+<div class="bk-toolbar mb-3" id="learners-toolbar">
+    <div class="bk-perpage">
+        <span class="bk-perpage-label">Show</span>
+        <select class="bk-perpage-select" id="learners-perpage">
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        <span class="bk-perpage-label">per page</span>
+    </div>
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="bk-results-info" id="learners-results-info"></div>
+        <div class="input-group" style="max-width: 280px;">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 ps-0" id="learners-search" placeholder="Search name, phone, email…">
         </div>
-        <div id="learners-empty" class="p-4 text-muted text-center" style="display: none;">No learners yet. Bookings will appear here once learners book with you.</div>
     </div>
 </div>
+
+<div id="learners-loading" class="bk-loading">
+    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading learners…
+</div>
+
+<div id="learners-table-wrap" class="card border-0 shadow-sm bk-history-card" style="display: none;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 bk-history-table">
+                <thead>
+                    <tr>
+                        <th>Learner</th>
+                        <th>Contact</th>
+                        <th>Guardian</th>
+                        <th class="text-center">Hours</th>
+                        <th class="text-center">Upcoming</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="learners-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="learners-empty" class="bk-empty" style="display: none;">
+    <i class="bi bi-people bk-empty-icon"></i>
+    <h5>No learners yet</h5>
+    <p>Once learners book lessons or accept your invites, they'll appear here. Send your first invite to get started.</p>
+    <button type="button" class="btn btn-warning fw-bold btn-sm" id="invite-learner-empty-btn">
+        <i class="bi bi-person-plus-fill me-1"></i>Invite a Learner
+    </button>
+</div>
+
+<nav id="learners-pagination" class="bk-pagination-wrap mt-3" style="display: none;" aria-label="Learners pagination"></nav>
 
 {{-- New Booking Proposal Modal --}}
 <div class="modal fade" id="proposal-modal" tabindex="-1" aria-labelledby="proposal-modal-title" aria-hidden="true">
@@ -227,11 +265,17 @@
 <script>
 (function() {
   var searchInput = document.getElementById('learners-search');
-  var loadingEl = document.getElementById('learners-loading');
-  var tableWrap = document.getElementById('learners-table-wrap');
-  var tbody = document.getElementById('learners-tbody');
-  var emptyEl = document.getElementById('learners-empty');
-  var cache = [];
+  var loadingEl   = document.getElementById('learners-loading');
+  var tableWrap   = document.getElementById('learners-table-wrap');
+  var tbody       = document.getElementById('learners-tbody');
+  var emptyEl     = document.getElementById('learners-empty');
+  var toolbarEl   = document.getElementById('learners-toolbar');
+  var paginationEl= document.getElementById('learners-pagination');
+  var infoEl      = document.getElementById('learners-results-info');
+  var perPageSel  = document.getElementById('learners-perpage');
+  var perPage     = 10;
+  var currentPage = 1;
+  var currentQuery= '';
 
   function escapeHtml(s) {
     if (s == null || s === '') return '—';
@@ -239,69 +283,194 @@
     div.textContent = s;
     return div.innerHTML;
   }
+  function escAttr(s) { return (s || '').replace(/"/g, '&quot;'); }
+  function initialOf(name) {
+    if (!name) return '?';
+    var parts = name.trim().split(/\s+/);
+    return ((parts[0][0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
 
-  function render(list) {
-    if (!list || list.length === 0) {
+  function setTabCount(id, n) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = (n || 0);
+  }
+
+  function render(data) {
+    var list = data.data || [];
+    var total = data.total || 0;
+
+    // Tab count badge
+    setTabCount('count-my-learners', total);
+
+    if (list.length === 0) {
       tableWrap.style.display = 'none';
-      emptyEl.style.display = 'block';
+      paginationEl.style.display = 'none';
+      toolbarEl.style.display = currentQuery ? 'flex' : 'none';
+      emptyEl.style.display = 'flex';
+      // Customise empty copy based on whether it's a search no-result vs truly empty
+      if (currentQuery) {
+        emptyEl.querySelector('h5').textContent = 'No learners match your search';
+        emptyEl.querySelector('p').textContent = 'Try a different name, phone or email — or clear the search.';
+      } else {
+        emptyEl.querySelector('h5').textContent = 'No learners yet';
+        emptyEl.querySelector('p').textContent = "Once learners book lessons or accept your invites, they'll appear here. Send your first invite to get started.";
+      }
       return;
     }
+
     emptyEl.style.display = 'none';
     tableWrap.style.display = 'block';
+    toolbarEl.style.display = 'flex';
+
+    // Results info "Showing 1–10 of 47"
+    if (infoEl && total > 0) {
+      var from = data.from || 1;
+      var to   = data.to   || list.length;
+      infoEl.innerHTML = 'Showing <strong>' + from + '</strong>–<strong>' + to + '</strong> of <strong>' + total + '</strong>';
+    }
+
     tbody.innerHTML = list.map(function(row) {
       var learner = row.learner || {};
       var name = escapeHtml(learner.name || '—');
-      var phone = escapeHtml(learner.phone || learner.email || '—');
-      var guardian = row.guardian && row.guardian.name ? escapeHtml(row.guardian.name) : '—';
+      var phone = learner.phone ? '<i class="bi bi-telephone-fill text-muted me-1"></i>' + escapeHtml(learner.phone) : '';
+      var email = learner.email ? '<i class="bi bi-envelope-fill text-muted me-1"></i>' + escapeHtml(learner.email) : '';
+      var contact = phone || email || '<span class="text-muted">—</span>';
+      var guardian = row.guardian && row.guardian.name
+        ? '<span class="fw-semibold">' + escapeHtml(row.guardian.name) + '</span>'
+        : '<span class="text-muted">—</span>';
       var hours = row.hours_completed != null ? row.hours_completed : 0;
       var upcoming = row.upcoming_bookings != null ? row.upcoming_bookings : 0;
+      var hoursPill = hours > 0
+        ? '<span class="bk-pay bk-pay-paid">' + hours + 'h</span>'
+        : '<span class="text-muted small">0h</span>';
+      var upcomingPill = upcoming > 0
+        ? '<span class="bk-status bk-status-confirmed">' + upcoming + '</span>'
+        : '<span class="text-muted small">0</span>';
       var learnerId = learner.id;
+      var nameAttr = escAttr(learner.name || '');
       return '<tr>' +
-        '<td><span class="learner-name-dot"></span><strong>' + name + '</strong><br><small class="text-muted">' + phone + '</small></td>' +
-        '<td>' + guardian + '</td>' +
-        '<td>' + hours + '</td>' +
-        '<td>' + upcoming + '</td>' +
+        '<td><div class="d-flex align-items-center gap-2">' +
+          '<span class="bk-avatar bk-avatar-sm">' + initialOf(learner.name) + '</span>' +
+          '<div><div class="fw-bold">' + name + '</div>' +
+          (row.has_bookings ? '' : '<small class="text-muted"><i class="bi bi-envelope-paper me-1"></i>Invited (no bookings yet)</small>') +
+          '</div></div></td>' +
+        '<td class="small">' + contact + '</td>' +
+        '<td class="small">' + guardian + '</td>' +
+        '<td class="text-center">' + hoursPill + '</td>' +
+        '<td class="text-center">' + upcomingPill + '</td>' +
         '<td class="text-end">' +
-          '<a href="#" class="learner-details-link me-2" data-learner-id="' + learnerId + '" data-learner-name="' + (learner.name || '').replace(/"/g, '&quot;') + '">Learner Details</a>' +
-          '<button type="button" class="btn btn-sm btn-outline-secondary propose-booking-row" data-learner-id="' + learnerId + '" data-learner-name="' + (learner.name || '').replace(/"/g, '&quot;') + '">Propose Booking</button>' +
+          '<div class="d-inline-flex gap-1">' +
+            '<a href="#" class="btn btn-sm btn-outline-secondary learner-details-link" data-learner-id="' + learnerId + '" data-learner-name="' + nameAttr + '" title="View details"><i class="bi bi-eye"></i></a>' +
+            '<button type="button" class="btn btn-sm btn-warning fw-bold propose-booking-row" data-learner-id="' + learnerId + '" data-learner-name="' + nameAttr + '"><i class="bi bi-car-front me-1"></i>Propose</button>' +
+          '</div>' +
         '</td></tr>';
     }).join('');
+
+    renderPagination(data);
   }
 
-  function load(q) {
+  // ── DataTable-style pagination (First / Prev / numbers w/ ellipsis / Next / Last) ──
+  function renderPagination(data) {
+    var cur  = data.current_page || 1;
+    var last = data.last_page    || 1;
+    if (last <= 1) { paginationEl.style.display = 'none'; return; }
+
+    function pageList() {
+      var pages = [];
+      if (last <= 7) { for (var i = 1; i <= last; i++) pages.push(i); return pages; }
+      pages.push(1);
+      var start = Math.max(2, cur - 2);
+      var end   = Math.min(last - 1, cur + 2);
+      if (start > 2) pages.push('…');
+      for (var j = start; j <= end; j++) pages.push(j);
+      if (end < last - 1) pages.push('…');
+      pages.push(last);
+      return pages;
+    }
+
+    var btns = [];
+    btns.push('<button type="button" class="bk-page-btn" data-page="1" ' + (cur === 1 ? 'disabled' : '') + ' aria-label="First page"><i class="bi bi-chevron-double-left"></i></button>');
+    btns.push('<button type="button" class="bk-page-btn" data-page="' + Math.max(1, cur - 1) + '" ' + (cur === 1 ? 'disabled' : '') + ' aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>');
+    pageList().forEach(function(p) {
+      if (p === '…') btns.push('<span class="bk-page-ellipsis">…</span>');
+      else btns.push('<button type="button" class="bk-page-btn bk-page-num ' + (p === cur ? 'active' : '') + '" data-page="' + p + '">' + p + '</button>');
+    });
+    btns.push('<button type="button" class="bk-page-btn" data-page="' + Math.min(last, cur + 1) + '" ' + (cur === last ? 'disabled' : '') + ' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>');
+    btns.push('<button type="button" class="bk-page-btn" data-page="' + last + '" ' + (cur === last ? 'disabled' : '') + ' aria-label="Last page"><i class="bi bi-chevron-double-right"></i></button>');
+
+    paginationEl.innerHTML = '<div class="bk-pagination-controls">' + btns.join('') + '</div>';
+    paginationEl.style.display = 'flex';
+    paginationEl.querySelectorAll('button[data-page]').forEach(function(b) {
+      b.addEventListener('click', function() {
+        if (b.disabled) return;
+        var p = parseInt(b.getAttribute('data-page'), 10);
+        if (!p || p === cur) return;
+        load(currentQuery, p);
+        tableWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  function load(q, page) {
+    currentQuery = q || '';
+    currentPage  = page || 1;
     loadingEl.style.display = 'block';
     tableWrap.style.display = 'none';
     emptyEl.style.display = 'none';
-    var url = '/api/instructor/learners';
-    if (q) url += '?q=' + encodeURIComponent(q);
+    paginationEl.style.display = 'none';
+
+    var url = '/api/instructor/learners?page=' + currentPage + '&per_page=' + perPage;
+    if (currentQuery) url += '&q=' + encodeURIComponent(currentQuery);
+
     fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then(function(r) { return r.json(); })
       .then(function(res) {
         loadingEl.style.display = 'none';
-        var data = res.data || res || [];
-        cache = Array.isArray(data) ? data : [];
-        render(cache);
+        render(res || {});
       })
       .catch(function() {
         loadingEl.style.display = 'none';
-        emptyEl.textContent = 'Could not load learners.';
-        emptyEl.style.display = 'block';
+        emptyEl.querySelector('h5').textContent = 'Could not load learners';
+        emptyEl.querySelector('p').textContent  = 'Please refresh the page and try again.';
+        emptyEl.style.display = 'flex';
       });
+  }
+
+  // Per-page selector
+  if (perPageSel) {
+    perPageSel.addEventListener('change', function() {
+      perPage = parseInt(this.value, 10) || 10;
+      load(currentQuery, 1);
+    });
+  }
+
+  // Empty-state invite button (delegates to main invite button)
+  var emptyInviteBtn = document.getElementById('invite-learner-empty-btn');
+  if (emptyInviteBtn) {
+    emptyInviteBtn.addEventListener('click', function() {
+      var main = document.getElementById('invite-learner-btn');
+      if (main) main.click();
+    });
   }
 
   var searchTimeout;
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(function() { load(searchInput.value.trim()); }, 300);
+      searchTimeout = setTimeout(function() { load(searchInput.value.trim(), 1); }, 300);
     });
   }
 
   // ── Pending Invites tab — loads real data + supports resend/cancel ──
+  var MY_LEARNERS_HEADERS = '<th>Learner</th><th>Contact</th><th>Guardian</th><th class="text-center">Hours</th><th class="text-center">Upcoming</th><th class="text-end">Actions</th>';
+  var PENDING_HEADERS = '<th>Invitee</th><th>Sent</th><th>Personal Message</th><th>Status</th><th class="text-end">Actions</th>';
+
   function loadPendingInvites() {
     loadingEl.style.display = 'block';
     tableWrap.style.display = 'none';
     emptyEl.style.display = 'none';
+    paginationEl.style.display = 'none';
+    toolbarEl.style.display = 'none'; // hide per-page on pending — no pagination needed
 
     fetch('/api/instructor/learners/pending-invites', {
       headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -311,41 +480,57 @@
     .then(function(res) {
       loadingEl.style.display = 'none';
       var invites = res.data || [];
+      setTabCount('count-pending-invites', invites.length);
+
       if (invites.length === 0) {
-        emptyEl.textContent = 'No pending invites. Click "Invite Learner" to send your first invite.';
-        emptyEl.style.display = 'block';
+        emptyEl.querySelector('h5').textContent = 'No pending invites';
+        emptyEl.querySelector('p').textContent = 'Click "Invite Learner" to send your first invite — they\'ll get an email with a link to join your roster.';
+        emptyEl.style.display = 'flex';
         return;
       }
+
       tableWrap.style.display = 'block';
 
-      // Replace table headers for invites view
+      // Swap to pending-invites headers
       var thead = tableWrap.querySelector('thead tr');
-      thead.innerHTML = '<th>Invitee</th><th>Sent</th><th>Personal Message</th><th>Status</th><th class="text-end">Actions</th>';
+      thead.innerHTML = PENDING_HEADERS;
 
       tbody.innerHTML = invites.map(function(inv) {
         var sentDate = new Date(inv.sent_at);
         var sentLabel = sentDate.toLocaleDateString() + ' ' + sentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        var msg = inv.personal_message ? escapeHtml(inv.personal_message.length > 60 ? inv.personal_message.substr(0, 60) + '…' : inv.personal_message) : '<span class="text-muted">—</span>';
+        var msg = inv.personal_message
+          ? escapeHtml(inv.personal_message.length > 60 ? inv.personal_message.substr(0, 60) + '…' : inv.personal_message)
+          : '<span class="text-muted">—</span>';
         var statusBadge = inv.is_expired
-          ? '<span class="badge bg-danger-subtle text-danger">Expired</span>'
-          : '<span class="badge bg-warning-subtle text-warning">Pending</span>';
+          ? '<span class="bk-status bk-status-cancelled"><i class="bi bi-clock-history"></i>Expired</span>'
+          : '<span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>Awaiting</span>';
+        var displayName = inv.invitee_name || inv.invitee_email;
+        var emailLine = inv.invitee_name
+          ? '<small class="text-muted"><i class="bi bi-envelope me-1"></i>' + escapeHtml(inv.invitee_email) + '</small>'
+          : '';
 
         return '<tr>' +
-          '<td><strong>' + escapeHtml(inv.invitee_name || inv.invitee_email) + '</strong>' +
-            (inv.invitee_name ? '<br><small class="text-muted">' + escapeHtml(inv.invitee_email) + '</small>' : '') + '</td>' +
-          '<td class="small text-muted">' + sentLabel + '</td>' +
+          '<td><div class="d-flex align-items-center gap-2">' +
+            '<span class="bk-avatar bk-avatar-sm">' + initialOf(displayName) + '</span>' +
+            '<div><div class="fw-bold">' + escapeHtml(displayName) + '</div>' + emailLine + '</div></div></td>' +
+          '<td class="small text-nowrap"><i class="bi bi-clock me-1 text-muted"></i>' + sentLabel + '</td>' +
           '<td class="small">' + msg + '</td>' +
           '<td>' + statusBadge + '</td>' +
           '<td class="text-end">' +
-            (!inv.is_expired ? '<button class="btn btn-sm btn-outline-secondary me-1 invite-resend-btn" data-id="' + inv.id + '"><i class="bi bi-arrow-clockwise"></i> Resend</button>' : '') +
-            '<button class="btn btn-sm btn-outline-danger invite-cancel-btn" data-id="' + inv.id + '" data-email="' + escapeHtml(inv.invitee_email) + '"><i class="bi bi-x-circle"></i> Cancel</button>' +
+            '<div class="d-inline-flex gap-1">' +
+              (!inv.is_expired
+                ? '<button class="btn btn-sm btn-outline-secondary invite-resend-btn" data-id="' + inv.id + '" title="Resend invite"><i class="bi bi-arrow-clockwise"></i></button>'
+                : '') +
+              '<button class="btn btn-sm btn-outline-danger invite-cancel-btn" data-id="' + inv.id + '" data-email="' + escAttr(inv.invitee_email) + '" title="Cancel invite"><i class="bi bi-trash"></i></button>' +
+            '</div>' +
           '</td></tr>';
       }).join('');
     })
     .catch(function() {
       loadingEl.style.display = 'none';
-      emptyEl.textContent = 'Could not load pending invites.';
-      emptyEl.style.display = 'block';
+      emptyEl.querySelector('h5').textContent = 'Could not load pending invites';
+      emptyEl.querySelector('p').textContent = 'Please refresh the page and try again.';
+      emptyEl.style.display = 'flex';
     });
   }
 
@@ -355,8 +540,8 @@
   document.getElementById('tab-my-learners').addEventListener('shown.bs.tab', function() {
     // Restore my-learners table headers
     var thead = tableWrap.querySelector('thead tr');
-    thead.innerHTML = '<th>Learner Details</th><th>Guardian Details</th><th>Booking Hours Completed</th><th>Upcoming Bookings</th><th class="text-end">Actions</th>';
-    load(searchInput ? searchInput.value.trim() : '');
+    thead.innerHTML = MY_LEARNERS_HEADERS;
+    load(searchInput ? searchInput.value.trim() : '', 1);
   });
 
   // Resend / cancel invite handlers (delegated)

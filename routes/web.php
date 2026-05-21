@@ -111,6 +111,140 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/google-calendar/sync', [GoogleCalendarController::class, 'syncNow'])->name('google-calendar.sync');
 });
 
+// ─── SEO: dynamic robots.txt + sitemap.xml (admin-controlled via SiteSetting) ───
+Route::get('/robots.txt', function () {
+    $mode = \App\Models\SiteSetting::get('seo_robots_mode', 'index_follow');
+    $sitemapEnabled = \App\Models\SiteSetting::get('seo_sitemap_enabled', true);
+
+    if ($mode === 'noindex_nofollow') {
+        $body = "User-agent: *\nDisallow: /\n";
+    } else {
+        $body  = "User-agent: *\n";
+        $body .= "Disallow: /admin\n";
+        $body .= "Disallow: /instructor\n";
+        $body .= "Disallow: /learner\n";
+        $body .= "Disallow: /api\n";
+        $body .= "Disallow: /login\n";
+        $body .= "Disallow: /register\n";
+        $body .= "Disallow: /password\n";
+        $body .= "Allow: /\n";
+        if ($sitemapEnabled) {
+            $body .= "\nSitemap: ".url('/sitemap.xml')."\n";
+        }
+    }
+
+    return response($body, 200, ['Content-Type' => 'text/plain']);
+})->name('robots');
+
+Route::get('/sitemap.xml', function () {
+    if (! \App\Models\SiteSetting::get('seo_sitemap_enabled', true)) {
+        abort(404);
+    }
+
+    $urls = collect();
+    $base = rtrim(\App\Models\SiteSetting::get('seo_canonical_host', '') ?: url('/'), '/');
+
+    // Static public pages — keep this list in sync as new pages are added
+    $staticPaths = [
+        '/'                              => ['priority' => '1.0', 'changefreq' => 'weekly'],
+        '/find-instructor'               => ['priority' => '0.9', 'changefreq' => 'weekly'],
+        '/prices-and-packages'           => ['priority' => '0.8', 'changefreq' => 'monthly'],
+        '/driving-test-packages'         => ['priority' => '0.8', 'changefreq' => 'monthly'],
+        '/refresher-lessons'             => ['priority' => '0.7', 'changefreq' => 'monthly'],
+        '/international-licence-conversions' => ['priority' => '0.7', 'changefreq' => 'monthly'],
+        '/instruct-with-us'              => ['priority' => '0.7', 'changefreq' => 'monthly'],
+        '/instructor-academy'            => ['priority' => '0.6', 'changefreq' => 'monthly'],
+        '/practice-test'                 => ['priority' => '0.7', 'changefreq' => 'monthly'],
+        '/blog'                          => ['priority' => '0.8', 'changefreq' => 'daily'],
+        '/industry-insights'             => ['priority' => '0.7', 'changefreq' => 'weekly'],
+        '/about'                         => ['priority' => '0.5', 'changefreq' => 'yearly'],
+        '/contact'                       => ['priority' => '0.5', 'changefreq' => 'yearly'],
+    ];
+    foreach ($staticPaths as $path => $meta) {
+        $urls->push([
+            'loc'        => $base.$path,
+            'changefreq' => $meta['changefreq'],
+            'priority'   => $meta['priority'],
+            'lastmod'    => now()->toAtomString(),
+        ]);
+    }
+
+    // City landing pages
+    foreach (['sydney', 'melbourne', 'brisbane', 'perth', 'adelaide', 'hobart', 'canberra'] as $citySlug) {
+        $urls->push([
+            'loc' => $base.'/driving-lessons/'.$citySlug,
+            'changefreq' => 'weekly',
+            'priority' => '0.8',
+            'lastmod' => now()->toAtomString(),
+        ]);
+    }
+
+    // State practice-test pages
+    foreach (['nsw', 'vic', 'qld', 'wa', 'sa', 'tas', 'act'] as $stateSlug) {
+        $urls->push([
+            'loc' => $base.'/practice-test/'.$stateSlug,
+            'changefreq' => 'monthly',
+            'priority' => '0.6',
+            'lastmod' => now()->toAtomString(),
+        ]);
+    }
+
+    // Blog posts
+    try {
+        \App\Models\BlogPost::published()->select('slug', 'updated_at')->get()->each(function ($p) use ($urls, $base) {
+            $urls->push([
+                'loc' => $base.'/blog/'.$p->slug,
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+                'lastmod' => $p->updated_at?->toAtomString(),
+            ]);
+        });
+    } catch (\Throwable $e) {}
+
+    // Industry insights
+    try {
+        \App\Models\IndustryInsight::published()->select('slug', 'updated_at')->get()->each(function ($p) use ($urls, $base) {
+            $urls->push([
+                'loc' => $base.'/industry-insights/'.$p->slug,
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+                'lastmod' => $p->updated_at?->toAtomString(),
+            ]);
+        });
+    } catch (\Throwable $e) {}
+
+    // Public instructor profiles
+    try {
+        \App\Models\InstructorProfile::where('is_active', true)
+            ->where('verification_status', 'verified')
+            ->whereNotNull('public_slug')
+            ->select('public_slug', 'updated_at')
+            ->get()
+            ->each(function ($p) use ($urls, $base) {
+                $urls->push([
+                    'loc' => $base.'/i/'.$p->public_slug,
+                    'changefreq' => 'weekly',
+                    'priority' => '0.6',
+                    'lastmod' => $p->updated_at?->toAtomString(),
+                ]);
+            });
+    } catch (\Throwable $e) {}
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+    foreach ($urls as $u) {
+        $xml .= "  <url>\n";
+        $xml .= "    <loc>".htmlspecialchars($u['loc'])."</loc>\n";
+        if (! empty($u['lastmod']))    $xml .= "    <lastmod>{$u['lastmod']}</lastmod>\n";
+        if (! empty($u['changefreq'])) $xml .= "    <changefreq>{$u['changefreq']}</changefreq>\n";
+        if (! empty($u['priority']))   $xml .= "    <priority>{$u['priority']}</priority>\n";
+        $xml .= "  </url>\n";
+    }
+    $xml .= "</urlset>\n";
+
+    return response($xml, 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
+
 Auth::routes();
 
 // Dedicated login URLs for top bar (split-screen UI)
@@ -339,11 +473,66 @@ Route::middleware(['auth', 'role:learner'])->prefix('learner')->name('learner.')
     Route::post('/support', [App\Http\Controllers\Learner\SupportController::class, 'send'])->name('support.send');
 });
 
-Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('instructor.')->group(function () {
+Route::middleware(['auth', 'role:instructor', 'instructor.onboarded'])->prefix('instructor')->name('instructor.')->group(function () {
+    Route::get('/onboarding/pending', fn () => view('instructor.pages.onboarding-pending'))->name('onboarding.pending');
     Route::get('/dashboard', fn () => view('instructor.pages.dashboard'))->name('dashboard');
     Route::get('/calendar', fn () => view('instructor.pages.calendar'))->name('calendar');
     Route::get('/learners', fn () => view('instructor.pages.learners'))->name('learners');
     Route::get('/reports', fn () => view('instructor.pages.reports'))->name('reports');
+    Route::get('/notifications', function (\Illuminate\Http\Request $request) {
+        $user = auth()->user();
+        $tab = $request->query('tab', 'notifications'); // notifications | proposals
+
+        if ($tab === 'proposals') {
+            $query = \App\Models\Booking::with(['learner:id,name,email,phone', 'suburb.state'])
+                ->where('instructor_id', $user->id)
+                ->where('status', \App\Models\Booking::STATUS_PROPOSED);
+
+            if ($lq = $request->query('learner_q')) {
+                $query->whereHas('learner', function ($q) use ($lq) {
+                    $q->where('name', 'like', "%{$lq}%")
+                      ->orWhere('email', 'like', "%{$lq}%")
+                      ->orWhere('phone', 'like', "%{$lq}%");
+                });
+            }
+            if ($status = $request->query('proposal_status')) {
+                if ($status === 'expiring')   $query->where('proposal_expires_at', '<=', now()->addHours(24));
+                if ($status === 'expired')    $query->where('proposal_expires_at', '<', now());
+                if ($status === 'fresh')      $query->where('proposal_expires_at', '>', now()->addHours(24));
+            }
+            $sort = $request->query('sort', 'recent');
+            if ($sort === 'oldest')   $query->oldest();
+            elseif ($sort === 'expiry') $query->orderBy('proposal_expires_at', 'asc');
+            else                       $query->latest();
+
+            return view('instructor.pages.notifications', [
+                'tab'           => 'proposals',
+                'proposals'     => $query->paginate(20)->withQueryString(),
+                'notifications' => null,
+            ]);
+        }
+
+        // Booking Notifications tab
+        $notifications = $user->notifications()->latest()->paginate(20)->withQueryString();
+        return view('instructor.pages.notifications', [
+            'tab'           => 'notifications',
+            'notifications' => $notifications,
+            'proposals'     => null,
+        ]);
+    })->name('notifications');
+    Route::post('/notifications/mark-all-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back()->with('success', 'All notifications marked as read.');
+    })->name('notifications.mark-all-read');
+    Route::post('/notifications/mark-selected-read', function (\Illuminate\Http\Request $request) {
+        $ids = (array) $request->input('ids', []);
+        auth()->user()->notifications()->whereIn('id', $ids)->whereNull('read_at')->update(['read_at' => now()]);
+        return back()->with('success', count($ids) . ' notification(s) marked as read.');
+    })->name('notifications.mark-selected-read');
+
+    // Instructor support — categorised "Submit a request" form
+    Route::get('/support', fn () => view('instructor.pages.support'))->name('support');
+    Route::post('/support', [App\Http\Controllers\Instructor\SupportController::class, 'submit'])->name('support.submit');
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/personal-details', function () {
             $postcodes = \App\Models\Suburb::select('postcode')->distinct()->orderBy('postcode')->pluck('postcode');

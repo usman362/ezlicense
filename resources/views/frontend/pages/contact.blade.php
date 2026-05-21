@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Contact &amp; Support — Secure Licences')
+@section('title', 'Contact & Support — Secure Licences')
 
 @section('content')
 

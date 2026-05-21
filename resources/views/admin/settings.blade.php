@@ -7,6 +7,8 @@
 @php
     $groups = [
         'general'    => ['icon' => 'bi-gear',              'label' => 'General'],
+        'branding'   => ['icon' => 'bi-palette',           'label' => 'Branding'],
+        'seo'        => ['icon' => 'bi-search',            'label' => 'SEO & Analytics'],
         'payment'    => ['icon' => 'bi-credit-card',       'label' => 'Payment Gateway'],
         'commission' => ['icon' => 'bi-percent',           'label' => 'Fees & Commission'],
         'discounts'  => ['icon' => 'bi-tag',               'label' => 'Bulk Discounts'],
@@ -143,6 +145,22 @@
                                                 @else
                                                     <textarea class="form-control" rows="4" id="setting-{{ $s->key }}" name="settings[{{ $s->key }}]" style="font-family:monospace;font-size:0.85rem;">{{ is_string($s->value) ? $s->value : json_encode($jsonValue, JSON_PRETTY_PRINT) }}</textarea>
                                                     <div class="form-text text-muted">Raw JSON. Edit carefully.</div>
+                                                @endif
+                                            @elseif($s->type === 'textarea')
+                                                <textarea class="form-control"
+                                                          rows="3"
+                                                          id="setting-{{ $s->key }}"
+                                                          name="settings[{{ $s->key }}]"
+                                                          maxlength="500">{{ $s->value }}</textarea>
+                                                @if(in_array($s->key, ['seo_default_description']))
+                                                    <div class="form-text text-muted">
+                                                        <span id="char-count-{{ $s->key }}">{{ strlen($s->value) }}</span> / 160 recommended for search snippets
+                                                    </div>
+                                                    <script>
+                                                    document.getElementById('setting-{{ $s->key }}').addEventListener('input', function () {
+                                                        document.getElementById('char-count-{{ $s->key }}').textContent = this.value.length;
+                                                    });
+                                                    </script>
                                                 @endif
                                             @else
                                                 <input type="text"

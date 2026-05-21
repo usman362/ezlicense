@@ -164,56 +164,129 @@
     </div>
 </div>
 
-{{-- Tabs --}}
-<ul class="nav nav-tabs border-0 small mb-3" id="bookings-tabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-upcoming" data-bs-toggle="tab" data-bs-target="#panel-upcoming" type="button" role="tab">Upcoming</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-pending" data-bs-toggle="tab" data-bs-target="#panel-pending" type="button" role="tab">Pending proposals</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-history" data-bs-toggle="tab" data-bs-target="#panel-history" type="button" role="tab">Booking history</button>
-    </li>
-</ul>
+{{-- Pill-style tabs with count badges --}}
+<div class="bk-tabs-wrap mb-3">
+    <ul class="nav bk-pill-tabs" id="bookings-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-upcoming" data-bs-toggle="tab" data-bs-target="#panel-upcoming" type="button" role="tab">
+                <i class="bi bi-calendar-event me-1"></i>Upcoming
+                <span class="bk-tab-count" id="count-upcoming">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-pending" data-bs-toggle="tab" data-bs-target="#panel-pending" type="button" role="tab">
+                <i class="bi bi-hourglass-split me-1"></i>Pending
+                <span class="bk-tab-count bk-tab-count-amber" id="count-pending">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-history" data-bs-toggle="tab" data-bs-target="#panel-history" type="button" role="tab">
+                <i class="bi bi-clock-history me-1"></i>History
+                <span class="bk-tab-count" id="count-history">0</span>
+            </button>
+        </li>
+    </ul>
+</div>
 
-{{-- Tab: Upcoming --}}
 <div class="tab-content" id="bookings-tab-content">
+
+    {{-- ─── UPCOMING ─── --}}
     <div class="tab-pane fade show active" id="panel-upcoming" role="tabpanel">
-        <div id="upcoming-loading" class="text-muted py-4">Loading…</div>
+        <div class="bk-toolbar mb-3" id="upcoming-toolbar" style="display: none;">
+            <div class="bk-perpage">
+                <span class="bk-perpage-label">Show</span>
+                <select class="bk-perpage-select" data-tab="upcoming">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="bk-perpage-label">per page</span>
+            </div>
+            <div class="bk-results-info" id="upcoming-results-info"></div>
+        </div>
+        <div id="upcoming-loading" class="bk-loading">
+            <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading upcoming bookings…
+        </div>
         <div id="upcoming-list" style="display: none;"></div>
-        <div id="upcoming-empty" class="p-4 text-center text-muted" style="display: none;">No upcoming bookings.</div>
-        <nav id="upcoming-pagination" class="mt-3" style="display: none;" aria-label="Upcoming pagination"></nav>
+        <div id="upcoming-empty" class="bk-empty" style="display: none;">
+            <i class="bi bi-calendar-x bk-empty-icon"></i>
+            <h5>No upcoming bookings</h5>
+            <p>When a learner books a lesson with you, it'll appear here. Share your profile to attract more bookings.</p>
+            <a href="{{ route('instructor.learners') }}?open=propose" class="btn btn-warning fw-bold btn-sm">
+                <i class="bi bi-car-front me-1"></i>Propose a Booking
+            </a>
+        </div>
+        <nav id="upcoming-pagination" class="bk-pagination-wrap mt-3" style="display: none;" aria-label="Upcoming pagination"></nav>
     </div>
 
-    {{-- Tab: Pending proposals --}}
+    {{-- ─── PENDING PROPOSALS ─── --}}
     <div class="tab-pane fade" id="panel-pending" role="tabpanel">
-        <div id="pending-loading" class="text-muted py-4">Loading…</div>
+        <div class="bk-toolbar mb-3" id="pending-toolbar" style="display: none;">
+            <div class="bk-perpage">
+                <span class="bk-perpage-label">Show</span>
+                <select class="bk-perpage-select" data-tab="pending">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="bk-perpage-label">per page</span>
+            </div>
+            <div class="bk-results-info" id="pending-results-info"></div>
+        </div>
+        <div id="pending-loading" class="bk-loading">
+            <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading pending proposals…
+        </div>
         <div id="pending-list" style="display: none;"></div>
-        <div id="pending-empty" class="card border-0 shadow-sm">
-            <div class="card-body p-5 text-center text-muted">
-                No pending booking proposals. <a href="{{ route('instructor.learners') }}?open=propose" id="pending-create-link">Create a new proposal.</a>
+        <div id="pending-empty" class="bk-empty" style="display: none;">
+            <i class="bi bi-hourglass bk-empty-icon"></i>
+            <h5>No pending proposals</h5>
+            <p>Booking proposals you've sent to learners (waiting for them to confirm) will show here.</p>
+            <a href="{{ route('instructor.learners') }}?open=propose" id="pending-create-link" class="btn btn-warning fw-bold btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Create a Proposal
+            </a>
+        </div>
+        <nav id="pending-pagination" class="bk-pagination-wrap mt-3" style="display: none;" aria-label="Pending pagination"></nav>
+    </div>
+
+    {{-- ─── BOOKING HISTORY ─── --}}
+    <div class="tab-pane fade" id="panel-history" role="tabpanel">
+        {{-- Filter pills + per-page selector --}}
+        <div class="bk-toolbar bk-toolbar-history mb-3">
+            <div class="bk-history-filters" id="history-filters">
+                <button type="button" class="bk-filter-pill active" data-filter="all">All</button>
+                <button type="button" class="bk-filter-pill" data-filter="completed"><i class="bi bi-check-circle-fill me-1"></i>Completed</button>
+                <button type="button" class="bk-filter-pill" data-filter="cancelled"><i class="bi bi-x-circle-fill me-1"></i>Cancelled</button>
+            </div>
+            <div class="bk-perpage">
+                <span class="bk-perpage-label">Show</span>
+                <select class="bk-perpage-select" data-tab="history">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="bk-perpage-label">per page</span>
             </div>
         </div>
-        <nav id="pending-pagination" class="mt-3" style="display: none;" aria-label="Pending pagination"></nav>
-    </div>
 
-    {{-- Tab: Booking history --}}
-    <div class="tab-pane fade" id="panel-history" role="tabpanel">
-        <div id="history-loading" class="text-muted py-4">Loading…</div>
-        <div id="history-wrap" class="card border-0 shadow-sm" style="display: none;">
+        <div id="history-loading" class="bk-loading">
+            <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading booking history…
+        </div>
+        <div id="history-wrap" class="card border-0 shadow-sm bk-history-card" style="display: none;">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 bk-history-table">
+                        <thead>
                             <tr>
                                 <th>Booking</th>
                                 <th>Learner</th>
-                                <th>Date</th>
-                                <th>Time</th>
+                                <th>Date &amp; Time</th>
                                 <th>Location</th>
                                 <th>Status</th>
                                 <th>Payment</th>
+                                <th class="text-end"></th>
                             </tr>
                         </thead>
                         <tbody id="history-tbody"></tbody>
@@ -221,7 +294,11 @@
                 </div>
             </div>
         </div>
-        <div id="history-empty" class="p-4 text-center text-muted" style="display: none;">No booking history.</div>
+        <div id="history-empty" class="bk-empty" style="display: none;">
+            <i class="bi bi-archive bk-empty-icon"></i>
+            <h5>No booking history</h5>
+            <p>Past bookings (completed or cancelled) will appear here. Your reputation builds with every lesson taught!</p>
+        </div>
         <nav id="history-pagination" class="mt-3" style="display: none;" aria-label="History pagination"></nav>
     </div>
 </div>
@@ -485,6 +562,77 @@
       .catch(function() {});
   }
 
+  // ——— Per-page state (DataTable-style) ———
+  var perPageState = { upcoming: 10, pending: 10, history: 10 };
+
+  document.querySelectorAll('.bk-perpage-select').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+      var tab = sel.dataset.tab;
+      perPageState[tab] = parseInt(sel.value, 10) || 10;
+      if (tab === 'upcoming') loadUpcoming(1);
+      else if (tab === 'pending') loadPending(1);
+      else loadHistory(1);
+    });
+  });
+
+  // ——— Helpers ———
+  function setTabCount(tab, n) {
+    var el = document.getElementById('count-' + tab);
+    if (el) el.textContent = (n || 0);
+  }
+  function setResultsInfo(tab, data) {
+    var el = document.getElementById(tab + '-results-info');
+    if (!el) return;
+    var total = data.total || 0;
+    if (total === 0) { el.textContent = ''; return; }
+    var from = data.from || ((data.current_page - 1) * data.per_page + 1);
+    var to   = data.to   || Math.min(from + (data.data || []).length - 1, total);
+    el.innerHTML = 'Showing <strong>' + from + '</strong>–<strong>' + to + '</strong> of <strong>' + total + '</strong>';
+  }
+  function showToolbar(tab, data) {
+    var tb = document.getElementById(tab + '-toolbar');
+    if (tb) tb.style.display = (data.total && data.total > 0) ? 'flex' : 'none';
+  }
+  function initialOf(name) {
+    if (!name) return '?';
+    var parts = name.trim().split(/\s+/);
+    return ((parts[0][0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+  function relativeDayLabel(iso) {
+    var d = new Date(iso);
+    var now = new Date();
+    var midToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var midDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    var diffDays = Math.round((midDate - midToday) / 86400000);
+    if (diffDays < 0) return 'Past';
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays <= 7) return 'This week';
+    if (diffDays <= 30) return 'Later';
+    return 'Upcoming';
+  }
+  function dateBlock(iso) {
+    var d = new Date(iso);
+    var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    return '<div class="bk-date-block">' +
+      '<div class="bk-date-month">' + months[d.getMonth()] + '</div>' +
+      '<div class="bk-date-day">' + d.getDate() + '</div>' +
+      '<div class="bk-date-wd">' + days[d.getDay()] + '</div>' +
+    '</div>';
+  }
+  function timeRange(iso, mins) {
+    var d = new Date(iso);
+    var end = new Date(d.getTime() + (mins || 60) * 60000);
+    function f(x) {
+      var h = x.getHours(), m = x.getMinutes();
+      var ap = h >= 12 ? 'pm' : 'am';
+      h = h % 12; if (h === 0) h = 12;
+      return h + ':' + (m < 10 ? '0' : '') + m + ap;
+    }
+    return f(d) + ' – ' + f(end);
+  }
+
   // ——— Upcoming ———
   function renderUpcoming(data) {
     var list = document.getElementById('upcoming-list');
@@ -493,37 +641,65 @@
     var pagination = document.getElementById('upcoming-pagination');
     loading.style.display = 'none';
     var items = data.data || [];
+    setTabCount('upcoming', data.total);
     if (items.length === 0) {
       list.style.display = 'none';
-      empty.style.display = 'block';
+      empty.style.display = 'flex';
       pagination.style.display = 'none';
       return;
     }
     empty.style.display = 'none';
     list.style.display = 'block';
-    list.innerHTML = items.map(function(b) {
-      var statusBadge = b.status === 'confirmed' ? '<span class="badge badge-confirmed me-1">CONFIRMED</span>' : '';
-      var newBadge = ''; // optional: NEW LEARNER from backend later
-      var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
-      var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
-      var learnerPhone = (b.learner && b.learner.phone) ? esc(b.learner.phone) : '—';
-      return '<div class="card border-0 shadow-sm mb-2">' +
-        '<div class="card-body">' +
-          '<div class="d-flex justify-content-between align-items-start flex-wrap gap-2">' +
-            '<div><span class="text-muted">Booking #' + b.id + '</span> ' + statusBadge + newBadge + '</div>' +
-            '<a href="#" class="small booking-manage-link" data-booking-id="' + b.id + '">See more / Manage</a>' +
-          '</div>' +
-          '<div class="row mt-2 small">' +
-            '<div class="col-md-4"><i class="bi bi-calendar3 me-1 text-muted"></i>' + formatDate(b.scheduled_at) + '</div>' +
-            '<div class="col-md-4"><i class="bi bi-clock me-1 text-muted"></i>' + formatTime(b.scheduled_at, b.duration_minutes) + '</div>' +
-            '<div class="col-md-4"><i class="bi bi-geo-alt me-1 text-muted"></i>' + esc(location) + '</div>' +
-          '</div>' +
-          '<div class="row mt-1 small">' +
-            '<div class="col-md-4"><i class="bi bi-car-front me-1 text-muted"></i>' + esc(lessonLabel(b)) + '</div>' +
-            '<div class="col-md-4"><i class="bi bi-person me-1 text-muted"></i>' + learnerName + '</div>' +
-            '<div class="col-md-4"><i class="bi bi-telephone me-1 text-muted"></i><a href="tel:' + esc(learnerPhone) + '">' + learnerPhone + '</a></div>' +
-          '</div>' +
-        '</div></div>';
+
+    // Group by relative day (Today / Tomorrow / This week / Later)
+    var groups = {}; var order = [];
+    items.forEach(function(b) {
+      var g = relativeDayLabel(b.scheduled_at);
+      if (!groups[g]) { groups[g] = []; order.push(g); }
+      groups[g].push(b);
+    });
+    var groupOrder = ['Today', 'Tomorrow', 'This week', 'Later', 'Upcoming', 'Past'];
+    order.sort(function(a, b) { return groupOrder.indexOf(a) - groupOrder.indexOf(b); });
+
+    list.innerHTML = order.map(function(g) {
+      return '<div class="bk-group-label"><span>' + g + '</span><span class="bk-group-count">' + groups[g].length + '</span></div>' +
+        groups[g].map(function(b) {
+          var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
+          var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
+          var learnerPhone = (b.learner && b.learner.phone) ? esc(b.learner.phone) : '';
+          var statusBadge = b.status === 'confirmed'
+            ? '<span class="bk-status bk-status-confirmed"><i class="bi bi-check-circle-fill"></i>Confirmed</span>'
+            : '<span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>' + esc((b.status || '').toUpperCase()) + '</span>';
+          var phoneHtml = learnerPhone
+            ? '<a href="tel:' + learnerPhone + '" class="bk-card-meta-link"><i class="bi bi-telephone-fill"></i>' + learnerPhone + '</a>'
+            : '';
+          return '<div class="bk-card" data-booking-id="' + b.id + '">' +
+            dateBlock(b.scheduled_at) +
+            '<div class="bk-card-body">' +
+              '<div class="bk-card-head">' +
+                '<div class="bk-card-time"><i class="bi bi-clock me-1"></i>' + timeRange(b.scheduled_at, b.duration_minutes) + '</div>' +
+                statusBadge +
+              '</div>' +
+              '<div class="bk-card-learner">' +
+                '<span class="bk-avatar">' + initialOf(learnerName) + '</span>' +
+                '<div class="bk-learner-info">' +
+                  '<div class="bk-learner-name">' + learnerName + '</div>' +
+                  '<div class="bk-card-meta">' +
+                    '<span><i class="bi bi-geo-alt-fill"></i>' + esc(location) + '</span>' +
+                    '<span><i class="bi bi-car-front-fill"></i>' + esc(lessonLabel(b)) + '</span>' +
+                    phoneHtml +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="bk-card-actions">' +
+                '<a href="#" class="btn btn-sm btn-warning fw-bold booking-manage-link" data-booking-id="' + b.id + '">' +
+                  '<i class="bi bi-eye me-1"></i>Manage' +
+                '</a>' +
+                '<span class="bk-card-id">#' + b.id + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
     }).join('');
     renderPagination(pagination, data, 'upcoming');
     pagination.style.display = (data.last_page > 1) ? 'block' : 'none';
@@ -534,9 +710,9 @@
     document.getElementById('upcoming-loading').style.display = 'block';
     document.getElementById('upcoming-list').style.display = 'none';
     document.getElementById('upcoming-empty').style.display = 'none';
-    fetch('/api/bookings?tab=upcoming&page=' + page, opts)
+    fetch('/api/bookings?tab=upcoming&page=' + page + '&per_page=' + perPageState.upcoming, opts)
       .then(function(r) { return r.json(); })
-      .then(function(data) { renderUpcoming(data); })
+      .then(function(data) { renderUpcoming(data); showToolbar('upcoming', data); setResultsInfo('upcoming', data); })
       .catch(function() {
         document.getElementById('upcoming-loading').style.display = 'none';
         document.getElementById('upcoming-list').innerHTML = '<p class="text-muted">Could not load upcoming bookings.</p>';
@@ -552,9 +728,10 @@
     var pagination = document.getElementById('pending-pagination');
     loading.style.display = 'none';
     var items = data.data || [];
+    setTabCount('pending', data.total);
     if (items.length === 0) {
       list.style.display = 'none';
-      empty.style.display = 'block';
+      empty.style.display = 'flex';
       pagination.style.display = 'none';
       return;
     }
@@ -563,14 +740,43 @@
     list.innerHTML = items.map(function(b) {
       var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
       var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
-      return '<div class="card border-0 shadow-sm mb-2">' +
-        '<div class="card-body">' +
-          '<div class="d-flex justify-content-between align-items-start">' +
-            '<span class="text-muted">Booking #' + b.id + '</span>' +
-            '<a href="#" class="small booking-manage-link" data-booking-id="' + b.id + '">See more / Manage</a>' +
+      var learnerPhone = (b.learner && b.learner.phone) ? esc(b.learner.phone) : '';
+      var phoneHtml = learnerPhone
+        ? '<a href="tel:' + learnerPhone + '" class="bk-card-meta-link"><i class="bi bi-telephone-fill"></i>' + learnerPhone + '</a>'
+        : '';
+      // Expiry countdown if backend supplies proposal_expires_at
+      var expiryHtml = '';
+      if (b.proposal_expires_at) {
+        var hrs = Math.max(0, Math.round((new Date(b.proposal_expires_at) - new Date()) / 3600000));
+        expiryHtml = '<span class="bk-pending-expiry"><i class="bi bi-stopwatch me-1"></i>Expires in ' + hrs + 'h</span>';
+      }
+      return '<div class="bk-card bk-card-pending" data-booking-id="' + b.id + '">' +
+        dateBlock(b.scheduled_at) +
+        '<div class="bk-card-body">' +
+          '<div class="bk-card-head">' +
+            '<div class="bk-card-time"><i class="bi bi-clock me-1"></i>' + timeRange(b.scheduled_at, b.duration_minutes) + '</div>' +
+            '<span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>Awaiting learner</span>' +
           '</div>' +
-          '<div class="mt-2 small">' + formatDate(b.scheduled_at) + ' · ' + formatTime(b.scheduled_at, b.duration_minutes) + ' · ' + esc(location) + ' · ' + learnerName + '</div>' +
-        '</div></div>';
+          '<div class="bk-card-learner">' +
+            '<span class="bk-avatar">' + initialOf(learnerName) + '</span>' +
+            '<div class="bk-learner-info">' +
+              '<div class="bk-learner-name">' + learnerName + '</div>' +
+              '<div class="bk-card-meta">' +
+                '<span><i class="bi bi-geo-alt-fill"></i>' + esc(location) + '</span>' +
+                '<span><i class="bi bi-car-front-fill"></i>' + esc(lessonLabel(b)) + '</span>' +
+                phoneHtml +
+              '</div>' +
+              (expiryHtml ? '<div class="mt-1">' + expiryHtml + '</div>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="bk-card-actions">' +
+            '<a href="#" class="btn btn-sm btn-warning fw-bold booking-manage-link" data-booking-id="' + b.id + '">' +
+              '<i class="bi bi-eye me-1"></i>View Proposal' +
+            '</a>' +
+            '<span class="bk-card-id">#' + b.id + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }).join('');
     renderPagination(pagination, data, 'pending');
     pagination.style.display = (data.last_page > 1) ? 'block' : 'none';
@@ -581,16 +787,17 @@
     document.getElementById('pending-loading').style.display = 'block';
     document.getElementById('pending-list').style.display = 'none';
     document.getElementById('pending-empty').style.display = 'none';
-    fetch('/api/bookings?tab=pending&page=' + page, opts)
+    fetch('/api/bookings?tab=pending&page=' + page + '&per_page=' + perPageState.pending, opts)
       .then(function(r) { return r.json(); })
-      .then(function(data) { renderPending(data); })
+      .then(function(data) { renderPending(data); showToolbar('pending', data); setResultsInfo('pending', data); })
       .catch(function() {
         document.getElementById('pending-loading').style.display = 'none';
-        document.getElementById('pending-empty').style.display = 'block';
+        document.getElementById('pending-empty').style.display = 'flex';
       });
   }
 
   // ——— History ———
+  var historyFilter = 'all';
   function renderHistory(data) {
     var wrap = document.getElementById('history-wrap');
     var tbody = document.getElementById('history-tbody');
@@ -599,34 +806,46 @@
     var pagination = document.getElementById('history-pagination');
     loading.style.display = 'none';
     var items = data.data || [];
+
+    // Total count badge is the full count (not filtered)
+    setTabCount('history', data.total);
+
+    // Client-side filter on the page we have
+    if (historyFilter !== 'all') {
+      items = items.filter(function(b) { return (b.status || '').toLowerCase() === historyFilter; });
+    }
+
     if (items.length === 0) {
       wrap.style.display = 'none';
-      empty.style.display = 'block';
+      empty.style.display = 'flex';
       pagination.style.display = 'none';
       return;
     }
     empty.style.display = 'none';
     wrap.style.display = 'block';
+
     tbody.innerHTML = items.map(function(b) {
-      var status = (b.status === 'cancelled') ? 'CANCELLED' : 'COMPLETED';
-      var statusClass = (b.status === 'cancelled') ? 'badge-cancelled' : 'badge-completed';
-      // Backend serializes lowercase: paid / refunded / pending / failed
+      var isCancel = b.status === 'cancelled';
+      var statusBadge = isCancel
+        ? '<span class="bk-status bk-status-cancelled"><i class="bi bi-x-circle-fill"></i>Cancelled</span>'
+        : '<span class="bk-status bk-status-completed"><i class="bi bi-check-circle-fill"></i>Completed</span>';
       var ps = (b.payment_status || '').toLowerCase();
-      var pay = ps ? ps.charAt(0).toUpperCase() + ps.slice(1) : '—';
-      var payClass = ps === 'refunded' ? 'badge-returned'
-                    : ps === 'paid' ? 'badge-processed'
-                    : ps === 'failed' ? 'badge-returned'
-                    : '';
+      var payBadge = '—';
+      if (ps === 'paid')      payBadge = '<span class="bk-pay bk-pay-paid"><i class="bi bi-check-lg"></i>Paid</span>';
+      else if (ps === 'refunded') payBadge = '<span class="bk-pay bk-pay-refunded"><i class="bi bi-arrow-counterclockwise"></i>Refunded</span>';
+      else if (ps === 'failed')   payBadge = '<span class="bk-pay bk-pay-failed"><i class="bi bi-x-lg"></i>Failed</span>';
+      else if (ps === 'pending')  payBadge = '<span class="bk-pay bk-pay-pending"><i class="bi bi-clock"></i>Pending</span>';
+
       var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
       var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
       return '<tr>' +
-        '<td>#' + b.id + '</td>' +
-        '<td>' + learnerName + '</td>' +
-        '<td>' + formatDate(b.scheduled_at) + '</td>' +
-        '<td>' + formatTime(b.scheduled_at, b.duration_minutes) + '</td>' +
-        '<td>' + esc(location) + '</td>' +
-        '<td><span class="badge ' + statusClass + '">' + status + '</span></td>' +
-        '<td>' + (pay !== '—' ? '<span class="badge ' + payClass + '">' + pay + '</span>' : '—') + '</td>' +
+        '<td class="bk-history-id">#' + b.id + '</td>' +
+        '<td><div class="d-flex align-items-center gap-2"><span class="bk-avatar bk-avatar-sm">' + initialOf(learnerName) + '</span><span class="fw-semibold">' + learnerName + '</span></div></td>' +
+        '<td class="small text-nowrap">' + formatDate(b.scheduled_at) + '<br><span class="text-muted">' + timeRange(b.scheduled_at, b.duration_minutes) + '</span></td>' +
+        '<td class="small"><i class="bi bi-geo-alt me-1 text-muted"></i>' + esc(location) + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td>' + payBadge + '</td>' +
+        '<td class="text-end"><a href="#" class="btn btn-sm btn-outline-secondary booking-manage-link" data-booking-id="' + b.id + '"><i class="bi bi-eye"></i></a></td>' +
       '</tr>';
     }).join('');
     renderPagination(pagination, data, 'history');
@@ -638,35 +857,88 @@
     document.getElementById('history-loading').style.display = 'block';
     document.getElementById('history-wrap').style.display = 'none';
     document.getElementById('history-empty').style.display = 'none';
-    fetch('/api/bookings?tab=history&page=' + page, opts)
+    fetch('/api/bookings?tab=history&page=' + page + '&per_page=' + perPageState.history, opts)
       .then(function(r) { return r.json(); })
       .then(function(data) { renderHistory(data); })
       .catch(function() {
         document.getElementById('history-loading').style.display = 'none';
-        document.getElementById('history-empty').textContent = 'Could not load booking history.';
-        document.getElementById('history-empty').style.display = 'block';
+        document.getElementById('history-empty').style.display = 'flex';
       });
   }
 
+  // History filter pills
+  document.querySelectorAll('#history-filters .bk-filter-pill').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#history-filters .bk-filter-pill').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      historyFilter = btn.dataset.filter;
+      loadHistory(1);
+    });
+  });
+
+  // ——— DataTable-style pagination ———
+  // Builds: [Showing X–Y of Z]   [« First] [‹ Prev] [1] [2] ... [8] [Next ›] [Last »]
   function renderPagination(navEl, data, tab) {
-    var cur = data.current_page || 1;
-    var last = data.last_page || 1;
-    if (last <= 1) { navEl.innerHTML = ''; return; }
-    var parts = [];
-    if (cur > 1) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="1">First</a></li><li class="page-item"><a class="page-link" href="#" data-page="' + (cur - 1) + '">Prev</a></li>');
-    for (var i = 1; i <= last; i++) {
-      if (i === cur) parts.push('<li class="page-item active"><span class="page-link">' + i + '</span></li>');
-      else parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>');
+    var cur  = data.current_page || 1;
+    var last = data.last_page    || 1;
+    var total = data.total       || 0;
+
+    if (total === 0) { navEl.innerHTML = ''; navEl.style.display = 'none'; return; }
+
+    // Build page-number list with ellipsis (max ~7 visible numbers)
+    function pageList() {
+      var pages = [];
+      if (last <= 7) {
+        for (var i = 1; i <= last; i++) pages.push(i);
+        return pages;
+      }
+      pages.push(1);
+      var start = Math.max(2, cur - 2);
+      var end   = Math.min(last - 1, cur + 2);
+      if (start > 2) pages.push('…');
+      for (var j = start; j <= end; j++) pages.push(j);
+      if (end < last - 1) pages.push('…');
+      pages.push(last);
+      return pages;
     }
-    if (cur < last) parts.push('<li class="page-item"><a class="page-link" href="#" data-page="' + (cur + 1) + '">Next</a></li><li class="page-item"><a class="page-link" href="#" data-page="' + last + '">Last</a></li>');
-    navEl.innerHTML = '<ul class="pagination pagination-sm mb-0">' + parts.join('') + '</ul>';
-    navEl.querySelectorAll('a[data-page]').forEach(function(a) {
-      a.addEventListener('click', function(e) {
-        e.preventDefault();
-        var p = parseInt(a.getAttribute('data-page'), 10);
+
+    var info = '';
+    if (total > 0) {
+      var from = data.from || ((cur - 1) * data.per_page + 1);
+      var to   = data.to   || Math.min(from + (data.data || []).length - 1, total);
+      info = '<div class="bk-pagination-info">Showing <strong>' + from + '</strong>–<strong>' + to + '</strong> of <strong>' + total + '</strong></div>';
+    }
+
+    var btns = [];
+    btns.push('<button type="button" class="bk-page-btn" data-page="1" ' + (cur === 1 ? 'disabled' : '') + ' aria-label="First page"><i class="bi bi-chevron-double-left"></i></button>');
+    btns.push('<button type="button" class="bk-page-btn" data-page="' + Math.max(1, cur - 1) + '" ' + (cur === 1 ? 'disabled' : '') + ' aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>');
+
+    pageList().forEach(function(p) {
+      if (p === '…') {
+        btns.push('<span class="bk-page-ellipsis">…</span>');
+      } else {
+        btns.push('<button type="button" class="bk-page-btn bk-page-num ' + (p === cur ? 'active' : '') + '" data-page="' + p + '">' + p + '</button>');
+      }
+    });
+
+    btns.push('<button type="button" class="bk-page-btn" data-page="' + Math.min(last, cur + 1) + '" ' + (cur === last ? 'disabled' : '') + ' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>');
+    btns.push('<button type="button" class="bk-page-btn" data-page="' + last + '" ' + (cur === last ? 'disabled' : '') + ' aria-label="Last page"><i class="bi bi-chevron-double-right"></i></button>');
+
+    var infoHtml = (tab === 'history') ? info : ''; // upcoming/pending show info in top toolbar already
+    navEl.innerHTML = infoHtml + '<div class="bk-pagination-controls">' + btns.join('') + '</div>';
+    navEl.style.display = 'flex';
+
+    navEl.querySelectorAll('button[data-page]').forEach(function(b) {
+      b.addEventListener('click', function() {
+        if (b.disabled) return;
+        var p = parseInt(b.getAttribute('data-page'), 10);
+        if (!p || p === cur) return;
         if (tab === 'upcoming') loadUpcoming(p);
         else if (tab === 'pending') loadPending(p);
         else loadHistory(p);
+        // Scroll list back to top so user sees the new page from the top
+        var listEl = document.getElementById(tab === 'history' ? 'history-wrap' : tab + '-list');
+        if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
   }
