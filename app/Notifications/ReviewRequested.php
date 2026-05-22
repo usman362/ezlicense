@@ -66,7 +66,7 @@ class ReviewRequested extends Notification
         $supportUrl = $baseUrl . '/contact';
         $websiteUrl = $baseUrl;
         $facebookUrl = SiteSetting::get('facebook_url', 'https://www.facebook.com/SecureLicences');
-        $instagramUrl = SiteSetting::get('instagram_url', 'https://www.instagram.com/securelicences');
+        $instagramUrl = SiteSetting::get('instagram_url', 'https://www.instagram.com/securelicence');
 
         return (new MailMessage)
             ->subject('How was your booking?')

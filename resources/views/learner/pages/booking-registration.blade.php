@@ -228,7 +228,7 @@
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="marketing_opt_in" id="reg_marketing" value="1" @checked(old('marketing_opt_in', $sd['marketing_opt_in'] ?? false))>
                             <label class="form-check-label small" for="reg_marketing">
-                                I agree to receive occasional marketing communications and offers from Secure Licences.
+                                I agree to receive occasional marketing communications and offers from Secure Licence.
                             </label>
                         </div>
                         <div class="form-check">

@@ -40,7 +40,7 @@ class DocumentReviewed extends Notification
                 ->when($this->reviewerNotes, fn ($m) => $m->line('**Note from admin:** ' . $this->reviewerNotes))
                 ->action('View Your Documents', url('/instructor/settings/documents'))
                 ->line('You\'re one step closer to a fully active instructor profile. Keep up the great work!')
-                ->salutation('— The Secure Licences Team');
+                ->salutation('— The Secure Licence Team');
         }
 
         return (new MailMessage)
@@ -51,7 +51,7 @@ class DocumentReviewed extends Notification
             ->line('Please re-upload a valid version so we can complete your verification.')
             ->action('Re-upload Document', url('/instructor/settings/documents'))
             ->line('If you think this is a mistake or need help, please contact our support team.')
-            ->salutation('— The Secure Licences Team');
+            ->salutation('— The Secure Licence Team');
     }
 
     public function toArray($notifiable): array

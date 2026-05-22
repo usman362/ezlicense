@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Policies — Secure Licences')
+@section('title', 'Policies — Secure Licence')
 @section('content')
 <div class="bg-light py-3">
     <div class="container">
@@ -18,7 +18,7 @@
             <h1 class="display-5 fw-bold mb-3" style="color: var(--ez-dark);">Our Policies</h1>
             <p class="lead text-muted mx-auto" style="max-width:720px;">
                 Clear rules help everyone — learners, instructors, and our support team — feel safe on the platform.
-                These are the policies that keep Secure Licences fair and accountable.
+                These are the policies that keep Secure Licence fair and accountable.
             </p>
         </div>
 
@@ -108,7 +108,7 @@
                     <div class="card-body">
                         <div class="mb-3 text-secondary"><i class="bi bi-file-earmark-text fs-2"></i></div>
                         <h5 class="fw-bold">Terms & Conditions</h5>
-                        <p class="small text-muted mb-2">The binding agreement between you and Secure Licences Pty Ltd.</p>
+                        <p class="small text-muted mb-2">The binding agreement between you and Secure Licence Pty Ltd.</p>
                         <span class="small fw-semibold text-primary">Read terms <i class="bi bi-arrow-right"></i></span>
                     </div>
                 </a>

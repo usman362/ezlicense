@@ -51,7 +51,7 @@
             </div>
             <div class="col-md-7 text-md-start text-center">
                 <h2 class="ilc-section-title">Book a driving instructor in your area.</h2>
-                <p class="text-muted mb-0">Driving instructors on Secure Licences have helped thousands of driver's licence holders brush up on their skills.</p>
+                <p class="text-muted mb-0">Driving instructors on Secure Licence have helped thousands of driver's licence holders brush up on their skills.</p>
             </div>
         </div>
     </div>
@@ -100,11 +100,11 @@
     </div>
 </section>
 
-{{-- ─────────── How Secure Licences works ─────────── --}}
+{{-- ─────────── How Secure Licence works ─────────── --}}
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="ilc-section-title">How Secure Licences works</h2>
+            <h2 class="ilc-section-title">How Secure Licence works</h2>
             <p class="text-muted">Simple &amp; flexible booking system</p>
         </div>
         <div class="row g-5 align-items-center">
@@ -294,16 +294,16 @@
                 <div class="accordion ilc-faq" id="rl-faq">
                     @php
                         $faqs = [
-                            ['q' => 'How Much Do Driving Lessons Cost?', 'a' => 'Driving lesson prices vary by instructor and area. On Secure Licences, lessons typically start from $55–$85/hour. Multi-hour packages save more.'],
+                            ['q' => 'How Much Do Driving Lessons Cost?', 'a' => 'Driving lesson prices vary by instructor and area. On Secure Licence, lessons typically start from $55–$85/hour. Multi-hour packages save more.'],
                             ['q' => 'Do You Offer Any Special Lessons to Prepare for the Driving Test?', 'a' => 'Yes — our 2.5-hour Driving Test Package includes a pre-test warm-up lesson plus use of the instructor\'s vehicle for the test.'],
                             ['q' => 'How Many Driving Lessons Do I Need?', 'a' => 'Most refresher learners take between 2–5 hours of professional driving lessons. Your instructor will help assess your progress.'],
                             ['q' => 'Can Driving Lessons Count Towards My Logbook Hours?', 'a' => 'Yes — professional driving lessons count as 3-for-1 hours in your NSW logbook (up to 30 logged hours).'],
                             ['q' => 'What if there are no available Driving Instructors in my area?', 'a' => 'Try expanding your search radius or contact our support team — we are continually adding new instructors.'],
                             ['q' => 'Can I take Refresher Driving Lessons?', 'a' => 'Absolutely. Many of our instructors offer refresher lessons for licensed drivers returning to driving.'],
                             ['q' => 'Can I Change Instructors?', 'a' => 'Yes — you can switch instructors any time through your dashboard at no extra cost.'],
-                            ['q' => 'Is Secure Licences a Driving School?', 'a' => 'No, we are an online marketplace connecting learners with verified independent driving instructors across Australia.'],
+                            ['q' => 'Is Secure Licence a Driving School?', 'a' => 'No, we are an online marketplace connecting learners with verified independent driving instructors across Australia.'],
                             ['q' => 'Can I Book Driving Lessons to Learn How to Drive Manual?', 'a' => 'Yes — filter by Manual transmission when searching to find instructors offering manual lessons.'],
-                            ['q' => 'Where does Secure Licences offer driving lessons?', 'a' => 'We service 3,700+ suburbs across NSW, VIC, QLD, WA, SA, TAS and ACT.'],
+                            ['q' => 'Where does Secure Licence offer driving lessons?', 'a' => 'We service 3,700+ suburbs across NSW, VIC, QLD, WA, SA, TAS and ACT.'],
                         ];
                     @endphp
                     @foreach($faqs as $i => $f)
@@ -346,11 +346,11 @@
     </div>
 </section>
 
-{{-- ─────────── Why choose Secure Licences ─────────── --}}
+{{-- ─────────── Why choose Secure Licence ─────────── --}}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="ilc-section-title text-center mb-2">Why choose Secure Licences?</h2>
-        <p class="text-muted text-center mb-5">Unlike a typical driving school, Secure Licences is an Australian-first platform that allows learner drivers &amp; parents to find, compare and book verified driving instructors online.</p>
+        <h2 class="ilc-section-title text-center mb-2">Why choose Secure Licence?</h2>
+        <p class="text-muted text-center mb-5">Unlike a typical driving school, Secure Licence is an Australian-first platform that allows learner drivers &amp; parents to find, compare and book verified driving instructors online.</p>
 
         <div class="row g-4 text-center mb-5 ilc-stats-row">
             <div class="col-md-4">
@@ -397,10 +397,10 @@
     </div>
 </section>
 
-{{-- ─────────── The Secure Licences advantage ─────────── --}}
+{{-- ─────────── The Secure Licence advantage ─────────── --}}
 <section class="py-5">
     <div class="container">
-        <h2 class="ilc-section-title text-center mb-4">The Secure Licences advantage</h2>
+        <h2 class="ilc-section-title text-center mb-4">The Secure Licence advantage</h2>
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="accordion ilc-advantage" id="rl-adv">
@@ -427,7 +427,7 @@
 
                 <div class="ilc-faq-callout mt-4">
                     <h4 class="fw-bolder mb-2">How do I find private driving instructors near me?</h4>
-                    <p class="text-muted small mb-0">We know what it's like — life gets busy and getting back behind the wheel feels overwhelming. Whether you live in Sydney, Melbourne, Brisbane, Adelaide or beyond, Secure Licences makes it easy: search your suburb, browse local verified instructors and book online in under 60 seconds.</p>
+                    <p class="text-muted small mb-0">We know what it's like — life gets busy and getting back behind the wheel feels overwhelming. Whether you live in Sydney, Melbourne, Brisbane, Adelaide or beyond, Secure Licence makes it easy: search your suburb, browse local verified instructors and book online in under 60 seconds.</p>
                     <p class="text-muted small mt-3 mb-0">Whether you're brushing up after a few years, returning after an injury, or easing yourself back into the driver's seat, our platform connects you with instructors who fit your schedule, vehicle preference and learning style.</p>
                     <p class="small mt-3 mb-0"><a href="{{ route('blog.index') }}" class="fw-semibold">Learn more</a> about how to choose a driving instructor for you.</p>
                 </div>

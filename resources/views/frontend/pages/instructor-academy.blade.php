@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Secure Licences Instructor Academy — Training for Driving Instructors')
+@section('title', 'Secure Licence Instructor Academy — Training for Driving Instructors')
 
 @section('content')
 
@@ -24,7 +24,7 @@
             <div class="col-lg-8">
                 <span class="blog-hero-eyebrow"><i class="bi bi-mortarboard-fill me-1"></i>Training · Certification · Growth</span>
                 <h1 class="blog-hero-title">
-                    Secure Licences <span class="blog-hero-title-accent">Instructor Academy</span>
+                    Secure Licence <span class="blog-hero-title-accent">Instructor Academy</span>
                 </h1>
                 <p class="blog-hero-sub">
                     Everything you need to launch and grow a successful driving instruction career — from licence prep to advanced teaching techniques and business strategy.
@@ -81,7 +81,7 @@
                 ['bi-people-fill',       'Teaching techniques',         "Proven methods for nervous learners, advanced manoeuvres, test prep, and adapting to different learning styles."],
                 ['bi-shield-fill-check', 'Safety & compliance',         "Stay current with state road rules, dual-control vehicle safety, insurance requirements and incident handling."],
                 ['bi-graph-up-arrow',    'Business growth',             "Marketing your driving school, pricing strategy, client retention, scaling from solo to multi-instructor operations."],
-                ['bi-laptop',            'Platform mastery',            "Get the most from your Secure Licences profile — booking optimisation, review strategy, ranking higher in search."],
+                ['bi-laptop',            'Platform mastery',            "Get the most from your Secure Licence profile — booking optimisation, review strategy, ranking higher in search."],
                 ['bi-award-fill',        'Academy certification',       "Earn a verified Academy badge on your instructor profile. Higher trust = more bookings from new learners."],
             ] as [$ic, $title, $desc])
                 <div class="col-md-6 col-lg-4">
@@ -154,7 +154,7 @@
                 ['1', 'bi-check2-circle',   'Check eligibility',  'Full licence held 3+ years, clean driving record, willingness to complete a Working with Children Check and police check.'],
                 ['2', 'bi-mortarboard-fill','Complete training',   'Enrol in Certificate IV in Driving Instruction (Transport & Logistics) — our Academy preps you for it module by module.'],
                 ['3', 'bi-patch-check-fill','Get your licence',    "Apply to your state transport authority (Service NSW, VicRoads, etc.) for your driving instructor licence."],
-                ['4', 'bi-car-front-fill',  'Join Secure Licences','Sign up free, get verified, set your prices and availability, start accepting bookings.'],
+                ['4', 'bi-car-front-fill',  'Join Secure Licence','Sign up free, get verified, set your prices and availability, start accepting bookings.'],
             ] as [$num, $ic, $title, $desc])
                 <div class="col-md-6 col-lg-3 text-center">
                     <div class="iwu-step-num">{{ $num }}</div>
@@ -198,7 +198,7 @@
             <div class="col-lg-6">
                 <span class="blog-eyebrow"><i class="bi bi-award-fill me-1"></i>Academy certification</span>
                 <h2 class="cl-section-title mb-3">Stand out with a verified badge on your profile</h2>
-                <p class="text-muted">When you complete the Academy program and pass the final assessment, you earn the Secure Licences <strong>Academy Certified</strong> badge — displayed prominently on your public profile and in search results.</p>
+                <p class="text-muted">When you complete the Academy program and pass the final assessment, you earn the Secure Licence <strong>Academy Certified</strong> badge — displayed prominently on your public profile and in search results.</p>
                 <ul class="ia-cert-points">
                     <li><i class="bi bi-arrow-up-right-circle-fill"></i><strong>Higher search ranking</strong> — certified instructors get a boost in suburb search results.</li>
                     <li><i class="bi bi-arrow-up-right-circle-fill"></i><strong>Increased learner trust</strong> — the badge signals you've gone above standard requirements.</li>
@@ -254,7 +254,7 @@
                         ['What does enrolment cost?',                  'Pricing varies by intake. Contact our Academy team and we will send through current course fees, payment plans and any active scholarships for new instructors.'],
                         ['Do I need to be a driving instructor already?',"No — most Academy students enrol BEFORE getting their licence. The program is designed to take you from interested to fully qualified, then onto our platform."],
                         ['What if I fail the final assessment?',       'You get two free re-attempts on the final assessment. If you still need more time, we offer 1:1 coaching sessions with senior instructors at a small additional cost.'],
-                        ['Is the certification recognised by the government?', "The Academy certification is our internal mark of excellence, displayed on your Secure Licences profile. Your government driving instructor licence still comes from your state transport authority via the Certificate IV."],
+                        ['Is the certification recognised by the government?', "The Academy certification is our internal mark of excellence, displayed on your Secure Licence profile. Your government driving instructor licence still comes from your state transport authority via the Certificate IV."],
                     ] as $i => [$q, $a])
                         <div class="accordion-item">
                             <h3 class="accordion-header">

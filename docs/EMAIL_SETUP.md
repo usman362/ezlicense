@@ -8,7 +8,7 @@ This guide covers the complete email system for SecureLicences. All emails use a
 
 All emails use the **SecureLicences** custom theme located at:
 ```
-resources/views/vendor/mail/html/themes/securelicences.css
+resources/views/vendor/mail/html/themes/securelicence.css
 ```
 
 **Brand colors used in emails:**
@@ -107,8 +107,8 @@ MAIL_PORT=587
 MAIL_USERNAME=your-username
 MAIL_PASSWORD=your-password
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="noreply@securelicences.com.au"
-MAIL_FROM_NAME="Secure Licences"
+MAIL_FROM_ADDRESS="noreply@securelicence.com"
+MAIL_FROM_NAME="Secure Licence"
 ```
 
 ### 2. Common providers
@@ -262,7 +262,7 @@ php artisan tinker
 ## 🎨 Customizing Email Templates
 
 To change the look of all notification emails:
-1. Edit CSS at `resources/views/vendor/mail/html/themes/securelicences.css`
+1. Edit CSS at `resources/views/vendor/mail/html/themes/securelicence.css`
 2. Edit header at `resources/views/vendor/mail/html/header.blade.php`
 3. Edit footer at `resources/views/vendor/mail/html/footer.blade.php`
 4. Run `php artisan view:clear` if changes don't appear immediately
@@ -309,7 +309,7 @@ To change copy/text of a specific notification:
 
 ### Logo / styling broken
 - Run `php artisan view:clear` and `php artisan config:clear`
-- Verify `config/mail.php` has `'theme' => 'securelicences'`
+- Verify `config/mail.php` has `'theme' => 'securelicence'`
 
 ---
 

@@ -1,13 +1,13 @@
 @extends('frontend.policies.layout', [
     'policyTitle'   => 'Dispute Resolution Policy',
-    'policyLead'    => 'How disagreements between learners, instructors and Secure Licences are resolved fairly and in writing.',
+    'policyLead'    => 'How disagreements between learners, instructors and Secure Licence are resolved fairly and in writing.',
     'policyVersion' => '1.0',
 ])
 
 @section('policy-body')
 <div class="mb-4">
     <h4 class="fw-bold">1. When this policy applies</h4>
-    <p>This policy applies when you disagree with an outcome from Secure Licences — for example, the result of a complaint investigation, a refund decision, a warning on your profile, a suspension, or removal from the platform.</p>
+    <p>This policy applies when you disagree with an outcome from Secure Licence — for example, the result of a complaint investigation, a refund decision, a warning on your profile, a suspension, or removal from the platform.</p>
     <p>It also applies to disagreements between a learner and an instructor that the two of you have not been able to resolve directly.</p>
 </div>
 
@@ -17,8 +17,8 @@
 </div>
 
 <div class="mb-4">
-    <h4 class="fw-bold">3. Step 2 — Raise it with Secure Licences support</h4>
-    <p>If that does not work, or if your disagreement is with a decision Secure Licences has made, email <a href="mailto:support@securelicences.com.au">support@securelicences.com.au</a> with:</p>
+    <h4 class="fw-bold">3. Step 2 — Raise it with Secure Licence support</h4>
+    <p>If that does not work, or if your disagreement is with a decision Secure Licence has made, email <a href="mailto:support@securelicence.com">support@securelicence.com</a> with:</p>
     <ul>
         <li>Your name and the email on your account.</li>
         <li>The booking or complaint reference number.</li>
@@ -50,7 +50,7 @@
         <li>The <strong>police</strong> for matters involving safety, threats, or criminal conduct.</li>
         <li>A <strong>court or tribunal</strong> in your state or territory.</li>
     </ul>
-    <p>Going to an external body does not cost you anything at Secure Licences, and we will cooperate fully with any request for information from a lawful authority.</p>
+    <p>Going to an external body does not cost you anything at Secure Licence, and we will cooperate fully with any request for information from a lawful authority.</p>
 </div>
 
 <div class="mb-4">

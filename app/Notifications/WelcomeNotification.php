@@ -26,9 +26,9 @@ class WelcomeNotification extends Notification
         $isInstructor = $this->user->role === 'instructor';
 
         $msg = (new MailMessage)
-            ->subject('Welcome to Secure Licences, ' . $this->user->name . '!')
+            ->subject('Welcome to Secure Licence, ' . $this->user->name . '!')
             ->greeting('Hi ' . $this->user->name . ',')
-            ->line('Welcome to **Secure Licences** — Australia\'s #1 platform for finding verified driving instructors.');
+            ->line('Welcome to **Secure Licence** — Australia\'s #1 platform for finding verified driving instructors.');
 
         if ($isLearner) {
             $msg->line('You can now search for driving instructors, book lessons, and manage everything from your learner dashboard.')
@@ -56,14 +56,14 @@ class WelcomeNotification extends Notification
 
         return $msg
             ->line('If you have any questions, our support team is here to help.')
-            ->salutation('The Secure Licences Team');
+            ->salutation('The Secure Licence Team');
     }
 
     public function toArray($notifiable): array
     {
         return [
             'type' => 'welcome',
-            'title' => 'Welcome to Secure Licences!',
+            'title' => 'Welcome to Secure Licence!',
             'body' => 'Your account has been created. Explore the platform.',
             'user_id' => $this->user->id,
         ];

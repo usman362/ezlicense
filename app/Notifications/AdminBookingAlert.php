@@ -34,7 +34,7 @@ class AdminBookingAlert extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = SiteSetting::get('site_name', 'Secure Licences');
+        $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $b->loadMissing(['learner:id,name,email,phone', 'instructor:id,name,email,phone', 'suburb.state']);
 

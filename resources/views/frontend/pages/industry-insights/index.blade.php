@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Industry Insights — Driving Industry News, Trends & Analysis | Secure Licences')
+@section('title', 'Industry Insights — Driving Industry News, Trends & Analysis | Secure Licence')
 
 @section('content')
 

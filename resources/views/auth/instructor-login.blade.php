@@ -20,6 +20,6 @@
 
 @section('content')
 <h1 class="auth-form-title">Instructor Login</h1>
-<p class="text-muted mb-4">New to Secure Licences? <a href="{{ route('instruct-with-us') }}" class="auth-register-link">Become an instructor</a></p>
+<p class="text-muted mb-4">New to Secure Licence? <a href="{{ route('instruct-with-us') }}" class="auth-register-link">Become an instructor</a></p>
 @include('auth.partials.login-form')
 @endsection

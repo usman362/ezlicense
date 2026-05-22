@@ -39,9 +39,9 @@
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     <a href="{{ route('support') }}">Support</a>
                     <span class="divider">|</span>
-                    <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licences</a>
+                    <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licence</a>
                     <span class="divider">|</span>
-                    <a href="{{ route('instructor-academy') }}">Secure Licences Instructor Academy</a>
+                    <a href="{{ route('instructor-academy') }}">Secure Licence Instructor Academy</a>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -314,7 +314,7 @@
             <div class="footer-divider"></div>
 
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3" style="font-size:var(--sl-text-xs);color:var(--sl-gray-500);">
-                <span>&copy; {{ date('Y') }} Secure Licences Pty Ltd. All rights reserved.</span>
+                <span>&copy; {{ date('Y') }} Secure Licence Pty Ltd. All rights reserved.</span>
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <span><i class="bi bi-geo-alt me-1"></i>Australia</span>
                     <span>·</span>

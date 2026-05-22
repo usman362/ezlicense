@@ -31,7 +31,7 @@ class RefundProcessed extends Notification
         $date        = optional($b->scheduled_at)->format('l, j F Y');
         $time        = optional($b->scheduled_at)->format('g:i A');
         $methodLabel = match ($b->refund_method) {
-            'wallet'           => 'Secure Licences wallet credit',
+            'wallet'           => 'Secure Licence wallet credit',
             'original_payment' => 'Original payment method (card)',
             'manual_bank'      => 'Bank transfer',
             default            => 'Refund processed',
@@ -78,7 +78,7 @@ class RefundProcessed extends Notification
         }
 
         return $msg
-            ->line('Questions about this refund? Just reply to this email or contact our team at support@securelicences.com.au.')
-            ->salutation('Thanks — The Secure Licences team');
+            ->line('Questions about this refund? Just reply to this email or contact our team at support@securelicence.com.')
+            ->salutation('Thanks — The Secure Licence team');
     }
 }

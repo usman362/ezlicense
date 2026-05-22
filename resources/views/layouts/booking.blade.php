@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Book Your Driving Lessons') – Secure Licences</title>
+    <title>@yield('title', 'Book Your Driving Lessons') – Secure Licence</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -264,7 +264,7 @@
 
     {{-- ── Footer ──────────────────────────────────────────────── --}}
     <footer class="booking-footer">
-        <div>&copy; {{ date('Y') }} Secure Licences Pty Ltd · <a href="{{ route('terms') }}" class="text-muted">Terms</a> · <a href="{{ route('privacy') }}" class="text-muted">Privacy</a> · <a href="{{ route('contact') }}" class="text-muted">Support</a></div>
+        <div>&copy; {{ date('Y') }} Secure Licence Pty Ltd · <a href="{{ route('terms') }}" class="text-muted">Terms</a> · <a href="{{ route('privacy') }}" class="text-muted">Privacy</a> · <a href="{{ route('contact') }}" class="text-muted">Support</a></div>
     </footer>
 
     @stack('scripts')

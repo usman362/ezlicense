@@ -5,7 +5,7 @@
 @section('brand_content')
     <span class="auth-brand-eyebrow"><i class="bi bi-envelope-paper-fill me-1"></i>You're invited</span>
     <h1 class="auth-brand-headline">
-        Welcome to <span class="highlight">Secure Licences</span>.
+        Welcome to <span class="highlight">Secure Licence</span>.
     </h1>
     <p class="auth-brand-sub">
         Set your password below to create your instructor account. Next, you'll upload your documents for verification — most instructors finish in under 10 minutes.

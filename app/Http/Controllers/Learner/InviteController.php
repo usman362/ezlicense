@@ -73,7 +73,7 @@ class InviteController extends Controller
         // Check if recipient is already on the platform
         $existing = User::where('email', $email)->first();
         if ($existing) {
-            return back()->with('error', $email . ' is already a Secure Licences member.');
+            return back()->with('error', $email . ' is already a Secure Licence member.');
         }
 
         // Avoid duplicate pending invite to same email from same referrer

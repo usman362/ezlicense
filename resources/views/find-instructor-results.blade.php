@@ -133,7 +133,7 @@
     <div class="container">
         <div class="text-center mb-4">
             <h2 class="fw-bolder mb-2" style="font-size: 1.85rem; letter-spacing:-0.02em;">Learn to drive today!</h2>
-            <p class="text-muted mb-0">Join over 100,000+ learners driving with Secure Licences.</p>
+            <p class="text-muted mb-0">Join over 100,000+ learners driving with Secure Licence.</p>
         </div>
         <form action="{{ route('find-instructor.results') }}" method="get" id="cta-find-form" class="row g-3 align-items-end">
             <input type="hidden" name="suburb_id" id="cta-suburb-id" value="">

@@ -34,12 +34,12 @@ class InstructorInviteNotification extends Notification
         $genericNames = ['admin', 'administrator', 'system', ''];
         $inviterName = ($rawName && ! in_array(strtolower(trim($rawName)), $genericNames, true))
             ? $rawName
-            : 'The Secure Licences team';
+            : 'The Secure Licence team';
 
         $msg = (new MailMessage)
-            ->subject("You're invited to join Secure Licences as a driving instructor")
+            ->subject("You're invited to join Secure Licence as a driving instructor")
             ->greeting('Hi ' . ($this->invite->first_name ?: 'there') . ',')
-            ->line($inviterName . ' has invited you to join Secure Licences as a verified driving instructor — Australia\'s fastest-growing platform for driving schools.');
+            ->line($inviterName . ' has invited you to join Secure Licence as a verified driving instructor — Australia\'s fastest-growing platform for driving schools.');
 
         if ($this->invite->personal_note) {
             $msg->line('**A personal note for you:**')
@@ -50,7 +50,7 @@ class InstructorInviteNotification extends Notification
             ->line('Click the button below to set your password and start your account. After that you\'ll upload your driving instructor licence, WWCC and insurance — most instructors finish in under 10 minutes.')
             ->action('Accept invitation', $url)
             ->line('**This link is just for you.** It expires in ' . $expiryLabel . ' and can only be used once, so please don\'t forward it on.')
-            ->line('Questions? Just reply to this email, or reach out to our team at instructors@securelicences.com.au.')
-            ->salutation('Welcome aboard 👋  — The Secure Licences team');
+            ->line('Questions? Just reply to this email, or reach out to our team at instructors@securelicence.com.')
+            ->salutation('Welcome aboard 👋  — The Secure Licence team');
     }
 }

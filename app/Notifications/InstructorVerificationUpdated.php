@@ -27,7 +27,7 @@ class InstructorVerificationUpdated extends Notification
 
         return match ($this->status) {
             'verified' => (new MailMessage)
-                ->subject('Your Secure Licences Instructor Account Is Approved!')
+                ->subject('Your Secure Licence Instructor Account Is Approved!')
                 ->greeting("Congratulations, {$name}!")
                 ->line('Your instructor account has been **verified and approved** by our team.')
                 ->line('You can now start receiving bookings from learners across Australia.')
@@ -36,17 +36,17 @@ class InstructorVerificationUpdated extends Notification
                 ->line('• Review your profile and service areas')
                 ->line('• Confirm your availability schedule')
                 ->line('• Ensure your banking details are up to date')
-                ->line('Welcome to the Secure Licences instructor network!')
-                ->salutation('The Secure Licences Team'),
+                ->line('Welcome to the Secure Licence instructor network!')
+                ->salutation('The Secure Licence Team'),
 
             'rejected' => (new MailMessage)
-                ->subject('Update on Your Secure Licences Instructor Application')
+                ->subject('Update on Your Secure Licence Instructor Application')
                 ->greeting("Hi {$name},")
                 ->line('We\'ve reviewed your instructor application and unfortunately we\'re unable to approve it at this time.')
                 ->when($this->adminNotes, fn ($m) => $m->line('**Reason:** ' . $this->adminNotes))
                 ->line('If you believe this was in error or you have additional information to provide, please contact our support team.')
                 ->action('Contact Support', url('/contact'))
-                ->salutation('The Secure Licences Team'),
+                ->salutation('The Secure Licence Team'),
 
             'documents_submitted' => (new MailMessage)
                 ->subject('We\'ve Received Your Documents')
@@ -54,7 +54,7 @@ class InstructorVerificationUpdated extends Notification
                 ->line('We\'ve received your instructor documents and they are now under review.')
                 ->line('Our team will review your submission within 1–3 business days and notify you of the outcome.')
                 ->action('View Your Profile', url('/instructor/dashboard'))
-                ->salutation('The Secure Licences Team'),
+                ->salutation('The Secure Licence Team'),
 
             default => (new MailMessage)
                 ->subject('Instructor Verification Status Updated')
@@ -62,7 +62,7 @@ class InstructorVerificationUpdated extends Notification
                 ->line('Your instructor verification status has been updated to: **' . ucfirst(str_replace('_', ' ', $this->status)) . '**')
                 ->when($this->adminNotes, fn ($m) => $m->line('Notes: ' . $this->adminNotes))
                 ->action('View Dashboard', url('/instructor/dashboard'))
-                ->salutation('The Secure Licences Team'),
+                ->salutation('The Secure Licence Team'),
         };
     }
 

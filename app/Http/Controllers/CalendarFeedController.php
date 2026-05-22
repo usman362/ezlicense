@@ -26,7 +26,7 @@ class CalendarFeedController extends Controller
 
         return response($ics, 200)
             ->header('Content-Type', 'text/calendar; charset=utf-8')
-            ->header('Content-Disposition', 'inline; filename="securelicences-bookings.ics"')
+            ->header('Content-Disposition', 'inline; filename="securelicence-bookings.ics"')
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 

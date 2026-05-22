@@ -16,7 +16,7 @@ class IcsGenerator
 
         $start = Carbon::parse($booking->scheduled_at);
         $end = $start->copy()->addMinutes($booking->duration_minutes ?? 60);
-        $uid = 'booking-' . $booking->id . '@securelicences.com.au';
+        $uid = 'booking-' . $booking->id . '@securelicence.com';
 
         $learnerName = $booking->learner->name ?? 'Learner';
         $instructorName = $booking->instructor->name ?? 'Instructor';
@@ -51,7 +51,7 @@ class IcsGenerator
         foreach ($bookings as $booking) {
             $start = Carbon::parse($booking->scheduled_at);
             $end = $start->copy()->addMinutes($booking->duration_minutes ?? 60);
-            $uid = 'booking-' . $booking->id . '@securelicences.com.au';
+            $uid = 'booking-' . $booking->id . '@securelicence.com';
 
             $learnerName = $booking->learner->name ?? 'Learner';
             $suburbName = $booking->suburb->name ?? '';
@@ -68,10 +68,10 @@ class IcsGenerator
 
         return "BEGIN:VCALENDAR\r\n"
             . "VERSION:2.0\r\n"
-            . "PRODID:-//Secure Licences//Booking Calendar//EN\r\n"
+            . "PRODID:-//Secure Licence//Booking Calendar//EN\r\n"
             . "CALSCALE:GREGORIAN\r\n"
             . "METHOD:PUBLISH\r\n"
-            . "X-WR-CALNAME:Secure Licences Bookings\r\n"
+            . "X-WR-CALNAME:Secure Licence Bookings\r\n"
             . "X-WR-TIMEZONE:Australia/Sydney\r\n"
             . $events
             . "END:VCALENDAR\r\n";
@@ -94,7 +94,7 @@ class IcsGenerator
         foreach ($bookings as $booking) {
             $start = Carbon::parse($booking->scheduled_at);
             $end = $start->copy()->addMinutes($booking->duration_minutes ?? 60);
-            $uid = 'booking-' . $booking->id . '@securelicences.com.au';
+            $uid = 'booking-' . $booking->id . '@securelicence.com';
 
             $instructorName = $booking->instructor->name ?? 'Instructor';
             $suburbName = $booking->suburb->name ?? '';
@@ -110,7 +110,7 @@ class IcsGenerator
 
         return "BEGIN:VCALENDAR\r\n"
             . "VERSION:2.0\r\n"
-            . "PRODID:-//Secure Licences//Booking Calendar//EN\r\n"
+            . "PRODID:-//Secure Licence//Booking Calendar//EN\r\n"
             . "CALSCALE:GREGORIAN\r\n"
             . "METHOD:PUBLISH\r\n"
             . "X-WR-CALNAME:My Driving Lessons\r\n"
@@ -123,7 +123,7 @@ class IcsGenerator
     {
         return "BEGIN:VCALENDAR\r\n"
             . "VERSION:2.0\r\n"
-            . "PRODID:-//Secure Licences//Booking Calendar//EN\r\n"
+            . "PRODID:-//Secure Licence//Booking Calendar//EN\r\n"
             . "CALSCALE:GREGORIAN\r\n"
             . "METHOD:REQUEST\r\n"
             . self::buildEvent($uid, $start, $end, $summary, $description, $location, $stamp)

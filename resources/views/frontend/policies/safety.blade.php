@@ -7,12 +7,12 @@
 @section('policy-body')
 <div class="mb-4">
     <h4 class="fw-bold">1. Our safety commitment</h4>
-    <p>Driving lessons should be safe, professional, and comfortable for everyone. Secure Licences only accepts instructors who meet the state legal standards and our additional internal checks. We monitor safety on an ongoing basis and act quickly when a concern is raised.</p>
+    <p>Driving lessons should be safe, professional, and comfortable for everyone. Secure Licence only accepts instructors who meet the state legal standards and our additional internal checks. We monitor safety on an ongoing basis and act quickly when a concern is raised.</p>
 </div>
 
 <div class="mb-4">
     <h4 class="fw-bold">2. Instructor checks on joining</h4>
-    <p>Before an instructor can list on Secure Licences, they must upload and verify:</p>
+    <p>Before an instructor can list on Secure Licence, they must upload and verify:</p>
     <ul>
         <li><strong>Driver's Licence</strong> — front and back, with expiry date.</li>
         <li><strong>Driving Instructor's Licence</strong> — the accreditation issued by their state or territory.</li>
@@ -60,14 +60,14 @@
     <ol>
         <li>Pull over or end the lesson at the nearest safe location.</li>
         <li>Call emergency services on <strong>000</strong> if anyone is in immediate danger.</li>
-        <li>Report the incident to Secure Licences as soon as possible through the in-app report link or by emailing <a href="mailto:support@securelicences.com.au">support@securelicences.com.au</a>.</li>
+        <li>Report the incident to Secure Licence as soon as possible through the in-app report link or by emailing <a href="mailto:support@securelicence.com">support@securelicence.com</a>.</li>
     </ol>
     <p>We treat every safety report urgently and follow the process in our <a href="{{ route('policies.complaint-handling') }}">Complaint Handling Policy</a>.</p>
 </div>
 
 <div class="mb-4">
     <h4 class="fw-bold">7. Incident records</h4>
-    <p>Every safety incident reported to Secure Licences is added to our internal records. This allows us to see patterns, follow up on unresolved matters, and share information with the police or licensing authorities where legally required.</p>
+    <p>Every safety incident reported to Secure Licence is added to our internal records. This allows us to see patterns, follow up on unresolved matters, and share information with the police or licensing authorities where legally required.</p>
 </div>
 
 <div class="mb-4">

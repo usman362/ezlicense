@@ -164,7 +164,7 @@
                         <i class="bi bi-envelope"></i>
                         <div>
                             <strong>Email</strong>
-                            <a href="mailto:instructors@securelicences.com.au">instructors@securelicences.com.au</a>
+                            <a href="mailto:instructors@securelicence.com">instructors@securelicence.com</a>
                         </div>
                     </li>
                     <li>

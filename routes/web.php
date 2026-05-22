@@ -46,7 +46,7 @@ Route::get('/instructors/{instructorProfile}', function (App\Models\InstructorPr
 })->name('instructors.show');
 
 // Public shareable profile URL — instructors can put this on their CV / WhatsApp / socials
-// Example: https://securelicences.com.au/i/john-smith
+// Example: https://securelicence.com/i/john-smith
 Route::get('/i/{slug}', function (string $slug) {
     $instructorProfile = App\Models\InstructorProfile::where('public_slug', $slug)
         ->with(['user', 'serviceAreas'])

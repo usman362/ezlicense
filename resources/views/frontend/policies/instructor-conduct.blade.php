@@ -1,13 +1,13 @@
 @extends('frontend.policies.layout', [
     'policyTitle'   => 'Instructor Code of Conduct',
-    'policyLead'    => 'Professional standards every Secure Licences instructor agrees to when joining the platform.',
+    'policyLead'    => 'Professional standards every Secure Licence instructor agrees to when joining the platform.',
     'policyVersion' => '1.0',
 ])
 
 @section('policy-body')
 <div class="mb-4">
     <h4 class="fw-bold">1. Who this applies to</h4>
-    <p>This Code applies to every driving instructor listed on Secure Licences. By activating a profile and accepting a booking, you agree to follow it for every lesson you conduct through our platform.</p>
+    <p>This Code applies to every driving instructor listed on Secure Licence. By activating a profile and accepting a booking, you agree to follow it for every lesson you conduct through our platform.</p>
 </div>
 
 <div class="mb-4">
@@ -33,10 +33,10 @@
 <div class="mb-4">
     <h4 class="fw-bold">4. Communication outside lessons</h4>
     <ul>
-        <li>Where possible, communicate with learners through the Secure Licences platform so all correspondence is logged.</li>
+        <li>Where possible, communicate with learners through the Secure Licence platform so all correspondence is logged.</li>
         <li>If a learner is under 18, keep all communication professional and limit it to lesson coordination.</li>
         <li>Do not add learners on personal social media. Do not send non-lesson-related messages.</li>
-        <li>If a learner behaves inappropriately toward you, stop the lesson, document what happened and report it to Secure Licences the same day.</li>
+        <li>If a learner behaves inappropriately toward you, stop the lesson, document what happened and report it to Secure Licence the same day.</li>
     </ul>
 </div>
 
@@ -54,7 +54,7 @@
     <h4 class="fw-bold">6. Honesty on the platform</h4>
     <ul>
         <li>Keep your profile details, pricing, service areas and availability accurate.</li>
-        <li>Do not request payment outside the platform for lessons booked through Secure Licences.</li>
+        <li>Do not request payment outside the platform for lessons booked through Secure Licence.</li>
         <li>Do not ask a learner to remove or alter a legitimate review.</li>
         <li>Do not create additional accounts or impersonate another instructor.</li>
     </ul>
@@ -68,7 +68,7 @@
 
 <div class="mb-4">
     <h4 class="fw-bold">8. Consequences of breaching this Code</h4>
-    <p>Depending on the severity of a breach, Secure Licences may take one or more of the following actions:</p>
+    <p>Depending on the severity of a breach, Secure Licence may take one or more of the following actions:</p>
     <ul>
         <li>A written warning recorded on your profile.</li>
         <li>Temporary suspension of your profile (for example, 30, 60 or 90 days).</li>

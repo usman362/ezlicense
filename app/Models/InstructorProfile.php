@@ -387,7 +387,7 @@ class InstructorProfile extends Model
     }
 
     /**
-     * Pretty public profile URL — e.g. https://securelicences.com.au/i/john-smith
+     * Pretty public profile URL — e.g. https://securelicence.com/i/john-smith
      * Falls back to the numeric route if no slug is set yet.
      */
     public function publicUrl(): string

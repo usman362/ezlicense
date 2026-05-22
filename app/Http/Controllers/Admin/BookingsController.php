@@ -80,7 +80,7 @@ class BookingsController extends Controller
 
     /**
      * Issue a refund on a booking. Admin chooses method:
-     *   - wallet           → instant credit to learner's Secure Licences wallet
+     *   - wallet           → instant credit to learner's Secure Licence wallet
      *   - original_payment → manual: card refund processed externally (Stripe/etc.); just records the reference
      *   - manual_bank      → manual: bank transfer outside platform; just records the reference
      *

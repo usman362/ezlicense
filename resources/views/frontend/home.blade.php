@@ -75,7 +75,7 @@
     </div>
 </section>
 
-{{-- Why choose Secure Licences --}}
+{{-- Why choose Secure Licence --}}
 <section class="section bg-white position-relative">
     <div class="container">
         <div class="text-center mb-5">
@@ -130,13 +130,13 @@
     </div>
 </section>
 
-{{-- How Secure Licences works --}}
+{{-- How Secure Licence works --}}
 <section class="section position-relative" style="background: linear-gradient(180deg, var(--sl-gray-50) 0%, #fff 100%);">
     <div class="bg-dots position-absolute" style="top:0; left:0; right:0; height:100%; opacity:0.4; pointer-events:none;"></div>
     <div class="container position-relative">
         <div class="text-center mb-5">
             <span class="badge bg-accent-subtle text-accent px-3 py-2 mb-2" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Simple · Trusted · Flexible</span>
-            <h2 class="display-5 fw-bolder mb-2">How Secure Licences works</h2>
+            <h2 class="display-5 fw-bolder mb-2">How Secure Licence works</h2>
             <p class="text-muted" style="font-size: 1.1rem;">From search to licence in three easy steps.</p>
         </div>
         <div class="row g-4 position-relative">
@@ -176,7 +176,7 @@
         <div class="text-center mb-5">
             <span class="badge bg-primary-subtle text-primary-dark px-3 py-2 mb-2" style="font-size: var(--sl-text-xs); letter-spacing:0.08em; text-transform:uppercase;">Testimonials</span>
             <h2 class="display-5 fw-bolder mb-2">Loved by 100,000+ learners</h2>
-            <p class="text-muted" style="font-size: 1.1rem;">Real stories from learners who passed with Secure Licences.</p>
+            <p class="text-muted" style="font-size: 1.1rem;">Real stories from learners who passed with Secure Licence.</p>
         </div>
         <div id="testimonialsCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -324,7 +324,7 @@
                 </h3>
                 <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body text-muted">
-                        Driving lesson prices on Secure Licences are set by each instructor, so they can vary depending on where you're located, your chosen transmission (manual or auto), and the instructor you select. Enter your suburb in our search tool and compare lesson costs instantly. You'll see available instructors, their pricing, ratings, and car details — all in one spot. Bonus: Save when you book a lesson package.
+                        Driving lesson prices on Secure Licence are set by each instructor, so they can vary depending on where you're located, your chosen transmission (manual or auto), and the instructor you select. Enter your suburb in our search tool and compare lesson costs instantly. You'll see available instructors, their pricing, ratings, and car details — all in one spot. Bonus: Save when you book a lesson package.
                     </div>
                 </div>
             </div>
@@ -360,11 +360,11 @@
             </div>
             <div class="accordion-item">
                 <h3 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">Is Secure Licences a Driving School?</button>
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">Is Secure Licence a Driving School?</button>
                 </h3>
                 <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body text-muted">
-                        Secure Licences is an online platform that connects you with verified, independent driving instructors across Australia. Unlike a traditional driving school, you can find and compare instructors, view real-time availability, book online 24/7, and change your instructor anytime. Each instructor runs their own business — all in one place.
+                        Secure Licence is an online platform that connects you with verified, independent driving instructors across Australia. Unlike a traditional driving school, you can find and compare instructors, view real-time availability, book online 24/7, and change your instructor anytime. Each instructor runs their own business — all in one place.
                     </div>
                 </div>
             </div>
@@ -382,7 +382,7 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <h3 class="h5 card-title fw-bold">11 Tips for Choosing a Good Driving Instructor</h3>
-                        <p class="small text-muted mb-0">Secure Licences · 7 November 2018</p>
+                        <p class="small text-muted mb-0">Secure Licence · 7 November 2018</p>
                         <a href="{{ route('blog.index') }}" class="btn btn-outline-warning btn-sm mt-2">Read more</a>
                     </div>
                 </div>
@@ -392,11 +392,11 @@
     </div>
 </section>
 
-{{-- Why choose Secure Licences --}}
+{{-- Why choose Secure Licence --}}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center fw-bold mb-2">Why choose Secure Licences?</h2>
-        <p class="text-center text-muted mb-4">Unlike a typical driving school, Secure Licences is an Australian first platform that allows learner drivers & parents to find, compare and book verified driving instructors online.</p>
+        <h2 class="text-center fw-bold mb-2">Why choose Secure Licence?</h2>
+        <p class="text-center text-muted mb-4">Unlike a typical driving school, Secure Licence is an Australian first platform that allows learner drivers & parents to find, compare and book verified driving instructors online.</p>
         <div class="row g-4 mb-4">
             <div class="col-md-4 text-center">
                 <span class="display-5 fw-bold text-warning d-block">1000+</span>
@@ -427,11 +427,11 @@
     </div>
 </section>
 
-{{-- The Secure Licences advantage (accordion) --}}
+{{-- The Secure Licence advantage (accordion) --}}
 <section class="py-5 bg-white">
     <div class="container">
-        <h2 class="text-center fw-bold mb-4">The Secure Licences advantage</h2>
-        <p class="text-center text-muted mb-4">Enjoy a seamless, flexible, and convenient way to book and manage your driving lessons with Secure Licences.</p>
+        <h2 class="text-center fw-bold mb-4">The Secure Licence advantage</h2>
+        <p class="text-center text-muted mb-4">Enjoy a seamless, flexible, and convenient way to book and manage your driving lessons with Secure Licence.</p>
         <div class="accordion col-lg-8 mx-auto" id="advantageAccordion">
             <div class="accordion-item">
                 <h3 class="accordion-header">
@@ -439,7 +439,7 @@
                 </h3>
                 <div id="adv1" class="accordion-collapse collapse show" data-bs-parent="#advantageAccordion">
                     <div class="accordion-body">
-                        Booking driving lessons through Secure Licences is a quick and hassle free process that gives you all the choice and control. Why deal with traditional Driving Schools over the phone or by email when you can manage your driving instructor choice & book driving lessons yourself anywhere, and at any time through our secure online platform?
+                        Booking driving lessons through Secure Licence is a quick and hassle free process that gives you all the choice and control. Why deal with traditional Driving Schools over the phone or by email when you can manage your driving instructor choice & book driving lessons yourself anywhere, and at any time through our secure online platform?
                     </div>
                 </div>
             </div>
@@ -469,7 +469,7 @@
                 </h3>
                 <div id="adv4" class="accordion-collapse collapse" data-bs-parent="#advantageAccordion">
                     <div class="accordion-body">
-                        Secure Licences provides access to more than 1000+ fully qualified driving instructors across Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart and beyond. All driving instructors are required to have a current, valid clearance for working with children, and vehicles equipped with dual control pedals for added safety.
+                        Secure Licence provides access to more than 1000+ fully qualified driving instructors across Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart and beyond. All driving instructors are required to have a current, valid clearance for working with children, and vehicles equipped with dual control pedals for added safety.
                     </div>
                 </div>
             </div>
@@ -479,7 +479,7 @@
                 </h3>
                 <div id="adv5" class="accordion-collapse collapse" data-bs-parent="#advantageAccordion">
                     <div class="accordion-body">
-                        Thanks to our comprehensive driving instructor service area coverage, you can choose your pickup location from anywhere in Sydney, Melbourne, Brisbane, Adelaide, Perth, Hobart and surrounding areas. Secure Licences proudly services over 3700+ suburbs across NSW, VIC, QLD, SA, TAS, WA and ACT.
+                        Thanks to our comprehensive driving instructor service area coverage, you can choose your pickup location from anywhere in Sydney, Melbourne, Brisbane, Adelaide, Perth, Hobart and surrounding areas. Secure Licence proudly services over 3700+ suburbs across NSW, VIC, QLD, SA, TAS, WA and ACT.
                     </div>
                 </div>
             </div>

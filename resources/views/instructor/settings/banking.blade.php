@@ -191,7 +191,7 @@
                     <i class="bi bi-shield-lock-fill"></i>
                     <div>
                         Bank account details cannot be edited after submission for security reasons.
-                        Visit our <a href="https://support.securelicences.com.au/au" target="_blank" rel="noopener">support centre</a> to request a change.
+                        Visit our <a href="https://support.securelicence.com/au" target="_blank" rel="noopener">support centre</a> to request a change.
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lesson Confirmation – Secure Licences</title>
+    <title>Lesson Confirmation – Secure Licence</title>
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -239,12 +239,12 @@
 
         <div class="footer-note">
             @if($status === 'pending')
-                Having an issue? <a href="mailto:support@securelicences.com.au">Contact Support</a> instead.
+                Having an issue? <a href="mailto:support@securelicence.com">Contact Support</a> instead.
                 <br>Your confirmation is recorded as proof that this service was delivered.
             @elseif($status === 'invalid')
-                <a href="mailto:support@securelicences.com.au">Contact Support</a>
+                <a href="mailto:support@securelicence.com">Contact Support</a>
             @else
-                <a href="{{ url('/') }}">Return to Secure Licences</a>
+                <a href="{{ url('/') }}">Return to Secure Licence</a>
             @endif
         </div>
     </div>

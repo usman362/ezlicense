@@ -36,7 +36,7 @@ class BookingCancelled extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = SiteSetting::get('site_name', 'Secure Licences');
+        $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
         $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
@@ -70,7 +70,7 @@ class BookingCancelled extends Notification
             $cancelFee    = max(0, (float) $b->amount - (float) $b->refund_amount);
             $cancelFeeFmt = number_format($cancelFee, 2);
             $methodLabel  = match ($b->refund_method) {
-                'wallet'           => 'Secure Licences wallet credit',
+                'wallet'           => 'Secure Licence wallet credit',
                 'original_payment' => 'Original payment method (card)',
                 'manual_bank'      => 'Bank transfer',
                 default            => 'Refund processed',

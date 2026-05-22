@@ -30,9 +30,9 @@ function renderPrices() {
   const tp = profileData.test_package_price ?? 0;
   const tpp = profileData.test_package_price_private ?? tp;
 
-  document.getElementById('lesson-securelicences-display').textContent = formatPrice(lp);
+  document.getElementById('lesson-securelicence-display').textContent = formatPrice(lp);
   document.getElementById('lesson-private-display').textContent = formatPrice(lpp);
-  document.getElementById('test-securelicences-display').textContent = formatPrice(tp);
+  document.getElementById('test-securelicence-display').textContent = formatPrice(tp);
   document.getElementById('test-private-display').textContent = formatPrice(tpp);
 }
 
@@ -68,14 +68,14 @@ async function load() {
   document.getElementById('pricing-content').style.display = 'block';
   renderPrices();
 
-  document.querySelector('.lesson-securelicences-edit').addEventListener('click', () => {
-    showEdit('lesson-securelicences-display', 'lesson-securelicences-edit-wrap', 'lesson-securelicences-input', profileData.lesson_price);
+  document.querySelector('.lesson-securelicence-edit').addEventListener('click', () => {
+    showEdit('lesson-securelicence-display', 'lesson-securelicence-edit-wrap', 'lesson-securelicence-input', profileData.lesson_price);
   });
-  document.querySelector('.lesson-securelicences-save').addEventListener('click', () => {
-    savePrice('lesson_price', document.getElementById('lesson-securelicences-input').value, 'lesson-securelicences-display', 'lesson-securelicences-edit-wrap', 'lesson-securelicences-input');
+  document.querySelector('.lesson-securelicence-save').addEventListener('click', () => {
+    savePrice('lesson_price', document.getElementById('lesson-securelicence-input').value, 'lesson-securelicence-display', 'lesson-securelicence-edit-wrap', 'lesson-securelicence-input');
   });
-  document.querySelector('.lesson-securelicences-cancel').addEventListener('click', () => {
-    hideEdit('lesson-securelicences-display', 'lesson-securelicences-edit-wrap');
+  document.querySelector('.lesson-securelicence-cancel').addEventListener('click', () => {
+    hideEdit('lesson-securelicence-display', 'lesson-securelicence-edit-wrap');
   });
 
   document.querySelector('.lesson-private-edit').addEventListener('click', () => {
@@ -88,14 +88,14 @@ async function load() {
     hideEdit('lesson-private-display', 'lesson-private-edit-wrap');
   });
 
-  document.querySelector('.test-securelicences-edit').addEventListener('click', () => {
-    showEdit('test-securelicences-display', 'test-securelicences-edit-wrap', 'test-securelicences-input', profileData.test_package_price);
+  document.querySelector('.test-securelicence-edit').addEventListener('click', () => {
+    showEdit('test-securelicence-display', 'test-securelicence-edit-wrap', 'test-securelicence-input', profileData.test_package_price);
   });
-  document.querySelector('.test-securelicences-save').addEventListener('click', () => {
-    savePrice('test_package_price', document.getElementById('test-securelicences-input').value, 'test-securelicences-display', 'test-securelicences-edit-wrap', 'test-securelicences-input');
+  document.querySelector('.test-securelicence-save').addEventListener('click', () => {
+    savePrice('test_package_price', document.getElementById('test-securelicence-input').value, 'test-securelicence-display', 'test-securelicence-edit-wrap', 'test-securelicence-input');
   });
-  document.querySelector('.test-securelicences-cancel').addEventListener('click', () => {
-    hideEdit('test-securelicences-display', 'test-securelicences-edit-wrap');
+  document.querySelector('.test-securelicence-cancel').addEventListener('click', () => {
+    hideEdit('test-securelicence-display', 'test-securelicence-edit-wrap');
   });
 
   document.querySelector('.test-private-edit').addEventListener('click', () => {

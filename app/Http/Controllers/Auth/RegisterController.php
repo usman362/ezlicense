@@ -84,7 +84,7 @@ class RegisterController extends Controller
             'role' => ['required', 'in:learner'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'role.in' => 'Instructor accounts are by invitation only. Please contact us at instructors@securelicences.com.au to request an invite.',
+            'role.in' => 'Instructor accounts are by invitation only. Please contact us at instructors@securelicence.com to request an invite.',
         ]);
     }
 

@@ -1,13 +1,13 @@
 @extends('frontend.policies.layout', [
     'policyTitle'   => 'Learner Code of Conduct',
-    'policyLead'    => 'The standards every learner agrees to when booking a lesson through Secure Licences.',
+    'policyLead'    => 'The standards every learner agrees to when booking a lesson through Secure Licence.',
     'policyVersion' => '1.0',
 ])
 
 @section('policy-body')
 <div class="mb-4">
     <h4 class="fw-bold">1. Who this applies to</h4>
-    <p>This Code applies to every learner who creates an account on Secure Licences and books a driving lesson, test package, or any other service through our platform.</p>
+    <p>This Code applies to every learner who creates an account on Secure Licence and books a driving lesson, test package, or any other service through our platform.</p>
 </div>
 
 <div class="mb-4">
@@ -56,7 +56,7 @@
         <li>Reviews must be based on your actual experience with the instructor named.</li>
         <li>Do not submit reviews that contain abusive language, threats, discriminatory remarks or false factual claims.</li>
         <li>Do not submit reviews in exchange for a discount or any other benefit.</li>
-        <li>Secure Licences may moderate, hide or remove reviews that breach this policy.</li>
+        <li>Secure Licence may moderate, hide or remove reviews that breach this policy.</li>
     </ul>
 </div>
 

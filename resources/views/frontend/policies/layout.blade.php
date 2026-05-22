@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', ($policyTitle ?? 'Policy') . ' — Secure Licences')
+@section('title', ($policyTitle ?? 'Policy') . ' — Secure Licence')
 @section('content')
 <div class="bg-light py-3">
     <div class="container">

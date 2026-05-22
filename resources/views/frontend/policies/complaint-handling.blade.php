@@ -1,13 +1,13 @@
 @extends('frontend.policies.layout', [
     'policyTitle'   => 'Complaint Handling Policy',
-    'policyLead'    => 'How Secure Licences investigates complaints fairly and protects both learners and instructors.',
+    'policyLead'    => 'How Secure Licence investigates complaints fairly and protects both learners and instructors.',
     'policyVersion' => '1.0',
 ])
 
 @section('policy-body')
 <div class="mb-4">
     <h4 class="fw-bold">1. Our commitment</h4>
-    <p>Secure Licences takes every complaint seriously — whether it comes from a learner, a parent, an instructor, or a third party. We investigate each report thoroughly, impartially, and with respect for everyone involved.</p>
+    <p>Secure Licence takes every complaint seriously — whether it comes from a learner, a parent, an instructor, or a third party. We investigate each report thoroughly, impartially, and with respect for everyone involved.</p>
     <p>We also recognise that not every complaint is accurate. An instructor deserves the same fairness as the person making the complaint. This policy exists so that nobody — learner or instructor — is judged without the facts being properly checked.</p>
 </div>
 
@@ -29,7 +29,7 @@
     <p>You can submit a complaint in any of these ways:</p>
     <ul>
         <li><strong>In-app:</strong> Use the "Report an issue" option on the booking page.</li>
-        <li><strong>Email:</strong> <a href="mailto:support@securelicences.com.au">support@securelicences.com.au</a></li>
+        <li><strong>Email:</strong> <a href="mailto:support@securelicence.com">support@securelicence.com</a></li>
         <li><strong>Phone:</strong> via the number listed on our <a href="{{ route('contact') }}">Contact page</a>. Calls may be recorded for quality and investigation purposes, with your prior consent.</li>
     </ul>
     <p>Please include: the booking ID, the date and time of the incident, what happened, and any evidence you have (photos, screenshots, messages).</p>
@@ -101,7 +101,7 @@
 
 <div class="mb-4">
     <h4 class="fw-bold">9. Confidentiality</h4>
-    <p>Everything said during an investigation stays within the Secure Licences support team unless:</p>
+    <p>Everything said during an investigation stays within the Secure Licence support team unless:</p>
     <ul>
         <li>You give us permission to share it with the other party;</li>
         <li>Disclosure is required by law;</li>
@@ -112,6 +112,6 @@
 
 <div class="mb-4">
     <h4 class="fw-bold">10. Free to use</h4>
-    <p>There is no cost to lodge or pursue a complaint through Secure Licences. You never need a lawyer to raise an issue with us.</p>
+    <p>There is no cost to lodge or pursue a complaint through Secure Licence. You never need a lawyer to raise an issue with us.</p>
 </div>
 @endsection

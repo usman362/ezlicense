@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Become a Driving Instructor — Instruct with Secure Licences')
+@section('title', 'Become a Driving Instructor — Instruct with Secure Licence')
 
 @section('content')
 
@@ -24,7 +24,7 @@
             <div class="col-lg-8">
                 <span class="blog-hero-eyebrow"><i class="bi bi-person-badge me-1"></i>For Driving Instructors</span>
                 <h1 class="blog-hero-title">
-                    Grow your driving school with <span class="blog-hero-title-accent">Secure Licences</span>
+                    Grow your driving school with <span class="blog-hero-title-accent">Secure Licence</span>
                 </h1>
                 <p class="blog-hero-sub">
                     Join Australia's fastest-growing platform for driving instructors. More bookings, less admin — manage your schedule, payments and learners from one place.
@@ -45,7 +45,7 @@
 {{-- ─────────── STATS STRIP ─────────── --}}
 <section class="py-5">
     <div class="container">
-        <h2 class="cl-section-title text-center mb-4">Why instructors love Secure Licences</h2>
+        <h2 class="cl-section-title text-center mb-4">Why instructors love Secure Licence</h2>
         <div class="row g-4 cl-stats-row">
             <div class="col-6 col-md-3 text-center">
                 <div class="cl-stat-num">1,000+</div>

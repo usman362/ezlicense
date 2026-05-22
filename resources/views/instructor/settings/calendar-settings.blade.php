@@ -42,7 +42,7 @@
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Between Secure Licences &amp; synced events</label>
+                    <label class="form-label">Between Secure Licence &amp; synced events</label>
                     <select name="travel_buffer_synced_mins" class="form-select">
                         <option value="0">No buffer</option>
                         <option value="15">15 mins</option>

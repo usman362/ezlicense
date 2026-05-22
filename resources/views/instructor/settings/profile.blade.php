@@ -9,7 +9,7 @@
 @include('instructor.settings.partials.header', [
     'current'     => 'profile',
     'title'       => 'Public Profile',
-    'description' => 'How learners see you on Secure Licences — your bio, photo, languages and credentials.',
+    'description' => 'How learners see you on Secure Licence — your bio, photo, languages and credentials.',
 ])
 
 <div class="card border-0 shadow-sm">
@@ -120,8 +120,8 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Secure Licences Marketplace</label>
-                <p class="small text-muted mb-2">Your profile is discoverable by Learners on Secure Licences marketplace search results.</p>
+                <label class="form-label">Secure Licence Marketplace</label>
+                <p class="small text-muted mb-2">Your profile is discoverable by Learners on Secure Licence marketplace search results.</p>
                 <div class="form-check form-switch">
                     <input type="checkbox" name="is_active" class="form-check-input" id="profile-marketplace" value="1">
                     <label class="form-check-label" for="profile-marketplace">Discoverable on marketplace</label>

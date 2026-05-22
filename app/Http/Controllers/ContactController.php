@@ -42,7 +42,7 @@ class ContactController extends Controller
         ]);
 
         // Send notification email to admin
-        $adminEmail = SiteSetting::get('support_email', 'support@securelicences.com.au');
+        $adminEmail = SiteSetting::get('support_email', 'support@securelicence.com');
 
         try {
             Mail::raw(

@@ -32,9 +32,9 @@ class InstructorLearnerInviteNotification extends Notification
         $acceptUrl = $this->invite->acceptUrl();
 
         $msg = (new MailMessage)
-            ->subject($this->instructor->name . ' invited you to book driving lessons on Secure Licences')
+            ->subject($this->instructor->name . ' invited you to book driving lessons on Secure Licence')
             ->greeting('Hi ' . $name . ',')
-            ->line('**' . $this->instructor->name . '** has invited you to book driving lessons through **Secure Licences** — Australia\'s #1 platform for verified driving instructors.');
+            ->line('**' . $this->instructor->name . '** has invited you to book driving lessons through **Secure Licence** — Australia\'s #1 platform for verified driving instructors.');
 
         if ($this->invite->personal_message) {
             $msg->line('---')
@@ -51,6 +51,6 @@ class InstructorLearnerInviteNotification extends Notification
             ->line('• Pay securely online — no cash needed')
             ->line('• Get reminders and track your lessons in your dashboard')
             ->line('This invite expires in 30 days. If you have any questions, just reply to this email.')
-            ->salutation('Drive safe — The Secure Licences Team');
+            ->salutation('Drive safe — The Secure Licence Team');
     }
 }

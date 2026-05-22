@@ -31,8 +31,8 @@ Australia's #1 platform for finding verified driving instructors.
 
 {{-- Copyright --}}
 <p style="margin: 16px 0 0; font-size: 11px; color: #9c9b97;">
-&copy; {{ date('Y') }} Secure Licences Pty Ltd. All rights reserved.<br>
-You received this email because you have an account with Secure Licences. <br>
+&copy; {{ date('Y') }} Secure Licence Pty Ltd. All rights reserved.<br>
+You received this email because you have an account with Secure Licence. <br>
 <a href="{{ url('/contact') }}" style="color: #9c9b97; text-decoration: underline;">Manage email preferences</a>
 </p>
 </td>

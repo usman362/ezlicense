@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Free Practice Learners Tests Online — Secure Licences')
+@section('title', 'Free Practice Learners Tests Online — Secure Licence')
 
 @section('content')
 
@@ -9,7 +9,7 @@
     <div class="container position-relative">
         <nav aria-label="breadcrumb" class="pt-hero-breadcrumb mb-3">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Secure Licences</a></li>
+                <li class="breadcrumb-item"><a href="{{ url('/') }}">Secure Licence</a></li>
                 <li class="breadcrumb-item active">Learner Test</li>
             </ol>
         </nav>
@@ -36,7 +36,7 @@
         <div class="pt-fb-row">
             <div class="pt-fb-icon"><i class="bi bi-facebook"></i></div>
             <div class="pt-fb-text">Like our page to receive regular learner test questions &amp; driving lesson discounts.</div>
-            <a href="https://www.facebook.com/securelicences" target="_blank" rel="noopener" class="pt-fb-btn">
+            <a href="https://www.facebook.com/securelicence" target="_blank" rel="noopener" class="pt-fb-btn">
                 <i class="bi bi-hand-thumbs-up-fill"></i> Like
             </a>
         </div>
@@ -89,7 +89,7 @@
 <section class="pt-bottom-cta">
     <div class="container text-center">
         <p class="pt-bottom-text">
-            Secure Licences gives you the resources and training you need to confidently get your driver's licence. Practice your learner test, find verified instructors, and book your lessons online — all from one place. If you want the best chance at passing your learner test first time, start with Secure Licences.
+            Secure Licence gives you the resources and training you need to confidently get your driver's licence. Practice your learner test, find verified instructors, and book your lessons online — all from one place. If you want the best chance at passing your learner test first time, start with Secure Licence.
         </p>
         <a href="{{ route('find-instructor') }}" class="btn btn-warning fw-bold btn-lg px-4 mt-2">
             Book driving lessons online <i class="bi bi-chevron-right ms-1"></i>

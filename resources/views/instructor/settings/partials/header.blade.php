@@ -4,7 +4,7 @@
         @include('instructor.settings.partials.header', [
             'current'     => 'pricing',                  // route slug
             'title'       => 'Lesson & Package Pricing',
-            'description' => 'Set your hourly rates and discount tiers for both Secure Licences and Private learners.',
+            'description' => 'Set your hourly rates and discount tiers for both Secure Licence and Private learners.',
             'icon'        => 'bi-tag-fill',              // optional
         ])
 --}}

@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', ($post->meta_title ?: $post->title) . ' — Industry Insights | Secure Licences')
+@section('title', ($post->meta_title ?: $post->title) . ' — Industry Insights | Secure Licence')
 @section('meta_description', $post->meta_description ?: Str::limit(strip_tags($post->excerpt ?: $post->body), 160))
 
 @section('content')
@@ -106,7 +106,7 @@
                     <div class="blog-author-avatar">{{ strtoupper(substr($post->author?->name ?? 'A', 0, 1)) }}</div>
                     <div>
                         <h4>About {{ $post->author?->name ?? 'Admin' }}</h4>
-                        <p class="mb-0">Contributor at Secure Licences — sharing market analysis, industry trends and expert commentary from across Australia's driving instructor community.</p>
+                        <p class="mb-0">Contributor at Secure Licence — sharing market analysis, industry trends and expert commentary from across Australia's driving instructor community.</p>
                     </div>
                 </div>
             </div>

@@ -15,7 +15,7 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
         <h4 class="fw-bold mb-3"><i class="bi bi-book me-2 text-warning"></i>Getting Started Guide</h4>
-        <p class="text-muted">Welcome to Secure Licences! Follow these steps to set up your instructor profile and start receiving bookings.</p>
+        <p class="text-muted">Welcome to Secure Licence! Follow these steps to set up your instructor profile and start receiving bookings.</p>
 
         <div class="mt-4">
             {{-- Step 1 --}}

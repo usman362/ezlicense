@@ -23,7 +23,7 @@ trait NotifiesAdmin
 
             if ($admins->isEmpty()) {
                 // Fallback: send to support email as an anonymous notifiable
-                $adminEmail = SiteSetting::get('support_email', 'support@securelicences.com.au');
+                $adminEmail = SiteSetting::get('support_email', 'support@securelicence.com');
                 Notification::route('mail', $adminEmail)
                     ->notify(new AdminBookingAlert($booking, $event, $extraInfo));
             } else {

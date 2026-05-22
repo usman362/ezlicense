@@ -218,7 +218,7 @@
                         <div class="col-md-7 order-md-2">
                             <span class="dtp-eyebrow"><i class="bi bi-mortarboard me-1"></i>Build Your Skills</span>
                             <h3 class="dtp-section-title mb-3">Not test-ready yet? We've got you covered!</h3>
-                            <p class="text-muted mb-2">Build your confidence and skills with driving lesson packages designed to help you pass. With Secure Licences, you can learn in the same instructor's car you'll use for your test — so there are no surprises on the big day.</p>
+                            <p class="text-muted mb-2">Build your confidence and skills with driving lesson packages designed to help you pass. With Secure Licence, you can learn in the same instructor's car you'll use for your test — so there are no surprises on the big day.</p>
                             <p class="text-muted mb-0">Enter your suburb below to view our driving lessons packages now.</p>
                         </div>
                     </div>

@@ -43,7 +43,7 @@
                 </div>
                 <h6 class="fw-bold mb-2">Email Support</h6>
                 <p class="small text-muted mb-2">Reply within 1-2 business days</p>
-                <a href="mailto:support@securelicences.com.au" class="text-decoration-none small fw-semibold">support@securelicences.com.au</a>
+                <a href="mailto:support@securelicence.com" class="text-decoration-none small fw-semibold">support@securelicence.com</a>
             </div>
         </div>
     </div>

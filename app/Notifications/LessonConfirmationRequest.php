@@ -38,7 +38,7 @@ class LessonConfirmationRequest extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = SiteSetting::get('site_name', 'Secure Licences');
+        $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'recently';
         $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : '';
@@ -62,7 +62,7 @@ class LessonConfirmationRequest extends Notification
             ->line("Please confirm that you received this lesson by clicking the button below. This helps us keep accurate records and ensure quality service.")
             ->action('Yes, I Completed This Lesson', $b->getConfirmationUrl())
             ->line("**Why do we ask?** Your confirmation is our proof that the service was delivered. This protects both you and your instructor.")
-            ->line("If there was an issue with your lesson, please contact us at support@securelicences.com.au instead of clicking the button.")
+            ->line("If there was an issue with your lesson, please contact us at support@securelicence.com instead of clicking the button.")
             ->salutation("Thanks,\nThe {$siteName} Team");
 
         return $message;

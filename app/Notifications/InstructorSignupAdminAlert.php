@@ -46,7 +46,7 @@ class InstructorSignupAdminAlert extends Notification
 
         return $msg
             ->line('Please verify their license, vehicle, and WWCC documents before activating their profile.')
-            ->salutation('— Secure Licences System');
+            ->salutation('— Secure Licence System');
     }
 
     public function toArray($notifiable): array

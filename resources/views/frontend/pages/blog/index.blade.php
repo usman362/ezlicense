@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Blog — Driving Tips, News & Resources | Secure Licences')
+@section('title', 'Blog — Driving Tips, News & Resources | Secure Licence')
 
 @section('content')
 
@@ -23,7 +23,7 @@
             <div class="col-lg-8">
                 <span class="blog-hero-eyebrow"><i class="bi bi-journal-bookmark-fill me-1"></i>Driving Tips · News · Resources</span>
                 <h1 class="blog-hero-title">
-                    The Secure Licences <span class="blog-hero-title-accent">Blog</span>
+                    The Secure Licence <span class="blog-hero-title-accent">Blog</span>
                 </h1>
                 <p class="blog-hero-sub">
                     Driving tips, learner resources, test guides and expert advice — everything you need to feel confident on the road.

@@ -66,13 +66,13 @@ class SupportController extends Controller
                   . $data['message'];
 
             Mail::raw($body, function ($m) use ($user, $data) {
-                $m->to(config('mail.from.address', 'support@securelicences.com.au'))
+                $m->to(config('mail.from.address', 'support@securelicence.com'))
                   ->replyTo($user->email, $user->name)
                   ->subject('[Instructor Support] '.ucwords(str_replace('_', ' ', $data['category'])).': '.($data['subject'] ?: 'New request'));
             });
         } catch (\Throwable $e) {
             Log::error('Support ticket email failed: '.$e->getMessage());
-            return back()->withInput()->with('error', "We couldn't send your request right now. Please try again, or email us directly at support@securelicences.com.au.");
+            return back()->withInput()->with('error', "We couldn't send your request right now. Please try again, or email us directly at support@securelicence.com.");
         }
 
         return redirect()->route('instructor.support')

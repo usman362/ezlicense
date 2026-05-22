@@ -23,7 +23,7 @@ class ReviewApproved extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = SiteSetting::get('site_name', 'Secure Licences');
+        $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $learnerName = $this->review->learner->name ?? 'A learner';
 
         return (new MailMessage)

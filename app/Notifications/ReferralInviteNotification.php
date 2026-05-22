@@ -29,9 +29,9 @@ class ReferralInviteNotification extends Notification
         $name = $this->invite->invitee_name ? trim($this->invite->invitee_name) : 'there';
 
         $msg = (new MailMessage)
-            ->subject($this->referrer->name . ' invited you to Secure Licences 🚗')
+            ->subject($this->referrer->name . ' invited you to Secure Licence 🚗')
             ->greeting('Hi ' . $name . ',')
-            ->line('**' . $this->referrer->name . '** thinks you\'d love **Secure Licences** — Australia\'s #1 platform for finding verified driving instructors.');
+            ->line('**' . $this->referrer->name . '** thinks you\'d love **Secure Licence** — Australia\'s #1 platform for finding verified driving instructors.');
 
         if ($this->invite->personal_message) {
             $msg->line('---')
@@ -40,13 +40,13 @@ class ReferralInviteNotification extends Notification
         }
 
         return $msg
-            ->line('**With Secure Licences you can:**')
+            ->line('**With Secure Licence you can:**')
             ->line('• Compare 1000+ verified driving instructors')
             ->line('• Read real reviews from learners')
             ->line('• Book online in under 60 seconds')
             ->line('• Pay securely — no cash on the road')
             ->action('Sign Up Now', $signupUrl)
             ->line('It only takes a minute and you\'ll get matched with the best instructors in your area.')
-            ->salutation('Drive safe — The Secure Licences Team');
+            ->salutation('Drive safe — The Secure Licence Team');
     }
 }

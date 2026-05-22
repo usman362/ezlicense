@@ -12,7 +12,7 @@
 
 <div class="mb-4">
     <h4 class="fw-bold">2. Cancelling a lesson — learners</h4>
-    <p>You can cancel or reschedule a booking from your Secure Licences dashboard. The following notice periods apply unless your instructor has set different terms on their profile (which will be shown at the time of booking):</p>
+    <p>You can cancel or reschedule a booking from your Secure Licence dashboard. The following notice periods apply unless your instructor has set different terms on their profile (which will be shown at the time of booking):</p>
     <div class="table-responsive mb-3">
         <table class="table table-bordered">
             <thead class="table-light">
@@ -41,7 +41,7 @@
             </tbody>
         </table>
     </div>
-    <p>Where a refund applies, it is returned to your original payment method or credited to your Secure Licences wallet — your choice.</p>
+    <p>Where a refund applies, it is returned to your original payment method or credited to your Secure Licence wallet — your choice.</p>
 </div>
 
 <div class="mb-4">
@@ -51,7 +51,7 @@
 
 <div class="mb-4">
     <h4 class="fw-bold">4. When we cancel a lesson</h4>
-    <p>On rare occasions, Secure Licences may need to cancel or hold a booking — for example, if an instructor's licence has lapsed or if we are investigating a complaint. In these cases the learner receives a full refund or is matched with another instructor at the same price, at the learner's choice.</p>
+    <p>On rare occasions, Secure Licence may need to cancel or hold a booking — for example, if an instructor's licence has lapsed or if we are investigating a complaint. In these cases the learner receives a full refund or is matched with another instructor at the same price, at the learner's choice.</p>
 </div>
 
 <div class="mb-4">
@@ -86,12 +86,12 @@
 <div class="mb-4">
     <h4 class="fw-bold">9. How to request a refund</h4>
     <ol>
-        <li>Log in to your Secure Licences account.</li>
+        <li>Log in to your Secure Licence account.</li>
         <li>Go to <strong>Bookings</strong>, find the relevant lesson, and tap <strong>Cancel</strong> or <strong>Request a refund</strong>.</li>
         <li>Select the reason and add any notes or attachments.</li>
         <li>Our support team will review your request within 3 business days and notify you of the outcome.</li>
     </ol>
-    <p>If you cannot access your account, email <a href="mailto:support@securelicences.com.au">support@securelicences.com.au</a> with your booking reference.</p>
+    <p>If you cannot access your account, email <a href="mailto:support@securelicence.com">support@securelicence.com</a> with your booking reference.</p>
 </div>
 
 <div class="mb-4">

@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', $stateName . ' ' . $testName . ' — Free Practice Test | Secure Licences')
+@section('title', $stateName . ' ' . $testName . ' — Free Practice Test | Secure Licence')
 
 @section('content')
 
@@ -11,7 +11,7 @@
             <div class="col-lg-7 pts-hero-text">
                 <nav aria-label="breadcrumb" class="pts-hero-breadcrumb mb-3">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Secure Licences</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Secure Licence</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('practice-test') }}">Learner Test</a></li>
                         <li class="breadcrumb-item active">{{ $stateCode }}</li>
                     </ol>
@@ -50,7 +50,7 @@
                     <div class="pts-form-fb">
                         <i class="bi bi-facebook"></i>
                         <span>Like our page to receive regular learner test questions &amp; driving lesson discounts</span>
-                        <a href="https://www.facebook.com/securelicences" target="_blank" rel="noopener" class="pts-form-fb-btn">
+                        <a href="https://www.facebook.com/securelicence" target="_blank" rel="noopener" class="pts-form-fb-btn">
                             <i class="bi bi-hand-thumbs-up-fill"></i> Like
                         </a>
                     </div>

@@ -57,7 +57,7 @@
     </div>
 </section>
 
-{{-- Why book through Secure Licences-style platform --}}
+{{-- Why book through Secure Licence-style platform --}}
 <section class="py-4 py-lg-5 bg-light">
     <div class="container">
         <h2 class="h4 fw-bold mb-3">Book driving lessons with confidence</h2>
@@ -123,10 +123,10 @@
     </div>
 </section>
 
-{{-- Why learners choose Secure Licences-style platform --}}
+{{-- Why learners choose Secure Licence-style platform --}}
 <section class="py-4 py-lg-5">
     <div class="container">
-        <h2 class="h4 fw-bold mb-3">Why learners choose Secure Licences</h2>
+        <h2 class="h4 fw-bold mb-3">Why learners choose Secure Licence</h2>
         <div class="row g-4 mb-3">
             <div class="col-md-4">
                 <span class="display-6 fw-bold text-warning d-block">1000+</span>

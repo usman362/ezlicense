@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Contact & Support — Secure Licences')
+@section('title', 'Contact & Support — Secure Licence')
 
 @section('content')
 
@@ -50,10 +50,10 @@
         </div>
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
-                <a href="mailto:support@securelicences.com.au" class="pp-conf-card sup-method-card">
+                <a href="mailto:support@securelicence.com" class="pp-conf-card sup-method-card">
                     <div class="pp-conf-icon"><i class="bi bi-envelope-fill"></i></div>
                     <h3>Email Support</h3>
-                    <p>support@securelicences.com.au<br><span class="sup-method-time">Reply within 1-2 business days</span></p>
+                    <p>support@securelicence.com<br><span class="sup-method-time">Reply within 1-2 business days</span></p>
                 </a>
             </div>
             <div class="col-md-6 col-lg-3">
@@ -64,10 +64,10 @@
                 </a>
             </div>
             <div class="col-md-6 col-lg-3">
-                <a href="mailto:instructors@securelicences.com.au" class="pp-conf-card sup-method-card">
+                <a href="mailto:instructors@securelicence.com" class="pp-conf-card sup-method-card">
                     <div class="pp-conf-icon"><i class="bi bi-person-badge-fill"></i></div>
                     <h3>For Instructors</h3>
-                    <p>instructors@securelicences.com.au<br><span class="sup-method-time">Priority support</span></p>
+                    <p>instructors@securelicence.com<br><span class="sup-method-time">Priority support</span></p>
                 </a>
             </div>
             <div class="col-md-6 col-lg-3">
@@ -120,7 +120,7 @@
                         <i class="bi bi-envelope-fill"></i>
                         <div>
                             <strong>Email</strong>
-                            <span>support@securelicences.com.au</span>
+                            <span>support@securelicence.com</span>
                         </div>
                     </li>
                     <li>
@@ -228,7 +228,7 @@
                         ['When will I get a refund if I cancel?',     "Eligible refunds are processed within 3-5 business days back to your original payment method. If you paid by card, it'll show on your statement within a week."],
                         ["I can't find an instructor in my suburb. What now?", 'Contact us with your suburb name and we will check our active instructor list and waitlist. New instructors join weekly — we can also notify you the moment one signs up in your area.'],
                         ['How do I update my profile details?',       "Log in, click your avatar in the top-right, choose 'Settings' or 'Profile'. You can update your name, email, address, payment methods and notification preferences."],
-                        ["My instructor hasn't shown up. What do I do?", "Try calling/messaging them through the platform first. If you can't reach them within 15 minutes of the lesson start, contact us immediately at support@securelicences.com.au — we'll arrange a full refund and help you find another instructor."],
+                        ["My instructor hasn't shown up. What do I do?", "Try calling/messaging them through the platform first. If you can't reach them within 15 minutes of the lesson start, contact us immediately at support@securelicence.com — we'll arrange a full refund and help you find another instructor."],
                         ['How do I report an issue with an instructor?', 'Go to your booking and click "Report an issue". Your report goes straight to our trust & safety team and is reviewed within 24 hours. All reports are confidential.'],
                         ['Can I get a Tax Invoice for my lessons?',   'Yes — every booking has a downloadable PDF receipt in your dashboard. For multiple-lesson invoices or business accounts, email us and we will generate a custom invoice.'],
                         ['I forgot my password. How do I reset?',      'Click "Login", then "Forgot password?". Enter your email and we will send a reset link. Check your spam folder if you do not see it within a few minutes.'],
@@ -257,7 +257,7 @@
                     <i class="bi bi-mortarboard-fill sup-split-icon"></i>
                     <h3>Learners</h3>
                     <p>Need help with a booking, payment or finding an instructor? Our learner support team is one click away.</p>
-                    <a href="mailto:support@securelicences.com.au" class="btn btn-warning fw-bold">
+                    <a href="mailto:support@securelicence.com" class="btn btn-warning fw-bold">
                         <i class="bi bi-envelope-fill me-1"></i>Email learner support
                     </a>
                 </div>
@@ -267,7 +267,7 @@
                     <i class="bi bi-person-badge-fill sup-split-icon"></i>
                     <h3>Instructors</h3>
                     <p>Verification, payouts, profile help, business questions — instructors get priority support and faster response times.</p>
-                    <a href="mailto:instructors@securelicences.com.au" class="btn btn-dark fw-bold">
+                    <a href="mailto:instructors@securelicence.com" class="btn btn-dark fw-bold">
                         <i class="bi bi-envelope-fill me-1"></i>Email instructor team
                     </a>
                 </div>

@@ -11,7 +11,7 @@
         For security, instructor invites are single-use and expire after 7 days. Contact our team and we'll send you a new one straight away.
     </p>
     <ul class="auth-brand-features">
-        <li><i class="bi bi-envelope"></i><span>Email <strong>instructors@securelicences.com.au</strong></span></li>
+        <li><i class="bi bi-envelope"></i><span>Email <strong>instructors@securelicence.com</strong></span></li>
         <li><i class="bi bi-shield-check"></i><span>Single-use links protect your account from misuse</span></li>
         <li><i class="bi bi-clock"></i><span>New invites typically sent within 1 business day</span></li>
     </ul>
@@ -44,7 +44,7 @@
     @endif
 
     <div class="mt-3">
-        <a href="mailto:instructors@securelicences.com.au" class="auth-register-link">
+        <a href="mailto:instructors@securelicence.com" class="auth-register-link">
             <i class="bi bi-envelope me-1"></i>Request a new invite
         </a>
     </div>

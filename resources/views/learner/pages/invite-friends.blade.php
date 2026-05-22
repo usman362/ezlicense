@@ -32,7 +32,7 @@
                 <h3 class="fw-bolder mb-2" style="letter-spacing: -0.02em;">
                     <i class="bi bi-gift-fill text-warning me-2"></i>Invite friends, learn together
                 </h3>
-                <p class="text-muted mb-0">Share Secure Licences with your friends. They'll get matched with verified instructors and book lessons online — just like you. The more friends you invite, the better!</p>
+                <p class="text-muted mb-0">Share Secure Licence with your friends. They'll get matched with verified instructors and book lessons online — just like you. The more friends you invite, the better!</p>
             </div>
             <div class="col-md-5 text-md-end">
                 <div class="row g-2 text-center">
@@ -83,9 +83,9 @@
                 {{-- Share buttons --}}
                 <div class="d-flex flex-wrap gap-2">
                     @php
-                        $shareText = "Hey! I've been using Secure Licences to find driving instructors. Sign up here and get matched with verified instructors near you:";
+                        $shareText = "Hey! I've been using Secure Licence to find driving instructors. Sign up here and get matched with verified instructors near you:";
                         $whatsappUrl = 'https://wa.me/?text=' . urlencode($shareText . ' ' . $referralLink);
-                        $emailUrl = 'mailto:?subject=' . urlencode('Check out Secure Licences') . '&body=' . urlencode($shareText . "\n\n" . $referralLink);
+                        $emailUrl = 'mailto:?subject=' . urlencode('Check out Secure Licence') . '&body=' . urlencode($shareText . "\n\n" . $referralLink);
                         $smsUrl = 'sms:?&body=' . urlencode($shareText . ' ' . $referralLink);
                         $facebookUrl = 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($referralLink);
                         $twitterUrl = 'https://twitter.com/intent/tweet?text=' . urlencode($shareText) . '&url=' . urlencode($referralLink);
@@ -113,7 +113,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <h5 class="fw-bold mb-3"><i class="bi bi-envelope-paper me-2 text-primary"></i>Send a personalised invite</h5>
-                <p class="text-muted small mb-3">We'll send your friend a beautifully designed email from Secure Licences with your personal message.</p>
+                <p class="text-muted small mb-3">We'll send your friend a beautifully designed email from Secure Licence with your personal message.</p>
 
                 <form method="POST" action="{{ route('learner.invite.send') }}">
                     @csrf
@@ -128,7 +128,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-semibold">Personal message (optional)</label>
-                            <textarea name="personal_message" rows="3" class="form-control" maxlength="500" placeholder="e.g. Hey Sarah, I started learning to drive with Secure Licences and it's been great. You should try it!">{{ old('personal_message') }}</textarea>
+                            <textarea name="personal_message" rows="3" class="form-control" maxlength="500" placeholder="e.g. Hey Sarah, I started learning to drive with Secure Licence and it's been great. You should try it!">{{ old('personal_message') }}</textarea>
                         </div>
                     </div>
                     <div class="text-end mt-3">

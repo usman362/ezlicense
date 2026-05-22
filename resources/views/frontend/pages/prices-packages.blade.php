@@ -1,5 +1,5 @@
 @extends('layouts.frontend')
-@section('title', 'Driving Lesson Pricing & Packages — Secure Licences')
+@section('title', 'Driving Lesson Pricing & Packages — Secure Licence')
 @section('content')
 
 {{-- ─────────── HERO (full-width steering-wheel photo + overlay form card) ─────────── --}}
@@ -146,7 +146,7 @@
         <div class="row justify-content-center mb-4">
             <div class="col-lg-9 text-center">
                 <h2 class="cl-section-title">How much are driving lessons?</h2>
-                <p class="text-muted">At Secure Licences, you can compare prices from a range of verified, experienced driving instructors — and book the one that fits your budget and schedule. No rigid packages. Just flexible lesson bookings that work around you.</p>
+                <p class="text-muted">At Secure Licence, you can compare prices from a range of verified, experienced driving instructors — and book the one that fits your budget and schedule. No rigid packages. Just flexible lesson bookings that work around you.</p>
             </div>
         </div>
         <div class="row g-4 justify-content-center">
@@ -219,7 +219,7 @@
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-4">
-            <h2 class="cl-section-title">How Secure Licences works</h2>
+            <h2 class="cl-section-title">How Secure Licence works</h2>
             <p class="text-muted">We connect you with the best driving instructors in Australia</p>
         </div>
         <div class="row g-4 cl-how-row">
@@ -246,7 +246,7 @@
 <section class="py-5 bg-light">
     <div class="container">
         <h2 class="cl-section-title text-center mb-4">What more than 300,000 learners say</h2>
-        <p class="text-muted text-center mb-4">Hear how learners describe their Secure Licences experience.</p>
+        <p class="text-muted text-center mb-4">Hear how learners describe their Secure Licence experience.</p>
         <div class="row g-4">
             @php
                 $reviews = [
@@ -353,7 +353,7 @@
 <section class="py-5">
     <div class="container">
         <h2 class="cl-section-title text-center mb-2">Ready for driving lessons?</h2>
-        <p class="text-muted text-center mb-5">Secure Licences connects learner drivers with the best driving schools.</p>
+        <p class="text-muted text-center mb-5">Secure Licence connects learner drivers with the best driving schools.</p>
         <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="pp-ready-card">
@@ -405,7 +405,7 @@
                             ['q' => 'Can I change instructor?',                                            'a' => 'Yes — you can switch instructors anytime through your dashboard at no extra cost.'],
                             ['q' => 'Is There a Driving Refund?',                                          'a' => 'Lesson credits never expire and unused credit can be transferred to a different instructor.'],
                             ['q' => 'Can I book Driving Lessons to Learn How to Drive Manual?',            'a' => 'Yes — filter by Manual transmission when searching instructors.'],
-                            ['q' => "Where does Secure Licences offer driving lessons?",                    'a' => 'We cover Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart, Canberra and most major regional centres.'],
+                            ['q' => "Where does Secure Licence offer driving lessons?",                    'a' => 'We cover Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart, Canberra and most major regional centres.'],
                         ];
                     @endphp
                     @foreach($faqs as $i => $f)
@@ -458,8 +458,8 @@
 {{-- ─────────── WHY CHOOSE US ─────────── --}}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="cl-section-title text-center mb-2">Why choose Secure Licences?</h2>
-        <p class="text-muted text-center mb-5" style="max-width: 720px; margin-left: auto; margin-right: auto;">Unlike a typical driving school Secure Licences is an Australian-first platform that allows learner drivers &amp; parents to find, compare and book verified driving instructors online. The platform brings transparency, choice and flexibility to the selection of a driving instructor and the ongoing management of driving lessons.</p>
+        <h2 class="cl-section-title text-center mb-2">Why choose Secure Licence?</h2>
+        <p class="text-muted text-center mb-5" style="max-width: 720px; margin-left: auto; margin-right: auto;">Unlike a typical driving school Secure Licence is an Australian-first platform that allows learner drivers &amp; parents to find, compare and book verified driving instructors online. The platform brings transparency, choice and flexibility to the selection of a driving instructor and the ongoing management of driving lessons.</p>
 
         <div class="row g-4 mb-5 text-center">
             <div class="col-md-4">
@@ -518,8 +518,8 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-5">
-                <h2 class="cl-section-title mb-3">The Secure Licences advantage</h2>
-                <p class="text-muted">Enjoy a seamless, flexible, and convenient way to book and manage your driving lessons with Secure Licences.</p>
+                <h2 class="cl-section-title mb-3">The Secure Licence advantage</h2>
+                <p class="text-muted">Enjoy a seamless, flexible, and convenient way to book and manage your driving lessons with Secure Licence.</p>
             </div>
             <div class="col-lg-7">
                 <ul class="pp-advantage-list">
@@ -539,7 +539,7 @@
     <div class="container">
         <div class="text-center mb-3">
             <h2 class="cl-section-title">Learn to drive today!</h2>
-            <p class="text-muted">Join over 300,000+ learners driving with Secure Licences.</p>
+            <p class="text-muted">Join over 300,000+ learners driving with Secure Licence.</p>
         </div>
         <form action="{{ route('find-instructor.results') }}" method="get" class="ilc-search-form">
             <input type="hidden" name="suburb_id" id="pp-bottom-suburb-id">

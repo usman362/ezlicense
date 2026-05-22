@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Login') – Secure Licences</title>
+    <title>@yield('title', 'Login') – Secure Licence</title>
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -290,7 +290,7 @@
                         Learn to drive with <span class="highlight">confidence</span>.
                     </h1>
                     <p class="auth-brand-sub">
-                        Join 100,000+ learners who found their perfect instructor on Secure Licences.
+                        Join 100,000+ learners who found their perfect instructor on Secure Licence.
                     </p>
                     <ul class="auth-brand-features">
                         <li><i class="bi bi-check-lg"></i><span>Verified, WWCC-checked instructors in every suburb</span></li>

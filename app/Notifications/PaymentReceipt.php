@@ -42,7 +42,7 @@ class PaymentReceipt extends Notification
         $receiptNumber = 'SL-' . now()->format('Ymd') . '-' . str_pad((string) ($first?->id ?? '0'), 6, '0', STR_PAD_LEFT);
 
         $msg = (new MailMessage)
-            ->subject('Payment Receipt — Secure Licences #' . $receiptNumber)
+            ->subject('Payment Receipt — Secure Licence #' . $receiptNumber)
             ->greeting('Hi ' . $notifiable->name . ',')
             ->line('Thanks for your payment! Here\'s your receipt for ' . $count . ' booking' . ($count > 1 ? 's' : '') . ' with **' . $instructor . '**.');
 
@@ -64,7 +64,7 @@ class PaymentReceipt extends Notification
             ->line('**Total charged:** $' . number_format($this->totalCharged, 2))
             ->action('View My Bookings', url('/learner/dashboard'))
             ->line('Keep this email for your records. If you have any questions about this charge, just reply or contact our support team.')
-            ->salutation('The Secure Licences Team');
+            ->salutation('The Secure Licence Team');
     }
 
     public function toArray($notifiable): array

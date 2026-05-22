@@ -11,7 +11,7 @@
 --}}
 @php
     // Site-wide defaults from admin SiteSetting
-    $siteName       = \App\Models\SiteSetting::get('site_name', config('app.name', 'Secure Licences'));
+    $siteName       = \App\Models\SiteSetting::get('site_name', config('app.name', 'Secure Licence'));
     $defaultTitle   = \App\Models\SiteSetting::get('seo_default_title', $siteName);
     $titleSuffix    = \App\Models\SiteSetting::get('seo_title_suffix', '');
     $defaultDesc    = \App\Models\SiteSetting::get('seo_default_description', '');
@@ -30,7 +30,7 @@
     $faviconUrl     = \App\Models\SiteSetting::get('brand_favicon_url', '');
     $touchIconUrl   = \App\Models\SiteSetting::get('brand_touch_icon_url', '');
     $brandAddress   = \App\Models\SiteSetting::get('brand_address', '');
-    $supportEmail   = \App\Models\SiteSetting::get('support_email', 'support@securelicences.com.au');
+    $supportEmail   = \App\Models\SiteSetting::get('support_email', 'support@securelicence.com');
     $supportPhone   = \App\Models\SiteSetting::get('support_phone', '');
     $facebookUrl    = \App\Models\SiteSetting::get('facebook_url', '');
     $instagramUrl   = \App\Models\SiteSetting::get('instagram_url', '');

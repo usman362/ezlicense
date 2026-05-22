@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Overall, how would you rate Secure Licences? <span class="text-muted small">(optional)</span></label>
+                        <label class="form-label fw-semibold">Overall, how would you rate Secure Licence? <span class="text-muted small">(optional)</span></label>
                         <div class="star-rating-input d-flex gap-2 align-items-center">
                             @for($i = 1; $i <= 5; $i++)
                                 <input type="radio" name="rating" id="star-{{ $i }}" value="{{ $i }}" {{ (string) old('rating') === (string) $i ? 'checked' : '' }} class="d-none">

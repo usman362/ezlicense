@@ -136,6 +136,6 @@ class InstructorInviteController extends Controller
         Auth::login($user, remember: true);
 
         return redirect()->route('instructor.documents.index')
-            ->with('message', 'Welcome to Secure Licences! Upload your documents below to get verified.');
+            ->with('message', 'Welcome to Secure Licence! Upload your documents below to get verified.');
     }
 }

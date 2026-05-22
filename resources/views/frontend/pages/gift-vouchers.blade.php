@@ -19,7 +19,7 @@
             <div class="col-lg-7">
                 <h1 class="display-5 fw-bold mb-3">Driving Lesson Gift Vouchers</h1>
                 <p class="lead text-muted">Give the gift of independence. Driving lesson gift vouchers are the perfect present for learner drivers of all ages.</p>
-                <p class="text-muted">Whether it's a birthday, Christmas, graduation, or just because, a driving lesson voucher is a gift that truly makes a difference. Redeemable with any instructor on the Secure Licences platform across Australia.</p>
+                <p class="text-muted">Whether it's a birthday, Christmas, graduation, or just because, a driving lesson voucher is a gift that truly makes a difference. Redeemable with any instructor on the Secure Licence platform across Australia.</p>
             </div>
             <div class="col-lg-5 text-center">
                 <div class="bg-warning bg-opacity-10 rounded-4 p-5">

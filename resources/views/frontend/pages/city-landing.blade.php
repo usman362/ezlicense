@@ -28,7 +28,7 @@
                         Driving lessons in<br>
                         <span class="cl-hero-title-bold">{{ $cityName }}, {{ $cityState }}</span>
                     </h1>
-                    <p class="cl-hero-sub">Find and book certified driving instructors on Secure Licences</p>
+                    <p class="cl-hero-sub">Find and book certified driving instructors on Secure Licence</p>
 
                     <form action="{{ route('find-instructor.results') }}" method="get" class="cl-hero-form">
                         <input type="hidden" name="suburb_id" id="cl-hero-suburb-id">
@@ -133,7 +133,7 @@
 <section class="py-5">
     <div class="container">
         <h2 class="cl-section-title text-center mb-2">Driving lessons in {{ $cityName }}</h2>
-        <p class="text-muted text-center mb-4">Secure Licences has connected {{ number_format($city['learners']) }} learners to the best instructors in {{ $cityName }}</p>
+        <p class="text-muted text-center mb-4">Secure Licence has connected {{ number_format($city['learners']) }} learners to the best instructors in {{ $cityName }}</p>
 
         {{-- Filter chips --}}
         <ul class="nav nav-pills justify-content-center cl-chips mb-4" role="tablist">
@@ -204,11 +204,11 @@
     </div>
 </section>
 
-{{-- ─────────── How Secure Licences works ─────────── --}}
+{{-- ─────────── How Secure Licence works ─────────── --}}
 <section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-4">
-            <h2 class="cl-section-title">How Secure Licences works</h2>
+            <h2 class="cl-section-title">How Secure Licence works</h2>
             <p class="text-muted">We connect you with the best driving instructors in {{ $cityName }}</p>
         </div>
         <div class="row g-4 cl-how-row">
@@ -277,7 +277,7 @@
 <section class="py-5">
     <div class="container">
         <h2 class="cl-section-title text-center mb-4">What our 300,000+ learners say</h2>
-        <p class="text-muted text-center mb-4">Learn from learners in {{ $cityName }} &amp; {{ $cityState }} about their Secure Licences experience.</p>
+        <p class="text-muted text-center mb-4">Learn from learners in {{ $cityName }} &amp; {{ $cityState }} about their Secure Licence experience.</p>
         <div class="row g-4">
             @php
                 $tests = [
@@ -331,7 +331,7 @@
                     @php
                         $cityFaqs = [
                             ['q' => 'How Much Are EzLicence Driving Lessons in ' . $cityName . '?', 'a' => 'Driving lesson prices in ' . $cityName . ' typically start from $' . number_format($city['price'] - 15, 0) . '–$' . number_format($city['price'] + 10, 0) . '/hour. Multi-hour packages save more.'],
-                            ['q' => 'Which is best driving school?', 'a' => 'Rather than a traditional driving school, Secure Licences connects you with independent verified instructors — letting you compare ratings, reviews and prices to pick the best fit.'],
+                            ['q' => 'Which is best driving school?', 'a' => 'Rather than a traditional driving school, Secure Licence connects you with independent verified instructors — letting you compare ratings, reviews and prices to pick the best fit.'],
                             ['q' => 'Can I change my instructor?', 'a' => 'Yes — you can switch instructors any time through your dashboard at no extra cost.'],
                         ];
                     @endphp
@@ -355,7 +355,7 @@
 {{-- ─────────── Featured guides ─────────── --}}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="cl-section-title text-center mb-4">Learn more about driving with Secure Licences's guides</h2>
+        <h2 class="cl-section-title text-center mb-4">Learn more about driving with Secure Licence's guides</h2>
         <div class="row g-4">
             @php
                 $guides = [
@@ -409,7 +409,7 @@
         <div class="row align-items-center g-3">
             <div class="col-md-5">
                 <h2 class="mb-0 fw-bolder text-dark">Learn to drive today!</h2>
-                <small class="text-dark">Join over 300,000+ learners driving with Secure Licences.</small>
+                <small class="text-dark">Join over 300,000+ learners driving with Secure Licence.</small>
             </div>
             <div class="col-md-7">
                 <form action="{{ route('find-instructor.results') }}" method="get" class="dtp-cta-form">

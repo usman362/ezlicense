@@ -15,7 +15,7 @@
 @php
     $sl_profile = \Illuminate\Support\Facades\Auth::user()?->instructorProfile;
     $sl_shareUrl = $sl_profile?->shareUrl();
-    $sl_shareText = 'Check out my driving instructor profile on Secure Licences:';
+    $sl_shareText = 'Check out my driving instructor profile on Secure Licence:';
 @endphp
 @if($sl_shareUrl)
 <div class="card border-0 shadow-sm mb-4 share-profile-card">
@@ -79,7 +79,7 @@
                 <div class="small text-muted mt-2">{{ $sl_shareUrl }}</div>
             </div>
             <div class="modal-footer">
-                <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ urlencode($sl_shareUrl) }}&size=600x600&margin=20&format=png" download="securelicences-profile-qr.png" class="btn btn-warning fw-bold w-100">
+                <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ urlencode($sl_shareUrl) }}&size=600x600&margin=20&format=png" download="securelicence-profile-qr.png" class="btn btn-warning fw-bold w-100">
                     <i class="bi bi-download me-1"></i>Download high-res PNG
                 </a>
             </div>
@@ -473,7 +473,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small">Send an email invitation to a learner to join Secure Licences and book lessons with you.</p>
+                <p class="text-muted small">Send an email invitation to a learner to join Secure Licence and book lessons with you.</p>
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Email Address *</label>
                     <input type="email" class="form-control" id="invite-email" placeholder="learner@example.com" required>

@@ -62,7 +62,7 @@ class LessonReminder24h extends Notification
                 ->line('• Wear comfortable closed shoes')
                 ->line('• Be ready 5 minutes before pick-up')
                 ->line('Need to cancel or reschedule? Please do so at least 24 hours in advance to avoid fees.')
-                ->salutation('See you tomorrow! — The Secure Licences Team');
+                ->salutation('See you tomorrow! — The Secure Licence Team');
         } else {
             // Instructor view
             $learnerName = $b->learner?->name ?? 'your learner';
@@ -76,7 +76,7 @@ class LessonReminder24h extends Notification
                 ->line('📍 Pick-up: **' . $location . '**')
                 ->action('View in Calendar', url('/instructor/calendar'))
                 ->line('Please confirm your vehicle is ready and contact the learner if there are any changes.')
-                ->salutation('— The Secure Licences Team');
+                ->salutation('— The Secure Licence Team');
         }
 
         return $msg;
