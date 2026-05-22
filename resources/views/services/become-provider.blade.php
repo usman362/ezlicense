@@ -6,7 +6,7 @@
 <section class="text-white py-5" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
     <div class="container py-4 text-center" style="max-width: 800px;">
         <h1 class="display-4 fw-bold mb-3">Grow your trade business</h1>
-        <p class="lead mb-4 opacity-90">Join SecureLicences as a plumber, electrician, cleaner or any other service professional. Get bookings from local customers — we handle the admin.</p>
+        <p class="lead mb-4 opacity-90">Join SecureLicence as a plumber, electrician, cleaner or any other service professional. Get bookings from local customers — we handle the admin.</p>
         @auth
             <a href="{{ route('service-provider.onboarding.create') }}" class="btn btn-light btn-lg fw-bold px-5">Start your application →</a>
         @else

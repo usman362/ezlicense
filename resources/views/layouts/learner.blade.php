@@ -205,7 +205,7 @@
     <div class="learner-wrapper">
         <aside class="learner-sidebar">
             <div class="logo">
-                <span class="brand"><span>Secure</span><span class="ez-l">L</span><span>icences</span></span>
+                <span class="brand"><span>Secure</span><span class="ez-l">L</span><span>icence</span></span>
                 <span class="role-badge">Learner Portal</span>
             </div>
             <nav class="nav flex-column">

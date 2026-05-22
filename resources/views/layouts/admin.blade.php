@@ -209,7 +209,7 @@
     <div class="admin-wrapper">
         <aside class="admin-sidebar">
             <a href="{{ route('admin.dashboard') }}" class="logo">
-                <span class="brand">Secure<span class="ez-l">L</span>icences</span>
+                <span class="brand">Secure<span class="ez-l">L</span>icence</span>
                 <span class="role-badge">Admin Panel</span>
             </a>
             @php

@@ -12,7 +12,7 @@
 
 {{-- Brand block --}}
 <p style="margin: 0 0 8px; font-size: 14px; font-weight: 700; color: #1f1e1b;">
-Secure<span style="background: #ffd500; color: #121110; display: inline-block; padding: 1px 5px; border-radius: 3px; font-weight: 800; margin: 0 1px;">L</span>icences
+Secure<span style="background: #ffd500; color: #121110; display: inline-block; padding: 1px 5px; border-radius: 3px; font-weight: 800; margin: 0 1px;">L</span>icence
 </p>
 <p style="margin: 0 0 16px; font-size: 12px; color: #6b6a66;">
 Australia's #1 platform for finding verified driving instructors.

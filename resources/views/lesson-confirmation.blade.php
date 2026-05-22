@@ -155,7 +155,7 @@
 <body>
     <div class="confirmation-card">
         <div class="confirmation-header">
-            <div class="logo">Secure<span class="l-badge">L</span>icences</div>
+            <div class="logo">Secure<span class="l-badge">L</span>icence</div>
 
             @if($status === 'invalid')
                 <div class="icon icon-error"><i class="bi bi-exclamation-triangle"></i></div>

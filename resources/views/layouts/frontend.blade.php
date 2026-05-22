@@ -65,7 +65,7 @@
         <nav class="navbar navbar-expand-lg navbar-light py-2 py-lg-3">
             <div class="container">
                 <a class="navbar-brand logo" href="{{ url('/') }}">
-                    <span class="ez">Secure</span><span class="ez-l">L</span><span class="icence">icences</span>
+                    <span class="ez">Secure</span><span class="ez-l">L</span><span class="icence">icence</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#frontendNav" aria-controls="frontendNav" aria-expanded="false" aria-label="Toggle navigation">
                     <i class="bi bi-list nav-icon-open"></i>
@@ -203,7 +203,7 @@
             <div class="row g-4 mb-4">
                 <div class="col-lg-4 col-md-12">
                     <a class="d-inline-flex align-items-center mb-3 text-decoration-none" href="{{ url('/') }}">
-                        <span style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Secure</span><span style="width:30px;height:30px;background:var(--sl-accent-500);color:var(--sl-gray-900);font-weight:800;display:inline-flex;align-items:center;justify-content:center;margin:0 2px;font-size:1.1rem;border-radius:6px;">L</span><span style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">icences</span>
+                        <span style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Secure</span><span style="width:30px;height:30px;background:var(--sl-accent-500);color:var(--sl-gray-900);font-weight:800;display:inline-flex;align-items:center;justify-content:center;margin:0 2px;font-size:1.1rem;border-radius:6px;">L</span><span style="font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">icence</span>
                     </a>
                     <p style="color:var(--sl-gray-400);font-size:var(--sl-text-sm);line-height:1.6;">
                         <strong style="color:var(--sl-gray-200);">Australia's trusted driving school marketplace.</strong>

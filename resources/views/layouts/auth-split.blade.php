@@ -278,7 +278,7 @@
     <div class="auth-split">
         <div class="auth-split-left">
             <a href="{{ url('/') }}" class="auth-brand-logo">
-                <span>Secure</span><span class="ez-l">L</span><span>icences</span>
+                <span>Secure</span><span class="ez-l">L</span><span>icence</span>
             </a>
 
             <div class="auth-brand-content">

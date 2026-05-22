@@ -186,7 +186,7 @@
     <header class="booking-header">
         <div class="container-xxl d-flex align-items-center justify-content-between">
             <a href="{{ url('/') }}" class="brand">
-                Secure<span class="ez-l">L</span>icences
+                Secure<span class="ez-l">L</span>icence
             </a>
             @auth
                 <div class="dropdown">

@@ -298,7 +298,7 @@
     <div class="instructor-wrapper">
         <aside class="instructor-sidebar">
             <div class="logo">
-                <span class="brand"><span>Secure</span><span class="ez-l">L</span><span>icences</span></span>
+                <span class="brand"><span>Secure</span><span class="ez-l">L</span><span>icence</span></span>
                 <span class="role-badge">Instructor Portal</span>
             </div>
             <nav class="nav flex-column">
