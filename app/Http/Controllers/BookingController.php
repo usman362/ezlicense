@@ -137,6 +137,7 @@ class BookingController extends Controller
             'type' => ['required', Rule::in([Booking::TYPE_LESSON, Booking::TYPE_TEST_PACKAGE])],
             'transmission' => ['required', Rule::in(['auto', 'manual'])],
             'scheduled_at' => ['required', 'date', 'after:now'],
+            'duration_minutes' => ['nullable', 'integer', 'in:60,90,120,150,180,240,300'],
             'learner_notes' => ['nullable', 'string', 'max:1000'],
             'test_pre_booked' => ['boolean'],
         ]);
@@ -152,17 +153,61 @@ class BookingController extends Controller
         }
 
         $scheduledAt = $request->date('scheduled_at');
-        $slots = $this->availabilityService->getAvailableSlots($profile, $scheduledAt->format('Y-m-d'));
-        $timeKey = $scheduledAt->format('H:i');
-        $allowed = collect($slots)->pluck('time')->contains($timeKey);
-        if (! $allowed) {
-            return response()->json(['message' => 'Selected time is not available.'], 422);
+
+        // ── Enforce instructor's calendar window server-side ──
+        $minNoticeHours = (int) ($profile->min_prior_notice_hours ?? 5);
+        $maxAdvanceDays = (int) ($profile->max_advance_notice_days ?? 75);
+        if ($scheduledAt->lt(now()->addHours($minNoticeHours))) {
+            return response()->json([
+                'message' => "This instructor requires at least {$minNoticeHours} hours' advance notice.",
+            ], 422);
+        }
+        if ($scheduledAt->gt(now()->addDays($maxAdvanceDays))) {
+            return response()->json([
+                'message' => "This instructor only accepts bookings up to {$maxAdvanceDays} days in advance.",
+            ], 422);
         }
 
-        $amount = $request->input('type') === Booking::TYPE_TEST_PACKAGE
-            ? $profile->test_package_price
-            : $profile->lesson_price;
-        $duration = $profile->lesson_duration_minutes ?: 60;
+        // ── Resolve duration: respect instructor's offered set ──
+        $allowedDurations = $this->availabilityService->resolveAllowedDurations($profile);
+        $requestedDuration = (int) ($request->input('duration_minutes') ?: 0);
+        if ($request->input('type') === Booking::TYPE_TEST_PACKAGE) {
+            // Test packages always use the longest available duration (typically 2h+)
+            $duration = max($allowedDurations);
+        } elseif ($requestedDuration > 0) {
+            if (! in_array($requestedDuration, $allowedDurations, true)) {
+                return response()->json([
+                    'message' => 'Selected duration is not offered by this instructor.',
+                    'allowed_durations' => $allowedDurations,
+                ], 422);
+            }
+            $duration = $requestedDuration;
+        } else {
+            $duration = min($allowedDurations); // default to shortest
+        }
+
+        // ── Slot must be available AND able to fit the requested duration ──
+        $slots = $this->availabilityService->getAvailableSlots($profile, $scheduledAt->format('Y-m-d'), $duration);
+        $timeKey = $scheduledAt->format('H:i');
+        $slot = collect($slots)->firstWhere('time', $timeKey);
+        if (! $slot) {
+            return response()->json(['message' => 'Selected time is not available.'], 422);
+        }
+        if (isset($slot['durations_minutes']) && ! in_array($duration, $slot['durations_minutes'], true)) {
+            return response()->json([
+                'message' => 'A lesson of that length will not fit in the available slot at this time.',
+                'available_durations_here' => $slot['durations_minutes'],
+            ], 422);
+        }
+
+        // ── Amount calculation ──
+        if ($request->input('type') === Booking::TYPE_TEST_PACKAGE) {
+            $amount = $profile->test_package_price;
+        } else {
+            // Pro-rata lesson price against the chosen duration (base = lesson_price for 60 min)
+            $hourlyRate = (float) ($profile->lesson_price ?? 0);
+            $amount = round($hourlyRate * ($duration / 60), 2);
+        }
 
         $booking = DB::transaction(function () use ($request, $user, $profile, $scheduledAt, $amount, $duration) {
             $bookingAmount = $amount ?? 0;

@@ -27,7 +27,7 @@ class LessonConfirmationRequest extends Notification
     public function toVonage(object $notifiable): VonageMessage
     {
         $b = $this->booking;
-        $date = $b->scheduled_at ? $b->scheduled_at->format('d M, g:i A') : 'recent';
+        $date = $b->scheduled_at ? $b->scheduled_at->format('d M, H:i') : 'recent';
         $url = $b->getConfirmationUrl();
 
         $prefix = $this->isReminder ? 'Reminder: ' : '';
@@ -41,7 +41,7 @@ class LessonConfirmationRequest extends Notification
         $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'recently';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : '';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : '';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Driving Lesson';
         $instructorName = $b->instructor->name ?? 'your instructor';
 

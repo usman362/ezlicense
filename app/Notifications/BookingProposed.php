@@ -27,7 +27,7 @@ class BookingProposed extends Notification
     public function toVonage(object $notifiable): VonageMessage
     {
         $b = $this->booking;
-        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : 'TBC';
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, H:i') : 'TBC';
 
         return (new VonageMessage)
             ->content("SecureLicences: {$this->instructorName} proposed a lesson on {$date}. Log in to accept or decline: " . url('/learner/dashboard'));
@@ -38,7 +38,7 @@ class BookingProposed extends Notification
         $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : 'TBC';
 
         return (new MailMessage)
             ->subject("New Booking Proposal from {$this->instructorName}")

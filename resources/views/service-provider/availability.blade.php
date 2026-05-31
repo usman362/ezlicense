@@ -28,7 +28,7 @@
         <div class="list-group list-group-flush">
             @forelse($provider->availabilitySlots->sortBy('day_of_week') as $slot)
                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ $days[$slot->day_of_week] }} &middot; {{ \Carbon\Carbon::parse($slot->start_time)->format('g:i a') }} – {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i a') }}</span>
+                    <span>{{ $days[$slot->day_of_week] }} &middot; {{ \Carbon\Carbon::parse($slot->start_time)->format('H:i') }} – {{ \Carbon\Carbon::parse($slot->end_time)->format('H:i') }}</span>
                     <form method="POST" action="{{ route('service-provider.availability.slots.destroy', $slot->id) }}">
                         @csrf @method('DELETE')
                         <button class="btn btn-sm btn-outline-danger">Remove</button>

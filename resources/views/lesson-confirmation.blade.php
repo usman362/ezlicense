@@ -195,7 +195,7 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Time</span>
-                    <span class="detail-value">{{ $booking->scheduled_at ? $booking->scheduled_at->format('g:i A') : '—' }}</span>
+                    <span class="detail-value">{{ $booking->scheduled_at ? $booking->scheduled_at->format('H:i') : '—' }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Duration</span>
@@ -224,7 +224,7 @@
                     <i class="bi bi-shield-check"></i> Confirmed Successfully
                 </div>
                 <div class="timestamp">
-                    Confirmed on {{ $booking->learner_confirmed_at->format('d M Y \a\t g:i A') }}
+                    Confirmed on {{ $booking->learner_confirmed_at->format('d M Y \a\t H:i') }}
                 </div>
 
             @elseif($status === 'already_confirmed')
@@ -232,7 +232,7 @@
                     <i class="bi bi-shield-check"></i> Previously Confirmed
                 </div>
                 <div class="timestamp">
-                    Originally confirmed on {{ $booking->learner_confirmed_at->format('d M Y \a\t g:i A') }}
+                    Originally confirmed on {{ $booking->learner_confirmed_at->format('d M Y \a\t H:i') }}
                 </div>
             @endif
         </div>

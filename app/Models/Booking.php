@@ -108,6 +108,10 @@ class Booking extends Model
         'refund_reference',
         'refunded_at',
         'refunded_by_user_id',
+        'payment_held_at',
+        'payment_released_at',
+        'payment_hold_reason',
+        'payment_held_by_user_id',
     ];
 
     protected function casts(): array
@@ -124,6 +128,8 @@ class Booking extends Model
             'instructor_net_amount' => 'decimal:2',
             'refund_amount' => 'decimal:2',
             'refunded_at' => 'datetime',
+            'payment_held_at' => 'datetime',
+            'payment_released_at' => 'datetime',
             'test_pre_booked' => 'boolean',
             'is_guest_booking' => 'boolean',
             'cancellation_policy_accepted' => 'boolean',

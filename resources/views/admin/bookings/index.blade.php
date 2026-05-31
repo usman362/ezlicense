@@ -337,6 +337,74 @@
                     </div>
                 </form>
 
+                {{-- ── Payment hold/release section (only meaningful for completed bookings) ── --}}
+                @if($b->status === \App\Models\Booking::STATUS_COMPLETED && $b->payment_status === \App\Models\Booking::PAYMENT_PAID && ! ($b->refund_amount ?? 0))
+                    <hr>
+                    <h6 class="mb-2">
+                        <i class="bi bi-pause-circle text-warning me-1"></i>Payout Control
+                        @if($b->payment_held_at)
+                            <span class="badge bg-warning ms-1">On hold</span>
+                        @elseif($b->payment_released_at)
+                            <span class="badge bg-success ms-1">Released for payout</span>
+                        @else
+                            <span class="badge bg-secondary ms-1">In 24h hold window</span>
+                        @endif
+                    </h6>
+
+                    @if($b->payment_held_at)
+                        <div class="border rounded p-2 mb-2 small bg-warning bg-opacity-10">
+                            <div><strong>Held since:</strong> {{ $b->payment_held_at->format('j M Y, H:i') }}</div>
+                            @if($b->payment_hold_reason)
+                                <div><strong>Reason:</strong> {{ $b->payment_hold_reason }}</div>
+                            @endif
+                        </div>
+                        <form method="POST" action="{{ route('admin.bookings.release-payment', $b) }}" class="d-inline" onsubmit="return confirm('Release this payment? Instructor will be paid in next payout run.')">
+                            @csrf
+                            <button class="btn btn-sm btn-success"><i class="bi bi-play-circle me-1"></i>Release Payment</button>
+                        </form>
+                    @elseif($b->payment_released_at)
+                        <div class="small text-muted mb-2">Released on {{ $b->payment_released_at->format('j M Y, H:i') }}.</div>
+                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#holdModal-{{ $b->id }}">
+                            <i class="bi bi-pause-circle me-1"></i>Put on Hold (clawback)
+                        </button>
+                    @else
+                        <div class="small text-muted mb-2">Will auto-release after 24h dispute window. You can release now or put on hold.</div>
+                        <form method="POST" action="{{ route('admin.bookings.release-payment', $b) }}" class="d-inline" onsubmit="return confirm('Release this payment immediately (bypass 24h window)?')">
+                            @csrf
+                            <button class="btn btn-sm btn-success me-1"><i class="bi bi-play-circle me-1"></i>Release Now</button>
+                        </form>
+                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#holdModal-{{ $b->id }}">
+                            <i class="bi bi-pause-circle me-1"></i>Hold Payment
+                        </button>
+                    @endif
+
+                    {{-- Hold modal --}}
+                    <div class="modal fade" id="holdModal-{{ $b->id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="POST" action="{{ route('admin.bookings.hold-payment', $b) }}">
+                                    @csrf
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Hold payment — Booking #{{ $b->id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="alert alert-warning small">
+                                            Payment of <strong>${{ number_format((float) $b->amount, 2) }}</strong> will not be included in payouts until you release it. Use this for disputes, no-show claims, or fraud investigations.
+                                        </div>
+                                        <label class="form-label fw-semibold">Reason for hold <span class="text-danger">*</span></label>
+                                        <textarea name="reason" class="form-control" rows="3" required maxlength="500" placeholder="e.g. Learner disputing lesson quality — investigating"></textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-warning fw-bold">Hold Payment</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- ── Refund section ── --}}
                 <hr>
                 @php

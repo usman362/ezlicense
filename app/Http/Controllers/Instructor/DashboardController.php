@@ -60,6 +60,9 @@ class DashboardController extends Controller
                 'lesson_price_private' => $profile->lesson_price_private !== null ? (float) $profile->lesson_price_private : null,
                 'test_package_price_private' => $profile->test_package_price_private !== null ? (float) $profile->test_package_price_private : null,
                 'lesson_duration_minutes' => $profile->lesson_duration_minutes,
+                'lesson_durations' => is_array($profile->lesson_durations) && count($profile->lesson_durations)
+                    ? array_values(array_map('intval', $profile->lesson_durations))
+                    : [60, 120],
                 'offers_test_package' => $profile->offers_test_package,
                 'is_active' => $profile->is_active,
                 'service_areas' => $profile->serviceAreas->map(fn ($s) => [
@@ -267,6 +270,8 @@ class DashboardController extends Controller
         }
 
         $validated = $request->validate([
+            'lesson_durations' => ['nullable', 'array'],
+            'lesson_durations.*' => ['integer', 'in:60,90,120,180,240,300'],
             'travel_buffer_same_mins' => ['required', 'integer', 'min:0', 'max:120'],
             'travel_buffer_synced_mins' => ['required', 'integer', 'min:0', 'max:120'],
             'min_prior_notice_hours' => ['required', 'integer', 'min:0', 'max:168'],
@@ -276,6 +281,21 @@ class DashboardController extends Controller
             'attach_ics_to_emails' => ['boolean'],
             'default_calendar_view' => ['required', 'string', Rule::in(['day', 'week', 'month'])],
         ]);
+
+        // Lesson durations — always include the two required values (60, 120), dedupe, sort.
+        $durations = collect($validated['lesson_durations'] ?? [])
+            ->map(fn ($v) => (int) $v)
+            ->push(60)
+            ->push(120)
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+        $validated['lesson_durations'] = $durations;
+
+        // Keep legacy single-value `lesson_duration_minutes` in sync with the smallest
+        // offered duration so older code paths still get a sensible default.
+        $validated['lesson_duration_minutes'] = min($durations);
 
         $profile->update($validated);
 

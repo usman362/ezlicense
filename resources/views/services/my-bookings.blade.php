@@ -12,7 +12,7 @@
                 <a href="{{ route('service-bookings.show', $booking) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                     <div>
                         <p class="fw-semibold mb-1">{{ $booking->provider->category->name }} &middot; {{ $booking->provider->business_name ?: $booking->provider->user->name }}</p>
-                        <p class="text-muted small mb-0">{{ $booking->scheduled_at->format('D, d M Y g:i a') }}</p>
+                        <p class="text-muted small mb-0">{{ $booking->scheduled_at->format('D, d M Y H:i') }}</p>
                     </div>
                     <div class="text-end">
                         <p class="fw-bold mb-1">${{ number_format($booking->total_amount, 2) }}</p>

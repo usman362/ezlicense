@@ -180,6 +180,49 @@ class BookingsController extends Controller
     }
 
     /**
+     * Manually hold a completed booking's payment so it won't be paid out.
+     * Used when admin wants to investigate a dispute / fraud signal / no-show claim.
+     */
+    public function holdPayment(Request $request, Booking $booking)
+    {
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        if ($booking->payment_held_at) {
+            return back()->withErrors(['hold' => 'Payment is already on hold.']);
+        }
+
+        $booking->update([
+            'payment_held_at'         => now(),
+            'payment_hold_reason'     => $data['reason'],
+            'payment_held_by_user_id' => Auth::id(),
+            // Clawback any prior release so the next payout run skips this booking
+            'payment_released_at'     => null,
+        ]);
+
+        return back()->with('message', "Payment for booking #{$booking->id} is now on hold. It won't be included in payouts until released.");
+    }
+
+    /**
+     * Release a held payment (or release a pending payment immediately, bypassing the 24h window).
+     */
+    public function releasePayment(Request $request, Booking $booking)
+    {
+        if (! $booking->payment_held_at && $booking->payment_released_at) {
+            return back()->withErrors(['release' => 'Payment is already released.']);
+        }
+
+        $booking->update([
+            'payment_held_at'      => null,
+            'payment_hold_reason'  => null,
+            'payment_released_at'  => now(),
+        ]);
+
+        return back()->with('message', "Payment for booking #{$booking->id} has been released. It will be included in the next payout run.");
+    }
+
+    /**
      * Return ALL bookings (across all instructors) for the admin calendar view.
      * GET /api/admin/calendar/bookings?from=YYYY-MM-DD&to=YYYY-MM-DD
      */

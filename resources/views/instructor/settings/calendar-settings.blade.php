@@ -18,6 +18,45 @@
 
 <form id="calendar-settings-form" style="display: none;">
 
+    {{-- ─── Lesson Duration ─── --}}
+    <div class="sett-card">
+        <div class="sett-card-body">
+            <div class="sett-rate-header">
+                <div class="sett-rate-icon sett-rate-icon-orange"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <h3 class="sett-section-title">Lesson Duration</h3>
+                    <p class="sett-section-desc mb-0">Lesson lengths you offer. <strong>1h and 2h are required.</strong></p>
+                </div>
+            </div>
+            <div class="sett-duration-grid mt-3">
+                @php
+                    $durationOptions = [
+                        ['mins' => 60,  'label' => '1hr',   'required' => true],
+                        ['mins' => 90,  'label' => '1.5hr', 'required' => false],
+                        ['mins' => 120, 'label' => '2hr',   'required' => true],
+                        ['mins' => 180, 'label' => '3hr',   'required' => false],
+                        ['mins' => 240, 'label' => '4hr',   'required' => false],
+                        ['mins' => 300, 'label' => '5hr',   'required' => false],
+                    ];
+                @endphp
+                @foreach ($durationOptions as $opt)
+                    <label class="sett-duration-card {{ $opt['required'] ? 'is-required' : '' }}">
+                        <input type="checkbox"
+                               name="lesson_durations[]"
+                               value="{{ $opt['mins'] }}"
+                               class="sett-duration-check"
+                               data-required="{{ $opt['required'] ? '1' : '0' }}"
+                               @if($opt['required']) checked disabled @endif>
+                        <span class="sett-duration-label">{{ $opt['label'] }}</span>
+                        @if($opt['required'])
+                            <span class="sett-duration-required-badge">Required</span>
+                        @endif
+                    </label>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
     {{-- ─── Travel Buffer ─── --}}
     <div class="sett-card">
         <div class="sett-card-body">

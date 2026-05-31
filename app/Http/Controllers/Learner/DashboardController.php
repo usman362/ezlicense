@@ -27,7 +27,7 @@ class DashboardController extends Controller
         // My instructor: from most recent booking (any) that has an instructor
         $lastBookingWithInstructor = Booking::where('learner_id', $user->id)
             ->whereNotNull('instructor_id')
-            ->with(['instructor:id,name,phone', 'instructor.instructorProfile:id,user_id,lesson_price,lesson_duration_minutes,test_package_price,transmission,offers_test_package,vehicle_make,vehicle_model,vehicle_year,vehicle_safety_rating'])
+            ->with(['instructor:id,name,phone', 'instructor.instructorProfile:id,user_id,lesson_price,lesson_duration_minutes,lesson_durations,test_package_price,transmission,offers_test_package,vehicle_make,vehicle_model,vehicle_year,vehicle_safety_rating,min_prior_notice_hours,max_advance_notice_days'])
             ->orderBy('scheduled_at', 'desc')
             ->first();
 
@@ -49,6 +49,9 @@ class DashboardController extends Controller
             }
             $lessonPrice = $profile && $profile->lesson_price !== null ? (float) $profile->lesson_price : null;
             $lessonDuration = $profile ? (int) ($profile->lesson_duration_minutes ?? 60) : 60;
+            $lessonDurations = $profile && is_array($profile->lesson_durations) && count($profile->lesson_durations)
+                ? array_values(array_map('intval', $profile->lesson_durations))
+                : [60, 120];
             $testPackagePrice = $profile && $profile->test_package_price !== null ? (float) $profile->test_package_price : (float) \App\Models\SiteSetting::get('default_test_package_price', 225);
             $transmission = $profile && $profile->transmission ? ucfirst(strtolower($profile->transmission)) : 'Auto';
             $myInstructor = [
@@ -62,6 +65,9 @@ class DashboardController extends Controller
                 'dual_controls' => true,
                 'lesson_price' => $lessonPrice,
                 'lesson_duration_minutes' => $lessonDuration,
+                'lesson_durations' => $lessonDurations,
+                'min_prior_notice_hours' => $profile ? (int) ($profile->min_prior_notice_hours ?? 5) : 5,
+                'max_advance_notice_days' => $profile ? (int) ($profile->max_advance_notice_days ?? 75) : 75,
                 'test_package_price' => $testPackagePrice,
                 'offers_test_package' => $profile ? (bool) $profile->offers_test_package : false,
                 'transmission' => $transmission,
@@ -86,6 +92,9 @@ class DashboardController extends Controller
                 }
                 $lessonPrice = $profile->lesson_price !== null ? (float) $profile->lesson_price : null;
                 $lessonDuration = (int) ($profile->lesson_duration_minutes ?? 60);
+                $lessonDurations = is_array($profile->lesson_durations) && count($profile->lesson_durations)
+                    ? array_values(array_map('intval', $profile->lesson_durations))
+                    : [60, 120];
                 $testPackagePrice = $profile->test_package_price !== null ? (float) $profile->test_package_price : (float) \App\Models\SiteSetting::get('default_test_package_price', 225);
                 $transmission = $profile->transmission ? ucfirst(strtolower($profile->transmission)) : 'Auto';
                 $myInstructor = [
@@ -99,6 +108,9 @@ class DashboardController extends Controller
                     'dual_controls' => true,
                     'lesson_price' => $lessonPrice,
                     'lesson_duration_minutes' => $lessonDuration,
+                    'lesson_durations' => $lessonDurations,
+                    'min_prior_notice_hours' => (int) ($profile->min_prior_notice_hours ?? 5),
+                    'max_advance_notice_days' => (int) ($profile->max_advance_notice_days ?? 75),
                     'test_package_price' => $testPackagePrice,
                     'offers_test_package' => (bool) $profile->offers_test_package,
                     'transmission' => $transmission,

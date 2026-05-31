@@ -93,7 +93,7 @@ class ReportsController extends Controller
             ->map(fn ($b) => [
                 'id' => $b->id,
                 'learner_name' => $b->learner?->name ?? 'Learner',
-                'scheduled_at' => $b->scheduled_at->format('j M Y, g:i A'),
+                'scheduled_at' => $b->scheduled_at->format('j M Y, H:i'),
                 'gross' => (float) $b->amount,
                 'fees' => $feePerBooking,
                 'payout' => (float) ($b->instructor_net_amount ?? max($b->amount - $feePerBooking, 0)),

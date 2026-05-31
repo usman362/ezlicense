@@ -28,7 +28,7 @@ class BookingConfirmed extends Notification
     public function toVonage(object $notifiable): VonageMessage
     {
         $b = $this->booking;
-        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : 'TBC';
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, H:i') : 'TBC';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Lesson';
 
         return (new VonageMessage)
@@ -40,7 +40,7 @@ class BookingConfirmed extends Notification
         $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : 'TBC';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Driving Lesson';
 
         $message = (new MailMessage)

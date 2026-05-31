@@ -326,6 +326,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/bookings', [App\Http\Controllers\Admin\BookingsController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/update-status', [App\Http\Controllers\Admin\BookingsController::class, 'updateStatus'])->name('bookings.update-status');
     Route::post('/bookings/{booking}/refund', [App\Http\Controllers\Admin\BookingsController::class, 'refund'])->name('bookings.refund');
+    Route::post('/bookings/{booking}/hold-payment', [App\Http\Controllers\Admin\BookingsController::class, 'holdPayment'])->name('bookings.hold-payment');
+    Route::post('/bookings/{booking}/release-payment', [App\Http\Controllers\Admin\BookingsController::class, 'releasePayment'])->name('bookings.release-payment');
 
     // Coupons / Promo codes management
     Route::get('/coupons', [App\Http\Controllers\Admin\CouponsController::class, 'index'])->name('coupons.index');
@@ -461,6 +463,11 @@ Route::middleware(['auth', 'role:learner'])->prefix('learner')->name('learner.')
     Route::get('/wallet', fn () => view('learner.pages.wallet'))->name('wallet');
     Route::get('/wallet/add-credit', fn () => view('learner.pages.wallet-add-credit'))->name('wallet.add-credit');
 
+    // ── Receipts ──
+    Route::get('/receipts', [App\Http\Controllers\Learner\ReceiptsController::class, 'index'])->name('receipts');
+    Route::get('/receipts/{booking}', [App\Http\Controllers\Learner\ReceiptsController::class, 'show'])->name('receipts.show');
+    Route::get('/receipts/{booking}/download', [App\Http\Controllers\Learner\ReceiptsController::class, 'download'])->name('receipts.download');
+
     // ── Invite Friends (referral) ──
     Route::get('/invite-friends', [App\Http\Controllers\Learner\InviteController::class, 'index'])->name('invite');
     Route::post('/invite-friends/send', [App\Http\Controllers\Learner\InviteController::class, 'send'])->name('invite.send');
@@ -480,6 +487,11 @@ Route::middleware(['auth', 'role:instructor', 'instructor.onboarded'])->prefix('
     Route::get('/calendar', fn () => view('instructor.pages.calendar'))->name('calendar');
     Route::get('/learners', fn () => view('instructor.pages.learners'))->name('learners');
     Route::get('/reports', fn () => view('instructor.pages.reports'))->name('reports');
+
+    // ── Statements (weekly/fortnightly/monthly PDF) ──
+    Route::get('/statements', [App\Http\Controllers\Instructor\StatementsController::class, 'index'])->name('statements');
+    Route::get('/statements/{key}', [App\Http\Controllers\Instructor\StatementsController::class, 'show'])->name('statements.show')->where('key', '\d{4}-\d{2}-\d{2}');
+    Route::get('/statements/{key}/download', [App\Http\Controllers\Instructor\StatementsController::class, 'download'])->name('statements.download')->where('key', '\d{4}-\d{2}-\d{2}');
     Route::get('/notifications', function (\Illuminate\Http\Request $request) {
         $user = auth()->user();
         $tab = $request->query('tab', 'notifications'); // notifications | proposals
@@ -729,4 +741,75 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     | Route::post('service-providers/{serviceProvider}/approve', [App\Http\Controllers\Admin\ServiceProviderController::class, 'approve'])->name('service-providers.approve');
     | Route::post('service-providers/{serviceProvider}/reject', [App\Http\Controllers\Admin\ServiceProviderController::class, 'reject'])->name('service-providers.reject');
     */
+});
+
+/*
+|--------------------------------------------------------------------------
+| Support — public help center
+|--------------------------------------------------------------------------
+| Served on the `support.` subdomain in production (e.g.
+| https://support.securelicence.com), and also accessible at /support/* on
+| the main domain as a fallback for local dev and discoverability.
+|
+| The subdomain is resolved via the SUPPORT_DOMAIN env var.
+*/
+
+// Register the same support routes either on a subdomain (production) or under
+// /support on the main domain (local dev), depending on env config.
+$supportDomain = env('SUPPORT_DOMAIN');     // e.g. 'support.securelicence.com'
+
+$supportRoutes = function () {
+    $c = App\Http\Controllers\Support\SupportController::class;
+    $req = App\Http\Controllers\Support\SupportRequestController::class;
+    Route::get('/', [$c, 'home'])->name('home');
+    Route::get('/search', [$c, 'search'])->name('search');
+    Route::get('/submit-request', [$req, 'show'])->name('request.show');
+    Route::post('/submit-request', [$req, 'store'])->name('request.store');
+    Route::get('/categories/{category:slug}', [$c, 'category'])->name('category');
+    Route::get('/sections/{section:slug}', [$c, 'section'])->name('section');
+    Route::get('/articles/{article:slug}', [$c, 'article'])->name('article');
+    Route::post('/articles/{article:slug}/feedback', [$c, 'feedback'])->name('article.feedback');
+};
+
+if ($supportDomain) {
+    Route::domain($supportDomain)->name('support.')->group($supportRoutes);
+} else {
+    Route::prefix('support')->name('support.')->group($supportRoutes);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Support — admin panel CRUD
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:admin'])->prefix('admin/support')->name('admin.support.')->group(function () {
+    $c = App\Http\Controllers\Admin\Support\AdminSupportController::class;
+
+    Route::get('/', [$c, 'dashboard'])->name('dashboard');
+
+    // Categories
+    Route::get('/categories', [$c, 'categoriesIndex'])->name('categories');
+    Route::post('/categories', [$c, 'categoryStore'])->name('category.store');
+    Route::put('/categories/{category}', [$c, 'categoryUpdate'])->name('category.update');
+    Route::delete('/categories/{category}', [$c, 'categoryDestroy'])->name('category.destroy');
+
+    // Sections
+    Route::get('/sections', [$c, 'sectionsIndex'])->name('sections');
+    Route::post('/sections', [$c, 'sectionStore'])->name('section.store');
+    Route::put('/sections/{section}', [$c, 'sectionUpdate'])->name('section.update');
+    Route::delete('/sections/{section}', [$c, 'sectionDestroy'])->name('section.destroy');
+
+    // Articles
+    Route::get('/articles', [$c, 'articlesIndex'])->name('articles');
+    Route::get('/articles/create', [$c, 'articleCreate'])->name('article.create');
+    Route::post('/articles', [$c, 'articleStore'])->name('article.store');
+    Route::get('/articles/{article}/edit', [$c, 'articleEdit'])->name('article.edit');
+    Route::put('/articles/{article}', [$c, 'articleUpdate'])->name('article.update');
+    Route::delete('/articles/{article}', [$c, 'articleDestroy'])->name('article.destroy');
+    Route::post('/articles/image-upload', [$c, 'articleImageUpload'])->name('article.image-upload');
+
+    // Requests (Inbox)
+    Route::get('/requests', [$c, 'requestsIndex'])->name('requests');
+    Route::get('/requests/{request}', [$c, 'requestShow'])->name('request.show');
+    Route::put('/requests/{supportRequest}', [$c, 'requestUpdate'])->name('request.update');
 });

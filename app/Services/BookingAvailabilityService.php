@@ -11,9 +11,25 @@ class BookingAvailabilityService
 {
     /**
      * Get available time slots for an instructor on a given date.
-     * Considers weekly slots and blocks (blocked dates / extra availability).
+     *
+     * Honours these calendar settings on the instructor profile:
+     *   - lesson_durations          (multi) — uses smallest as the slot step, but
+     *                                         tags each slot with the set of durations
+     *                                         that fit before the slot end.
+     *   - min_prior_notice_hours    — drops slots starting sooner than that.
+     *   - travel_buffer_same_mins   — adds breathing room around existing bookings.
+     *   - smart_scheduling_enabled  — when on AND there's at least one booking that
+     *                                 day, prioritises slots within
+     *                                 smart_scheduling_buffer_hrs of an existing
+     *                                 booking (returned first; others omitted to
+     *                                 cluster bookings together).
+     *
+     * @param  string  $date            Y-m-d format
+     * @param  int|null $durationOverride  When set, slot length used is exactly this
+     *                                     value (in minutes). Defaults to smallest in
+     *                                     lesson_durations or lesson_duration_minutes.
      */
-    public function getAvailableSlots(InstructorProfile $instructor, string $date): array
+    public function getAvailableSlots(InstructorProfile $instructor, string $date, ?int $durationOverride = null): array
     {
         $date = Carbon::parse($date);
         $dayOfWeek = $date->dayOfWeek; // 0=Sun, 6=Sat
@@ -32,58 +48,133 @@ class BookingAvailabilityService
             return [];
         }
 
-        $booked = Booking::where('instructor_id', $instructor->user_id)
+        // ── Settings ─────────────────────────────────────────────────────────
+        $allowedDurations = $this->resolveAllowedDurations($instructor);
+        $stepDuration = $durationOverride
+            ? max(15, (int) $durationOverride)
+            : min($allowedDurations);
+        $minNoticeHours = (int) ($instructor->min_prior_notice_hours ?? 5);
+        $travelBuffer = (int) ($instructor->travel_buffer_same_mins ?? 30);
+        $smartEnabled = (bool) ($instructor->smart_scheduling_enabled ?? true);
+        $smartBufferHrs = max(1, (int) ($instructor->smart_scheduling_buffer_hrs ?? 1));
+
+        $earliestAllowed = now()->copy()->addHours($minNoticeHours);
+
+        // ── Existing bookings on this day (used for travel buffer & clustering) ──
+        $bookings = Booking::where('instructor_id', $instructor->user_id)
             ->whereDate('scheduled_at', $date)
-            ->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED])
-            ->get()
-            ->keyBy(fn ($b) => $b->scheduled_at->format('H:i'));
+            ->whereIn('status', [
+                Booking::STATUS_PENDING,
+                Booking::STATUS_CONFIRMED,
+                Booking::STATUS_PROPOSED,
+                Booking::STATUS_INSTRUCTOR_ARRIVED,
+                Booking::STATUS_IN_PROGRESS,
+            ])
+            ->get(['scheduled_at', 'duration_minutes']);
 
-        $duration = $instructor->lesson_duration_minutes ?: 60;
-        $result = [];
+        // Each booking becomes a busy window inflated by travel buffer on both sides.
+        $busyWindows = $bookings->map(function ($b) use ($travelBuffer) {
+            $start = $b->scheduled_at->copy()->subMinutes($travelBuffer);
+            $end = $b->scheduled_at->copy()->addMinutes(((int) ($b->duration_minutes ?? 60)) + $travelBuffer);
+            return ['start' => $start, 'end' => $end];
+        });
 
+        // ── Generate raw slots from weekly availability + extra availability blocks ──
+        $raw = collect();
         foreach ($slots as $slot) {
-            $start = Carbon::parse($date->format('Y-m-d') . ' ' . $slot->start_time);
-            $end = Carbon::parse($date->format('Y-m-d') . ' ' . $slot->end_time);
-            while ($start->copy()->addMinutes($duration)->lte($end)) {
-                $timeKey = $start->format('H:i');
-                if (! $booked->has($timeKey)) {
-                    $result[] = [
-                        'time' => $timeKey,
-                        'datetime' => $start->format('Y-m-d H:i:s'),
-                    ];
-                }
-                $start->addMinutes($duration);
-            }
+            $raw = $raw->merge($this->expandWindow($date, $slot->start_time, $slot->end_time, $stepDuration));
         }
-
         foreach ($blocks->where('is_available', true) as $block) {
-            $start = Carbon::parse($date->format('Y-m-d') . ' ' . $block->start_time);
-            $end = Carbon::parse($date->format('Y-m-d') . ' ' . $block->end_time);
-            while ($start->copy()->addMinutes($duration)->lte($end)) {
-                $timeKey = $start->format('H:i');
-                if (! $booked->has($timeKey) && ! in_array($timeKey, array_column($result, 'time'), true)) {
-                    $result[] = [
-                        'time' => $timeKey,
-                        'datetime' => $start->format('Y-m-d H:i:s'),
-                    ];
+            $raw = $raw->merge($this->expandWindow($date, $block->start_time, $block->end_time, $stepDuration));
+        }
+
+        // ── Filter: min prior notice + collision with busy windows ──
+        $filtered = $raw
+            ->unique('time')
+            ->filter(function ($slot) use ($earliestAllowed, $busyWindows, $stepDuration) {
+                $start = Carbon::parse($slot['datetime']);
+                $end = $start->copy()->addMinutes($stepDuration);
+
+                if ($start->lt($earliestAllowed)) {
+                    return false;
                 }
-                $start->addMinutes($duration);
+                foreach ($busyWindows as $w) {
+                    if ($start->lt($w['end']) && $end->gt($w['start'])) {
+                        return false;
+                    }
+                }
+                return true;
+            })
+            ->values();
+
+        // ── Smart Scheduling: cluster around existing bookings ──
+        if ($smartEnabled && $bookings->isNotEmpty()) {
+            $clusterWindow = $smartBufferHrs * 60;
+            $bookingTimes = $bookings->map(fn ($b) => $b->scheduled_at->copy());
+
+            $clustered = $filtered->filter(function ($slot) use ($bookingTimes, $clusterWindow) {
+                $start = Carbon::parse($slot['datetime']);
+                foreach ($bookingTimes as $bt) {
+                    if (abs($bt->diffInMinutes($start, false)) <= $clusterWindow) {
+                        return true;
+                    }
+                }
+                return false;
+            })->values();
+
+            // Only collapse to clustered subset if it has slots — otherwise we'd
+            // return zero slots on busy days, which is worse UX.
+            if ($clustered->isNotEmpty()) {
+                $filtered = $clustered;
             }
         }
 
-        usort($result, fn ($a, $b) => strcmp($a['time'], $b['time']));
+        // ── Annotate each slot with which of the instructor's offered durations
+        // actually fit at this start time (no collision with busy windows). ──
+        $result = $filtered->map(function ($slot) use ($allowedDurations, $busyWindows) {
+            $start = Carbon::parse($slot['datetime']);
+            $fits = [];
+            foreach ($allowedDurations as $d) {
+                $end = $start->copy()->addMinutes($d);
+                $collision = false;
+                foreach ($busyWindows as $w) {
+                    if ($start->lt($w['end']) && $end->gt($w['start'])) {
+                        $collision = true;
+                        break;
+                    }
+                }
+                if (! $collision) {
+                    $fits[] = $d;
+                }
+            }
+            return [
+                'time' => $slot['time'],
+                'datetime' => $slot['datetime'],
+                'durations_minutes' => $fits, // which durations fit here
+            ];
+        })->sortBy('time')->values()->all();
 
         return $result;
     }
 
     /**
-     * Get available dates for the next N days for an instructor.
+     * Available dates within the instructor's configured booking window.
+     *
+     * - Starts: today + min_prior_notice_hours (rounded up to days)
+     * - Ends:   today + max_advance_notice_days
+     * - The passed-in $days arg becomes a CEILING, never extends past instructor's max.
      */
     public function getAvailableDates(InstructorProfile $instructor, int $days = 30): Collection
     {
+        $minNoticeHours = (int) ($instructor->min_prior_notice_hours ?? 5);
+        $maxAdvance = (int) ($instructor->max_advance_notice_days ?? 75);
+
+        $startOffsetDays = (int) ceil($minNoticeHours / 24);
+        $effectiveDays = max(1, min($days, max(1, $maxAdvance - $startOffsetDays + 1)));
+
         $dates = collect();
-        $start = Carbon::today();
-        for ($i = 0; $i < $days; $i++) {
+        $start = Carbon::today()->addDays($startOffsetDays);
+        for ($i = 0; $i < $effectiveDays; $i++) {
             $date = $start->copy()->addDays($i);
             $slots = $this->getAvailableSlots($instructor, $date->format('Y-m-d'));
             if (count($slots) > 0) {
@@ -95,5 +186,44 @@ class BookingAvailabilityService
         }
 
         return $dates;
+    }
+
+    /**
+     * Resolve an instructor's allowed lesson durations as a sorted int array.
+     * Falls back gracefully when lesson_durations is empty/null.
+     */
+    public function resolveAllowedDurations(InstructorProfile $instructor): array
+    {
+        $set = $instructor->lesson_durations ?? null;
+        if (is_array($set) && count($set) > 0) {
+            $set = array_values(array_unique(array_map('intval', $set)));
+            sort($set);
+            return $set;
+        }
+        $single = (int) ($instructor->lesson_duration_minutes ?? 60);
+        $set = array_values(array_unique([60, 120, $single > 0 ? $single : 60]));
+        sort($set);
+        return $set;
+    }
+
+    /**
+     * Internal: expand a [start_time, end_time] window into discrete step-sized slots.
+     */
+    private function expandWindow(Carbon $date, ?string $startTime, ?string $endTime, int $step): array
+    {
+        if (! $startTime || ! $endTime) {
+            return [];
+        }
+        $start = Carbon::parse($date->format('Y-m-d') . ' ' . $startTime);
+        $end = Carbon::parse($date->format('Y-m-d') . ' ' . $endTime);
+        $out = [];
+        while ($start->copy()->addMinutes($step)->lte($end)) {
+            $out[] = [
+                'time' => $start->format('H:i'),
+                'datetime' => $start->format('Y-m-d H:i:s'),
+            ];
+            $start->addMinutes($step);
+        }
+        return $out;
     }
 }

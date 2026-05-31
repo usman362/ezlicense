@@ -258,6 +258,13 @@
                 <a class="nav-link {{ request()->routeIs('admin.industry-insights*') ? 'active' : '' }}" href="{{ route('admin.industry-insights.index') }}">
                     <i class="bi bi-graph-up-arrow"></i> Industry Insights
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.support.*') ? 'active' : '' }}" href="{{ route('admin.support.dashboard') }}">
+                    <i class="bi bi-life-preserver"></i> Support Center
+                    @php $newReqCount = \App\Models\SupportRequest::where('status', 'new')->count(); @endphp
+                    @if($newReqCount > 0)
+                        <span class="badge text-bg-warning ms-1">{{ $newReqCount }}</span>
+                    @endif
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.instructor-invites*') ? 'active' : '' }}" href="{{ route('admin.instructor-invites.index') }}">
                     <i class="bi bi-envelope-paper-fill"></i> Instructor Invites
                 </a>

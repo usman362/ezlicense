@@ -41,7 +41,7 @@ class SendLessonReminders24hCommand extends Command
         $failed = 0;
 
         foreach ($bookings as $booking) {
-            $when = $booking->scheduled_at->format('D j M, g:i a');
+            $when = $booking->scheduled_at->format('D j M, H:i');
             $this->line("→ Booking #{$booking->id} ({$when})");
 
             if ($dryRun) {

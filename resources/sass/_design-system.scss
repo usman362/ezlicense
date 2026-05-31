@@ -97,6 +97,12 @@
 /* ============================================================
    BASE TYPOGRAPHY
    ============================================================ */
+html, body {
+  /* Safety net: prevent any oversized child from causing horizontal scroll on ANY viewport */
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   font-family: var(--sl-font-sans);
   color: var(--sl-gray-800);
@@ -4767,6 +4773,62 @@ a:hover > .card,
 .sett-rate-icon-blue   { background: linear-gradient(135deg, #60a5fa, #2563eb); }
 .sett-rate-icon-green  { background: linear-gradient(135deg, #34d399, #059669); }
 .sett-rate-icon-purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+.sett-rate-icon-orange { background: linear-gradient(135deg, #fb923c, #ea580c); }
+
+/* ─── Duration multi-select grid (calendar settings) ─── */
+.sett-duration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+.sett-duration-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 0.75rem;
+  border: 2px solid var(--sl-gray-200, #e5e7eb);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  min-height: 78px;
+}
+.sett-duration-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.sett-duration-card:hover { border-color: var(--sl-accent-300, #fcd34d); background: var(--sl-gray-50, #f9fafb); }
+.sett-duration-card:has(input:checked) {
+  border-color: var(--sl-accent-500, #f59e0b);
+  background: var(--sl-accent-50, #fffbeb);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.sett-duration-card.is-required {
+  cursor: not-allowed;
+  background: var(--sl-accent-50, #fffbeb);
+  border-color: var(--sl-accent-500, #f59e0b);
+}
+.sett-duration-card.is-required:hover { background: var(--sl-accent-50, #fffbeb); }
+.sett-duration-label {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--sl-gray-900, #111827);
+}
+.sett-duration-required-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sl-accent-700, #b45309);
+  background: var(--sl-accent-100, #fef3c7);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
 
 /* ─── Rate cards (pricing page) ─── */
 .sett-rate-card {

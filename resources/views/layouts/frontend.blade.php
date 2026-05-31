@@ -326,6 +326,88 @@
         </div>
     </footer>
 
+    {{-- ────────────────────────────────────────────────────────────────
+         Floating "Help" widget — bottom-right.
+         Click → small panel with link to support center + submit-request.
+         Hidden on admin/dashboard pages (only on public frontend).
+         ──────────────────────────────────────────────────────────────── --}}
+    @php
+        $supportHome = config('app.support_url') ?: (env('SUPPORT_DOMAIN') ? 'https://' . env('SUPPORT_DOMAIN') : url('/support'));
+        $supportRequest = rtrim($supportHome, '/') . '/submit-request';
+    @endphp
+    <div class="sl-help-widget" id="slHelpWidget">
+        <button type="button" class="sl-help-toggle" id="slHelpToggle" aria-label="Open help">
+            <i class="bi bi-question-circle-fill"></i>
+            <span>Help</span>
+        </button>
+        <div class="sl-help-panel" id="slHelpPanel" hidden>
+            <div class="sl-help-panel-header">
+                <strong>How can we help?</strong>
+                <button type="button" class="sl-help-close" id="slHelpClose" aria-label="Close">&times;</button>
+            </div>
+            <div class="sl-help-panel-body">
+                <a href="{{ $supportHome }}" class="sl-help-link" target="_blank">
+                    <i class="bi bi-search me-2"></i>
+                    <div>
+                        <strong>Browse Help Articles</strong>
+                        <div class="small text-muted">Search 100+ articles · 24/7</div>
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                </a>
+                <a href="{{ $supportRequest }}" class="sl-help-link" target="_blank">
+                    <i class="bi bi-envelope-fill me-2"></i>
+                    <div>
+                        <strong>Submit a Request</strong>
+                        <div class="small text-muted">Reply within 1 business day</div>
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <style>
+        .sl-help-widget { position: fixed; bottom: 22px; right: 22px; z-index: 1050; font-family: -apple-system, sans-serif; }
+        .sl-help-toggle {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--sl-accent-500, #f59e0b); color: var(--sl-gray-900, #121110);
+            border: none; padding: 12px 18px; border-radius: 28px;
+            font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,.18);
+            cursor: pointer; transition: transform .15s, box-shadow .15s;
+        }
+        .sl-help-toggle:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.22); }
+        .sl-help-toggle i { font-size: 19px; }
+        .sl-help-panel {
+            position: absolute; bottom: 64px; right: 0;
+            width: 320px; max-width: calc(100vw - 28px);
+            background: #fff; border-radius: 14px; overflow: hidden;
+            box-shadow: 0 12px 36px rgba(0,0,0,.18); border: 1px solid #e5e7eb;
+            animation: slHelpFadeIn .18s ease-out;
+        }
+        @keyframes slHelpFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .sl-help-panel-header { background: #1a1a1a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .sl-help-close { background: transparent; border: none; color: #fff; font-size: 24px; line-height: 1; cursor: pointer; opacity: .8; }
+        .sl-help-close:hover { opacity: 1; }
+        .sl-help-panel-body { padding: 6px 0; }
+        .sl-help-link { display: flex; align-items: center; padding: 14px 16px; color: #111827; text-decoration: none; border-bottom: 1px solid #f3f4f6; }
+        .sl-help-link:last-child { border-bottom: none; }
+        .sl-help-link:hover { background: #f9fafb; color: #111827; }
+        .sl-help-link i.bi:first-child { font-size: 20px; color: var(--sl-accent-500, #f59e0b); }
+        @media (max-width: 480px) { .sl-help-widget { bottom: 14px; right: 14px; } .sl-help-toggle span { display: none; } .sl-help-toggle { padding: 14px; } }
+    </style>
+    <script>
+    (function() {
+        const toggle = document.getElementById('slHelpToggle');
+        const panel = document.getElementById('slHelpPanel');
+        const close = document.getElementById('slHelpClose');
+        if (!toggle || !panel) return;
+        toggle.addEventListener('click', () => panel.hidden = !panel.hidden);
+        close?.addEventListener('click', () => panel.hidden = true);
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('slHelpWidget').contains(e.target)) panel.hidden = true;
+        });
+    })();
+    </script>
+
     @stack('scripts')
 </body>
 </html>

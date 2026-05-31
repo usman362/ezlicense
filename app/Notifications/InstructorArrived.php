@@ -37,7 +37,7 @@ class InstructorArrived extends Notification
         $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'today';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : '';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : '';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Driving Lesson';
         $instructorName = $b->instructor->name ?? 'Your instructor';
 

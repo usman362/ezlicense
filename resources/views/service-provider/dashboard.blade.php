@@ -55,7 +55,7 @@
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                         <p class="fw-semibold mb-1">{{ $b->customer->name }} &middot; {{ $b->reference }}</p>
-                        <p class="text-muted small mb-0">{{ $b->scheduled_at->format('D, d M g:i a') }} &middot; {{ $b->address_line }}, {{ $b->suburb }}</p>
+                        <p class="text-muted small mb-0">{{ $b->scheduled_at->format('D, d M H:i') }} &middot; {{ $b->address_line }}, {{ $b->suburb }}</p>
                     </div>
                     <span class="fw-bold">${{ number_format($b->total_amount, 2) }}</span>
                 </div>

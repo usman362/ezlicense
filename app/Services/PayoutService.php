@@ -37,10 +37,15 @@ class PayoutService
         $periodStartUtc = $periodStart->copy()->utc();
         $periodEndUtc = $periodEnd->copy()->utc();
 
-        // Find all completed+paid bookings in this period NOT already assigned to a payout
+        // Find bookings that are completed+paid AND have passed the 24h hold window
+        // (payment_released_at !== null), AND are not currently held by admin.
+        // Bookings still in the dispute window OR on admin hold are skipped — they'll
+        // be picked up on the next run once released.
         $bookings = Booking::where('status', Booking::STATUS_COMPLETED)
             ->whereIn('payment_status', [Booking::PAYMENT_PAID, 'paid'])
             ->whereNull('instructor_payout_id')
+            ->whereNotNull('payment_released_at')        // released past hold window
+            ->whereNull('payment_held_at')                // not on admin hold
             ->whereBetween('scheduled_at', [$periodStartUtc, $periodEndUtc])
             ->with('instructorProfile')
             ->get();

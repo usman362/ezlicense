@@ -40,11 +40,11 @@ class LessonReminder24h extends Notification
             : 'TBD';
 
         $when = $b->scheduled_at;
-        $whenLabel = $when->format('l, j F Y') . ' at ' . $when->format('g:i a');
+        $whenLabel = $when->format('l, j F Y') . ' at ' . $when->format('H:i');
         $type = $b->type === 'test_package' ? 'Driving Test Package' : ($b->duration_minutes >= 120 ? '2-Hour Lesson' : '1-Hour Lesson');
 
         $msg = (new MailMessage)
-            ->subject('Reminder: Your lesson is tomorrow — ' . $when->format('j M, g:i a'));
+            ->subject('Reminder: Your lesson is tomorrow — ' . $when->format('j M, H:i'));
 
         if ($isLearner) {
             $instructorName = $b->instructor?->name ?? 'your instructor';
@@ -85,7 +85,7 @@ class LessonReminder24h extends Notification
     public function toVonage($notifiable): VonageMessage
     {
         $b = $this->booking;
-        $time = $b->scheduled_at->format('j M, g:i a');
+        $time = $b->scheduled_at->format('j M, H:i');
         $isLearner = $this->audience === 'learner';
 
         if ($isLearner) {
@@ -104,7 +104,7 @@ class LessonReminder24h extends Notification
         return [
             'type' => 'lesson_reminder_24h',
             'title' => 'Lesson tomorrow',
-            'body' => 'Your lesson is at ' . $this->booking->scheduled_at->format('g:i a') . ' tomorrow.',
+            'body' => 'Your lesson is at ' . $this->booking->scheduled_at->format('H:i') . ' tomorrow.',
             'booking_id' => $this->booking->id,
             'scheduled_at' => $this->booking->scheduled_at->toIso8601String(),
         ];

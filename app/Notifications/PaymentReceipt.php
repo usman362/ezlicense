@@ -50,7 +50,7 @@ class PaymentReceipt extends Notification
         foreach ($this->bookings as $b) {
             $b->loadMissing(['suburb.state']);
             $location = $b->suburb ? $b->suburb->name . ' ' . ($b->suburb->postcode ?? '') : '';
-            $msg->line('• **' . $b->scheduled_at->format('D, j M Y') . ' at ' . $b->scheduled_at->format('g:i a') . '** — '
+            $msg->line('• **' . $b->scheduled_at->format('D, j M Y') . ' at ' . $b->scheduled_at->format('H:i') . '** — '
                 . ($b->type === 'test_package' ? 'Test Package' : 'Driving Lesson')
                 . ($location ? ' (' . trim($location) . ')' : '')
                 . ' — $' . number_format((float) $b->amount, 2));

@@ -28,7 +28,7 @@
                 <dd class="col-sm-8">{{ $booking->category->name }}</dd>
 
                 <dt class="col-sm-4">When</dt>
-                <dd class="col-sm-8">{{ $booking->scheduled_at->format('D, d M Y g:i a') }}</dd>
+                <dd class="col-sm-8">{{ $booking->scheduled_at->format('D, d M Y H:i') }}</dd>
 
                 <dt class="col-sm-4">Duration</dt>
                 <dd class="col-sm-8">{{ $booking->duration_minutes }} min</dd>

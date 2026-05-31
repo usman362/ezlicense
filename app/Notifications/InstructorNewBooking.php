@@ -31,7 +31,7 @@ class InstructorNewBooking extends Notification
         $b = $this->booking;
         $b->loadMissing('learner:id,name');
         $learner = $b->learner->name ?? 'A learner';
-        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : 'TBC';
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, H:i') : 'TBC';
 
         return (new VonageMessage)
             ->content("SecureLicences: New booking! {$learner} booked a lesson on {$date}. View at " . url('/instructor/calendar'));
@@ -44,7 +44,7 @@ class InstructorNewBooking extends Notification
         $b->loadMissing(['learner:id,name,email,phone', 'suburb.state']);
 
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : 'TBC';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Driving Lesson';
         $learnerName = $b->learner->name ?? 'A learner';
         $learnerPhone = $b->learner->phone ?? '';

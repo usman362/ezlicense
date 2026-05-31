@@ -39,7 +39,7 @@ class AdminBookingAlert extends Notification
         $b->loadMissing(['learner:id,name,email,phone', 'instructor:id,name,email,phone', 'suburb.state']);
 
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : 'TBC';
         $type = $b->type === 'test_package' ? 'Test Package' : 'Driving Lesson';
         $learnerName = $b->learner->name ?? 'Unknown';
         $instructorName = $b->instructor->name ?? 'Unknown';

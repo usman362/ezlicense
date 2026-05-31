@@ -40,6 +40,24 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('Australia/Sydney')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/lesson-reminders.log'));
+
+        // Release pending payments past the 24h dispute window — runs hourly,
+        // idempotent. Once released, bookings become eligible for the next
+        // weekly payout run on Monday 02:00.
+        $schedule->command('payments:release-pending --hours=24')
+            ->hourly()
+            ->timezone('Australia/Sydney')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/payments-release.log'));
+
+        // Email instructors their weekly statement every Sunday at 18:00 AEST
+        // (the day after a Sun-Sat period ends). For fortnightly/4-weekly
+        // instructors, the command itself checks if their period ended.
+        $schedule->command('statements:send-weekly')
+            ->weeklyOn(0, '18:00')      // 0 = Sunday
+            ->timezone('Australia/Sydney')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/statements.log'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

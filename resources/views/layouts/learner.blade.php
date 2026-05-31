@@ -222,6 +222,10 @@
                         <i class="bi bi-wallet2"></i>
                         <span>Wallet</span>
                     </a>
+                    <a class="nav-link {{ request()->routeIs('learner.receipts*') ? 'active' : '' }}" href="{{ route('learner.receipts') }}">
+                        <i class="bi bi-receipt"></i>
+                        <span>Receipts</span>
+                    </a>
                     {{-- DISABLED for Phase 1 launch — service bookings + find services
                     <a class="nav-link {{ request()->routeIs('service-bookings.*') ? 'active' : '' }}" href="{{ route('service-bookings.index') }}">
                         <i class="bi bi-tools"></i>

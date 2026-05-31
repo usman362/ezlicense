@@ -239,9 +239,9 @@
                     <div class="bk-card-body">
                         <div class="bk-card-head">
                             <div class="bk-card-time">
-                                <i class="bi bi-clock me-1"></i>{{ $time?->format('g:i a') ?? '' }}
+                                <i class="bi bi-clock me-1"></i>{{ $time?->format('H:i') ?? '' }}
                                 @if($b->duration_minutes)
-                                    – {{ $time?->copy()->addMinutes($b->duration_minutes)->format('g:i a') }}
+                                    – {{ $time?->copy()->addMinutes($b->duration_minutes)->format('H:i') }}
                                 @endif
                             </div>
                             <span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>Awaiting learner</span>

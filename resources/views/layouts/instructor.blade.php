@@ -319,6 +319,10 @@
                     <i class="bi bi-pie-chart"></i>
                     <span>Reports</span>
                 </a>
+                <a class="nav-link {{ request()->routeIs('instructor.statements*') ? 'active' : '' }}" href="{{ route('instructor.statements') }}">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    <span>Statements</span>
+                </a>
 
                 <div class="nav-divider"></div>
                 <div class="nav-section-label">Settings</div>

@@ -29,7 +29,7 @@ class RefundProcessed extends Notification
         $cancelFee   = max(0, (float) $b->amount - (float) $b->refund_amount);
         $cancelFeeFmt= number_format($cancelFee, 2);
         $date        = optional($b->scheduled_at)->format('l, j F Y');
-        $time        = optional($b->scheduled_at)->format('g:i A');
+        $time        = optional($b->scheduled_at)->format('H:i');
         $methodLabel = match ($b->refund_method) {
             'wallet'           => 'Secure Licence wallet credit',
             'original_payment' => 'Original payment method (card)',

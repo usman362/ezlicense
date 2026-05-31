@@ -28,7 +28,7 @@ class BookingCancelled extends Notification
     public function toVonage(object $notifiable): VonageMessage
     {
         $b = $this->booking;
-        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, g:i A') : '';
+        $date = $b->scheduled_at ? $b->scheduled_at->format('D d M, H:i') : '';
 
         return (new VonageMessage)
             ->content("SecureLicences: Booking #{$b->id} on {$date} has been cancelled. Reason: " . ($this->reason ?: 'Not specified') . ". Log in for details.");
@@ -39,7 +39,7 @@ class BookingCancelled extends Notification
         $siteName = SiteSetting::get('site_name', 'Secure Licence');
         $b = $this->booking;
         $date = $b->scheduled_at ? $b->scheduled_at->format('l, d M Y') : 'TBC';
-        $time = $b->scheduled_at ? $b->scheduled_at->format('g:i A') : 'TBC';
+        $time = $b->scheduled_at ? $b->scheduled_at->format('H:i') : 'TBC';
 
         $mail = (new MailMessage)
             ->subject("Booking Cancelled — #{$b->id}")
@@ -59,7 +59,7 @@ class BookingCancelled extends Notification
         // If rescheduled, let learner know
         if ($b->rescheduledToBooking) {
             $newDate = $b->rescheduledToBooking->scheduled_at?->format('l, d M Y');
-            $newTime = $b->rescheduledToBooking->scheduled_at?->format('g:i A');
+            $newTime = $b->rescheduledToBooking->scheduled_at?->format('H:i');
             $mail->line("A new booking has been proposed for **{$newDate}** at **{$newTime}**. Please log in to accept or decline.");
         }
 

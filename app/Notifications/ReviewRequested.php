@@ -35,10 +35,10 @@ class ReviewRequested extends Notification
             : 'TBC';
 
         $startTime = $b->scheduled_at
-            ? $b->scheduled_at->format('g:i a')
+            ? $b->scheduled_at->format('H:i')
             : 'TBC';
         $endTime = $b->scheduled_at
-            ? $b->scheduled_at->copy()->addMinutes($b->duration_minutes ?? 60)->format('g:i a')
+            ? $b->scheduled_at->copy()->addMinutes($b->duration_minutes ?? 60)->format('H:i')
             : '';
         $lessonTime = $endTime ? "{$startTime} - {$endTime}" : $startTime;
 

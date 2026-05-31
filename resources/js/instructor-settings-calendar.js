@@ -5,7 +5,18 @@ let initialData = null;
 function getFormData() {
   const form = document.getElementById('calendar-settings-form');
   if (!form) return null;
+  // Lesson durations — collect all checked checkboxes (required ones are always
+  // checked+disabled, so guaranteed to be present).
+  const durations = Array.from(form.querySelectorAll('input[name="lesson_durations[]"]:checked'))
+    .map((el) => parseInt(el.value, 10))
+    .filter((n) => Number.isFinite(n));
+  // Defensive: force-include the required durations
+  if (!durations.includes(60)) durations.push(60);
+  if (!durations.includes(120)) durations.push(120);
+  durations.sort((a, b) => a - b);
+
   return {
+    lesson_durations: durations,
     travel_buffer_same_mins: parseInt(form.travel_buffer_same_mins?.value, 10) || 30,
     travel_buffer_synced_mins: parseInt(form.travel_buffer_synced_mins?.value, 10) || 30,
     min_prior_notice_hours: parseInt(form.min_prior_notice_hours?.value, 10) ?? 5,
@@ -39,6 +50,16 @@ function setFormData(data) {
   setVal('smart_scheduling_buffer_hrs', data.smart_scheduling_buffer_hrs ?? 1);
   setVal('attach_ics_to_emails', data.attach_ics_to_emails !== false ? '1' : '0');
   setVal('default_calendar_view', data.default_calendar_view || 'day');
+
+  // Lesson durations — check matching boxes; required (60, 120) stay checked+disabled regardless.
+  const selected = Array.isArray(data.lesson_durations) && data.lesson_durations.length
+    ? data.lesson_durations.map(Number)
+    : [60, 120];
+  form.querySelectorAll('input[name="lesson_durations[]"]').forEach((el) => {
+    const val = parseInt(el.value, 10);
+    const required = el.dataset.required === '1';
+    el.checked = required || selected.includes(val);
+  });
 }
 
 function hasChanges() {
@@ -57,6 +78,9 @@ async function load() {
   document.getElementById('calendar-settings-loading').style.display = 'none';
   document.getElementById('calendar-settings-form').style.display = 'block';
   initialData = {
+    lesson_durations: Array.isArray(data.lesson_durations) && data.lesson_durations.length
+      ? data.lesson_durations.map(Number).sort((a, b) => a - b)
+      : [60, 120],
     travel_buffer_same_mins: data.travel_buffer_same_mins ?? 30,
     travel_buffer_synced_mins: data.travel_buffer_synced_mins ?? 30,
     min_prior_notice_hours: data.min_prior_notice_hours ?? 5,
@@ -74,6 +98,19 @@ async function load() {
     el.addEventListener('change', updateDiscardButton);
     el.addEventListener('input', updateDiscardButton);
   });
+
+  // Make the duration checkbox cards clickable from anywhere on the card
+  // (label already wraps the input but this makes the entire card respond to click).
+  form.querySelectorAll('.sett-duration-card').forEach((card) => {
+    const input = card.querySelector('input[type="checkbox"]');
+    if (!input || input.disabled) return;
+    card.addEventListener('click', (e) => {
+      // Don't double-toggle when the click was directly on the checkbox or label text
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+      input.checked = !input.checked;
+      updateDiscardButton();
+    });
+  });
 }
 
 document.getElementById('discard-calendar-btn')?.addEventListener('click', () => {
@@ -87,6 +124,7 @@ document.getElementById('save-calendar-btn')?.addEventListener('click', async ()
   if (!payload) return;
   try {
     await updateInstructorCalendarSettings({
+      lesson_durations: payload.lesson_durations,
       travel_buffer_same_mins: payload.travel_buffer_same_mins,
       travel_buffer_synced_mins: payload.travel_buffer_synced_mins,
       min_prior_notice_hours: payload.min_prior_notice_hours,
