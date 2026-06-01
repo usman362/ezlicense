@@ -332,7 +332,7 @@
          Hidden on admin/dashboard pages (only on public frontend).
          ──────────────────────────────────────────────────────────────── --}}
     @php
-        $supportHome = config('app.support_url') ?: (env('SUPPORT_DOMAIN') ? 'https://' . env('SUPPORT_DOMAIN') : url('/support'));
+        $supportHome = config('app.support_domain') ? 'https://' . config('app.support_domain') : url('/support');
         $supportRequest = rtrim($supportHome, '/') . '/submit-request';
     @endphp
     <div class="sl-help-widget" id="slHelpWidget">

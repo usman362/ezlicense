@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 |
 | The /support/* prefix fallback is registered later at the bottom of the file.
 */
-if ($supportDomain = env('SUPPORT_DOMAIN')) {
+if ($supportDomain = config('app.support_domain')) {
     Route::domain($supportDomain)->name('support.')->group(function () {
         $c = App\Http\Controllers\Support\SupportController::class;
         $req = App\Http\Controllers\Support\SupportRequestController::class;
@@ -782,8 +782,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 */
 
 // Register the same support routes either on a subdomain (production) or under
-// /support on the main domain (local dev), depending on env config.
-$supportDomain = env('SUPPORT_DOMAIN');     // e.g. 'support.securelicence.com'
+// /support on the main domain (local dev), depending on config.
+// NOTE: pulled from config (not env) so it survives `php artisan config:cache`.
+$supportDomain = config('app.support_domain');     // e.g. 'support.securelicence.com'
 
 $supportRoutes = function () {
     $c = App\Http\Controllers\Support\SupportController::class;

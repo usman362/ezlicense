@@ -17,6 +17,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Support Subdomain
+    |--------------------------------------------------------------------------
+    | Stored in config (not read via env() in routes) so it survives config:cache.
+    | When empty → /support/* is canonical. When set → subdomain is canonical.
+    */
+    'support_domain' => env('SUPPORT_DOMAIN'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
