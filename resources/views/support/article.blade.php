@@ -3,58 +3,77 @@
 @section('title', $article->title)
 @section('meta_description', $article->meta_description ?? $article->excerpt)
 
-@section('breadcrumb')
-<span class="text-muted mx-2">/</span><a href="{{ route('support.category', $article->section->category->slug) }}">{{ $article->section->category->name }}</a>
-<span class="text-muted mx-2">/</span><a href="{{ route('support.section', $article->section->slug) }}">{{ $article->section->name }}</a>
-<span class="text-muted mx-2">/</span><span class="text-truncate" style="max-width:280px;display:inline-block;vertical-align:bottom;">{{ $article->title }}</span>
+@section('subnav')
+    <ol class="breadcrumbs">
+        <li><a href="{{ route('support.home') }}">Secure Licence Support</a></li>
+        <li><a href="{{ route('support.category', $article->section->category->slug) }}">{{ $article->section->category->name }}</a></li>
+        <li><a href="{{ route('support.section', $article->section->slug) }}">{{ $article->section->name }}</a></li>
+    </ol>
+    <form role="search" class="inline-search" action="{{ route('support.search') }}" method="GET">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M14.5 14.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="search" name="q" placeholder="Search" aria-label="Search">
+    </form>
 @endsection
 
 @section('content')
-<div class="row">
-    {{-- Main article --}}
-    <div class="col-lg-8">
-        <article class="article-body">
-            <h1 class="mb-3" style="font-size:28px; font-weight:800;">{{ $article->title }}</h1>
-            <div class="text-muted small mb-4">
-                <i class="bi bi-eye"></i> {{ number_format($article->views_count) }} views ·
+<div class="container">
+    <div class="article-container">
+        {{-- ── Left sidebar: Articles in this section ── --}}
+        <aside class="article-sidebar">
+            <h3>Articles in this section</h3>
+            <ul>
+                @foreach($article->section->articles as $sibling)
+                    <li>
+                        <a href="{{ route('support.article', $sibling->slug) }}"
+                           class="{{ $sibling->id === $article->id ? 'current' : '' }}">
+                            {{ $sibling->title }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </aside>
+
+        {{-- ── Right: article content ── --}}
+        <div class="article-content">
+            <h1>{{ $article->title }}</h1>
+            <div class="article-meta">
+                {{ number_format($article->views_count) }} {{ Str::plural('view', $article->views_count) }} ·
                 Updated {{ $article->updated_at->format('j M Y') }}
             </div>
 
-            {!! $article->content !!}
+            <div class="article-body">
+                {!! $article->content !!}
+            </div>
 
-            {{-- Helpful feedback widget --}}
-            <div class="feedback-box" id="feedback-widget">
-                <h6>Was this article helpful?</h6>
-                <button type="button" class="btn btn-outline-success me-2" data-helpful="1">
+            {{-- Feedback widget --}}
+            <div class="feedback-widget" id="feedback-widget">
+                <div class="feedback-title">Was this article helpful?</div>
+                <button type="button" data-helpful="1">
                     <i class="bi bi-hand-thumbs-up"></i> Yes
                 </button>
-                <button type="button" class="btn btn-outline-danger" data-helpful="0">
+                <button type="button" data-helpful="0">
                     <i class="bi bi-hand-thumbs-down"></i> No
                 </button>
-                <div class="text-muted small mt-2">
+                <div class="feedback-count">
                     {{ $article->helpful_yes_count + $article->helpful_no_count }} {{ Str::plural('person', $article->helpful_yes_count + $article->helpful_no_count) }} found this helpful
                 </div>
             </div>
-        </article>
-    </div>
 
-    {{-- Sidebar --}}
-    <div class="col-lg-4 mt-4 mt-lg-0">
-        @if($related->isNotEmpty())
-            <div class="sec-card mb-3">
-                <h4><i class="bi bi-bookmark"></i> Related articles</h4>
-                <div class="sec-articles">
-                    @foreach($related as $r)
-                        <a href="{{ route('support.article', $r->slug) }}">{{ $r->title }}</a>
-                    @endforeach
+            {{-- "Still need help?" --}}
+            <div style="margin-top: 32px; padding: 20px 24px; background: #fff8e1; border: 1px solid #ffe588; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <strong>Still need help?</strong>
+                        <div style="color: var(--sl-text-muted); font-size: 14px; margin-top: 2px;">Our team responds within 1 business day.</div>
+                    </div>
+                    <a href="{{ route('support.request.show') }}" class="submit-a-request" style="background: var(--sl-yellow); color: var(--sl-ink); padding: 9px 18px; border-radius: 999px; font-weight: 700; font-size: 14px; text-decoration: none;">
+                        Contact Us
+                    </a>
                 </div>
             </div>
-        @endif
-
-        <div class="sec-card" style="background:#fff8e1; border-color:var(--sl-yellow);">
-            <h4><i class="bi bi-envelope-fill"></i> Still need help?</h4>
-            <p class="small text-muted">Can't find what you're looking for? Our support team is here to help.</p>
-            <a href="{{ route('support.request.show') }}" class="btn btn-warning fw-bold w-100">Contact Us</a>
         </div>
     </div>
 </div>
@@ -64,7 +83,7 @@
 document.querySelectorAll('#feedback-widget [data-helpful]').forEach(btn => {
     btn.addEventListener('click', async () => {
         const isHelpful = btn.dataset.helpful;
-        btn.disabled = true;
+        document.querySelectorAll('#feedback-widget button').forEach(b => b.disabled = true);
         try {
             const r = await fetch('{{ route('support.article.feedback', $article->slug) }}', {
                 method: 'POST',
@@ -78,10 +97,10 @@ document.querySelectorAll('#feedback-widget [data-helpful]').forEach(btn => {
             const d = await r.json();
             document.getElementById('feedback-widget').innerHTML =
                 d.already_voted
-                    ? '<h6>You\'ve already voted on this article. Thanks!</h6>'
-                    : '<h6>Thanks for your feedback! 🙏</h6><div class="small text-muted">We use this to improve our help articles.</div>';
+                    ? '<div class="feedback-title">You\'ve already voted on this article. Thanks!</div>'
+                    : '<div class="feedback-title">Thanks for your feedback!</div><div class="feedback-count">We use this to improve our help articles.</div>';
         } catch (e) {
-            btn.disabled = false;
+            document.querySelectorAll('#feedback-widget button').forEach(b => b.disabled = false);
             alert('Could not submit feedback. Please try again.');
         }
     });

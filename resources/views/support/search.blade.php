@@ -3,44 +3,54 @@
 @section('title', 'Search: ' . $q)
 
 @section('hero')
-<section class="sup-hero">
-    <div class="container text-center">
-        <h1>Search results</h1>
-        <form class="search-box" action="{{ route('support.search') }}" method="GET">
-            <div class="input-group">
-                <input type="search" name="q" class="form-control" placeholder="Search for help articles…" value="{{ $q }}" autocomplete="off">
-                <button type="submit" class="btn"><i class="bi bi-search me-1"></i>Search</button>
-            </div>
-        </form>
-    </div>
+<section class="hero">
+    <h2>Search results</h2>
+    <form role="search" class="search-wrap" action="{{ route('support.search') }}" method="GET" autocomplete="off">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M14.5 14.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="search" name="q" placeholder="Search" aria-label="Search" value="{{ $q }}">
+    </form>
 </section>
 @endsection
 
 @section('content')
-@if($q === '')
-    <div class="alert alert-light text-center">Type a search term above to find help articles.</div>
-@else
-    <p class="text-muted">{{ $results->count() }} {{ Str::plural('result', $results->count()) }} for <strong>"{{ $q }}"</strong></p>
-
-    @forelse($results as $a)
-        <a href="{{ route('support.article', $a->slug) }}" class="article-list-item">
-            <div>
-                <h5 class="mb-1">{{ $a->title }}</h5>
-                <div class="text-muted small mb-1">
-                    <i class="bi bi-folder"></i> {{ $a->section->category->name ?? '' }} › {{ $a->section->name ?? '' }}
-                </div>
-                @if($a->excerpt)
-                    <div class="text-muted small">{{ Str::limit($a->excerpt, 160) }}</div>
-                @endif
-            </div>
-            <span class="arrow"><i class="bi bi-chevron-right"></i></span>
-        </a>
-    @empty
-        <div class="alert alert-light text-center py-5">
-            <i class="bi bi-search display-4 d-block mb-3 opacity-50"></i>
-            <h4>No results found</h4>
-            <p class="text-muted">Try different keywords, or <a href="{{ route('support.request.show') }}">contact our support team</a>.</p>
+<div class="container">
+    @if($q === '')
+        <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <h4>Type a search term above</h4>
+            <p>Find help articles by keyword.</p>
         </div>
-    @endforelse
-@endif
+    @else
+        <div class="search-results-summary">
+            {{ $results->count() }} {{ Str::plural('result', $results->count()) }} for <strong>"{{ $q }}"</strong>
+        </div>
+
+        @if($results->isEmpty())
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <h4>No results found</h4>
+                <p>Try different keywords, or <a href="{{ route('support.request.show') }}">contact our support team</a>.</p>
+            </div>
+        @else
+            <ul class="article-list" style="border-top: 1px solid var(--sl-border);">
+                @foreach($results as $a)
+                    <li>
+                        <a href="{{ route('support.article', $a->slug) }}" style="display: block; padding: 16px 4px;">
+                            <div style="font-weight: 600; color: var(--sl-ink); margin-bottom: 4px;">{{ $a->title }}</div>
+                            <div style="color: var(--sl-text-muted); font-size: 13px; margin-bottom: 4px;">
+                                {{ $a->section->category->name ?? '' }} › {{ $a->section->name ?? '' }}
+                            </div>
+                            @if($a->excerpt)
+                                <div style="color: var(--sl-text-muted); font-size: 14px;">{{ Str::limit($a->excerpt, 160) }}</div>
+                            @endif
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    @endif
+</div>
 @endsection
