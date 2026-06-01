@@ -804,10 +804,22 @@ $supportRoutes = function () {
 // the /support/* prefix fallback. When SUPPORT_DOMAIN is empty, /support/* is the
 // canonical home.
 if ($supportDomain) {
-    // Subdomain already registered at top — just add /support/* fallback (no names to avoid clash)
-    Route::prefix('support')->group($supportRoutes);
+    // Subdomain already registered at top — register /support/* fallback inline
+    // WITHOUT names (names belong to the canonical subdomain routes above to avoid clash).
+    Route::prefix('support')->group(function () {
+        $c = App\Http\Controllers\Support\SupportController::class;
+        $req = App\Http\Controllers\Support\SupportRequestController::class;
+        Route::get('/', [$c, 'home']);
+        Route::get('/search', [$c, 'search']);
+        Route::get('/submit-request', [$req, 'show']);
+        Route::post('/submit-request', [$req, 'store']);
+        Route::get('/categories/{category:slug}', [$c, 'category']);
+        Route::get('/sections/{section:slug}', [$c, 'section']);
+        Route::get('/articles/{article:slug}', [$c, 'article']);
+        Route::post('/articles/{article:slug}/feedback', [$c, 'feedback']);
+    });
 } else {
-    // No subdomain configured — /support/* is canonical
+    // No subdomain configured — /support/* is canonical (uses named closure)
     Route::prefix('support')->name('support.')->group($supportRoutes);
 }
 
