@@ -55,11 +55,20 @@ class InstructorInviteController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'first_name'    => 'required|string|max:100',
-            'last_name'     => 'nullable|string|max:100',
-            'email'         => 'required|email|max:255',
-            'phone'         => 'nullable|string|max:30',
-            'personal_note' => 'nullable|string|max:500',
+            'first_name'      => 'required|string|max:100',
+            'last_name'       => 'nullable|string|max:100',
+            'email'           => 'required|email|max:255',
+            'phone'           => 'nullable|string|max:30',
+            // ── Pre-fill bio so instructor's profile is mostly ready on accept ──
+            'years_experience'=> 'nullable|integer|min:0|max:60',
+            'transmission'    => 'nullable|in:auto,manual,both',
+            'bio'             => 'nullable|string|max:2000',
+            'suburb_id'       => 'nullable|exists:suburbs,id',
+            'lesson_price'    => 'nullable|numeric|min:0|max:500',
+            'vehicle_make'    => 'nullable|string|max:60',
+            'vehicle_model'   => 'nullable|string|max:60',
+            'vehicle_year'    => 'nullable|integer|min:1990|max:2100',
+            'personal_note'   => 'nullable|string|max:500',
         ]);
 
         $email = strtolower(trim($data['email']));
@@ -69,6 +78,14 @@ class InstructorInviteController extends Controller
         if ($existing && $existing->role === User::ROLE_INSTRUCTOR) {
             return back()->withErrors([
                 'email' => 'An instructor account already exists with this email.',
+            ])->withInput();
+        }
+
+        // ── Anti-spam — check against blocked_signups list ──
+        $blocked = \App\Services\BlockedSignupChecker::check($email, $data['phone'] ?? null);
+        if ($blocked) {
+            return back()->withErrors([
+                'email' => 'This email or phone matches a previously blocked account ("' . ($blocked->reason ?? 'no reason given') . '"). Visit Blocked Signups admin to override if intentional.',
             ])->withInput();
         }
 
@@ -88,6 +105,14 @@ class InstructorInviteController extends Controller
             'last_name'          => $data['last_name'] ?? null,
             'email'              => $email,
             'phone'              => $data['phone'] ?? null,
+            'years_experience'   => $data['years_experience'] ?? null,
+            'transmission'       => $data['transmission'] ?? null,
+            'bio'                => $data['bio'] ?? null,
+            'suburb_id'          => $data['suburb_id'] ?? null,
+            'lesson_price'       => $data['lesson_price'] ?? null,
+            'vehicle_make'       => $data['vehicle_make'] ?? null,
+            'vehicle_model'      => $data['vehicle_model'] ?? null,
+            'vehicle_year'       => $data['vehicle_year'] ?? null,
             'personal_note'      => $data['personal_note'] ?? null,
             'invited_by_user_id' => auth()->id(),
         ]);

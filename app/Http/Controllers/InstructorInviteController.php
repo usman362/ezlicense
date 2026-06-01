@@ -79,6 +79,12 @@ class InstructorInviteController extends Controller
             'password'              => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required|string|min:8',
             'accept_terms'          => 'required|accepted',
+            // ── Pre-filled bio (instructor reviewed/edited before submit) ──
+            'years_experience'      => 'nullable|integer|min:0|max:60',
+            'transmission'          => 'nullable|in:auto,manual,both',
+            'bio'                   => 'nullable|string|max:2000',
+            'lesson_price'          => 'nullable|numeric|min:0|max:500',
+            'vehicle_make'          => 'nullable|string|max:60',
         ]);
 
         // Email is read-only on the form — always use the invite's email server-side
@@ -88,6 +94,15 @@ class InstructorInviteController extends Controller
         if (User::where('email', $email)->exists()) {
             return back()->withErrors([
                 'password' => 'An account already exists with this email. Please log in instead.',
+            ])->withInput();
+        }
+
+        // ── Anti-spam — block previously-banned signups (different email but same person) ──
+        $blocked = \App\Services\BlockedSignupChecker::check($email, $data['phone']);
+        if ($blocked) {
+            \App\Services\BlockedSignupChecker::logAttempt($blocked, $email, $data['phone'], trim($data['first_name'] . ' ' . $data['last_name']), $request->ip());
+            return back()->withErrors([
+                'password' => 'Account creation blocked. If you believe this is an error, contact support@securelicence.com.',
             ])->withInput();
         }
 
@@ -105,11 +120,26 @@ class InstructorInviteController extends Controller
                     'email_verified_at' => now(), // Magic-link signup ⇒ email is implicitly verified
                 ]);
 
-                // Create instructor profile shell (admin will verify docs later)
-                InstructorProfile::firstOrCreate(
+                // Create instructor profile pre-filled with invite + form data.
+                // Anything still blank, admin will pick up in onboarding review.
+                $profile = InstructorProfile::firstOrCreate(
                     ['user_id' => $user->id],
-                    ['is_active' => false] // Active only after admin approves docs
+                    [
+                        'is_active'        => false, // Active only after admin approves docs
+                        'years_experience' => $data['years_experience'] ?? $invite->years_experience,
+                        'transmission'     => $data['transmission'] ?? $invite->transmission ?? 'both',
+                        'bio'              => $data['bio'] ?? $invite->bio,
+                        'lesson_price'     => $data['lesson_price'] ?? $invite->lesson_price ?? 0,
+                        'vehicle_make'     => $data['vehicle_make'] ?? $invite->vehicle_make,
+                        'vehicle_model'    => $invite->vehicle_model,
+                        'vehicle_year'     => $invite->vehicle_year,
+                    ]
                 );
+
+                // Attach primary suburb if provided in invite
+                if ($invite->suburb_id && $profile && method_exists($profile, 'serviceAreas')) {
+                    $profile->serviceAreas()->syncWithoutDetaching([$invite->suburb_id]);
+                }
 
                 $invite->markAccepted($user);
 

@@ -265,6 +265,15 @@
                         <span class="badge text-bg-warning ms-1">{{ $newReqCount }}</span>
                     @endif
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.blocked-signups.*') ? 'active' : '' }}" href="{{ route('admin.blocked-signups.index') }}">
+                    <i class="bi bi-shield-fill-x"></i> Blocked Signups
+                    @php
+                        $unreadAttempts = \App\Models\BlockedSignupAttempt::where('created_at', '>=', now()->subDays(7))->count();
+                    @endphp
+                    @if($unreadAttempts > 0)
+                        <span class="badge text-bg-danger ms-1">{{ $unreadAttempts }}</span>
+                    @endif
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.instructor-invites*') ? 'active' : '' }}" href="{{ route('admin.instructor-invites.index') }}">
                     <i class="bi bi-envelope-paper-fill"></i> Instructor Invites
                 </a>

@@ -21,6 +21,14 @@ class InstructorInvite extends Model
         'first_name',
         'last_name',
         'phone',
+        'years_experience',
+        'transmission',
+        'bio',
+        'suburb_id',
+        'lesson_price',
+        'vehicle_make',
+        'vehicle_model',
+        'vehicle_year',
         'personal_note',
         'invited_by_user_id',
         'registered_user_id',
@@ -34,11 +42,19 @@ class InstructorInvite extends Model
     protected function casts(): array
     {
         return [
-            'expires_at'  => 'datetime',
-            'accepted_at' => 'datetime',
-            'last_sent_at'=> 'datetime',
-            'send_count'  => 'integer',
+            'expires_at'      => 'datetime',
+            'accepted_at'     => 'datetime',
+            'last_sent_at'    => 'datetime',
+            'send_count'      => 'integer',
+            'years_experience'=> 'integer',
+            'lesson_price'    => 'decimal:2',
+            'vehicle_year'    => 'integer',
         ];
+    }
+
+    public function suburb()
+    {
+        return $this->belongsTo(\App\Models\Suburb::class);
     }
 
     protected static function booted(): void

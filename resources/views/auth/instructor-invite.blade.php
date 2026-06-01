@@ -61,6 +61,54 @@
         <input type="tel" name="phone" class="form-control" placeholder="Mobile phone" required value="{{ old('phone', $invite->phone) }}">
     </div>
 
+    {{-- ── Pre-filled bio (collapsible) — instructor can quickly review/edit ── --}}
+    @php
+        $hasPrefill = $invite->years_experience || $invite->transmission || $invite->bio || $invite->lesson_price || $invite->vehicle_make;
+    @endphp
+    @if($hasPrefill)
+        <div class="my-3 p-3 rounded" style="background: #fef9c3; border: 1px solid #fde047;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong style="font-size: 14px;">
+                    <i class="bi bi-stars text-warning"></i> We've pre-built your profile
+                </strong>
+                <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#prefillBio">
+                    Review &amp; edit
+                </button>
+            </div>
+            <div class="small text-muted">Admin already added your basic info. Review below or just submit if it looks right — you can edit anything anytime in Settings.</div>
+        </div>
+
+        <div class="collapse" id="prefillBio">
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label class="form-label small fw-semibold">Years experience</label>
+                    <input type="number" name="years_experience" min="0" max="60" class="form-control form-control-sm" value="{{ old('years_experience', $invite->years_experience) }}">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-semibold">Transmission</label>
+                    <select name="transmission" class="form-select form-select-sm">
+                        <option value="">Choose…</option>
+                        @foreach(['auto' => 'Auto only', 'manual' => 'Manual only', 'both' => 'Both'] as $k => $l)
+                            <option value="{{ $k }}" {{ old('transmission', $invite->transmission) === $k ? 'selected' : '' }}>{{ $l }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-semibold">Lesson price ($)</label>
+                    <input type="number" step="0.01" name="lesson_price" class="form-control form-control-sm" value="{{ old('lesson_price', $invite->lesson_price) }}">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-semibold">Vehicle</label>
+                    <input type="text" name="vehicle_make" class="form-control form-control-sm mb-1" placeholder="Make" value="{{ old('vehicle_make', $invite->vehicle_make) }}">
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">Bio</label>
+                    <textarea name="bio" class="form-control form-control-sm" rows="3" maxlength="2000">{{ old('bio', $invite->bio) }}</textarea>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="auth-input-wrap">
         <i class="bi bi-lock"></i>
         <input type="password" name="password" class="form-control" placeholder="Choose a password (min 8 chars)" required minlength="8">

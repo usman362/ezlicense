@@ -77,7 +77,20 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => [
+                'required', 'string', 'email', 'max:255', 'unique:users',
+                // ── Anti-spam — refuse if email matches a blocked signup ──
+                function ($attr, $value, $fail) use ($data) {
+                    $blocked = \App\Services\BlockedSignupChecker::check($value, $data['phone'] ?? null);
+                    if ($blocked) {
+                        \App\Services\BlockedSignupChecker::logAttempt(
+                            $blocked, $value, $data['phone'] ?? null,
+                            $data['name'] ?? null, request()->ip(), 'signup'
+                        );
+                        $fail('We can\'t create an account with these details. If you believe this is an error, please contact support@securelicence.com.');
+                    }
+                },
+            ],
             'phone' => ['required', 'string', 'max:20'],
             // Instructors can only join via admin invite (see InstructorInviteController).
             // Public signup is locked to learner role to maintain instructor quality control.

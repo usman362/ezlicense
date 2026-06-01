@@ -380,6 +380,16 @@ class InstructorsController extends Controller
                     'deactivation_reason' => 'blocked: ' . $request->input('reason'),
                     'deactivated_at'      => $startedAt,
                 ]);
+
+                // ── Anti-spam — add to blocked signups list so they can't re-register ──
+                // (Only for permanent blocks — temporary blocks lift automatically.)
+                if (! $expiresAt) {
+                    \App\Services\BlockedSignupChecker::add(
+                        $instructorProfile->user,
+                        $request->input('reason'),
+                        Auth::id(),
+                    );
+                }
             }
 
             InstructorAuditLog::record(
@@ -421,6 +431,13 @@ class InstructorsController extends Controller
                     'deactivation_reason' => null,
                     'deactivated_at'      => null,
                 ]);
+
+                // Lift any matching anti-spam block too
+                $existing = \App\Models\BlockedSignup::where('original_user_id', $profile->user->id)
+                    ->where('is_active', true)->first();
+                if ($existing) {
+                    \App\Services\BlockedSignupChecker::release($existing);
+                }
             }
 
             InstructorAuditLog::record(

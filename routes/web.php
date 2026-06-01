@@ -813,3 +813,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/support')->name('admin.
     Route::get('/requests/{request}', [$c, 'requestShow'])->name('request.show');
     Route::put('/requests/{supportRequest}', [$c, 'requestUpdate'])->name('request.update');
 });
+
+// ── Admin: Blocked Signups (anti-spam) ──
+Route::middleware(['auth', 'role:admin'])->prefix('admin/blocked-signups')->name('admin.blocked-signups.')->group(function () {
+    $c = App\Http\Controllers\Admin\BlockedSignupsController::class;
+    Route::get('/', [$c, 'index'])->name('index');
+    Route::post('/', [$c, 'store'])->name('store');
+    Route::get('/{blockedSignup}', [$c, 'show'])->name('show');
+    Route::put('/{blockedSignup}/toggle', [$c, 'toggle'])->name('toggle');
+    Route::delete('/{blockedSignup}', [$c, 'destroy'])->name('destroy');
+});

@@ -242,7 +242,71 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-semibold">Personal note <span class="text-muted">(optional, shown in the email)</span></label>
-                            <textarea name="personal_note" class="form-control" rows="3" maxlength="500" placeholder="e.g. Hi Asman, looking forward to having you on the team! Let me know if you have any questions.">{{ old('personal_note') }}</textarea>
+                            <textarea name="personal_note" class="form-control" rows="2" maxlength="500" placeholder="e.g. Hi Asman, looking forward to having you on the team!">{{ old('personal_note') }}</textarea>
+                        </div>
+
+                        {{-- ── Pre-fill bio so the instructor lands on a mostly-ready profile ── --}}
+                        <div class="col-12">
+                            <div class="alert alert-light border mb-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Pre-fill profile bio</strong> <span class="badge text-bg-info ms-1">Optional</span>
+                                        <div class="small text-muted">Fill in what you know — the instructor only needs to review &amp; submit on accept. Leave blank to let them fill it themselves.</div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#bioFields">
+                                        <i class="bi bi-chevron-down"></i> Show fields
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse col-12" id="bioFields">
+                            <div class="row g-3 p-3 bg-light rounded">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Years experience</label>
+                                    <input type="number" name="years_experience" min="0" max="60" class="form-control" value="{{ old('years_experience') }}" placeholder="e.g. 8">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Transmission</label>
+                                    <select name="transmission" class="form-select">
+                                        <option value="">Choose…</option>
+                                        @foreach(['auto' => 'Auto only', 'manual' => 'Manual only', 'both' => 'Both'] as $k => $l)
+                                            <option value="{{ $k }}" {{ old('transmission') === $k ? 'selected' : '' }}>{{ $l }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Lesson price ($)</label>
+                                    <input type="number" step="0.01" name="lesson_price" class="form-control" value="{{ old('lesson_price') }}" placeholder="e.g. 65.00">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Primary suburb</label>
+                                    <select name="suburb_id" class="form-select">
+                                        <option value="">— None —</option>
+                                        @foreach(\App\Models\Suburb::orderBy('name')->limit(500)->get(['id','name','postcode']) as $s)
+                                            <option value="{{ $s->id }}" {{ old('suburb_id') == $s->id ? 'selected' : '' }}>{{ $s->name }} {{ $s->postcode }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Vehicle make</label>
+                                    <input type="text" name="vehicle_make" class="form-control" value="{{ old('vehicle_make') }}" placeholder="Toyota">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Vehicle model</label>
+                                    <input type="text" name="vehicle_model" class="form-control" value="{{ old('vehicle_model') }}" placeholder="Corolla">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Year</label>
+                                    <input type="number" name="vehicle_year" min="1990" max="2100" class="form-control" value="{{ old('vehicle_year') }}" placeholder="2022">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Bio / About</label>
+                                    <textarea name="bio" class="form-control" rows="4" maxlength="2000" placeholder="A short bio shown on instructor's public profile. e.g. Friendly, patient instructor with 8 years experience teaching learners in Western Sydney...">{{ old('bio') }}</textarea>
+                                    <div class="form-text">Auto-saved to instructor's profile. They can edit anytime.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
