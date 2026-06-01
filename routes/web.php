@@ -11,6 +11,31 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SuburbController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Support subdomain — registered FIRST so it matches before the main / route
+|--------------------------------------------------------------------------
+| Laravel matches routes in registration order — the first matching route
+| wins regardless of domain. If support.* requests aren't caught here, they
+| fall through to the main domain's `Route::get('/', ...)` below.
+|
+| The /support/* prefix fallback is registered later at the bottom of the file.
+*/
+if ($supportDomain = env('SUPPORT_DOMAIN')) {
+    Route::domain($supportDomain)->name('support.')->group(function () {
+        $c = App\Http\Controllers\Support\SupportController::class;
+        $req = App\Http\Controllers\Support\SupportRequestController::class;
+        Route::get('/', [$c, 'home'])->name('home');
+        Route::get('/search', [$c, 'search'])->name('search');
+        Route::get('/submit-request', [$req, 'show'])->name('request.show');
+        Route::post('/submit-request', [$req, 'store'])->name('request.store');
+        Route::get('/categories/{category:slug}', [$c, 'category'])->name('category');
+        Route::get('/sections/{section:slug}', [$c, 'section'])->name('section');
+        Route::get('/articles/{article:slug}', [$c, 'article'])->name('article');
+        Route::post('/articles/{article:slug}/feedback', [$c, 'feedback'])->name('article.feedback');
+    });
+}
+
 Route::get('/', function () {
     return view('frontend.home');
 });
@@ -773,9 +798,15 @@ $supportRoutes = function () {
     Route::post('/articles/{article:slug}/feedback', [$c, 'feedback'])->name('article.feedback');
 };
 
+// Note: when SUPPORT_DOMAIN is set, the named subdomain routes are registered at
+// the TOP of this file (so they match before main '/' route). Here we only register
+// the /support/* prefix fallback. When SUPPORT_DOMAIN is empty, /support/* is the
+// canonical home.
 if ($supportDomain) {
-    Route::domain($supportDomain)->name('support.')->group($supportRoutes);
+    // Subdomain already registered at top — just add /support/* fallback (no names to avoid clash)
+    Route::prefix('support')->group($supportRoutes);
 } else {
+    // No subdomain configured — /support/* is canonical
     Route::prefix('support')->name('support.')->group($supportRoutes);
 }
 
