@@ -37,7 +37,7 @@
         <div class="container">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex flex-wrap align-items-center gap-1">
-                    <a href="{{ route('support') }}">Support</a>
+                    <a href="{{ route('support.home') }}">Support</a>
                     <span class="divider">|</span>
                     <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licence</a>
                     <span class="divider">|</span>
@@ -173,7 +173,7 @@
                         @endauth
                         <li class="nav-item"><hr class="my-1" style="opacity:0.1;"></li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('support') }}">
+                            <a class="nav-link" href="{{ route('support.home') }}">
                                 <i class="bi bi-life-preserver me-2"></i>Support
                             </a>
                         </li>
@@ -190,7 +190,7 @@
     <form id="frontend-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
 
     {{-- Floating help button (bottom right) — visible on all screen sizes --}}
-    <a href="{{ route('support') }}" class="floating-help-btn" title="Need help?" aria-label="Need help?">
+    <a href="{{ route('support.home') }}" class="floating-help-btn" title="Need help?" aria-label="Need help?">
         <i class="bi bi-question-lg"></i>
     </a>
 
@@ -263,7 +263,7 @@
                         <li><a href="{{ route('about') }}">About</a></li>
                         <li><a href="{{ route('blog.index') }}">Blog</a></li>
                         <li><a href="{{ route('contact') }}">Contact</a></li>
-                        <li><a href="{{ route('support') }}">Support</a></li>
+                        <li><a href="{{ route('support.home') }}">Support</a></li>
                         <li><a href="{{ route('terms') }}">Terms</a></li>
                         <li><a href="{{ route('privacy') }}">Privacy</a></li>
                     </ul>

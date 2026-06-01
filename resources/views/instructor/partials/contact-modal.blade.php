@@ -95,7 +95,7 @@
 
                 <p class="small text-muted mb-0">
                     Learners who require assistance can contact our <strong>Customer Support Team</strong> via the
-                    <a href="{{ route('support') }}" class="fw-semibold">public support page</a>.
+                    <a href="{{ route('support.home') }}" class="fw-semibold">public support page</a>.
                 </p>
             </div>
         </div>

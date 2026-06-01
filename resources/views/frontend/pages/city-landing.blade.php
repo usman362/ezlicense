@@ -326,7 +326,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-9">
                 <h2 class="cl-section-title mb-2">FAQs</h2>
-                <p class="text-muted small mb-4">Here's a few of the questions we get on a regular basis. Can't find the answer you're looking for? Please check our <a href="{{ route('support') }}">support page</a>.</p>
+                <p class="text-muted small mb-4">Here's a few of the questions we get on a regular basis. Can't find the answer you're looking for? Please check our <a href="{{ route('support.home') }}">support page</a>.</p>
                 <div class="accordion ilc-faq" id="cl-faq">
                     @php
                         $cityFaqs = [

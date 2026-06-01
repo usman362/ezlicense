@@ -60,7 +60,9 @@ Route::get('/contact', fn () => view('frontend.pages.contact'))->name('contact')
 Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 Route::get('/terms-and-conditions', fn () => view('frontend.pages.terms'))->name('terms');
 Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('privacy');
-Route::get('/support', fn () => redirect('/contact'))->name('support');
+// /support is handled by the support routes group further down — see SupportController.
+// Previously this line redirected to /contact; removed because it intercepted
+// the new help center routes before they could match.
 
 // Policies hub and individual policies
 Route::prefix('policies')->name('policies.')->group(function () {
