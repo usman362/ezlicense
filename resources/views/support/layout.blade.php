@@ -248,6 +248,22 @@
             color: var(--sl-text-muted); font-size: 13px; margin-bottom: 24px;
         }
         .article-content .article-body { font-size: 15.5px; line-height: 1.7; }
+        /* ── Defensive: hide any leftover Zendesk footer junk that wasn't stripped by the cleanup command ── */
+        .article-content .article-body .article-footer,
+        .article-content .article-body .article-share,
+        .article-content .article-body .article-votes,
+        .article-content .article-body .article-more-questions,
+        .article-content .article-body .article-return-to-top,
+        .article-content .article-body .article-relatives,
+        .article-content .article-body .related-articles,
+        .article-content .article-body .article-comments,
+        .article-content .article-body .comments,
+        .article-content .article-body .meta-group,
+        .article-content .article-body ul.share,
+        .article-content .article-body .article-author,
+        .article-content .article-body .article-info {
+            display: none !important;
+        }
         .article-content .article-body h2 { font-size: 20px; margin-top: 28px; }
         .article-content .article-body h3 { font-size: 17px; margin-top: 22px; }
         .article-content .article-body p { margin: 0 0 1em; }

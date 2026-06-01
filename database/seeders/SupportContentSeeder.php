@@ -131,6 +131,10 @@ class SupportContentSeeder extends Seeder
      */
     private function rewriteEzLicenceMentions(string $html): string
     {
+        // ── First: truncate Zendesk article-footer junk (share/votes/comments/related) ──
+        // These leaked through the original extractor. Re-using the canonical cleaner.
+        $html = (new \App\Console\Commands\CleanSupportArticlesCommand())->cleanContent($html);
+
         // Brand swap
         $html = preg_replace('/\bEzLicence\b/i', 'Secure Licence', $html);
         $html = preg_replace('/\bezlicence\.com\.au\b/i', 'securelicence.com', $html);
