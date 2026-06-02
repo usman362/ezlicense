@@ -3,7 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\SupportArticle;
+use App\Models\SupportCategory;
+use App\Models\SupportSection;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 /**
  * One-shot cleanup: strip Zendesk's article-footer junk that leaked into seeded
@@ -53,38 +56,90 @@ class CleanSupportArticlesCommand extends Command
     {
         $dry = (bool) $this->option('dry-run');
         $count = SupportArticle::count();
-        $this->info("Scanning {$count} articles...");
+        $this->info("Scanning {$count} articles + categories + sections...");
 
         $cleaned = 0;
+        $titleFixed = 0;
         $unchanged = 0;
         $bytesRemoved = 0;
+        $sectionsFixed = 0;
+        $categoriesFixed = 0;
 
-        SupportArticle::chunk(50, function ($articles) use (&$cleaned, &$unchanged, &$bytesRemoved, $dry) {
+        // ── 1) Articles: content + title ──
+        SupportArticle::chunk(50, function ($articles) use (&$cleaned, &$titleFixed, &$unchanged, &$bytesRemoved, $dry) {
             foreach ($articles as $a) {
-                $before = (string) $a->content;
-                $after = $this->cleanContent($before);
+                $beforeContent = (string) $a->content;
+                $afterContent  = $this->cleanContent($beforeContent);
 
-                if ($before === $after) {
+                $beforeTitle   = (string) $a->title;
+                $afterTitle    = $this->rewriteBrand($beforeTitle);
+
+                $contentChanged = $beforeContent !== $afterContent;
+                $titleChanged   = $beforeTitle !== $afterTitle;
+
+                if (! $contentChanged && ! $titleChanged) {
                     $unchanged++;
                     continue;
                 }
 
-                $bytesRemoved += strlen($before) - strlen($after);
-                $cleaned++;
+                if ($contentChanged) {
+                    $bytesRemoved += strlen($beforeContent) - strlen($afterContent);
+                    $cleaned++;
+                }
+                if ($titleChanged) {
+                    $titleFixed++;
+                }
 
                 if (! $dry) {
-                    $a->content = $after;
-                    // Refresh excerpt from the cleaned content
-                    $a->excerpt = \Illuminate\Support\Str::limit(strip_tags($after), 200);
+                    if ($contentChanged) {
+                        $a->content = $afterContent;
+                        $a->excerpt = Str::limit(strip_tags($afterContent), 200);
+                    }
+                    if ($titleChanged) {
+                        $a->title = $afterTitle;
+                        $a->slug = Str::slug($afterTitle);
+                    }
                     $a->saveQuietly();
                 }
             }
         });
 
+        // ── 2) Sections: name + description ──
+        foreach (SupportSection::all() as $s) {
+            $newName = $this->rewriteBrand((string) $s->name);
+            $newDesc = $this->rewriteBrand((string) $s->description);
+            if ($newName !== $s->name || $newDesc !== $s->description) {
+                $sectionsFixed++;
+                if (! $dry) {
+                    $s->name = $newName;
+                    $s->description = $newDesc;
+                    $s->slug = Str::slug($newName);
+                    $s->saveQuietly();
+                }
+            }
+        }
+
+        // ── 3) Categories: name + description ──
+        foreach (SupportCategory::all() as $c) {
+            $newName = $this->rewriteBrand((string) $c->name);
+            $newDesc = $this->rewriteBrand((string) $c->description);
+            if ($newName !== $c->name || $newDesc !== $c->description) {
+                $categoriesFixed++;
+                if (! $dry) {
+                    $c->name = $newName;
+                    $c->description = $newDesc;
+                    $c->slug = Str::slug($newName);
+                    $c->saveQuietly();
+                }
+            }
+        }
+
         $this->newLine();
-        $this->info("Cleaned:   {$cleaned}");
-        $this->info("Unchanged: {$unchanged}");
-        $this->info("Bytes removed: " . number_format($bytesRemoved));
+        $this->info("Articles — content cleaned: {$cleaned}, titles rebranded: {$titleFixed}");
+        $this->info("Articles — unchanged:       {$unchanged}");
+        $this->info("Sections rebranded:         {$sectionsFixed}");
+        $this->info("Categories rebranded:       {$categoriesFixed}");
+        $this->info("Bytes removed:              " . number_format($bytesRemoved));
 
         if ($dry) {
             $this->warn('Dry run — no changes saved. Remove --dry-run to apply.');
@@ -140,6 +195,22 @@ class CleanSupportArticlesCommand extends Command
         // 5) Tidy trailing whitespace
         $html = trim($html);
 
+        // 6) Brand replacement (in case any new content slipped in)
+        $html = $this->rewriteBrand($html);
+
         return $html;
+    }
+
+    /**
+     * Brand swap — case-insensitive, also handles 'Ezlicence', 'EZLICENCE', 'ezlicence.com.au' etc.
+     */
+    public function rewriteBrand(string $text): string
+    {
+        if ($text === '') return '';
+        $text = preg_replace('/\bezlicence\.com\.au\b/i', 'securelicence.com', $text);
+        $text = preg_replace('/\bezlicence\b/i', 'Secure Licence', $text);
+        // Tidy "Secure Licence Secure Licence" if double-replaced from prior runs
+        $text = preg_replace('/\b(Secure Licence)(\s+\1\b)+/i', '$1', $text);
+        return $text;
     }
 }
