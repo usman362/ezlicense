@@ -22,6 +22,7 @@ class CleanSupportArticlesCommand extends Command
      * marks where junk starts. We truncate the content there.
      */
     private array $junkMarkers = [
+        // Wrapper blocks
         '<div class="article-footer"',
         '<div class="article-share"',
         '<div class="article-votes"',
@@ -31,8 +32,21 @@ class CleanSupportArticlesCommand extends Command
         '<section class="related-articles"',
         '<div class="article-comments"',
         '<section class="comments"',
+        // Bare child elements (when the wrapper has been stripped but children remain)
         '<ul class="share"',
         '<ul class="meta-group"',
+        'class="share-facebook"',
+        'class="share-twitter"',
+        'class="share-linkedin"',
+        'class="article-vote-up"',
+        'class="article-vote-down"',
+        'class="article-votes-question"',
+        'class="article-votes-controls"',
+        'class="related-articles-title"',
+        'class="comment-overview"',
+        'class="comment-list"',
+        'class="comment-callout"',
+        'class="comment-heading"',
     ];
 
     public function handle(): int
