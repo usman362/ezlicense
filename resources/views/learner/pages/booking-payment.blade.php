@@ -20,7 +20,9 @@
 
 <div class="row">
     <div class="col-lg-8">
-        <form id="payment-form" action="#" method="post">
+        {{-- Safety: onsubmit return false guarantees the form never POSTs to the page URL
+             even if JS errors out before the proper submit handler attaches. --}}
+        <form id="payment-form" action="javascript:void(0)" method="post" onsubmit="event.preventDefault(); return false;">
             @csrf
 
             {{-- Confirmation: Your details (collected in Step 4) --}}
@@ -225,14 +227,21 @@
   initTs('billing_suburb');
   initTs('billing_state');
 
-  document.getElementById('billing_suburb').addEventListener('change', function() {
-    var opt = this.selectedOptions[0];
-    if (opt && opt.getAttribute('data-state')) {
-      var stateEl = document.getElementById('billing_state');
-      if (stateEl.tomselect) stateEl.tomselect.setValue(opt.getAttribute('data-state'), true);
-      else stateEl.value = opt.getAttribute('data-state');
-    }
-  });
+  // ── Billing suburb → state auto-fill (only if elements still exist —
+  //     they were removed when we moved billing collection to Stripe Checkout) ──
+  var billingSuburbEl = document.getElementById('billing_suburb');
+  if (billingSuburbEl) {
+    billingSuburbEl.addEventListener('change', function() {
+      var opt = this.selectedOptions[0];
+      if (opt && opt.getAttribute('data-state')) {
+        var stateEl = document.getElementById('billing_state');
+        if (stateEl) {
+          if (stateEl.tomselect) stateEl.tomselect.setValue(opt.getAttribute('data-state'), true);
+          else stateEl.value = opt.getAttribute('data-state');
+        }
+      }
+    });
+  }
 
   document.getElementById('payment-form').addEventListener('submit', function(e) {
     e.preventDefault();
