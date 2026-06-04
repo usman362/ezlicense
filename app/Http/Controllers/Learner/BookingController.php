@@ -600,14 +600,14 @@ class BookingController extends Controller
         }
 
         $validated = $request->validate([
-            'payment_method' => 'required|in:card,paypal,wallet',
+            'payment_method' => 'required|in:card,wallet',
             'billing_name' => 'nullable|string|max:255',
             'billing_address' => 'nullable|string|max:500',
         ]);
 
         // Guests can't use wallet (no wallet exists)
         if ($isGuest && $validated['payment_method'] === 'wallet') {
-            return response()->json(['message' => 'Wallet payment requires an account. Please use card or PayPal.'], 422);
+            return response()->json(['message' => 'Wallet payment requires an account. Please use card.'], 422);
         }
 
         // Final female-only safety gate (defensive — also enforced upstream)

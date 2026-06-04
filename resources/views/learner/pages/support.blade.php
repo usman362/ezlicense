@@ -89,7 +89,7 @@
                     ['How do I leave a review?', 'After your lesson is marked complete, you\'ll get an email with a link to leave a review. You can also leave one from your <a href="' . route('learner.dashboard') . '">dashboard</a> History tab.'],
                     ['What\'s the cancellation policy?', 'Cancellations more than 24 hours before the lesson are free. Within 24 hours, a 50% fee may apply unless the cancellation is due to illness, weather, or instructor issues. <a href="' . route('policies.refund-cancellation') . '" target="_blank">Read full policy</a>.'],
                     ['How do refunds work?', 'Refunds are processed back to your original payment method or your wallet credit (your choice) within 5 business days of approval.'],
-                    ['Is my payment information secure?', 'Yes. We never store credit card details on our servers. All payments go through PCI-compliant payment gateways (Stripe / PayPal).'],
+                    ['Is my payment information secure?', 'Yes. We never store credit card details on our servers. All payments go through PCI-compliant Stripe checkout.'],
                     ['How does the lesson confirmation work?', 'After your lesson, your instructor marks it complete. You\'ll get an email + SMS asking you to confirm the lesson happened. This protects both you and the instructor.'],
                 ];
             @endphp

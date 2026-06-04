@@ -86,10 +86,6 @@
                         <input class="form-check-input" type="radio" name="payment_method" id="pay-card" value="card" checked>
                         <label class="form-check-label small" for="pay-card"><i class="bi bi-credit-card me-1"></i> Credit / Debit Card</label>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payment_method" id="pay-paypal" value="paypal">
-                        <label class="form-check-label small" for="pay-paypal"><i class="bi bi-paypal me-1"></i> PayPal</label>
-                    </div>
                 </div>
 
                 <div id="card-fields" class="mb-3">

@@ -105,10 +105,6 @@ class SiteSetting extends Model
             ['group' => 'payment', 'key' => 'stripe_publishable_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Publishable Key', 'hint' => 'pk_test_... or pk_live_...'],
             ['group' => 'payment', 'key' => 'stripe_secret_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Secret Key', 'hint' => 'sk_test_... or sk_live_...'],
             ['group' => 'payment', 'key' => 'stripe_webhook_secret', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Webhook Secret', 'hint' => 'whsec_...'],
-            ['group' => 'payment', 'key' => 'paypal_enabled', 'value' => '0', 'type' => 'boolean', 'label' => 'Enable PayPal', 'hint' => 'Toggle PayPal payment gateway'],
-            ['group' => 'payment', 'key' => 'paypal_client_id', 'value' => '', 'type' => 'secret', 'label' => 'PayPal Client ID', 'hint' => 'From PayPal Developer Dashboard'],
-            ['group' => 'payment', 'key' => 'paypal_client_secret', 'value' => '', 'type' => 'secret', 'label' => 'PayPal Client Secret', 'hint' => 'From PayPal Developer Dashboard'],
-            ['group' => 'payment', 'key' => 'paypal_mode', 'value' => 'sandbox', 'type' => 'text', 'label' => 'PayPal Mode', 'hint' => 'sandbox or live'],
 
             // Commission / Fees
             ['group' => 'commission', 'key' => 'platform_fee_percent', 'value' => '4', 'type' => 'number', 'label' => 'Platform Fee (%)', 'hint' => 'Percentage charged to learner on each booking'],

@@ -50,80 +50,38 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
                     <h6 class="fw-bold mb-3">Payment Method</h6>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="pay-card" value="card" checked>
-                            <label class="form-check-label fw-bold" for="pay-card">Credit/Debit card</label>
-                        </div>
-                        <div id="card-fields" class="ps-4 mt-2">
-                            <div class="mb-2">
-                                <label class="form-label small">Card number</label>
-                                <input type="text" class="form-control" name="card_number" placeholder="1234 1234 1234 1234" maxlength="19" autocomplete="cc-number">
+
+                    {{-- Wallet option (only for logged-in learners with balance) --}}
+                    @auth
+                        @php $walletBalance = (float) (\App\Models\LearnerWallet::where('user_id', auth()->id())->value('balance') ?? 0); @endphp
+                        @if($walletBalance > 0)
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="pay-wallet" value="wallet">
+                                <label class="form-check-label" for="pay-wallet">
+                                    <span class="d-inline-block align-middle">
+                                        <i class="bi bi-wallet2 me-1"></i>Wallet
+                                        <span class="small text-muted ms-1">(balance ${{ number_format($walletBalance, 2) }})</span>
+                                    </span>
+                                </label>
                             </div>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <label class="form-label small">Expiry</label>
-                                    <input type="text" class="form-control" name="card_expiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small">CVC</label>
-                                    <div class="d-flex align-items-center gap-1">
-                                        <input type="text" class="form-control" name="card_cvc" placeholder="CVC" maxlength="4" autocomplete="cc-csc">
-                                        <span class="small text-muted"><i class="bi bi-credit-card-2-front"></i> VISA</span>
-                                        <span class="small text-muted">Mastercard</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" name="save_payment_method" id="save-card" value="1" checked>
-                                <label class="form-check-label small" for="save-card">Save this payment method</label>
-                            </div>
-                        </div>
-                    </div>
+                        @endif
+                    @endauth
+
+                    {{-- Card via Stripe — single option, no inline fields --}}
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payment_method" id="pay-paypal" value="paypal">
-                        <label class="form-check-label" for="pay-paypal">
-                            <span class="d-inline-block align-middle">PayPal</span>
+                        <input class="form-check-input" type="radio" name="payment_method" id="pay-card" value="card" checked>
+                        <label class="form-check-label fw-bold" for="pay-card">
+                            <i class="bi bi-credit-card-2-front me-1"></i>Credit / Debit card
                         </label>
                     </div>
-                </div>
-            </div>
 
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <button type="button" class="btn btn-link p-0 d-flex align-items-center justify-content-between w-100 text-dark text-decoration-none" data-bs-toggle="collapse" data-bs-target="#billing-details" aria-expanded="true">
-                        <span class="fw-bold">Billing Details</span>
-                        <i class="bi bi-chevron-up"></i>
-                    </button>
-                    <div class="collapse show mt-3" id="billing-details">
-                        <div class="mb-2">
-                            <label class="form-label small">Billing name</label>
-                            <input type="text" class="form-control" name="billing_name" value="{{ $billingName }}" placeholder="Full name">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small">* Billing address</label>
-                            <input type="text" class="form-control" name="billing_address" placeholder="Street address">
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label small">* Suburb</label>
-                                <select class="form-select form-select-sm" name="billing_suburb_id" id="billing_suburb">
-                                    <option value="">Select suburb</option>
-                                    @foreach($states as $state)
-                                        @foreach($suburbsByState[$state->id] ?? [] as $sub)
-                                            <option value="{{ $sub['id'] }}" data-state="{{ $state->id }}">{{ $sub['name'] }}, {{ $sub['postcode'] }}</option>
-                                        @endforeach
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small">* State</label>
-                                <select class="form-select form-select-sm" name="billing_state_id" id="billing_state">
-                                    <option value="">Select state</option>
-                                    @foreach($states as $state)
-                                        <option value="{{ $state->id }}">{{ $state->name }}</option>
-                                    @endforeach
-                                </select>
+                    {{-- Friendly callout — clear that next step is Stripe-hosted secure checkout --}}
+                    <div class="mt-3 p-3 rounded" style="background:#f8f9fa; border:1px solid #e9ecef;">
+                        <div class="d-flex align-items-start gap-2 small text-muted">
+                            <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+                            <div>
+                                <strong class="text-dark">Secure checkout powered by Stripe.</strong><br>
+                                On the next screen you'll enter your card details on Stripe's PCI-compliant payment page. We never see or store your card number.
                             </div>
                         </div>
                     </div>

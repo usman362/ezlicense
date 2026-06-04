@@ -18,7 +18,7 @@ class PaymentReceipt extends Notification
     /**
      * @param  array<int, Booking>  $bookings  All bookings paid for in this transaction
      * @param  float  $totalCharged  Total amount charged to the learner
-     * @param  string  $paymentMethod  card / paypal / wallet
+     * @param  string  $paymentMethod  card / wallet
      * @param  string|null  $transactionRef  Gateway transaction reference (if any)
      */
     public function __construct(

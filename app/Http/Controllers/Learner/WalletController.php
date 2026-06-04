@@ -14,7 +14,7 @@ class WalletController extends Controller
 {
     /**
      * Add credit to wallet (simulated payment processing).
-     * In production, this would integrate with Stripe/PayPal via SiteSetting keys.
+     * In production, this would integrate with Stripe via config keys.
      */
     public function addCredit(Request $request): JsonResponse
     {
@@ -25,7 +25,7 @@ class WalletController extends Controller
 
         $validated = $request->validate([
             'amount' => 'required|numeric|min:50|max:2000',
-            'payment_method' => 'required|in:card,paypal',
+            'payment_method' => 'required|in:card',
         ]);
 
         $creditAmount = (float) $validated['amount'];
@@ -40,19 +40,12 @@ class WalletController extends Controller
 
         $chargeAmount = $creditAmount - $discount;
 
-        // Check if payment gateway is configured
-        $stripeKey = \App\Models\SiteSetting::get('stripe_secret_key');
-        $paypalId = \App\Models\SiteSetting::get('paypal_client_id');
+        // Check if Stripe is configured
+        $stripeKey = (string) config('stripe.secret_key');
 
         if ($validated['payment_method'] === 'card' && empty($stripeKey)) {
             // Demo mode: process without real gateway
             \Illuminate\Support\Facades\Log::info('Wallet credit added (demo mode - no Stripe key configured)', [
-                'user_id' => $user->id,
-                'credit' => $creditAmount,
-                'charged' => $chargeAmount,
-            ]);
-        } elseif ($validated['payment_method'] === 'paypal' && empty($paypalId)) {
-            \Illuminate\Support\Facades\Log::info('Wallet credit added (demo mode - no PayPal key configured)', [
                 'user_id' => $user->id,
                 'credit' => $creditAmount,
                 'charged' => $chargeAmount,

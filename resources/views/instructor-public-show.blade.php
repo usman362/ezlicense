@@ -202,7 +202,6 @@
                     <span class="ipp-pay-icon" title="Visa"><i class="bi bi-credit-card-2-front-fill"></i> VISA</span>
                     <span class="ipp-pay-icon" title="Mastercard"><i class="bi bi-credit-card-fill"></i> MC</span>
                     <span class="ipp-pay-icon" title="American Express"><i class="bi bi-credit-card-fill"></i> AMEX</span>
-                    <span class="ipp-pay-icon" title="PayPal"><i class="bi bi-paypal"></i></span>
                 </div>
             </aside>
 

@@ -220,7 +220,6 @@ class ReceiptsController extends Controller
     {
         return match ($method) {
             'card'   => 'card',
-            'paypal' => 'PayPal',
             'wallet' => 'wallet',
             'manual' => 'manual',
             default  => $method ?: '',
