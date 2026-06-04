@@ -308,6 +308,14 @@
     .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
     .then(function(result) {
       if (result.ok) {
+        // ── Card payment? Redirect to Stripe Checkout ──
+        if (result.data.data && result.data.data.requires_payment && result.data.data.checkout_url) {
+          btn.innerHTML = '<i class="bi bi-arrow-right me-1"></i> Redirecting to secure payment…';
+          window.location.href = result.data.data.checkout_url;
+          return;
+        }
+
+        // ── Wallet / free booking — already confirmed ──
         btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Booking Confirmed!';
         btn.classList.remove('btn-warning');
         btn.classList.add('btn-success');

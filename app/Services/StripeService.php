@@ -95,6 +95,75 @@ class StripeService
     }
 
     /**
+     * Create a Stripe Checkout Session for an ORDER containing multiple bookings.
+     * One session, one charge, multiple line items.
+     *
+     * @param  array<int, Booking>  $bookings
+     */
+    public function createCheckoutSessionForBookings(array $bookings): string
+    {
+        if (empty($bookings)) {
+            throw new \RuntimeException('No bookings to create checkout session for.');
+        }
+
+        $lineItems = [];
+        $bookingIds = [];
+        foreach ($bookings as $b) {
+            $b->loadMissing('instructor');
+            $serviceLabel = $b->type === Booking::TYPE_TEST_PACKAGE
+                ? 'Driving Test Package'
+                : 'Driving Lesson';
+
+            $description = sprintf(
+                'with %s on %s',
+                $b->instructor?->name ?? 'instructor',
+                $b->scheduled_at?->format('j M Y, H:i') ?? 'TBC'
+            );
+
+            $lineItems[] = [
+                'price_data' => [
+                    'currency'     => (string) config('stripe.currency', 'aud'),
+                    'unit_amount'  => (int) round(((float) $b->amount) * 100),
+                    'product_data' => [
+                        'name'        => $serviceLabel . ' — Booking #' . $b->id,
+                        'description' => $description,
+                    ],
+                ],
+                'quantity' => 1,
+            ];
+            $bookingIds[] = (string) $b->id;
+        }
+
+        $first = $bookings[0];
+
+        $session = $this->client->checkout->sessions->create([
+            'mode'                 => 'payment',
+            'payment_method_types' => ['card'],
+            'client_reference_id'  => $first->id . ($bookingIds ? '-multi' : ''),
+            'customer_email'       => $first->learner?->email ?? $first->guest_email,
+            'line_items'           => $lineItems,
+            'metadata' => [
+                'booking_ids'  => implode(',', $bookingIds),
+                'learner_id'   => (string) ($first->learner_id ?? ''),
+                'instructor_id'=> (string) ($first->instructor_id ?? ''),
+            ],
+            'success_url' => route('stripe.success', ['booking' => $first->id]) . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'  => route('stripe.cancel', ['booking' => $first->id]),
+            'expires_at'  => now()->addMinutes(30)->timestamp,
+        ]);
+
+        // Stamp the session id on every booking in the order
+        foreach ($bookings as $b) {
+            $b->update([
+                'stripe_checkout_session_id' => $session->id,
+                'payment_status'             => Booking::PAYMENT_PENDING,
+            ]);
+        }
+
+        return $session->url;
+    }
+
+    /**
      * Issue a refund through Stripe for a booking's previous charge.
      * Returns the Stripe refund object — caller updates the booking.
      */

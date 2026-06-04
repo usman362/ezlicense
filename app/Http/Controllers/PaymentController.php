@@ -59,13 +59,22 @@ class PaymentController extends Controller
     {
         $sessionId = $request->query('session_id');
 
-        // Optional verification — gives us instant feedback rather than waiting
-        // for the webhook (which usually fires within seconds anyway).
-        if ($sessionId && empty($booking->stripe_payment_intent_id)) {
+        // Optional verification — handles ALL bookings in the session (not just the one
+        // in the URL). Useful when webhook is not yet configured.
+        if ($sessionId) {
             try {
                 $session = $this->stripe->getCheckoutSession($sessionId);
                 if ($session->payment_status === 'paid') {
-                    $this->markBookingPaid($booking, $session);
+                    $bookingIdsCsv = $session->metadata->booking_ids ?? null;
+                    $ids = $bookingIdsCsv
+                        ? array_filter(array_map('intval', explode(',', $bookingIdsCsv)))
+                        : [(int) $booking->id];
+
+                    foreach (Booking::whereIn('id', $ids)->get() as $b) {
+                        if ($b->payment_status !== Booking::PAYMENT_PAID) {
+                            $this->markBookingPaid($b, $session);
+                        }
+                    }
                 }
             } catch (\Throwable $e) {
                 Log::warning('Stripe session retrieval failed: ' . $e->getMessage());
@@ -138,21 +147,35 @@ class PaymentController extends Controller
 
     private function handleCheckoutCompleted($session): void
     {
-        $bookingId = $session->client_reference_id ?? ($session->metadata->booking_id ?? null);
-        if (! $bookingId) return;
+        // Multi-booking session has booking_ids metadata (comma-separated).
+        // Single-booking session has booking_id metadata + client_reference_id.
+        $bookingIdsCsv = $session->metadata->booking_ids ?? null;
+        $bookingIds = $bookingIdsCsv
+            ? array_filter(array_map('intval', explode(',', $bookingIdsCsv)))
+            : [];
 
-        $booking = Booking::find($bookingId);
-        if (! $booking) {
-            Log::warning("Stripe checkout completed for unknown booking id={$bookingId}");
+        // Fallback to single-booking lookup
+        if (empty($bookingIds)) {
+            $single = $session->client_reference_id ?? ($session->metadata->booking_id ?? null);
+            if ($single) $bookingIds[] = (int) $single;
+        }
+
+        if (empty($bookingIds)) {
+            Log::warning('Stripe checkout completed without resolvable booking ids');
             return;
         }
 
-        // Idempotent — if already paid, do nothing
-        if ($booking->payment_status === Booking::PAYMENT_PAID) {
+        $bookings = Booking::whereIn('id', $bookingIds)->get();
+        if ($bookings->isEmpty()) {
+            Log::warning('Stripe checkout completed for unknown booking ids: ' . implode(',', $bookingIds));
             return;
         }
 
-        $this->markBookingPaid($booking, $session);
+        foreach ($bookings as $booking) {
+            // Idempotent — already paid, skip
+            if ($booking->payment_status === Booking::PAYMENT_PAID) continue;
+            $this->markBookingPaid($booking, $session);
+        }
     }
 
     private function handlePaymentFailed($paymentIntent): void
@@ -216,6 +239,7 @@ class PaymentController extends Controller
         }
 
         $booking->update([
+            'status'                   => Booking::STATUS_CONFIRMED, // flip from PROPOSED → CONFIRMED
             'payment_status'           => Booking::PAYMENT_PAID,
             'payment_method'           => 'card',
             'stripe_payment_intent_id' => $paymentIntentId,
@@ -226,13 +250,27 @@ class PaymentController extends Controller
 
         // Send confirmation + receipt — silent failure (don't block webhook)
         try {
-            $booking->learner?->notify(new BookingConfirmed($booking->fresh()));
-            $booking->learner?->notify(new PaymentReceipt(
-                bookings: [$booking->fresh()],
-                totalCharged: (float) $booking->amount,
-                paymentMethod: 'card',
-                transactionRef: $paymentIntentId,
-            ));
+            $fresh = $booking->fresh();
+            $recipient = $booking->learner ?: null;
+
+            if ($recipient) {
+                $recipient->notify(new BookingConfirmed($fresh));
+                $recipient->notify(new PaymentReceipt(
+                    bookings: [$fresh],
+                    totalCharged: (float) $booking->amount,
+                    paymentMethod: 'card',
+                    transactionRef: $paymentIntentId,
+                ));
+            } elseif ($booking->guest_email) {
+                \Illuminate\Support\Facades\Notification::route('mail', $booking->guest_email)
+                    ->notify(new BookingConfirmed($fresh));
+            }
+
+            // Notify instructor + admin
+            $instructor = $booking->instructor_id ? \App\Models\User::find($booking->instructor_id) : null;
+            if ($instructor) {
+                $instructor->notify(new \App\Notifications\InstructorNewBooking($fresh));
+            }
         } catch (\Throwable $e) {
             Log::warning("Booking confirmation email failed: " . $e->getMessage());
         }

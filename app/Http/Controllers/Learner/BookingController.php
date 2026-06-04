@@ -689,6 +689,14 @@ class BookingController extends Controller
                 $itemBulkDiscount = round($itemPrice - $discountedPrice, 2);
                 $finalAmount = max(0, round($discountedPrice - $itemCouponDiscount - $itemReferralDiscount, 2));
 
+                // For card payments, hold bookings as PROPOSED + PENDING — Stripe
+                // webhook (or success page fallback) flips them to CONFIRMED + PAID
+                // after the charge succeeds. Wallet/free bookings remain confirmed
+                // immediately.
+                $isCard = $validated['payment_method'] === 'card' && $finalAmount > 0;
+                $bookingStatus = $isCard ? Booking::STATUS_PROPOSED : Booking::STATUS_CONFIRMED;
+                $bookingPayStatus = $isCard ? Booking::PAYMENT_PENDING : Booking::PAYMENT_PAID;
+
                 $booking = Booking::create([
                     'learner_id' => $user?->id,
                     'guest_name' => $isGuest ? trim(($details['first_name'] ?? '') . ' ' . ($details['last_name'] ?? '')) : null,
@@ -709,11 +717,58 @@ class BookingController extends Controller
                     'referral_discount_amount' => $itemReferralDiscount,
                     'platform_fee' => round($finalAmount * (float) \App\Models\SiteSetting::get('platform_fee_percent', 4) / 100, 2),
                     'instructor_net_amount' => max(round($finalAmount - (float) \App\Models\SiteSetting::get('platform_service_fee', 5.00) - (float) \App\Models\SiteSetting::get('payment_processing_fee', 2.00), 2), 0),
-                    'status' => Booking::STATUS_CONFIRMED,
+                    'status' => $bookingStatus,
                     'payment_method' => $validated['payment_method'],
-                    'payment_status' => Booking::PAYMENT_PAID,
+                    'payment_status' => $bookingPayStatus,
                 ]);
                 $bookings[] = $booking;
+            }
+
+            // ── CARD PAYMENT FORK ──
+            // For card method, we don't send receipts or do wallet stuff here.
+            // We create a Stripe Checkout session for the whole order and
+            // return the URL. The webhook (or success page fallback) flips
+            // bookings to PAID and fires the receipt + notifications.
+            if ($validated['payment_method'] === 'card' && $total > 0) {
+                try {
+                    $checkoutUrl = app(\App\Services\StripeService::class)
+                        ->createCheckoutSessionForBookings($bookings);
+
+                    // Record coupon redemption now so it can't be re-used during checkout
+                    if (! empty($order['coupon_code']) && $couponTotal > 0 && ! empty($bookings) && $user) {
+                        $coupon = \App\Models\Coupon::where('code', $order['coupon_code'])->first();
+                        if ($coupon) {
+                            \App\Models\CouponRedemption::create([
+                                'coupon_id'        => $coupon->id,
+                                'user_id'          => $user->id,
+                                'booking_id'       => $bookings[0]->id,
+                                'discount_applied' => $couponTotal,
+                                'order_total'     => (float) ($order['total'] ?? 0),
+                            ]);
+                            $coupon->increment('used_count');
+                        }
+                    }
+
+                    // Auto-login the new guest user so they can return to success page
+                    if ($isGuest && $user && ! Auth::check()) {
+                        Auth::login($user, remember: true);
+                    }
+
+                    // Clear order from session — bookings are persisted
+                    session()->forget(['learner_booking_order', 'learner_booking_details', 'learner_booking_package']);
+
+                    return response()->json([
+                        'data' => [
+                            'requires_payment' => true,
+                            'checkout_url'     => $checkoutUrl,
+                            'booking_ids'      => collect($bookings)->pluck('id')->all(),
+                        ],
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::error('Stripe checkout creation failed in processPayment: ' . $e->getMessage());
+                    // Roll back the transaction — bookings disappear, no charge happened
+                    throw $e;
+                }
             }
 
             // ── Record coupon redemption + bump usage counter ──
