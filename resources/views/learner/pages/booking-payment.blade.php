@@ -252,10 +252,14 @@
     var method = document.querySelector('input[name="payment_method"]:checked').value;
     var csrf = document.querySelector('meta[name="csrf-token"]');
 
+    // Billing name / address are now collected by Stripe Checkout on the next screen.
+    // Still send them if the elements exist (back-compat) — otherwise null.
+    var billingNameEl = document.querySelector('[name="billing_name"]');
+    var billingAddressEl = document.querySelector('[name="billing_address"]');
     var payload = {
       payment_method: method,
-      billing_name: document.querySelector('[name="billing_name"]').value,
-      billing_address: document.querySelector('[name="billing_address"]').value
+      billing_name: billingNameEl ? billingNameEl.value : null,
+      billing_address: billingAddressEl ? billingAddressEl.value : null
     };
 
     // Guest details were already collected in Step 4 (Learner Registration)
