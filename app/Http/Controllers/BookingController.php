@@ -217,6 +217,19 @@ class BookingController extends Controller
             $processingFee = (float) SiteSetting::get('payment_processing_fee', 2.00);
             $instructorNet = max(round($bookingAmount - $serviceFee - $processingFee, 2), 0);
 
+            $paymentMethod = $request->input('payment_method', 'card');
+
+            // Wallet payments are settled immediately; card payments go via Stripe Checkout.
+            $initialPaymentStatus = $paymentMethod === 'wallet'
+                ? Booking::PAYMENT_PAID
+                : Booking::PAYMENT_PENDING;
+
+            // Card bookings stay in PROPOSED until Stripe webhook confirms payment.
+            // Wallet bookings + free bookings (amount=0) are confirmed straight away.
+            $initialStatus = ($paymentMethod === 'wallet' || $bookingAmount <= 0)
+                ? Booking::STATUS_CONFIRMED
+                : Booking::STATUS_PROPOSED;
+
             return Booking::create([
                 'learner_id' => $user->id,
                 'instructor_id' => $profile->user_id,
@@ -230,16 +243,29 @@ class BookingController extends Controller
                 'platform_fee' => $platformFee,
                 'instructor_net_amount' => $instructorNet,
                 'test_pre_booked' => $request->boolean('test_pre_booked'),
-                'status' => Booking::STATUS_CONFIRMED,
-                'payment_method' => $request->input('payment_method', 'card'),
-                'payment_status' => Booking::PAYMENT_PAID, // confirmed bookings are paid upfront
+                'status' => $initialStatus,
+                'payment_method' => $paymentMethod,
+                'payment_status' => $initialPaymentStatus,
                 'learner_notes' => $request->input('learner_notes'),
             ]);
         });
 
         $booking->load(['instructor:id,name', 'suburb']);
 
-        // Notify the instructor about the new booking
+        // Card payment? Return a redirect-to-Stripe URL instead of confirming the booking
+        // straight away. The webhook will flip the booking to CONFIRMED + PAID when Stripe
+        // tells us the charge succeeded.
+        if ($booking->payment_method === 'card' && (float) $booking->amount > 0) {
+            return response()->json([
+                'data' => [
+                    'booking' => $this->formatBooking($booking),
+                    'requires_payment' => true,
+                    'checkout_url'     => route('stripe.checkout', ['booking' => $booking->id]),
+                ],
+            ], 201);
+        }
+
+        // Wallet / free booking → notify everyone now.
         try {
             $instructor = User::find($booking->instructor_id);
             if ($instructor) {
@@ -249,10 +275,7 @@ class BookingController extends Controller
             Log::warning('Instructor booking notification failed: ' . $e->getMessage());
         }
 
-        // Notify admin about the new booking
         $this->notifyAdminAboutBooking($booking, AdminBookingAlert::EVENT_NEW);
-
-        // Push to Google Calendar for both parties if connected
         $this->syncBookingToGoogleCalendar($booking);
 
         return response()->json(['data' => $this->formatBooking($booking)], 201);

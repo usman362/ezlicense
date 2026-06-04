@@ -130,12 +130,28 @@ class BookingsController extends Controller
                     ]);
                 }
 
+                // 1b) Stripe refund (if method = original_payment AND booking was paid via Stripe)
+                $stripeRefundId = null;
+                if ($method === 'original_payment' && ! empty($booking->stripe_payment_intent_id)) {
+                    try {
+                        $stripe = app(\App\Services\StripeService::class);
+                        $refund = $stripe->refundCharge($booking, $amount);
+                        $stripeRefundId = $refund->id;
+                        Log::info("Stripe refund {$refund->id} issued for booking #{$booking->id}: \${$amount}");
+                    } catch (\Throwable $e) {
+                        // Bubble up — DB transaction will roll back so the booking
+                        // doesn't get marked as refunded when Stripe rejected the request.
+                        throw new \RuntimeException('Stripe refund failed: ' . $e->getMessage(), 0, $e);
+                    }
+                }
+
                 // 2) Update the booking
                 $booking->update([
                     'refund_amount'         => $amount,
                     'refund_method'         => $method,
                     'refund_reason'         => $data['reason'],
                     'refund_reference'      => $data['reference'] ?? null,
+                    'stripe_refund_id'      => $stripeRefundId,
                     'refunded_at'           => now(),
                     'refunded_by_user_id'   => Auth::id(),
                     'payment_status'        => $isFull ? Booking::PAYMENT_REFUNDED : ($booking->payment_status ?: Booking::PAYMENT_REFUNDED),

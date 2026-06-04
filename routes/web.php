@@ -89,6 +89,18 @@ Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('pr
 // Previously this line redirected to /contact; removed because it intercepted
 // the new help center routes before they could match.
 
+// ── Stripe payment routes ──
+// Webhook is unauthenticated + CSRF-exempted (Stripe doesn't send our cookies).
+// The signature verification inside the handler is what authenticates it.
+Route::post('/stripe/webhook', [App\Http\Controllers\PaymentController::class, 'webhook'])
+    ->name('stripe.webhook');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/pay/{booking}/checkout', [App\Http\Controllers\PaymentController::class, 'checkout'])->name('stripe.checkout');
+    Route::get('/pay/{booking}/success',  [App\Http\Controllers\PaymentController::class, 'success'])->name('stripe.success');
+    Route::get('/pay/{booking}/cancel',   [App\Http\Controllers\PaymentController::class, 'cancel'])->name('stripe.cancel');
+});
+
 // Policies hub and individual policies
 Route::prefix('policies')->name('policies.')->group(function () {
     Route::get('/',                     fn () => view('frontend.policies.index'))->name('index');

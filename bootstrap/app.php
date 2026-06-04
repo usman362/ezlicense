@@ -18,6 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserRole::class,
             'instructor.onboarded' => EnsureInstructorOnboarded::class,
         ]);
+
+        // Stripe webhook is server-to-server and uses signature verification
+        // instead of CSRF tokens. Exempt it from CSRF middleware.
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+        ]);
     })
     ->withSchedule(function (Schedule $schedule): void {
         // Generate instructor payouts every Monday at 02:00 AEST
