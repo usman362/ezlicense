@@ -265,6 +265,9 @@
                         <span class="badge text-bg-warning ms-1">{{ $newReqCount }}</span>
                     @endif
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.fees-dashboard.*') ? 'active' : '' }}" href="{{ route('admin.fees-dashboard.index') }}">
+                    <i class="bi bi-cash-coin"></i> Fees Dashboard
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.blocked-signups.*') ? 'active' : '' }}" href="{{ route('admin.blocked-signups.index') }}">
                     <i class="bi bi-shield-fill-x"></i> Blocked Signups
                     @php

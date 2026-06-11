@@ -29,14 +29,19 @@ use Illuminate\Support\Facades\DB;
 class ReleasePendingPaymentsCommand extends Command
 {
     protected $signature = 'payments:release-pending
-        {--hours=24 : Hours to wait after completion before auto-releasing}
+        {--hours= : Override admin setting. Hours to wait after completion before auto-releasing}
         {--dry-run : List affected bookings without making changes}';
 
     protected $description = 'Auto-release completed-but-pending payments after the dispute hold window';
 
     public function handle(): int
     {
-        $hours = (int) $this->option('hours');
+        // CLI flag wins; otherwise read admin SiteSetting (default 24h)
+        $hours = $this->option('hours') !== null
+            ? (int) $this->option('hours')
+            : (int) \App\Models\SiteSetting::get('payment_hold_hours', 24);
+        $hours = max(0, min(168, $hours)); // sane bounds: 0 - 7 days
+
         $dry = (bool) $this->option('dry-run');
         $threshold = Carbon::now()->subHours($hours);
 

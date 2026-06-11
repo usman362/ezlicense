@@ -107,7 +107,13 @@ class SiteSetting extends Model
             ['group' => 'payment', 'key' => 'stripe_webhook_secret', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Webhook Secret', 'hint' => 'whsec_...'],
 
             // Commission / Fees
-            ['group' => 'commission', 'key' => 'platform_fee_percent', 'value' => '4', 'type' => 'number', 'label' => 'Platform Fee (%)', 'hint' => 'Percentage charged to learner on each booking'],
+            ['group' => 'commission', 'key' => 'payment_hold_hours', 'value' => '24', 'type' => 'number', 'label' => 'Payment Hold (hours)', 'hint' => 'How long after lesson completion before instructor payout is released (chargeback safety window). Default 24h.'],
+            ['group' => 'commission', 'key' => 'platform_service_fee', 'value' => '5', 'type' => 'number', 'label' => 'Platform Service Fee ($)', 'hint' => 'Flat fee per lesson on top of instructor\'s price. Always charged.'],
+            ['group' => 'commission', 'key' => 'payment_processing_fee', 'value' => '2', 'type' => 'number', 'label' => 'Payment Processing Fee ($)', 'hint' => 'Per-lesson processing fee. WAIVED on packages of 5+ lessons.'],
+            ['group' => 'commission', 'key' => 'processing_fee_waiver_threshold', 'value' => '5', 'type' => 'number', 'label' => 'Package Waiver Threshold', 'hint' => 'Processing fee waived when learner books this many lessons or more in one order.'],
+            ['group' => 'commission', 'key' => 'stripe_fee_percent', 'value' => '1.7', 'type' => 'number', 'label' => 'Stripe % Fee', 'hint' => 'Stripe percentage per transaction (AU domestic = 1.7).'],
+            ['group' => 'commission', 'key' => 'stripe_fee_flat', 'value' => '0.30', 'type' => 'number', 'label' => 'Stripe Flat Fee ($)', 'hint' => 'Stripe flat fee per transaction (AU domestic = $0.30).'],
+            ['group' => 'commission', 'key' => 'platform_fee_percent', 'value' => '4', 'type' => 'number', 'label' => 'Platform Fee % (legacy)', 'hint' => 'No longer used in new fee model — keep set to 0 once migrated.'],
             ['group' => 'commission', 'key' => 'instructor_commission_percent', 'value' => '85', 'type' => 'number', 'label' => 'Instructor Payout (%)', 'hint' => 'Percentage of booking amount paid to instructor'],
             ['group' => 'commission', 'key' => 'cancellation_fee_percent', 'value' => '50', 'type' => 'number', 'label' => 'Late Cancellation Fee (%)', 'hint' => 'Charged if cancelled within 24 hours'],
             ['group' => 'commission', 'key' => 'min_wallet_topup', 'value' => '50', 'type' => 'number', 'label' => 'Minimum Wallet Top-up ($)', 'hint' => 'Minimum amount for wallet credit purchase'],

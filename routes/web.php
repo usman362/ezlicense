@@ -872,6 +872,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/support')->name('admin.
     Route::put('/requests/{supportRequest}', [$c, 'requestUpdate'])->name('request.update');
 });
 
+// ── Admin: Fees Dashboard (real-time P&L) ──
+Route::middleware(['auth', 'role:admin'])->prefix('admin/fees-dashboard')->name('admin.fees-dashboard.')->group(function () {
+    $c = App\Http\Controllers\Admin\FeesDashboardController::class;
+    Route::get('/', [$c, 'index'])->name('index');
+    Route::get('/export', [$c, 'export'])->name('export');
+});
+
 // ── Admin: Blocked Signups (anti-spam) ──
 Route::middleware(['auth', 'role:admin'])->prefix('admin/blocked-signups')->name('admin.blocked-signups.')->group(function () {
     $c = App\Http\Controllers\Admin\BlockedSignupsController::class;

@@ -286,10 +286,6 @@ class BookingController extends Controller
             $afterDiscount += $testPackagePrice;
         }
 
-        $feePercent = (float) \App\Models\SiteSetting::get('platform_fee_percent', 4);
-        $fee = round($afterDiscount * $feePercent / 100, 2);
-        $total = $afterDiscount + $fee;
-
         // Apply referral discount automatically (if user qualifies for first-booking discount)
         $referralDiscount = 0;
         $user = Auth::user();
@@ -297,10 +293,19 @@ class BookingController extends Controller
             $referralDiscount = (new \App\Services\PricingService())->referralDiscountFor($user, $afterDiscount);
             if ($referralDiscount > 0) {
                 $afterDiscount -= $referralDiscount;
-                $fee = round($afterDiscount * $feePercent / 100, 2);
-                $total = $afterDiscount + $fee;
             }
         }
+
+        // ── New fee model ──
+        // Instructor receives their full price. Platform adds:
+        //   - $5 service fee per lesson (flat, always charged)
+        //   - $2 processing fee per lesson (waived on 5+ lesson packages)
+        $lessonCount = count($items);
+        $fees = (new \App\Services\FeeCalculator())->calculate($afterDiscount, $lessonCount);
+
+        // Backwards-compat shape kept for downstream readers (payment view + JS expect `fee` + `total`).
+        $fee = $fees['platform_fee_total'];
+        $total = $fees['total'];
 
         session([
             'learner_booking_order' => [
@@ -312,12 +317,15 @@ class BookingController extends Controller
                 'add_test_package' => $addTestPackage,
                 'test_package_price' => $testPackagePrice,
                 'after_discount' => $afterDiscount,
-                'fee' => $fee,
+                'fee' => $fee,                                    // total platform fees (service + processing)
+                'service_fee_total' => $fees['service_fee_total'],
+                'processing_fee_total' => $fees['processing_fee_total'],
+                'savings_vs_single' => $fees['savings_vs_single'],
+                'package_eligible' => $fees['package_eligible'],
+                'lesson_count' => $lessonCount,
                 'total' => $total,
-                'fee_percent' => $feePercent,
                 'package_hours' => $package['hours'] ?? null,
                 'referral_discount' => $referralDiscount,
-                // Coupon fields are populated by applyCoupon() at the payment step
                 'coupon_code' => null,
                 'coupon_discount' => 0,
             ],
@@ -678,6 +686,12 @@ class BookingController extends Controller
             $referralTotal = (float) ($order['referral_discount'] ?? 0);
             $itemsSubtotalAfterBulk = max(0.01, collect($order['items'])->sum(fn ($i) => (float) ($i['price'] ?? 0) * $discountMultiplier));
 
+            // ── Fees per item — package waiver detected from total item count ──
+            $feeCalc = new \App\Services\FeeCalculator();
+            $itemCount = count($order['items']);
+            $servicePerItem    = $feeCalc->serviceFeePerItem();
+            $processingPerItem = $feeCalc->processingFeePerItem($itemCount);
+
             foreach ($order['items'] as $item) {
                 $itemPrice = (float) ($item['price'] ?? 0);
                 $discountedPrice = round($itemPrice * $discountMultiplier, 2);
@@ -697,6 +711,15 @@ class BookingController extends Controller
                 $bookingStatus = $isCard ? Booking::STATUS_PROPOSED : Booking::STATUS_CONFIRMED;
                 $bookingPayStatus = $isCard ? Booking::PAYMENT_PENDING : Booking::PAYMENT_PAID;
 
+                // ── NEW FEE MODEL ──
+                // amount             = lesson price (what learner pays for the lesson itself)
+                // platform_fee       = service fee ($5) — repurposed from old 4% calc
+                // processing_fee     = $2 or $0 (waived 5+ packages)
+                // instructor_net     = full lesson price ($finalAmount) — instructor keeps their price
+                // stripe_fee_estimate= estimated portion of Stripe's cut allocated to this booking
+                $totalChargeForBooking = $finalAmount + $servicePerItem + $processingPerItem;
+                $stripeEstimateForBooking = $feeCalc->estimateStripeFee($totalChargeForBooking);
+
                 $booking = Booking::create([
                     'learner_id' => $user?->id,
                     'guest_name' => $isGuest ? trim(($details['first_name'] ?? '') . ' ' . ($details['last_name'] ?? '')) : null,
@@ -715,8 +738,10 @@ class BookingController extends Controller
                     'coupon_discount_amount' => $itemCouponDiscount,
                     'coupon_code' => $order['coupon_code'] ?? null,
                     'referral_discount_amount' => $itemReferralDiscount,
-                    'platform_fee' => round($finalAmount * (float) \App\Models\SiteSetting::get('platform_fee_percent', 4) / 100, 2),
-                    'instructor_net_amount' => max(round($finalAmount - (float) \App\Models\SiteSetting::get('platform_service_fee', 5.00) - (float) \App\Models\SiteSetting::get('payment_processing_fee', 2.00), 2), 0),
+                    'platform_fee' => $servicePerItem,                  // flat service fee per booking
+                    'processing_fee' => $processingPerItem,             // $2 or $0
+                    'stripe_fee_estimate' => $stripeEstimateForBooking, // for admin dashboard
+                    'instructor_net_amount' => $finalAmount,            // instructor gets their full price
                     'status' => $bookingStatus,
                     'payment_method' => $validated['payment_method'],
                     'payment_status' => $bookingPayStatus,

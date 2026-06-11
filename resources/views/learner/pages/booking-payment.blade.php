@@ -168,14 +168,50 @@
                     </div>
                 </div>
 
+                {{-- ── Fee breakdown ── --}}
+                @php
+                    $serviceTotal = (float) ($order['service_fee_total'] ?? 0);
+                    $processingTotal = (float) ($order['processing_fee_total'] ?? 0);
+                    $packageEligible = (bool) ($order['package_eligible'] ?? false);
+                    $savings = (float) ($order['savings_vs_single'] ?? 0);
+                @endphp
+
                 <div class="d-flex justify-content-between small mb-1 mt-3">
-                    <span>Platform Processing Fee</span>
-                    <span>$<span id="order-fee">{{ number_format((float) ($order['fee'] ?? 0), 2) }}</span></span>
+                    <span>Platform Service Fee</span>
+                    <span>$<span id="order-service-fee">{{ number_format($serviceTotal, 2) }}</span></span>
                 </div>
+
+                @if($packageEligible && $savings > 0)
+                    {{-- Waiver applied — show as a free saving --}}
+                    <div class="d-flex justify-content-between small mb-1" style="color:#0b7b3c;">
+                        <span>
+                            <i class="bi bi-gift-fill me-1"></i>
+                            Processing Fee
+                            <span style="background:#d1f4e1;color:#0b7b3c;font-size:.7rem;padding:.1rem .45rem;border-radius:12px;font-weight:700;margin-left:.25rem;">WAIVED</span>
+                        </span>
+                        <span class="fw-semibold">−$<span id="order-savings">{{ number_format($savings, 2) }}</span></span>
+                    </div>
+                @else
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Payment Processing Fee</span>
+                        <span>$<span id="order-processing-fee">{{ number_format($processingTotal, 2) }}</span></span>
+                    </div>
+                @endif
+
                 <div class="d-flex justify-content-between fw-bold pt-2 border-top mt-2">
                     <span>Total Payment Due</span>
                     <span>$<span id="order-total-amount">{{ number_format((float) ($order['total'] ?? 0), 2) }}</span></span>
                 </div>
+
+                @if($packageEligible)
+                    <div class="alert alert-success py-2 px-3 mt-3 mb-0 small">
+                        <i class="bi bi-stars me-1"></i>
+                        <strong>Package pricing applied</strong> — you saved <strong>${{ number_format($savings, 2) }}</strong> by booking {{ $order['lesson_count'] ?? count($order['items']) }} lessons together.
+                    </div>
+                @endif
+
+                {{-- legacy fee element kept for JS back-compat (hidden) --}}
+                <span id="order-fee" style="display:none;">{{ number_format((float) ($order['fee'] ?? 0), 2) }}</span>
                 <button type="submit" form="payment-form" class="btn btn-warning w-100 fw-semibold" id="btn-pay">
                     Pay $<span id="btn-pay-amount">{{ number_format((float) ($order['total'] ?? 0), 2) }}</span>
                 </button>

@@ -50,7 +50,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Release pending payments past the 24h dispute window — runs hourly,
         // idempotent. Once released, bookings become eligible for the next
         // weekly payout run on Monday 02:00.
-        $schedule->command('payments:release-pending --hours=24')
+        // Hours value lives in SiteSetting `payment_hold_hours` (default 24, admin-tunable).
+        $schedule->command('payments:release-pending')
             ->hourly()
             ->timezone('Australia/Sydney')
             ->withoutOverlapping()

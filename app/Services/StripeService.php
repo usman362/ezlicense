@@ -108,6 +108,8 @@ class StripeService
 
         $lineItems = [];
         $bookingIds = [];
+        $platformFeeTotal = 0; // sum of service + processing fees across bookings
+
         foreach ($bookings as $b) {
             $b->loadMissing('instructor');
             $serviceLabel = $b->type === Booking::TYPE_TEST_PACKAGE
@@ -120,6 +122,7 @@ class StripeService
                 $b->scheduled_at?->format('j M Y, H:i') ?? 'TBC'
             );
 
+            // Line item for the lesson price (instructor receives this in full)
             $lineItems[] = [
                 'price_data' => [
                     'currency'     => (string) config('stripe.currency', 'aud'),
@@ -132,6 +135,29 @@ class StripeService
                 'quantity' => 1,
             ];
             $bookingIds[] = (string) $b->id;
+            $platformFeeTotal += (float) ($b->platform_fee ?? 0) + (float) ($b->processing_fee ?? 0);
+        }
+
+        // ── ONE combined "platform fees" line item ──
+        // (service + processing across all bookings, so the receipt is honest)
+        if ($platformFeeTotal > 0) {
+            $waiverApplied = collect($bookings)->every(fn ($b) => (float) ($b->processing_fee ?? 0) === 0.0)
+                && count($bookings) >= 2;
+            $feeLabel = $waiverApplied
+                ? 'SecureLicence platform fee (processing waived — package booking)'
+                : 'SecureLicence platform fee';
+
+            $lineItems[] = [
+                'price_data' => [
+                    'currency'     => (string) config('stripe.currency', 'aud'),
+                    'unit_amount'  => (int) round($platformFeeTotal * 100),
+                    'product_data' => [
+                        'name'        => $feeLabel,
+                        'description' => 'Covers payment processing + platform service.',
+                    ],
+                ],
+                'quantity' => 1,
+            ];
         }
 
         $first = $bookings[0];

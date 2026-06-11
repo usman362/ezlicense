@@ -75,6 +75,8 @@ class Booking extends Model
         'coupon_discount_amount',
         'referral_discount_amount',
         'platform_fee',
+        'processing_fee',
+        'stripe_fee_estimate',
         'instructor_net_amount',
         'instructor_payout_id',
         'payment_method',
