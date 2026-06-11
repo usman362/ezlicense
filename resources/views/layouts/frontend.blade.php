@@ -191,10 +191,8 @@
     </header>
     <form id="frontend-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
 
-    {{-- Floating help button (bottom right) — visible on all screen sizes --}}
-    <a href="{{ route('support.home') }}" class="floating-help-btn" title="Need help?" aria-label="Need help?">
-        <i class="bi bi-question-lg"></i>
-    </a>
+    {{-- Old single-link floating help button removed — replaced by the richer
+         sl-help-widget popover further below. --}}
 
     <main>
         @yield('content')
