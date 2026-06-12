@@ -102,23 +102,18 @@ class SiteSetting extends Model
 
             // Payment
             ['group' => 'payment', 'key' => 'stripe_enabled', 'value' => '0', 'type' => 'boolean', 'label' => 'Enable Stripe', 'hint' => 'Toggle Stripe payment gateway'],
-            // ── Mode switch ──
-            ['group' => 'payment', 'key' => 'stripe_mode', 'value' => 'test', 'type' => 'text', 'label' => 'Stripe Mode', 'hint' => 'test or live. One-click switch between sandbox and production keys below.'],
+            // ── Mode switch (Test sandbox ↔ Live production) ──
+            ['group' => 'payment', 'key' => 'stripe_mode', 'value' => 'test', 'type' => 'text', 'label' => 'Stripe Mode', 'hint' => 'One-click switch. Test = sandbox + test cards. Live = real money.'],
 
             // ── Test mode keys (sandbox) ──
             ['group' => 'payment', 'key' => 'stripe_test_publishable_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe TEST Publishable Key', 'hint' => 'pk_test_...'],
             ['group' => 'payment', 'key' => 'stripe_test_secret_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe TEST Secret Key', 'hint' => 'sk_test_...'],
-            ['group' => 'payment', 'key' => 'stripe_test_webhook_secret', 'value' => '', 'type' => 'secret', 'label' => 'Stripe TEST Webhook Secret', 'hint' => 'whsec_... (from Stripe Dashboard webhook endpoint)'],
+            ['group' => 'payment', 'key' => 'stripe_test_webhook_secret', 'value' => '', 'type' => 'secret', 'label' => 'Stripe TEST Webhook Secret', 'hint' => 'whsec_... (from Stripe Dashboard test webhook endpoint)'],
 
             // ── Live mode keys (production — real money) ──
-            ['group' => 'payment', 'key' => 'stripe_live_publishable_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe LIVE Publishable Key', 'hint' => 'pk_live_... — USE ONLY AFTER end-to-end test passes'],
-            ['group' => 'payment', 'key' => 'stripe_live_secret_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe LIVE Secret Key', 'hint' => 'sk_live_... — REAL MONEY. Treat as highly sensitive.'],
+            ['group' => 'payment', 'key' => 'stripe_live_publishable_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe LIVE Publishable Key', 'hint' => 'pk_live_... — only after end-to-end test passes.'],
+            ['group' => 'payment', 'key' => 'stripe_live_secret_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe LIVE Secret Key', 'hint' => 'sk_live_... — real money. Highly sensitive.'],
             ['group' => 'payment', 'key' => 'stripe_live_webhook_secret', 'value' => '', 'type' => 'secret', 'label' => 'Stripe LIVE Webhook Secret', 'hint' => 'whsec_... (from LIVE-mode webhook endpoint)'],
-
-            // ── Legacy single-key fields (kept for backward-compat with .env-only setups) ──
-            ['group' => 'payment', 'key' => 'stripe_publishable_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Publishable Key (legacy)', 'hint' => 'Only used if test/live above are empty.'],
-            ['group' => 'payment', 'key' => 'stripe_secret_key', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Secret Key (legacy)', 'hint' => 'Only used if test/live above are empty.'],
-            ['group' => 'payment', 'key' => 'stripe_webhook_secret', 'value' => '', 'type' => 'secret', 'label' => 'Stripe Webhook Secret (legacy)', 'hint' => 'Only used if test/live above are empty.'],
 
             // Commission / Fees
             ['group' => 'commission', 'key' => 'payment_hold_hours', 'value' => '24', 'type' => 'number', 'label' => 'Payment Hold (hours)', 'hint' => 'How long after lesson completion before instructor payout is released (chargeback safety window). Default 24h.'],
