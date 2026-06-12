@@ -24,15 +24,63 @@ class StripeService
 
     public function __construct()
     {
-        $secret = (string) config('stripe.secret_key');
+        $secret = self::resolveKey('stripe_secret_key', 'stripe.secret_key');
         if ($secret === '') {
-            throw new \RuntimeException('STRIPE_SECRET is not configured in .env');
+            throw new \RuntimeException(
+                'Stripe secret key is not configured. Set it in Admin → Site Settings → Payment, '.
+                'or as STRIPE_SECRET in .env.'
+            );
         }
 
         Stripe::setApiKey($secret);
-        Stripe::setApiVersion((string) config('stripe.api_version'));
+        Stripe::setApiVersion((string) config('stripe.api_version', '2024-11-20.acacia'));
 
         $this->client = new StripeClient($secret);
+    }
+
+    /**
+     * Resolve a Stripe key — mode-aware (test or live).
+     *
+     * Lookup order:
+     *   1. Mode-specific SiteSetting (e.g. stripe_test_secret_key)
+     *   2. Legacy single SiteSetting (e.g. stripe_secret_key)
+     *   3. .env fallback via config()
+     *
+     * @param  string  $settingKey  Logical suffix: 'publishable_key', 'secret_key', 'webhook_secret'
+     * @param  string  $configKey   Fallback config dot-path
+     */
+    public static function resolveKey(string $settingKey, string $configKey): string
+    {
+        try {
+            $mode = strtolower((string) \App\Models\SiteSetting::get('stripe_mode', 'test'));
+            $mode = in_array($mode, ['test', 'live'], true) ? $mode : 'test';
+
+            // Mode-specific key (e.g. stripe_test_secret_key / stripe_live_secret_key)
+            $prefixedKey = 'stripe_' . $mode . '_' . str_replace('stripe_', '', $settingKey);
+            $val = trim((string) \App\Models\SiteSetting::get($prefixedKey, ''));
+            if ($val !== '') return $val;
+
+            // Legacy single setting (backward-compat with old setups)
+            $legacy = trim((string) \App\Models\SiteSetting::get($settingKey, ''));
+            if ($legacy !== '') return $legacy;
+        } catch (\Throwable $e) {
+            // DB might not be ready (e.g. during migrate) — fall through to env
+        }
+        return trim((string) config($configKey, ''));
+    }
+
+    /**
+     * Returns currently active mode label — 'test' or 'live'.
+     * Use in admin dashboards to badge transactions clearly.
+     */
+    public static function getMode(): string
+    {
+        try {
+            $mode = strtolower((string) \App\Models\SiteSetting::get('stripe_mode', 'test'));
+            return in_array($mode, ['test', 'live'], true) ? $mode : 'test';
+        } catch (\Throwable $e) {
+            return 'test';
+        }
     }
 
     /**
@@ -231,9 +279,12 @@ class StripeService
      */
     public function verifyWebhook(string $payload, string $signatureHeader): \Stripe\Event
     {
-        $secret = (string) config('stripe.webhook_secret');
+        $secret = self::resolveKey('stripe_webhook_secret', 'stripe.webhook_secret');
         if ($secret === '') {
-            throw new \RuntimeException('STRIPE_WEBHOOK_SECRET is not configured.');
+            throw new \RuntimeException(
+                'Stripe webhook secret is not configured. Set it in Admin → Site Settings → Payment, '.
+                'or as STRIPE_WEBHOOK_SECRET in .env.'
+            );
         }
 
         return Webhook::constructEvent($payload, $signatureHeader, $secret);

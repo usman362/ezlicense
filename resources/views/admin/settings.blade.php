@@ -162,6 +162,23 @@
                                                     });
                                                     </script>
                                                 @endif
+                                            @elseif($s->key === 'stripe_mode')
+                                                {{-- Test / Live segmented toggle for Stripe mode --}}
+                                                <div class="btn-group" role="group" aria-label="Stripe mode">
+                                                    <input type="radio" class="btn-check" name="settings[{{ $s->key }}]"
+                                                           id="setting-{{ $s->key }}-test" value="test"
+                                                           {{ strtolower((string) $s->value) !== 'live' ? 'checked' : '' }}>
+                                                    <label class="btn btn-outline-secondary" for="setting-{{ $s->key }}-test">
+                                                        <i class="bi bi-flask me-1"></i> Test mode (sandbox)
+                                                    </label>
+
+                                                    <input type="radio" class="btn-check" name="settings[{{ $s->key }}]"
+                                                           id="setting-{{ $s->key }}-live" value="live"
+                                                           {{ strtolower((string) $s->value) === 'live' ? 'checked' : '' }}>
+                                                    <label class="btn btn-outline-danger" for="setting-{{ $s->key }}-live">
+                                                        <i class="bi bi-lightning-charge-fill me-1"></i> Live mode (real money)
+                                                    </label>
+                                                </div>
                                             @else
                                                 <input type="text"
                                                        class="form-control"
