@@ -92,12 +92,14 @@ class RegisterController extends Controller
                 },
             ],
             'phone' => ['required', 'string', 'max:20'],
-            // Instructors can only join via admin invite (see InstructorInviteController).
-            // Public signup is locked to learner role to maintain instructor quality control.
+            // Public signup is LEARNER-ONLY. Instructor accounts are created only after
+            // an admin approves an instructor application (see InstructorApplicationController),
+            // which then triggers an InstructorInvite email with a magic-link setup URL.
             'role' => ['required', 'in:learner'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'role.in' => 'Instructor accounts are by invitation only. Please contact us at instructors@securelicence.com to request an invite.',
+            'role.in' => 'Instructor accounts are application-only. Please apply at '
+                . url('/apply-as-instructor') . ' — admin reviews your documents before any account is created.',
         ]);
     }
 

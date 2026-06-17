@@ -32,11 +32,13 @@
         @enderror
     </div>
 
-    {{-- Public signup is locked to learner role. Instructors join via admin invite only. --}}
+    {{-- Public signup is locked to LEARNER role only. Instructors must apply and be
+         approved by admin before any account is created. See InstructorApplicationController. --}}
     <input type="hidden" name="role" value="learner">
     <p class="small text-muted mb-3" style="margin-top:-0.5rem;">
         <i class="bi bi-info-circle me-1"></i>
-        Looking to become an instructor? <a href="{{ route('instruct-with-us') }}" class="auth-register-link">Request an invite</a>.
+        Want to teach? <a href="{{ route('instructor-application.show') }}" class="auth-register-link">Apply as an instructor</a>
+        — admin reviews your documents before any account is created.
     </p>
     @error('role')
         <div class="alert alert-warning small">{{ $message }}</div>

@@ -279,6 +279,18 @@
                         <span class="badge text-bg-danger ms-1">{{ $unreadAttempts }}</span>
                     @endif
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.instructor-applications*') ? 'active' : '' }}" href="{{ route('admin.instructor-applications.index') }}">
+                    <i class="bi bi-file-earmark-person-fill"></i> Instructor Applications
+                    @php
+                        $pendingApps = \App\Models\InstructorApplication::whereIn('status', [
+                            \App\Models\InstructorApplication::STATUS_PENDING,
+                            \App\Models\InstructorApplication::STATUS_UNDER_REVIEW,
+                        ])->count();
+                    @endphp
+                    @if($pendingApps > 0)
+                        <span class="badge text-bg-warning ms-1">{{ $pendingApps }}</span>
+                    @endif
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.instructor-invites*') ? 'active' : '' }}" href="{{ route('admin.instructor-invites.index') }}">
                     <i class="bi bi-envelope-paper-fill"></i> Instructor Invites
                 </a>

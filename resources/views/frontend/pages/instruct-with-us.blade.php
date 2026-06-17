@@ -30,8 +30,8 @@
                     Join Australia's fastest-growing platform for driving instructors. More bookings, less admin — manage your schedule, payments and learners from one place.
                 </p>
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a href="{{ route('register') }}" class="btn btn-warning fw-bold px-4 py-2">
-                        <i class="bi bi-rocket-takeoff-fill me-1"></i>Get Started Free
+                    <a href="{{ route('instructor-application.show') }}" class="btn btn-warning fw-bold px-4 py-2">
+                        <i class="bi bi-file-earmark-person-fill me-1"></i>Apply to teach
                     </a>
                     <a href="#how-it-works" class="btn btn-outline-light fw-bold px-4 py-2">
                         See how it works
@@ -184,15 +184,15 @@
     <div class="container">
         <div class="text-center mb-5">
             <span class="blog-eyebrow"><i class="bi bi-list-check me-1"></i>Get started</span>
-            <h2 class="cl-section-title">How it works — from signup to first booking</h2>
-            <p class="text-muted">Most instructors get their first paid booking within 7 days of joining.</p>
+            <h2 class="cl-section-title">How it works — from application to first booking</h2>
+            <p class="text-muted">Most approved instructors get their first paid booking within 7 days of going live.</p>
         </div>
         <div class="row g-4 iwu-steps">
             @foreach([
-                ['1', 'bi-person-plus-fill', 'Sign up free',       'Create your account in under 2 minutes. No card details, no setup fee.'],
-                ['2', 'bi-patch-check-fill', 'Get verified',        'Upload your driving instructor licence, WWCC and insurance. We verify within 24-48 hours.'],
-                ['3', 'bi-sliders',          'Set your details',    'Add your service areas, pricing, vehicle info and availability calendar.'],
-                ['4', 'bi-car-front-fill',   'Start teaching',      'Learners find you, book online, you teach. Get paid weekly via direct deposit.'],
+                ['1', 'bi-file-earmark-person-fill', 'Submit application', 'Tell us about yourself and upload your licence, instructor certificate and insurance — no account created yet.'],
+                ['2', 'bi-patch-check-fill',        'We verify (2 days)', 'Our team reviews your documents against Australian driving instructor standards.'],
+                ['3', 'bi-key-fill',                'Set up your profile','Once approved, we email you a one-click link to set your password and finalise your bio, pricing and availability.'],
+                ['4', 'bi-car-front-fill',          'Start teaching',     'Learners book you online, you teach. Get paid weekly via direct deposit.'],
             ] as [$num, $ic, $title, $desc])
                 <div class="col-md-6 col-lg-3 text-center">
                     <div class="iwu-step-num">{{ $num }}</div>
@@ -203,8 +203,8 @@
             @endforeach
         </div>
         <div class="text-center mt-5">
-            <a href="{{ route('register') }}" class="btn btn-warning fw-bold btn-lg px-4">
-                <i class="bi bi-arrow-right me-1"></i>Start your free instructor account
+            <a href="{{ route('instructor-application.show') }}" class="btn btn-warning fw-bold btn-lg px-4">
+                <i class="bi bi-arrow-right me-1"></i>Start your application
             </a>
         </div>
     </div>
@@ -281,11 +281,11 @@
         <div class="row align-items-center g-4">
             <div class="col-md-8">
                 <h2 class="mb-2 fw-bolder text-dark">Ready to grow your driving school?</h2>
-                <p class="mb-0 text-dark">Free to join, free to set up. Get your first booking within 7 days.</p>
+                <p class="mb-0 text-dark">Free to apply. We review your documents within 2 business days.</p>
             </div>
             <div class="col-md-4 text-md-end">
-                <a href="{{ route('register') }}" class="btn btn-dark fw-bold btn-lg px-4">
-                    <i class="bi bi-rocket-takeoff-fill me-2"></i>Sign up free
+                <a href="{{ route('instructor-application.show') }}" class="btn btn-dark fw-bold btn-lg px-4">
+                    <i class="bi bi-file-earmark-person-fill me-2"></i>Apply to teach
                 </a>
             </div>
         </div>

@@ -121,7 +121,13 @@ Route::get('/prices-and-packages', fn () => view('frontend.pages.prices-packages
 Route::get('/industry-insights', [App\Http\Controllers\IndustryInsightController::class, 'index'])->name('industry-insights');
 Route::get('/industry-insights/{slug}', [App\Http\Controllers\IndustryInsightController::class, 'show'])->name('industry-insights.show');
 Route::get('/instruct-with-us', fn () => view('frontend.pages.instruct-with-us'))->name('instruct-with-us');
-Route::get('/instructor-academy', fn () => view('frontend.pages.instructor-academy'))->name('instructor-academy');
+// Public instructor application form — submitting does NOT create an account.
+// Admin reviews documents, then approves (which spins up an InstructorInvite) or rejects.
+Route::get('/apply-as-instructor',  [App\Http\Controllers\InstructorApplicationController::class, 'show'])->name('instructor-application.show');
+Route::post('/apply-as-instructor', [App\Http\Controllers\InstructorApplicationController::class, 'store'])->name('instructor-application.store');
+// Instructor Academy permanently removed — Secure Licence is NOT an RTO (Registered
+// Training Organisation). Running a training academy requires separate RTO certification
+// and is out of scope for this platform.
 Route::get('/gift-vouchers', fn () => view('frontend.pages.gift-vouchers'))->name('gift-vouchers');
 Route::get('/practice-test', [App\Http\Controllers\PracticeTestController::class, 'index'])->name('practice-test');
 Route::get('/practice-test/{state}', [App\Http\Controllers\PracticeTestController::class, 'state'])->name('practice-test.state');
@@ -192,7 +198,6 @@ Route::get('/sitemap.xml', function () {
         '/refresher-lessons'             => ['priority' => '0.7', 'changefreq' => 'monthly'],
         '/international-licence-conversions' => ['priority' => '0.7', 'changefreq' => 'monthly'],
         '/instruct-with-us'              => ['priority' => '0.7', 'changefreq' => 'monthly'],
-        '/instructor-academy'            => ['priority' => '0.6', 'changefreq' => 'monthly'],
         '/practice-test'                 => ['priority' => '0.7', 'changefreq' => 'monthly'],
         '/blog'                          => ['priority' => '0.8', 'changefreq' => 'daily'],
         '/industry-insights'             => ['priority' => '0.7', 'changefreq' => 'weekly'],
@@ -407,6 +412,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/blog/{blogPost}/edit', [App\Http\Controllers\Admin\BlogController::class, 'edit'])->name('blog.edit');
     Route::put('/blog/{blogPost}', [App\Http\Controllers\Admin\BlogController::class, 'update'])->name('blog.update');
     Route::get('/blog/categories', [App\Http\Controllers\Admin\BlogController::class, 'categories'])->name('blog.categories');
+
+    // Instructor applications (public-form pipeline) — admin reviews docs then approves/rejects
+    Route::get('/instructor-applications', [App\Http\Controllers\Admin\InstructorApplicationController::class, 'index'])->name('instructor-applications.index');
+    Route::get('/instructor-applications/{instructorApplication}', [App\Http\Controllers\Admin\InstructorApplicationController::class, 'show'])->name('instructor-applications.show');
+    Route::post('/instructor-applications/{instructorApplication}/under-review', [App\Http\Controllers\Admin\InstructorApplicationController::class, 'markUnderReview'])->name('instructor-applications.under-review');
+    Route::post('/instructor-applications/{instructorApplication}/approve', [App\Http\Controllers\Admin\InstructorApplicationController::class, 'approve'])->name('instructor-applications.approve');
+    Route::post('/instructor-applications/{instructorApplication}/reject', [App\Http\Controllers\Admin\InstructorApplicationController::class, 'reject'])->name('instructor-applications.reject');
 
     // Instructor invites (magic-link onboarding)
     Route::get('/instructor-invites', [App\Http\Controllers\Admin\InstructorInviteController::class, 'index'])->name('instructor-invites.index');

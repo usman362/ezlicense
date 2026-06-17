@@ -42,8 +42,6 @@
                     <a href="{{ route('support.home') }}">Support</a>
                     <span class="divider">|</span>
                     <a href="{{ route('instruct-with-us') }}">Instruct with Secure Licence</a>
-                    <span class="divider">|</span>
-                    <a href="{{ route('instructor-academy') }}">Secure Licence Instructor Academy</a>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-1">
                     @auth
@@ -102,7 +100,6 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navForInstructors" role="button" data-bs-toggle="dropdown" aria-expanded="false">For Instructors</a>
                             <ul class="dropdown-menu" aria-labelledby="navForInstructors">
                                 <li><a class="dropdown-item" href="{{ route('instruct-with-us') }}"><i class="bi bi-person-badge me-1"></i>Become an Instructor</a></li>
-                                <li><a class="dropdown-item" href="{{ route('instructor-academy') }}"><i class="bi bi-mortarboard me-1"></i>Instructor Academy</a></li>
                                 <li><a class="dropdown-item" href="{{ route('industry-insights') }}"><i class="bi bi-newspaper me-1"></i>Industry Insights</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('instructor.login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Instructor Login</a></li>
@@ -233,7 +230,6 @@
                     <h6>For Instructors</h6>
                     <ul class="list-unstyled mb-0" style="line-height:2;">
                         <li><a href="{{ route('instruct-with-us') }}">Become an Instructor</a></li>
-                        <li><a href="{{ route('instructor-academy') }}">Instructor Academy</a></li>
                         <li><a href="{{ route('instructor.login') }}">Instructor Login</a></li>
                         <li><a href="{{ route('policies.instructor-conduct') }}">Code of Conduct</a></li>
                     </ul>
