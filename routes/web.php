@@ -119,17 +119,40 @@ Route::get('/driving-lessons/{city}', [App\Http\Controllers\CityLandingControlle
 Route::get('/prices-and-packages', fn () => view('frontend.pages.prices-packages'))->name('prices-packages');
 // Industry Insights (dynamic, admin-managed)
 Route::get('/industry-insights', [App\Http\Controllers\IndustryInsightController::class, 'index'])->name('industry-insights');
+// Newsletter landing — MUST be registered before the {slug} route so "newsletter" isn't treated as a slug.
+Route::get('/industry-insights/newsletter', [App\Http\Controllers\NewsletterController::class, 'show'])->name('industry-insights.newsletter');
+Route::post('/industry-insights/newsletter/subscribe', [App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('industry-insights.newsletter.subscribe');
 Route::get('/industry-insights/{slug}', [App\Http\Controllers\IndustryInsightController::class, 'show'])->name('industry-insights.show');
 Route::get('/instruct-with-us', fn () => view('frontend.pages.instruct-with-us'))->name('instruct-with-us');
 // Public instructor application form — submitting does NOT create an account.
 // Admin reviews documents, then approves (which spins up an InstructorInvite) or rejects.
+// "For Instructors" feature landing pages (linked from the mega-menu)
+Route::get('/for-instructors/lead-generation', fn () => view('frontend.pages.instructors.lead-generation'))->name('for-instructors.lead-generation');
+Route::get('/for-instructors/work-whenever-you-want', fn () => view('frontend.pages.instructors.work-whenever-you-want'))->name('for-instructors.work-whenever-you-want');
+Route::get('/for-instructors/flexible-commitment', fn () => view('frontend.pages.instructors.flexible-commitment'))->name('for-instructors.flexible-commitment');
+Route::get('/for-instructors/your-listing-profile', fn () => view('frontend.pages.instructors.your-listing-profile'))->name('for-instructors.your-listing-profile');
+Route::get('/for-instructors/reputation-management', fn () => view('frontend.pages.instructors.reputation-management'))->name('for-instructors.reputation-management');
+Route::get('/for-instructors/white-glove-concierge', fn () => view('frontend.pages.instructors.white-glove-concierge'))->name('for-instructors.white-glove-concierge');
+Route::get('/for-instructors/tools-you-already-know', fn () => view('frontend.pages.instructors.tools-you-already-know'))->name('for-instructors.tools-you-already-know');
+Route::get('/for-instructors/calendar-scheduling', fn () => view('frontend.pages.instructors.calendar-scheduling'))->name('for-instructors.calendar-scheduling');
+Route::get('/for-instructors/payments-payouts', fn () => view('frontend.pages.instructors.payments-payouts'))->name('for-instructors.payments-payouts');
+Route::get('/for-instructors/automated-reminders', fn () => view('frontend.pages.instructors.automated-reminders'))->name('for-instructors.automated-reminders');
+Route::get('/for-instructors/no-show-protection', fn () => view('frontend.pages.instructors.no-show-protection'))->name('for-instructors.no-show-protection');
+Route::get('/for-instructors/lesson-catalog', fn () => view('frontend.pages.instructors.lesson-catalog'))->name('for-instructors.lesson-catalog');
+Route::get('/for-instructors/website-booking-link', fn () => view('frontend.pages.instructors.website-booking-link'))->name('for-instructors.website-booking-link');
+Route::get('/for-instructors/learner-management', fn () => view('frontend.pages.instructors.learner-management'))->name('for-instructors.learner-management');
+
 Route::get('/apply-as-instructor',  [App\Http\Controllers\InstructorApplicationController::class, 'show'])->name('instructor-application.show');
 Route::post('/apply-as-instructor', [App\Http\Controllers\InstructorApplicationController::class, 'store'])->name('instructor-application.store');
 // Instructor Academy permanently removed — Secure Licence is NOT an RTO (Registered
 // Training Organisation). Running a training academy requires separate RTO certification
 // and is out of scope for this platform.
 Route::get('/gift-vouchers', fn () => view('frontend.pages.gift-vouchers'))->name('gift-vouchers');
+// FAQs — listing + per-question detail pages
+Route::get('/faqs', [App\Http\Controllers\FaqController::class, 'index'])->name('faqs.index');
+Route::get('/faqs/{slug}', [App\Http\Controllers\FaqController::class, 'show'])->name('faqs.show');
 Route::get('/practice-test', [App\Http\Controllers\PracticeTestController::class, 'index'])->name('practice-test');
+Route::get('/practice-test/{state}/test', [App\Http\Controllers\PracticeTestController::class, 'quiz'])->name('practice-test.quiz');
 Route::get('/practice-test/{state}', [App\Http\Controllers\PracticeTestController::class, 'state'])->name('practice-test.state');
 
 // Blog (public)
@@ -434,6 +457,30 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/industry-insights', [App\Http\Controllers\Admin\IndustryInsightController::class, 'store'])->name('industry-insights.store');
     Route::get('/industry-insights/{industryInsight}/edit', [App\Http\Controllers\Admin\IndustryInsightController::class, 'edit'])->name('industry-insights.edit');
     Route::put('/industry-insights/{industryInsight}', [App\Http\Controllers\Admin\IndustryInsightController::class, 'update'])->name('industry-insights.update');
+
+    // Practice test questions
+    Route::get('/practice-questions', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'index'])->name('practice-questions.index');
+    Route::get('/practice-questions/create', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'create'])->name('practice-questions.create');
+    Route::post('/practice-questions', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'store'])->name('practice-questions.store');
+    Route::get('/practice-questions/{practiceQuestion}/edit', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'edit'])->name('practice-questions.edit');
+    Route::put('/practice-questions/{practiceQuestion}', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'update'])->name('practice-questions.update');
+    Route::patch('/practice-questions/{practiceQuestion}/toggle', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'toggle'])->name('practice-questions.toggle');
+    Route::delete('/practice-questions/{practiceQuestion}', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'destroy'])->name('practice-questions.destroy');
+
+    // Newsletter subscribers
+    Route::get('/newsletter', [App\Http\Controllers\Admin\NewsletterController::class, 'index'])->name('newsletter.index');
+    Route::get('/newsletter/export', [App\Http\Controllers\Admin\NewsletterController::class, 'export'])->name('newsletter.export');
+    Route::patch('/newsletter/{subscriber}/toggle', [App\Http\Controllers\Admin\NewsletterController::class, 'toggle'])->name('newsletter.toggle');
+    Route::delete('/newsletter/{subscriber}', [App\Http\Controllers\Admin\NewsletterController::class, 'destroy'])->name('newsletter.destroy');
+
+    // FAQs (dynamic, admin-managed)
+    Route::get('/faqs', [App\Http\Controllers\Admin\FaqController::class, 'index'])->name('faqs.index');
+    Route::get('/faqs/create', [App\Http\Controllers\Admin\FaqController::class, 'create'])->name('faqs.create');
+    Route::post('/faqs', [App\Http\Controllers\Admin\FaqController::class, 'store'])->name('faqs.store');
+    Route::get('/faqs/{faq}/edit', [App\Http\Controllers\Admin\FaqController::class, 'edit'])->name('faqs.edit');
+    Route::put('/faqs/{faq}', [App\Http\Controllers\Admin\FaqController::class, 'update'])->name('faqs.update');
+    Route::patch('/faqs/{faq}/toggle', [App\Http\Controllers\Admin\FaqController::class, 'toggle'])->name('faqs.toggle');
+    Route::delete('/faqs/{faq}', [App\Http\Controllers\Admin\FaqController::class, 'destroy'])->name('faqs.destroy');
 
     // Settings
     Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');

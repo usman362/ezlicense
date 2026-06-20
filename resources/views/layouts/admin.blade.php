@@ -257,6 +257,15 @@
                 <a class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}" href="{{ route('admin.blog.index') }}">
                     <i class="bi bi-journal-richtext"></i> Blog
                 </a>
+                <a class="nav-link {{ request()->routeIs('admin.faqs*') ? 'active' : '' }}" href="{{ route('admin.faqs.index') }}">
+                    <i class="bi bi-patch-question"></i> FAQs
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.practice-questions*') ? 'active' : '' }}" href="{{ route('admin.practice-questions.index') }}">
+                    <i class="bi bi-question-square"></i> Practice Questions
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.newsletter*') ? 'active' : '' }}" href="{{ route('admin.newsletter.index') }}">
+                    <i class="bi bi-envelope-at"></i> Newsletter
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.industry-insights*') ? 'active' : '' }}" href="{{ route('admin.industry-insights.index') }}">
                     <i class="bi bi-graph-up-arrow"></i> Industry Insights
                 </a>

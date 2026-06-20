@@ -220,4 +220,56 @@ class PracticeTestController extends Controller
             'questions'      => $questions,
         ]);
     }
+
+    /**
+     * The interactive 2-section practice test.
+     *   GET /practice-test/{state}/test
+     */
+    public function quiz(string $state): View
+    {
+        $state = strtolower($state);
+        if (! isset(self::$states[$state])) {
+            abort(404, 'State not found.');
+        }
+        $config = self::$states[$state];
+
+        $sections = [];
+        foreach ([
+            \App\Models\PracticeQuestion::SECTION_GENERAL,
+            \App\Models\PracticeQuestion::SECTION_ROAD_SAFETY,
+        ] as $sectionKey) {
+            $qs = \App\Models\PracticeQuestion::active()
+                ->where('section', $sectionKey)
+                ->inRandomOrder()
+                ->get();
+
+            if ($qs->isEmpty()) {
+                continue;
+            }
+
+            $sections[] = [
+                'key'      => $sectionKey,
+                'label'    => \App\Models\PracticeQuestion::sectionLabel($sectionKey),
+                'passMark' => (int) ceil($qs->count() * 0.8),
+                'count'    => $qs->count(),
+                'questions' => $qs->map(fn ($q) => [
+                    'id'          => $q->id,
+                    'question'    => $q->question,
+                    'image'       => $q->image_url,
+                    'options'     => $q->options,
+                    'correct'     => $q->correct_index,
+                    'explanation' => $q->explanation,
+                ])->values(),
+            ];
+        }
+
+        return view('frontend.pages.practice-test-quiz', [
+            'stateSlug' => $state,
+            'stateCode' => $config['code'],
+            'stateName' => $config['name'],
+            'testName'  => $config['testName'],
+            'sections'  => $sections,
+            'totalQuestions' => array_sum(array_column($sections, 'count')),
+        ]);
+    }
 }

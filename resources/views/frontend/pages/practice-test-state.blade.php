@@ -44,7 +44,7 @@
                             <option value="four_to_eight">4 – 8 weeks time</option>
                             <option value="more_than_eight">8 weeks+ time</option>
                         </select>
-                        <button type="submit" class="btn btn-warning fw-bold w-100 pts-form-submit">Begin Free Test</button>
+                        <a href="{{ route('practice-test.quiz', $stateSlug) }}" class="btn btn-warning fw-bold w-100 pts-form-submit">Begin Free Test</a>
                     </form>
                     <hr class="my-3">
                     <div class="pts-form-fb">

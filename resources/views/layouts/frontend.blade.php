@@ -32,6 +32,7 @@
             box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
         }
     </style>
+    @stack('styles')
 </head>
 <body>
     {{-- Top utility bar — DESKTOP ONLY (mobile uses hamburger menu for these links) --}}
@@ -61,6 +62,61 @@
             </div>
         </div>
     </div>
+    <style>
+        /* ── "For Instructors" mega-menu ── */
+        .dropdown-mega {
+            width: min(580px, 94vw);
+            border: 0;
+            box-shadow: 0 14px 44px rgba(20, 23, 28, .14);
+            border-radius: .85rem;
+            margin-top: .6rem;
+            padding: 0;
+            overflow: hidden;
+        }
+        .dropdown-mega-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem 1.75rem;
+            padding: 1.35rem 1.6rem 1rem;
+        }
+        .dropdown-mega-head {
+            font-size: .7rem;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #9aa1ab;
+            font-weight: 700;
+            margin-bottom: .55rem;
+        }
+        .dropdown-mega-link {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            padding: .38rem 0;
+            color: #2b2f36;
+            text-decoration: none;
+            font-size: .94rem;
+            line-height: 1.2;
+            transition: color .12s ease;
+        }
+        .dropdown-mega-link i { color: #c9a400; font-size: 1rem; width: 1.15rem; text-align: center; }
+        .dropdown-mega-link:hover { color: #1a1d21; }
+        .dropdown-mega-link:hover i { color: #b38f00; }
+        .dropdown-mega-foot {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+            padding: .9rem 1.6rem;
+            background: #f8f9fa;
+            border-top: 1px solid #edeff2;
+        }
+        .dropdown-mega-foot .ms-auto-note { margin-left: auto; font-size: .82rem; color: #8b929c; }
+        @media (max-width: 991.98px) {
+            .dropdown-mega { width: 100%; box-shadow: none; margin-top: .25rem; }
+            .dropdown-mega-inner { grid-template-columns: 1fr; gap: .35rem 0; padding: .75rem 1rem .5rem; }
+            .dropdown-mega-foot { flex-wrap: wrap; padding: .75rem 1rem; }
+            .dropdown-mega-foot .ms-auto-note { display: none; }
+        }
+    </style>
     <header class="frontend-header">
         <nav class="navbar navbar-expand-lg navbar-light py-2 py-lg-3">
             <div class="container">
@@ -95,15 +151,31 @@
                                 <li><a class="dropdown-item" href="{{ route('city.landing', 'canberra') }}">Canberra Driving Lessons</a></li>
                             </ul>
                         </li>
-                        {{-- NEW: Consolidated "For Instructors" dropdown — matches EzLicence reference --}}
+                        {{-- "For Instructors" mega-menu — EzLicence-style, two feature columns. --}}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navForInstructors" role="button" data-bs-toggle="dropdown" aria-expanded="false">For Instructors</a>
-                            <ul class="dropdown-menu" aria-labelledby="navForInstructors">
-                                <li><a class="dropdown-item" href="{{ route('instruct-with-us') }}"><i class="bi bi-person-badge me-1"></i>Become an Instructor</a></li>
-                                <li><a class="dropdown-item" href="{{ route('industry-insights') }}"><i class="bi bi-newspaper me-1"></i>Industry Insights</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('instructor.login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Instructor Login</a></li>
-                            </ul>
+                            <div class="dropdown-menu dropdown-mega" aria-labelledby="navForInstructors">
+                                <div class="dropdown-mega-inner">
+                                    <div class="dropdown-mega-col">
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.lead-generation') }}">Lead Generation</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.work-whenever-you-want') }}">Work Whenever You Want</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.flexible-commitment') }}">Flexible Commitment</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.your-listing-profile') }}">Your Listing &amp; Profile</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.reputation-management') }}">Reputation Management</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.white-glove-concierge') }}">White-Glove Concierge</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.tools-you-already-know') }}">Tools You Already Know</a>
+                                    </div>
+                                    <div class="dropdown-mega-col">
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.calendar-scheduling') }}">Calendar &amp; Scheduling</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.payments-payouts') }}">Payments &amp; Payouts</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.automated-reminders') }}">Automated Reminders</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.no-show-protection') }}">No-Show Protection</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.lesson-catalog') }}">Lesson Catalog</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.learner-management') }}">Learner Management</a>
+                                        <a class="dropdown-mega-link" href="{{ route('for-instructors.website-booking-link') }}">Website + Booking Link</a>
+                                    </div>
+                                </div>
+                            </div>
                         </li>
                         {{-- DISABLED for Phase 1 launch — Home Services dropdown
                              Re-enable when Service Providers feature is ready.
@@ -123,9 +195,10 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navResources" role="button" data-bs-toggle="dropdown" aria-expanded="false">Free Learner Resources</a>
                             <ul class="dropdown-menu" aria-labelledby="navResources">
-                                <li><a class="dropdown-item" href="{{ url('/') }}#faqAccordion">FAQs</a></li>
+                                <li><a class="dropdown-item" href="{{ route('faqs.index') }}">FAQs</a></li>
                                 <li><a class="dropdown-item" href="{{ route('blog.index') }}">Blog</a></li>
                                 <li><a class="dropdown-item" href="{{ route('industry-insights') }}">Industry Insights</a></li>
+                                <li><a class="dropdown-item" href="{{ route('industry-insights.newsletter') }}">Industry Insights Newsletter</a></li>
                                 <li><a class="dropdown-item" href="{{ route('practice-test') }}">Free Practice Learners Test</a></li>
                             </ul>
                         </li>
