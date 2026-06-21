@@ -43,8 +43,10 @@ class FaqSeeder extends Seeder
             ['About Secure Licence', 'Where does Secure Licence offer driving lessons?', '<p>Secure Licence connects learners with instructors right across Australia — including Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart, Canberra and many regional centres. Enter your suburb to see who\'s available near you.</p>'],
         ];
 
+        // firstOrCreate: only inserts FAQs that don't already exist (by slug).
+        // Re-running is a no-op on existing rows — admin edits are never overwritten.
         foreach ($faqs as $i => [$category, $question, $answer]) {
-            Faq::updateOrCreate(
+            Faq::firstOrCreate(
                 ['slug' => Str::slug($question)],
                 [
                     'question'     => $question,

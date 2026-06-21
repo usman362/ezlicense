@@ -69,7 +69,10 @@
                             </div>
                         @endif
                         <input type="file" name="image" class="form-control" accept="image/*">
-                        <small class="text-muted">JPG/PNG, max 4 MB. Shown above the answer options.</small>
+                        <small class="text-muted d-block">
+                            <strong>Recommended:</strong> landscape, around <strong>800 × 500 px</strong> (4:3 or 16:9). JPG/PNG, max 4 MB.
+                            Any size works — it's auto-fitted to max 300px tall, centered, without stretching.
+                        </small>
                     </div>
 
                     <div class="mb-3">

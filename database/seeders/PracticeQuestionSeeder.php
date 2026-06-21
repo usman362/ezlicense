@@ -46,16 +46,18 @@ class PracticeQuestionSeeder extends Seeder
             ['Before opening your car door into traffic, you should:', ['Open it quickly', 'Check mirrors and over your shoulder for cyclists and traffic', 'Sound your horn', 'Open it only on the kerb side'], 1, 'Always check mirrors and look over your shoulder for cyclists and traffic before opening a door.'],
         ];
 
+        // firstOrCreate: only inserts questions that don't already exist (by section + question).
+        // Re-running is a no-op on existing rows — admin edits are never overwritten.
         $order = 0;
         foreach ($general as [$q, $opts, $correct, $exp]) {
-            PracticeQuestion::updateOrCreate(
+            PracticeQuestion::firstOrCreate(
                 ['section' => PracticeQuestion::SECTION_GENERAL, 'question' => $q],
                 ['options' => $opts, 'correct_index' => $correct, 'explanation' => $exp, 'is_active' => true, 'sort_order' => $order++],
             );
         }
         $order = 0;
         foreach ($roadSafety as [$q, $opts, $correct, $exp]) {
-            PracticeQuestion::updateOrCreate(
+            PracticeQuestion::firstOrCreate(
                 ['section' => PracticeQuestion::SECTION_ROAD_SAFETY, 'question' => $q],
                 ['options' => $opts, 'correct_index' => $correct, 'explanation' => $exp, 'is_active' => true, 'sort_order' => $order++],
             );

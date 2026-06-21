@@ -15,7 +15,7 @@
     .pq-opt:hover{border-color:#ffd500;background:#fffdf5;}
     .pq-opt.sel{border-color:#ffd500;background:#fff8e1;}
     .pq-opt input{accent-color:#caa300;}
-    .pq-img{max-width:100%;border-radius:.6rem;margin:1rem 0;}
+    .pq-img{display:block;max-width:100%;max-height:300px;width:auto;height:auto;margin:1rem auto;border-radius:.6rem;object-fit:contain;background:#f8f9fb;}
     .pq-rev-item{border-bottom:1px solid #eef0f2;}
     .pq-rev-head{display:flex;align-items:center;gap:.6rem;padding:.85rem 0;cursor:pointer;}
     .pq-rev-head .num{font-weight:700;width:26px;flex-shrink:0;}
