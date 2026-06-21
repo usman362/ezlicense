@@ -142,7 +142,10 @@ Route::get('/for-instructors/lesson-catalog', fn () => view('frontend.pages.inst
 Route::get('/for-instructors/website-booking-link', fn () => view('frontend.pages.instructors.website-booking-link'))->name('for-instructors.website-booking-link');
 Route::get('/for-instructors/learner-management', fn () => view('frontend.pages.instructors.learner-management'))->name('for-instructors.learner-management');
 
-Route::get('/apply-as-instructor',  [App\Http\Controllers\InstructorApplicationController::class, 'show'])->name('instructor-application.show');
+// Instructor signup now happens entirely on the support "Submit a request" form
+// (the "I am a driving instructor interested in joining…" option). The old standalone
+// /apply-as-instructor page redirects there so any saved link still works.
+Route::get('/apply-as-instructor', fn () => redirect()->route('support.request.show', ['topic' => 'instructor']))->name('instructor-application.show');
 Route::post('/apply-as-instructor', [App\Http\Controllers\InstructorApplicationController::class, 'store'])->name('instructor-application.store');
 // Instructor Academy permanently removed — Secure Licence is NOT an RTO (Registered
 // Training Organisation). Running a training academy requires separate RTO certification

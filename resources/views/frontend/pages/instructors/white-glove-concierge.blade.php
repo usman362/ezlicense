@@ -33,7 +33,7 @@
                     <li class="d-flex gap-2 mb-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Disputes, refunds, cancellations — handled end-to-end without you.</span></li>
                     <li class="d-flex gap-2"><i class="bi bi-check-circle-fill text-warning"></i><span>48-hour active onboarding with a real phone call, not just a form.</span></li>
                 </ul>
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Get concierge support on your side</a>
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Get concierge support on your side</a>
             </div>
 
             <div class="col-lg-6">
@@ -228,7 +228,7 @@
             Join instructors earning on Secure Licence. 15 minutes to apply, reviewed within 2 business days. Leave whenever you want.
         </p>
         <div class="d-flex flex-wrap justify-content-center gap-2">
-            <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Apply to join Secure Licence</a>
+            <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Apply to join Secure Licence</a>
             <a href="{{ route('instruct-with-us') }}" class="btn btn-outline-light btn-lg">Back to overview</a>
         </div>
     </div>

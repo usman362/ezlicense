@@ -30,7 +30,7 @@
                     Join Australia's fastest-growing platform for driving instructors. More bookings, less admin — manage your schedule, payments and learners from one place.
                 </p>
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a href="{{ route('instructor-application.show') }}" class="btn btn-warning fw-bold px-4 py-2">
+                    <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning fw-bold px-4 py-2">
                         <i class="bi bi-file-earmark-person-fill me-1"></i>Apply to teach
                     </a>
                     <a href="#how-it-works" class="btn btn-outline-light fw-bold px-4 py-2">
@@ -203,7 +203,7 @@
             @endforeach
         </div>
         <div class="text-center mt-5">
-            <a href="{{ route('instructor-application.show') }}" class="btn btn-warning fw-bold btn-lg px-4">
+            <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning fw-bold btn-lg px-4">
                 <i class="bi bi-arrow-right me-1"></i>Start your application
             </a>
         </div>
@@ -284,7 +284,7 @@
                 <p class="mb-0 text-dark">Free to apply. We review your documents within 2 business days.</p>
             </div>
             <div class="col-md-4 text-md-end">
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-dark fw-bold btn-lg px-4">
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-dark fw-bold btn-lg px-4">
                     <i class="bi bi-file-earmark-person-fill me-2"></i>Apply to teach
                 </a>
             </div>

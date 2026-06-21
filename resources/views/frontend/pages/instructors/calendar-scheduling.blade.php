@@ -39,7 +39,7 @@
                     <li class="d-flex gap-2 mb-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Service-area polygons — learners outside your zone can't book.</span></li>
                     <li class="d-flex gap-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Working hours + exception dates (sick days, holidays, public events).</span></li>
                 </ul>
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Get started</a>
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Get started</a>
             </div>
 
             <div class="col-lg-6">

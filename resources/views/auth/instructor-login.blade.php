@@ -23,7 +23,7 @@
 <p class="text-muted mb-4">New to Secure Licence? <a href="{{ route('instruct-with-us') }}" class="auth-register-link">Become an instructor</a></p>
 @include('auth.partials.login-form', [
     'signupPrompt' => 'Want to teach with Secure Licence?',
-    'signupUrl'    => route('instructor-application.show'),
+    'signupUrl'    => route('support.request.show', ['topic' => 'instructor']),
     'signupLabel'  => 'Apply as an Instructor',
 ])
 @endsection

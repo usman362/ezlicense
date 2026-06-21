@@ -46,7 +46,7 @@
                     <li class="d-flex gap-2 mb-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Roughly $1,830/year of tools and fees included at no cost.</span></li>
                     <li class="d-flex gap-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Stripe bank payouts on your chosen 7, 14 or 28-day cycle, dispute and refund fees absorbed.</span></li>
                 </ul>
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Join the marketplace, free</a>
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Join the marketplace, free</a>
             </div>
 
             <div class="col-lg-6">
@@ -139,7 +139,7 @@
             These are costs Secure Licence absorbs from the marketplace. You don't see them. You don't pass them on. You don't pay them.
         </p>
         <div class="text-center">
-            <a href="{{ route('instructor-application.show') }}" class="btn btn-warning fw-semibold">Join the marketplace, free</a>
+            <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning fw-semibold">Join the marketplace, free</a>
         </div>
     </div>
 </section>
@@ -274,7 +274,7 @@
             Join instructors earning on Secure Licence. 15 minutes to apply, reviewed within 2 business days. Leave whenever you want.
         </p>
         <div class="d-flex flex-wrap justify-content-center gap-2">
-            <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Apply to join Secure Licence</a>
+            <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Apply to join Secure Licence</a>
             <a href="{{ route('instruct-with-us') }}" class="btn btn-outline-light btn-lg">Back to overview</a>
         </div>
     </div>

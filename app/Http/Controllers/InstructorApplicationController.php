@@ -34,13 +34,20 @@ class InstructorApplicationController extends Controller
 
     public function store(Request $request)
     {
+        // Honeypot trip — checked BEFORE validation so it never shows as a field error.
+        // Real users leave the hidden "website" field empty; bots/autofill fill it.
+        if (! empty($request->input('website'))) {
+            return redirect()->route('instructor-application.show')
+                ->with('message', 'Thanks! Your application has been received.');
+        }
+
         $data = $request->validate([
             'first_name'       => ['required', 'string', 'max:100'],
             'last_name'        => ['nullable', 'string', 'max:100'],
             'email'            => ['required', 'email', 'max:191'],
             'phone'            => ['required', 'string', 'max:30'],
 
-            'years_experience' => ['nullable', 'integer', 'min:0', 'max:60'],
+            'years_experience' => ['nullable', 'integer', 'min:0', 'max:70'],
             'transmission'     => ['nullable', 'in:auto,manual,both'],
             'suburb_id'        => ['nullable', 'exists:suburbs,id'],
             'lesson_price'     => ['nullable', 'numeric', 'min:0', 'max:500'],
@@ -57,15 +64,7 @@ class InstructorApplicationController extends Controller
             'insurance'              => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:8192'],
 
             'accept_terms'     => ['required', 'accepted'],
-            // honeypot
-            'website'          => ['nullable', 'string', 'max:0'],
         ]);
-
-        // Honeypot trip — silently succeed
-        if (! empty($request->input('website'))) {
-            return redirect()->route('instructor-application.show')
-                ->with('message', 'Thanks! Your application has been received.');
-        }
 
         $email = strtolower(trim($data['email']));
 

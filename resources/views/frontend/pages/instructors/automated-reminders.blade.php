@@ -33,7 +33,7 @@
                     <li class="d-flex gap-2 mb-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Australian SMS delivery (not US-routed with 30% drop).</span></li>
                     <li class="d-flex gap-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Branded from your name, not "Secure Licence" or a short code.</span></li>
                 </ul>
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Automate your reminders</a>
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Automate your reminders</a>
             </div>
 
             <div class="col-lg-6">

@@ -33,7 +33,7 @@
                     <li class="d-flex gap-2 mb-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Private notes only you see, your mental model, externalised.</span></li>
                     <li class="d-flex gap-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Family workflows, siblings, parents paying for kids, linked cleanly.</span></li>
                 </ul>
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Organise your learners</a>
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Organise your learners</a>
             </div>
 
             <div class="col-lg-6">

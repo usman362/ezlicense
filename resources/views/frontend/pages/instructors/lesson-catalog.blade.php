@@ -33,7 +33,7 @@
                     <li class="d-flex gap-2 mb-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Test packages: pre-test warm-up + vehicle + pickup/drop-off.</span></li>
                     <li class="d-flex gap-2"><i class="bi bi-check-circle-fill text-warning"></i><span>Per-product pricing · bulk-pack discounts · any currency you set.</span></li>
                 </ul>
-                <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Build your lesson catalog</a>
+                <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Build your lesson catalog</a>
             </div>
 
             <div class="col-lg-6">

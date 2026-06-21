@@ -37,7 +37,7 @@
     <input type="hidden" name="role" value="learner">
     <p class="small text-muted mb-3" style="margin-top:-0.5rem;">
         <i class="bi bi-info-circle me-1"></i>
-        Want to teach? <a href="{{ route('instructor-application.show') }}" class="auth-register-link">Apply as an instructor</a>
+        Want to teach? <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="auth-register-link">Apply as an instructor</a>
         — admin reviews your documents before any account is created.
     </p>
     @error('role')

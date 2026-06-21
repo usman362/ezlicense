@@ -8,7 +8,7 @@
             Cancel anytime — we're confident you won't want to.
         </p>
         <div class="d-flex flex-wrap justify-content-center gap-2">
-            <a href="{{ route('instructor-application.show') }}" class="btn btn-warning btn-lg fw-semibold">Get started</a>
+            <a href="{{ route('support.request.show', ['topic' => 'instructor']) }}" class="btn btn-warning btn-lg fw-semibold">Get started</a>
             <a href="{{ route('instruct-with-us') }}" class="btn btn-outline-light btn-lg">Back to overview</a>
         </div>
     </div>
