@@ -215,7 +215,9 @@
                 <span class="role-badge">Admin Panel</span>
             </a>
             @php
-                $sidebarPendingVerify = \App\Models\InstructorProfile::where('verification_status', 'pending')->count();
+                // Count instructors needing admin attention: never-uploaded (pending) + uploaded & awaiting review (documents_submitted)
+                $sidebarPendingVerify = \App\Models\InstructorProfile::whereIn('verification_status', ['pending', 'documents_submitted'])->count();
+                $sidebarDocsSubmitted = \App\Models\InstructorProfile::where('verification_status', 'documents_submitted')->count();
                 $sidebarPendingBookings = \App\Models\Booking::where('status', 'pending')->count();
                 $sidebarPendingPayouts = \App\Models\InstructorPayout::where('status', 'pending')->count();
                 $sidebarPendingReviews = \App\Models\Review::where('status', 'pending')->count();

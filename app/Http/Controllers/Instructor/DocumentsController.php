@@ -156,6 +156,15 @@ class DocumentsController extends Controller
         if ($submittedTypes->count() === count($requiredTypes)
             && in_array($profile->verification_status, ['pending', 'rejected'], true)) {
             $profile->update(['verification_status' => 'documents_submitted']);
+
+            // Alert all admins that documents are now ready for verification.
+            try {
+                foreach (\App\Models\User::where('role', \App\Models\User::ROLE_ADMIN)->get() as $admin) {
+                    $admin->notify(new \App\Notifications\InstructorDocumentsSubmittedAdmin($profile->user));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Instructor documents-submitted admin alert failed: ' . $e->getMessage());
+            }
         }
 
         return response()->json(['data' => ['message' => 'Submitted for review.']]);
