@@ -165,7 +165,7 @@ class InstructorInviteController extends Controller
         // Magic-link UX: auto-login + send straight to docs upload
         Auth::login($user, remember: true);
 
-        return redirect()->route('instructor.documents.index')
+        return redirect()->route('instructor.settings.documents')
             ->with('message', 'Welcome to Secure Licence! Upload your documents below to get verified.');
     }
 }
