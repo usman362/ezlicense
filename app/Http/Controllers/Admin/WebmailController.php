@@ -98,8 +98,9 @@ class WebmailController extends Controller
         $fromAddr = config('services.webmail.address');
         $fromName = config('services.webmail.name');
 
+        // Body is rich HTML from the TinyMCE editor (admin-composed, trusted).
         $bodyHtml = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a1d21;line-height:1.6;">'
-            . nl2br(e($data['body']))
+            . $data['body']
             . '</div>';
 
         // Threading: reference the original inbound Message-ID if this is a reply.

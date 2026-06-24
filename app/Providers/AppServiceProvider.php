@@ -22,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Persist every outbound email to email_logs for admin visibility/audit
-        Event::listen(MessageSent::class, [LogSentEmail::class, 'handleSent']);
+        // NOTE: LogSentEmail::handleSent is auto-discovered by Laravel (app/Listeners,
+        // method starts with "handle" + type-hints the event), so it is registered
+        // automatically. Do NOT also Event::listen() it here or it fires twice.
     }
 }

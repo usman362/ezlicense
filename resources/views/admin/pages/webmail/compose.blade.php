@@ -42,7 +42,7 @@
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Message <span class="text-danger">*</span></label>
-                <textarea name="body" class="form-control" rows="12" required>{{ old('body') }}</textarea>
+                <textarea name="body" id="mail-body" class="form-control" rows="12" required>{{ old('body') }}</textarea>
             </div>
 
             @if($reply)
@@ -60,3 +60,24 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+tinymce.init({
+    selector: '#mail-body',
+    height: 380,
+    menubar: false,
+    branding: false,
+    promotion: false,
+    plugins: 'lists link image table code autoresize searchreplace wordcount',
+    toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link image table | alignleft aligncenter alignright | code removeformat',
+    block_formats: 'Paragraph=p;Heading 2=h2;Heading 3=h3;Quote=blockquote',
+    content_style: 'body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color:#1a1d21; }',
+    relative_urls: false,
+    remove_script_host: false,
+});
+// Make sure TinyMCE writes back to the textarea before submit.
+document.querySelector('form').addEventListener('submit', () => tinymce.triggerSave());
+</script>
+@endpush
