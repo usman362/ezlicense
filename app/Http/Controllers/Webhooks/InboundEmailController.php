@@ -28,31 +28,39 @@ class InboundEmailController extends Controller
         }
 
         try {
-            $data = $request->all();
+            $payload = $request->all();
+
+            // Resend (and most webhook providers) wrap the email under a "data" key
+            // and may include an event "type". Unwrap it; fall back to the flat payload.
+            $eventType = $this->first($payload, ['type']);
+            $data = (isset($payload['data']) && is_array($payload['data'])) ? $payload['data'] : $payload;
 
             $fromRaw = $this->first($data, ['from', 'sender', 'From', 'from_email']);
-            $toRaw   = $this->first($data, ['recipient', 'to', 'To', 'to_email']);
+            $toRaw   = $this->first($data, ['to', 'recipient', 'To', 'to_email']);
             $subject = $this->first($data, ['subject', 'Subject']) ?: '(no subject)';
             $html    = $this->first($data, ['html', 'body-html', 'HtmlBody', 'stripped-html', 'body_html']);
             $text    = $this->first($data, ['text', 'body-plain', 'TextBody', 'stripped-text', 'body_text', 'plain']);
-            $msgId   = $this->first($data, ['Message-Id', 'message-id', 'MessageID', 'message_id']);
-            $inReply = $this->first($data, ['In-Reply-To', 'in-reply-to', 'in_reply_to']);
-            $cc      = $this->first($data, ['cc', 'Cc']);
+            $msgId   = $this->first($data, ['message_id', 'Message-Id', 'message-id', 'MessageID']);
+            $inReply = $this->first($data, ['in_reply_to', 'In-Reply-To', 'in-reply-to']);
+            $ccRaw   = $this->first($data, ['cc', 'Cc']);
 
-            [$fromName, $fromEmail] = $this->parseAddress($fromRaw);
-            [, $toEmail] = $this->parseAddress($toRaw);
+            [$fromName, $fromEmail] = $this->normalizeAddress($fromRaw);
+            [, $toEmail]            = $this->normalizeAddress($toRaw);
+            $cc = $this->addressListToString($ccRaw);
 
             // Attachment metadata (we store names/counts, not the binaries here).
             $attachments = $this->first($data, ['attachments', 'Attachments']);
-            $hasAttach = ! empty($attachments) || (int) $this->first($data, ['attachment-count', 'attachments']) > 0;
+            $hasAttach = is_array($attachments)
+                ? count($attachments) > 0
+                : ((int) $this->first($data, ['attachment-count']) > 0);
 
             MailboxMessage::create([
                 'direction'       => MailboxMessage::DIRECTION_INBOUND,
                 'from_email'      => $fromEmail,
                 'from_name'       => $fromName,
                 'to_email'        => $toEmail,
-                'cc'              => is_string($cc) ? $cc : null,
-                'subject'         => $subject,
+                'cc'              => $cc ?: null,
+                'subject'         => is_string($subject) ? $subject : '(no subject)',
                 'body_html'       => is_string($html) ? $html : null,
                 'body_text'       => is_string($text) ? $text : null,
                 'preview'         => MailboxMessage::makePreview(is_string($html) ? $html : null, is_string($text) ? $text : null),
@@ -62,7 +70,7 @@ class InboundEmailController extends Controller
                 'is_read'         => false,
                 'has_attachments' => $hasAttach,
                 'attachments'     => is_array($attachments) ? $attachments : null,
-                'meta'            => ['ip' => $request->ip()],
+                'meta'            => ['ip' => $request->ip(), 'event' => $eventType, 'raw' => $payload],
             ]);
 
             return response()->json(['ok' => true]);
@@ -81,6 +89,56 @@ class InboundEmailController extends Controller
             if (array_key_exists($k, $data) && $data[$k] !== '' && $data[$k] !== null) {
                 return $data[$k];
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Normalize an address that may be: a string ("Name <e@x.com>" or "e@x.com"),
+     * an object (['name' => ..., 'email' => ...] / ['address' => ...]),
+     * or a list of either (take the first). Returns [name, email].
+     */
+    private function normalizeAddress(mixed $value): array
+    {
+        // List of addresses → take the first.
+        if (is_array($value) && array_is_list($value) && isset($value[0])) {
+            return $this->normalizeAddress($value[0]);
+        }
+
+        // Object form: {name, email} or {address}.
+        if (is_array($value)) {
+            $email = $value['email'] ?? $value['address'] ?? null;
+            $name  = $value['name'] ?? null;
+            if ($email) {
+                return [$name ?: null, $email];
+            }
+            // Fallback: first scalar value in the array.
+            $value = collect($value)->first(fn ($v) => is_string($v));
+        }
+
+        return $this->parseAddress(is_string($value) ? $value : null);
+    }
+
+    /** Flatten an address or list of addresses into a comma-separated string of emails. */
+    private function addressListToString(mixed $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+        if (is_string($value)) {
+            return $value;
+        }
+        if (is_array($value)) {
+            $emails = [];
+            foreach (array_is_list($value) ? $value : [$value] as $item) {
+                [, $email] = $this->normalizeAddress($item);
+                if ($email) {
+                    $emails[] = $email;
+                }
+            }
+
+            return $emails ? implode(', ', $emails) : null;
         }
 
         return null;
