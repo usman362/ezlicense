@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Webhooks;
 use App\Http\Controllers\Controller;
 use App\Models\MailboxMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -62,7 +63,7 @@ class InboundEmailController extends Controller
                 ? count($attachments) > 0
                 : ((int) $this->first($data, ['attachment-count']) > 0);
 
-            MailboxMessage::create([
+            $message = MailboxMessage::create([
                 'direction'       => MailboxMessage::DIRECTION_INBOUND,
                 'from_email'      => $fromEmail,
                 'from_name'       => $fromName,
@@ -81,12 +82,66 @@ class InboundEmailController extends Controller
                 'meta'            => ['ip' => $request->ip(), 'event' => $eventType, 'raw' => $payload],
             ]);
 
+            // Resend's inbound webhook carries only metadata — the body must be
+            // fetched from the Resend API using the email_id it provides.
+            if (! $message->body_html && ! $message->body_text) {
+                $emailId = $this->first($data, ['email_id', 'id']);
+                if ($emailId) {
+                    $this->fetchBodyFromResend($message, (string) $emailId);
+                }
+            }
+
             return response()->json(['ok' => true]);
         } catch (\Throwable $e) {
             Log::error('Inbound email webhook failed: ' . $e->getMessage());
 
             // Return 200 anyway so the provider does not endlessly retry on a parse error.
             return response()->json(['ok' => false], 200);
+        }
+    }
+
+    /**
+     * Fetch the full email body (html/text) from the Resend API and fill it in.
+     * Resend stores the email; the inbound webhook only sends metadata + email_id.
+     */
+    private function fetchBodyFromResend(MailboxMessage $message, string $emailId): void
+    {
+        $apiKey = config('services.resend.key');
+        if (! $apiKey) {
+            return;
+        }
+
+        try {
+            $resp = Http::withToken($apiKey)
+                ->acceptJson()
+                ->timeout(15)
+                ->retry(2, 1500)   // body may be a beat behind the webhook; retry briefly
+                ->get("https://api.resend.com/emails/{$emailId}");
+
+            if (! $resp->successful()) {
+                Log::warning("Resend retrieve inbound email {$emailId} failed: {$resp->status()} {$resp->body()}");
+
+                return;
+            }
+
+            $body = $resp->json();
+            $html = $body['html'] ?? null;
+            $text = $body['text'] ?? null;
+
+            if (! is_string($html) && ! is_string($text)) {
+                return;
+            }
+
+            $message->update([
+                'body_html' => is_string($html) ? $html : $message->body_html,
+                'body_text' => is_string($text) ? $text : $message->body_text,
+                'preview'   => MailboxMessage::makePreview(
+                    is_string($html) ? $html : null,
+                    is_string($text) ? $text : null
+                ) ?: $message->preview,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning("Resend retrieve inbound email {$emailId} error: " . $e->getMessage());
         }
     }
 
