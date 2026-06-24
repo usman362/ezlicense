@@ -175,9 +175,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin K. · 847 lessons · Gold Coast','"Paused for 3 weeks for an overseas trip. Came back, it turned back on like a tap. No phone calls. No penalty. Try doing that with a franchise."'],
-                ['Priya S. · 412 lessons · Sydney','"Kept my full-time job while building up. Secure Licence was 10 hours a week for 6 months. No one pushed me to go full-time. I moved when I was ready, not when they were."'],
-                ['Angelo D. · 1,240 lessons · Melbourne','"I left a franchise, tested Secure Licence for 2 months before I committed. Could have walked any day of it. That\'s why I didn\'t."'],
+                ['Daniel R. · 847 lessons · Gold Coast','"Paused for 3 weeks for an overseas trip. Came back, it turned back on like a tap. No phone calls. No penalty. Try doing that with a franchise."'],
+                ['Aisha N. · 412 lessons · Sydney','"Kept my full-time job while building up. Secure Licence was 10 hours a week for 6 months. No one pushed me to go full-time. I moved when I was ready, not when they were."'],
+                ['Lucas P. · 1,240 lessons · Melbourne','"I left a franchise, tested Secure Licence for 2 months before I committed. Could have walked any day of it. That\'s why I didn\'t."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

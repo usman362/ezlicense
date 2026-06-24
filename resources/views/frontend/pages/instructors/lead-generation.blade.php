@@ -46,23 +46,23 @@
                         <span class="lg-badge new ms-auto">7 new</span>
                     </div>
                     <div class="lg-row">
-                        <div class="lg-avatar">JM</div>
-                        <div><div class="fw-semibold">Jamie M.</div><div class="small text-muted">Gold Coast · 2.8km away · Auto</div></div>
+                        <div class="lg-avatar">LB</div>
+                        <div><div class="fw-semibold">Liam B.</div><div class="small text-muted">Gold Coast · 2.8km away · Auto</div></div>
                         <span class="lg-badge new">New</span>
                     </div>
                     <div class="lg-row">
-                        <div class="lg-avatar">SK</div>
-                        <div><div class="fw-semibold">Sarah K.</div><div class="small text-muted">Southport · 3.8km away · Manual</div></div>
+                        <div class="lg-avatar">ET</div>
+                        <div><div class="fw-semibold">Emma T.</div><div class="small text-muted">Southport · 3.8km away · Manual</div></div>
                         <span class="lg-badge new">New</span>
                     </div>
                     <div class="lg-row">
-                        <div class="lg-avatar">PR</div>
-                        <div><div class="fw-semibold">Priya R.</div><div class="small text-muted">Burleigh · 5.4km · Auto · Test in 2 weeks</div></div>
+                        <div class="lg-avatar">AR</div>
+                        <div><div class="fw-semibold">Aisha R.</div><div class="small text-muted">Burleigh · 5.4km · Auto · Test in 2 weeks</div></div>
                         <span class="lg-badge booked">Booked</span>
                     </div>
                     <div class="lg-row">
-                        <div class="lg-avatar">DL</div>
-                        <div><div class="fw-semibold">Declan L.</div><div class="small text-muted">Labrador · 1.9km · Auto · Test in 3 weeks</div></div>
+                        <div class="lg-avatar">CL</div>
+                        <div><div class="fw-semibold">Cooper L.</div><div class="small text-muted">Labrador · 1.9km · Auto · Test in 3 weeks</div></div>
                         <span class="lg-badge booked">Booked</span>
                     </div>
                     <div class="d-flex align-items-center gap-2 mt-3 small text-success fw-semibold">
@@ -138,7 +138,7 @@
                 <h5 class="fw-bold">They book. You teach.</h5>
                 <p class="text-muted small">Learner pays at booking, lesson appears in your calendar. You teach. Payouts land on your chosen 7, 14 or 28-day cycle.</p>
                 <div class="lg-statbox mt-3">
-                    <div class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><div><div class="fw-semibold small">New booking · Jamie M.</div><div class="small text-muted">1-hour lesson · $75</div></div></div>
+                    <div class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i><div><div class="fw-semibold small">New booking · Liam B.</div><div class="small text-muted">1-hour lesson · $75</div></div></div>
                 </div>
             </div>
         </div>
@@ -179,9 +179,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin · 400 lessons','"I went from 12 lessons a week via referrals to 25+ via Secure Licence. I spent zero on ads. The matching just works."'],
-                ['Priya · 200 lessons','"Day 3 on the platform I had 8 bookings. I wasn\'t ready. Now I don\'t say no, the platform only sends leads I can handle."'],
-                ['Angelo · 500 lessons','"I left a franchise that took a huge chunk. Secure Licence brought me more leads than the franchise ever did, and the support is genuinely better."'],
+                ['Daniel · 400 lessons','"I went from 12 lessons a week via referrals to 25+ via Secure Licence. I spent zero on ads. The matching just works."'],
+                ['Aisha · 200 lessons','"Day 3 on the platform I had 8 bookings. I wasn\'t ready. Now I don\'t say no, the platform only sends leads I can handle."'],
+                ['Lucas · 500 lessons','"I left a franchise that took a huge chunk. Secure Licence brought me more leads than the franchise ever did, and the support is genuinely better."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

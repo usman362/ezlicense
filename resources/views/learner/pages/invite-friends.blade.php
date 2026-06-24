@@ -120,7 +120,7 @@
                     <div class="row g-2">
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold">Friend's name (optional)</label>
-                            <input type="text" name="invitee_name" class="form-control" placeholder="e.g. Sarah" maxlength="80" value="{{ old('invitee_name') }}">
+                            <input type="text" name="invitee_name" class="form-control" placeholder="e.g. Jordan" maxlength="80" value="{{ old('invitee_name') }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold">Friend's email <span class="text-danger">*</span></label>
@@ -128,7 +128,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-semibold">Personal message (optional)</label>
-                            <textarea name="personal_message" rows="3" class="form-control" maxlength="500" placeholder="e.g. Hey Sarah, I started learning to drive with Secure Licence and it's been great. You should try it!">{{ old('personal_message') }}</textarea>
+                            <textarea name="personal_message" rows="3" class="form-control" maxlength="500" placeholder="e.g. Hey Jordan, I started learning to drive with Secure Licence and it's been great. You should try it!">{{ old('personal_message') }}</textarea>
                         </div>
                     </div>
                     <div class="text-end mt-3">

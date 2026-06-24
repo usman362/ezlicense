@@ -52,23 +52,23 @@
                         @foreach(['Mon 20','Tue 21','Wed 22','Thu 23','Fri 24'] as $d)
                             <div class="hd">{{ $d }}</div>
                         @endforeach
-                        <div class="slot">Olivia A.<br>9:00–10:00</div>
+                        <div class="slot">Ella A.<br>9:00–10:00</div>
                         <div class="slot muted">&nbsp;</div>
                         <div class="slot blocked">Blocked</div>
-                        <div class="slot">Una F.<br>18:30–19:30</div>
+                        <div class="slot">Zoe F.<br>18:30–19:30</div>
                         <div class="slot muted">&nbsp;</div>
 
-                        <div class="slot">Marcus T.<br>11:00–12:00</div>
-                        <div class="slot">Priya M.<br>13:30–14:30</div>
+                        <div class="slot">Hudson T.<br>11:00–12:00</div>
+                        <div class="slot">Aisha M.<br>13:30–14:30</div>
                         <div class="slot muted">&nbsp;</div>
-                        <div class="slot">Sam M.<br>14:00–15:30</div>
-                        <div class="slot">Tomas B.<br>10:00–11:00</div>
+                        <div class="slot">Noah M.<br>14:00–15:30</div>
+                        <div class="slot">Ethan B.<br>10:00–11:00</div>
 
-                        <div class="slot">Jack B.<br>16:00–17:00</div>
+                        <div class="slot">Oliver B.<br>16:00–17:00</div>
                         <div class="slot muted">&nbsp;</div>
                         <div class="slot muted">&nbsp;</div>
                         <div class="slot muted">&nbsp;</div>
-                        <div class="slot">Ava S.<br>16:00–17:00</div>
+                        <div class="slot">Isla S.<br>16:00–17:00</div>
                     </div>
                     <div class="d-flex align-items-center gap-2 mt-3 small text-success fw-semibold">
                         <i class="bi bi-arrow-repeat"></i> Synced with Google Calendar · updated 2s ago
@@ -180,9 +180,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Sarah · 12 years · Sydney North','"I used to triple-book myself every month. Now my calendar is my calendar. I haven\'t double-booked in 8 months."'],
-                ['Dev · 4 years · Melbourne SE','"Service-area polygons killed the 40-minute drives. I teach more lessons closer to home. My day feels lighter."'],
-                ['Mia · New instructor · Gold Coast','"I set it up on a Sunday. By Wednesday I had 14 lessons booked. Haven\'t sent a single \'when are you free\' text."'],
+                ['Emma · 12 years · Sydney North','"I used to triple-book myself every month. Now my calendar is my calendar. I haven\'t double-booked in 8 months."'],
+                ['Raj · 4 years · Melbourne SE','"Service-area polygons killed the 40-minute drives. I teach more lessons closer to home. My day feels lighter."'],
+                ['Holly · New instructor · Gold Coast','"I set it up on a Sunday. By Wednesday I had 14 lessons booked. Haven\'t sent a single \'when are you free\' text."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

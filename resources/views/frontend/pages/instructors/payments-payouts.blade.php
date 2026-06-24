@@ -39,7 +39,7 @@
                 <div class="lg-panel">
                     <div class="lg-row align-items-start" style="border-bottom:0;">
                         <i class="bi bi-check-circle-fill text-success fs-5"></i>
-                        <div><div class="fw-semibold small">Payment received</div><div class="small text-muted">Olivia Kim booked a 1hr lesson</div></div>
+                        <div><div class="fw-semibold small">Payment received</div><div class="small text-muted">Ella Tran booked a 1hr lesson</div></div>
                         <div class="text-end ms-auto"><div class="fw-bold">$85.00</div><div class="small text-muted">just now</div></div>
                     </div>
                     <div class="mt-2 p-3 rounded" style="background:#e7f7ee;">
@@ -158,9 +158,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Ben · 6 years · Brisbane','"I had $3,200 owing across my books when I signed up. Now everyone pays at booking. I don\'t even think about it."'],
-                ['Rina · Left a franchise · Perth','"Franchise took 40% and paid monthly. Now I keep 97.6% and get paid twice a week. My partner nearly cried."'],
-                ['Priya · Tax-time convert · Sydney','"First BAS I didn\'t dread. Every invoice, every payout, every fee, already categorised. My accountant actually smiled."'],
+                ['Lachlan · 6 years · Brisbane','"I had $3,200 owing across my books when I signed up. Now everyone pays at booking. I don\'t even think about it."'],
+                ['Tara · Left a franchise · Perth','"Franchise took 40% and paid monthly. Now I keep 97.6% and get paid twice a week. My partner nearly cried."'],
+                ['Aisha · Tax-time convert · Sydney','"First BAS I didn\'t dread. Every invoice, every payout, every fee, already categorised. My accountant actually smiled."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

@@ -182,11 +182,11 @@
             <div class="carousel-inner">
                 @php
                     $testimonials = [
-                        ['instructor' => 'Adriana', 'text' => 'A really great instructor — she makes sure every detail is corrected before the test. Sweet, calm, and so patient. I felt totally ready on test day.', 'by' => 'Livia', 'rating' => 5],
-                        ['instructor' => 'Tim',     'text' => 'A very calm and encouraging teacher. I was really anxious about starting lessons, but his reassuring manner made everything so much easier.', 'by' => 'Mara', 'rating' => 5],
-                        ['instructor' => 'Simon',   'text' => 'Took a 2-hour lesson the day before my test. Got a few valuable tips and much-needed practice which helped me pass on my first go.', 'by' => 'Dmitry', 'rating' => 5],
-                        ['instructor' => 'Shahida', 'text' => 'An incredible driving instructor. Her calm, gentle nature and professionalism helped me overcome my driving anxiety completely.', 'by' => 'Sepi', 'rating' => 5],
-                        ['instructor' => 'Mick',    'text' => 'Fantastic! Very friendly and I was comfortable straight away. He helped me achieve my Ps on the first attempt. Highly recommend!', 'by' => 'Isabella', 'rating' => 5],
+                        ['instructor' => 'Layla',  'text' => 'A really great instructor who makes sure every detail is sorted before the test. Calm, patient and encouraging — I felt completely ready on test day.', 'by' => 'Tara', 'rating' => 5],
+                        ['instructor' => 'Hudson', 'text' => 'A very calm and encouraging teacher. I was anxious about starting lessons, but his reassuring manner made the whole thing so much easier.', 'by' => 'Ella', 'rating' => 5],
+                        ['instructor' => 'Ethan',  'text' => 'Booked a 2-hour lesson the day before my test. Picked up a few valuable tips and the extra practice I needed to pass on my first go.', 'by' => 'Omar', 'rating' => 5],
+                        ['instructor' => 'Aisha',  'text' => 'An incredible driving instructor. Her calm, gentle nature and professionalism helped me get past my driving anxiety completely.', 'by' => 'Bianca', 'rating' => 5],
+                        ['instructor' => 'Cooper', 'text' => 'Fantastic — really friendly and I was comfortable straight away. He helped me get my Ps on the first attempt. Highly recommend!', 'by' => 'Holly', 'rating' => 5],
                     ];
                 @endphp
                 @foreach($testimonials as $i => $t)

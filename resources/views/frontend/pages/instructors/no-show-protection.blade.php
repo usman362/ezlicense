@@ -46,7 +46,7 @@
                         </div>
                         <span class="lg-x ms-auto" style="margin-bottom:0;"><i class="bi bi-x-lg"></i></span>
                     </div>
-                    <div class="row-line"><span class="text-muted small">Learner</span><span class="fw-semibold small ms-auto">Olivia Kim</span></div>
+                    <div class="row-line"><span class="text-muted small">Learner</span><span class="fw-semibold small ms-auto">Ella Tran</span></div>
                     <div class="row-line"><span class="text-muted small">Original booking</span><span class="fw-semibold small ms-auto">Fri 19 Apr · 9:00am</span></div>
                     <div class="row-line"><span class="text-muted small">Cancelled at</span><span class="fw-semibold small ms-auto">Fri 19 Apr · 6:33am</span></div>
                     <div class="row-line"><span class="text-muted small">Cancellation window</span><span class="fw-semibold small ms-auto">24 hours</span></div>
@@ -160,9 +160,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Angela · 15 years · Melbourne West','"First month, $340 in late-cancel fees I\'d never have charged on my own. I just let the system do it. Nobody complained."'],
-                ['Mel · 2 years · Brisbane','"My no-show rate went from 8% to under 2% in 6 weeks. Learners knew there was a real fee. Behaviour changed."'],
-                ['Hamed · 7 years · Geelong','"Had a disputed fee. I pulled up the consent log with the timestamp. Stripe sided with me. Done in 2 minutes."'],
+                ['Megan · 15 years · Melbourne West','"First month, $340 in late-cancel fees I\'d never have charged on my own. I just let the system do it. Nobody complained."'],
+                ['Kylie · 2 years · Brisbane','"My no-show rate went from 8% to under 2% in 6 weeks. Learners knew there was a real fee. Behaviour changed."'],
+                ['Bilal · 7 years · Geelong','"Had a disputed fee. I pulled up the consent log with the timestamp. Stripe sided with me. Done in 2 minutes."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

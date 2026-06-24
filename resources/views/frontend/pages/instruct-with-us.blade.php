@@ -220,7 +220,7 @@
         <div class="row g-4">
             @foreach([
                 ['Mark',    'Sydney, NSW',     "I went from 12 lessons a week to 35 in three months. The platform handles all the booking admin so I just turn up and teach. Best decision I made for my driving school."],
-                ['Priya',   'Melbourne, VIC',  "The verified badge and reviews built trust fast. New learners contact me daily. I love that I set my own rate and hours — total freedom."],
+                ['Aisha',   'Melbourne, VIC',  "The verified badge and reviews built trust fast. New learners contact me daily. I love that I set my own rate and hours — total freedom."],
                 ['Daniel',  'Brisbane, QLD',   "Payouts are reliable every week, learners pay upfront so no chasing money. Customer support actually picks up the phone. 10/10."],
                 ['Amelia',  'Perth, WA',       "I started part-time alongside my day job. Within six months I went full-time. The mobile app makes managing everything so easy."],
             ] as [$name, $place, $text])

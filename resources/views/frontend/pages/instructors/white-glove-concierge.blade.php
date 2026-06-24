@@ -47,7 +47,7 @@
                     </div>
                     <div class="lg-row align-items-start" style="background:#e7f7ee;border-radius:.6rem;padding:.7rem .85rem;border-bottom:0;margin-bottom:.5rem;">
                         <i class="bi bi-check-circle-fill text-success"></i>
-                        <div><div class="fw-semibold small">Refund request · Jamie M. <span class="lg-badge booked" style="background:#cdeedd;color:#1a7f43;">Resolved</span></div><div class="small text-muted">Resolved by concierge team. You not contacted.</div></div>
+                        <div><div class="fw-semibold small">Refund request · Liam B. <span class="lg-badge booked" style="background:#cdeedd;color:#1a7f43;">Resolved</span></div><div class="small text-muted">Resolved by concierge team. You not contacted.</div></div>
                     </div>
                     <div class="lg-row align-items-start" style="background:#fff8e1;border-radius:.6rem;padding:.7rem .85rem;border-bottom:0;">
                         <i class="bi bi-hourglass-split text-warning"></i>
@@ -56,9 +56,9 @@
                     <div class="small fw-semibold text-uppercase text-muted mt-3 mb-1" style="letter-spacing:.05em;">Local team online</div>
                     <div class="d-flex align-items-center gap-2">
                         <div class="d-flex">
-                            <span class="lg-avatar" style="width:28px;height:28px;font-size:.65rem;">SB</span>
-                            <span class="lg-avatar" style="width:28px;height:28px;font-size:.65rem;margin-left:-8px;">SK</span>
-                            <span class="lg-avatar" style="width:28px;height:28px;font-size:.65rem;margin-left:-8px;">DP</span>
+                            <span class="lg-avatar" style="width:28px;height:28px;font-size:.65rem;">RM</span>
+                            <span class="lg-avatar" style="width:28px;height:28px;font-size:.65rem;margin-left:-8px;">TC</span>
+                            <span class="lg-avatar" style="width:28px;height:28px;font-size:.65rem;margin-left:-8px;">JL</span>
                         </div>
                         <span class="small text-muted">3 agents · avg response 4min</span>
                     </div>
@@ -174,9 +174,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin · 847 lessons · Gold Coast','"A learner claimed I was 20 minutes late. I wasn\'t. The concierge team pulled my GPS data, refuted it, denied the refund. I found out in a weekly recap. I never had to make the call."'],
-                ['Priya · 412 lessons · Sydney','"A learner\'s mum wanted a full refund after her daughter failed the test. That used to be my nightmare call. Secure Licence handled the whole thing. I wasn\'t copied in once."'],
-                ['Angelo · 600 lessons','"My franchise \'support\' was a phone tree in another country. Secure Licence support is Jess, Sam, and Dan, in Adelaide, with names, who pick up. Not even close."'],
+                ['Daniel · 847 lessons · Gold Coast','"A learner claimed I was 20 minutes late. I wasn\'t. The concierge team pulled my GPS data, refuted it, denied the refund. I found out in a weekly recap. I never had to make the call."'],
+                ['Aisha · 412 lessons · Sydney','"A learner\'s mum wanted a full refund after her daughter failed the test. That used to be my nightmare call. Secure Licence handled the whole thing. I wasn\'t copied in once."'],
+                ['Lucas · 600 lessons','"My franchise \'support\' was a phone tree in another country. Secure Licence support is Jess, Sam, and Dan, in Adelaide, with names, who pick up. Not even close."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

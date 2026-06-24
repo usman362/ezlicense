@@ -281,10 +281,10 @@
         <div class="row g-4">
             @php
                 $tests = [
-                    ['name' => 'Paul', 'text' => "He explained that this driving instructor took every single thing about my needs and helped me get through different situations on my driver's test."],
-                    ['name' => 'Sidney', 'text' => "My driving instructor was knowledgeable and patient, I have learnt all the things I needed for my test."],
-                    ['name' => 'Cecil', 'text' => "Best driving instructor experience for my driver and learner's licence."],
-                    ['name' => 'Peter', 'text' => "I passed the same day thanks for my driving instructor's expertise, big help and confidence."],
+                    ['name' => 'Jacob', 'text' => "My instructor took the time to understand exactly what I was struggling with and built every lesson around it. By test day I felt completely ready."],
+                    ['name' => 'Harper', 'text' => "Calm, patient and really clear with feedback. I went from nervous to confident in just a few lessons and covered everything I needed for the test."],
+                    ['name' => 'Marcus', 'text' => "Easily the best learning experience I could have asked for — supportive the whole way through my learner's and provisional licence."],
+                    ['name' => 'Nathan', 'text' => "Passed first go. My instructor's guidance and encouragement made a huge difference to my confidence behind the wheel."],
                 ];
             @endphp
             @foreach($tests as $t)

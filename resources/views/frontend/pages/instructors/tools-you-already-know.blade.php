@@ -220,9 +220,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin K. · 847 lessons · Gold Coast','"I kept Google Calendar and my phone. Secure Licence took over the booking page, the card payments, the reminders. The bits I never wanted to build are just there."'],
-                ['Priya S. · 412 lessons · Sydney','"I\'d never used \'tech\' before joining. The concierge walked me through every setting. Now I love Stripe, it pays me before I\'ve even cashed up."'],
-                ['Angelo D. · 600 lessons','"Had a chargeback come through last month. Secure Licence absorbed the $20 PayPal fee. I didn\'t even know it had happened until I checked. That alone made my year."'],
+                ['Daniel R. · 847 lessons · Gold Coast','"I kept Google Calendar and my phone. Secure Licence took over the booking page, the card payments, the reminders. The bits I never wanted to build are just there."'],
+                ['Aisha N. · 412 lessons · Sydney','"I\'d never used \'tech\' before joining. The concierge walked me through every setting. Now I love Stripe, it pays me before I\'ve even cashed up."'],
+                ['Lucas P. · 600 lessons','"Had a chargeback come through last month. Secure Licence absorbed the $20 PayPal fee. I didn\'t even know it had happened until I checked. That alone made my year."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

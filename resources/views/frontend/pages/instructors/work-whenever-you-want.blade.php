@@ -174,9 +174,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin · 847 lessons · Gold Coast','"I kept my Mon–Fri electrician job and run Secure Licence weekends only. 14 lessons Sat–Sun, $1,400 extra a week, and I never touched my weekdays. Tried to do this with a franchise — they laughed."'],
-                ['Priya · 412 lessons · Sydney','"School pickups at 3, so I work 9:30–2:30 four days a week. No evenings, no weekends. The algorithm just never sends me a 4pm slot. That alone is worth it."'],
-                ['Angelo · 600 lessons','"Full business, 45 hours a week, 6 days. But I close shop every January, 4 weeks off, zero penalty. Try asking a franchise for that. I run this like I own it — because I do."'],
+                ['Daniel · 847 lessons · Gold Coast','"I kept my Mon–Fri electrician job and run Secure Licence weekends only. 14 lessons Sat–Sun, $1,400 extra a week, and I never touched my weekdays. Tried to do this with a franchise — they laughed."'],
+                ['Aisha · 412 lessons · Sydney','"School pickups at 3, so I work 9:30–2:30 four days a week. No evenings, no weekends. The algorithm just never sends me a 4pm slot. That alone is worth it."'],
+                ['Lucas · 600 lessons','"Full business, 45 hours a week, 6 days. But I close shop every January, 4 weeks off, zero penalty. Try asking a franchise for that. I run this like I own it — because I do."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

@@ -463,6 +463,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Practice test questions
     Route::get('/practice-questions', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'index'])->name('practice-questions.index');
+    Route::post('/practice-questions/counts', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'updateCounts'])->name('practice-questions.counts');
     Route::get('/practice-questions/create', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'create'])->name('practice-questions.create');
     Route::post('/practice-questions', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'store'])->name('practice-questions.store');
     Route::get('/practice-questions/{practiceQuestion}/edit', [App\Http\Controllers\Admin\PracticeQuestionController::class, 'edit'])->name('practice-questions.edit');

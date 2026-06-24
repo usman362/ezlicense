@@ -62,11 +62,11 @@
                         </div>
                     </div>
                     <div class="lg-row">
-                        <div><div class="fw-semibold small">Jamie · Sep 2025</div><div class="small text-muted">"Nerns was patient and clear, passed first try!"</div></div>
+                        <div><div class="fw-semibold small">Liam · Sep 2025</div><div class="small text-muted">"Daniel was patient and clear, passed first try!"</div></div>
                         <span class="text-warning small ms-auto">★★★★★</span>
                     </div>
                     <div class="lg-row">
-                        <div><div class="fw-semibold small">Sarah · Aug 2025</div><div class="small text-muted">"The only instructor my anxious teen felt calm with."</div></div>
+                        <div><div class="fw-semibold small">Emma · Aug 2025</div><div class="small text-muted">"The only instructor my anxious teen felt calm with."</div></div>
                         <span class="text-warning small ms-auto">★★★★★</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-3 small">
@@ -186,9 +186,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin · 400 lessons','"After 200+ reviews I now charge $15/hr above the platform default and the diary\'s still full. The reviews did the selling for me."'],
-                ['Priya · 412 lessons · Sydney','"First 20 reviews took me from 5 lessons a week to 25 in four months. Every five-star pushed me up the rankings and brought three more leads."'],
-                ['Angelo · 1,240 lessons · Melbourne','"Left the franchise with zero reviews, they all stayed on the school\'s page. I\'m now on 380 reviews on Secure Licence. It\'s my asset now, not theirs."'],
+                ['Daniel · 400 lessons','"After 200+ reviews I now charge $15/hr above the platform default and the diary\'s still full. The reviews did the selling for me."'],
+                ['Aisha · 412 lessons · Sydney','"First 20 reviews took me from 5 lessons a week to 25 in four months. Every five-star pushed me up the rankings and brought three more leads."'],
+                ['Lucas · 1,240 lessons · Melbourne','"Left the franchise with zero reviews, they all stayed on the school\'s page. I\'m now on 380 reviews on Secure Licence. It\'s my asset now, not theirs."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

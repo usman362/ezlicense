@@ -23,6 +23,73 @@
     </div>
 </div>
 
+{{-- ─── Per-state question counts: each state's test draws a different number ─── --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#stateCountsBody">
+        <div>
+            <strong><i class="bi bi-sliders me-1"></i> Questions per state</strong>
+            <div class="small text-muted">Each state's learner test is a different length (e.g. NSW 45, QLD 30, SA 50). Set how many questions each state's practice test draws.</div>
+        </div>
+        <i class="bi bi-chevron-down"></i>
+    </div>
+    <div class="collapse show" id="stateCountsBody">
+        <div class="card-body">
+            <form method="post" action="{{ route('admin.practice-questions.counts') }}">
+                @csrf
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-3">
+                        <thead>
+                            <tr class="text-muted small text-uppercase">
+                                <th>State / Test</th>
+                                <th style="width:140px;">General Knowledge</th>
+                                <th style="width:140px;">Road Safety</th>
+                                <th style="width:90px;" class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($stateCounts as $slug => $s)
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold">{{ $s['name'] }}</span>
+                                        <span class="badge text-bg-light ms-1">{{ $s['code'] }}</span>
+                                        @if($s['testName'])<div class="small text-muted">{{ $s['testName'] }}</div>@endif
+                                    </td>
+                                    <td>
+                                        <input type="number" min="0" max="200" name="counts[{{ $slug }}][general]"
+                                               value="{{ $s['counts']['general'] }}" class="form-control form-control-sm js-count" data-row="{{ $slug }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" min="0" max="200" name="counts[{{ $slug }}][road_safety]"
+                                               value="{{ $s['counts']['road_safety'] }}" class="form-control form-control-sm js-count" data-row="{{ $slug }}">
+                                    </td>
+                                    <td class="text-end fw-bold" data-total="{{ $slug }}">{{ $s['counts']['general'] + $s['counts']['road_safety'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-primary"><i class="bi bi-save me-1"></i> Save question counts</button>
+                    <span class="small text-muted">If a state has fewer questions in the bank than the number set, the test simply uses all available.</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // Live-update each state's total as the admin edits the per-section counts.
+    document.querySelectorAll('.js-count').forEach(function (inp) {
+        inp.addEventListener('input', function () {
+            var row = this.dataset.row;
+            var inputs = document.querySelectorAll('.js-count[data-row="' + row + '"]');
+            var total = 0;
+            inputs.forEach(function (i) { total += parseInt(i.value || 0, 10); });
+            var cell = document.querySelector('[data-total="' + row + '"]');
+            if (cell) cell.textContent = total;
+        });
+    });
+</script>
+
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <form method="get" class="d-flex gap-2">
         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search questions…" style="min-width:240px;">

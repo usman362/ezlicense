@@ -39,9 +39,9 @@
             <div class="col-lg-6">
                 <div class="lg-panel">
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <span class="lg-avatar" style="width:48px;height:48px;">OK</span>
+                        <span class="lg-avatar" style="width:48px;height:48px;">ET</span>
                         <div class="flex-grow-1">
-                            <div class="fw-bold">Olivia Kim</div>
+                            <div class="fw-bold">Ella Tran</div>
                             <div class="small text-muted">L's · Stage 3 · 14 lessons in</div>
                         </div>
                         <span class="lg-badge new">Active</span>
@@ -121,9 +121,9 @@
                 <h5 class="fw-bold">Build their profile as you teach</h5>
                 <p class="text-muted small">Every booking adds to the history. Add a private note after each lesson. Mark licence stage. The record grows itself.</p>
                 <div class="lg-statbox mt-3">
-                    <div class="d-flex align-items-center gap-2 mb-2"><span class="lg-avatar" style="width:30px;height:30px;font-size:.65rem;">JT</span><div><div class="fw-semibold small">Jack Thompson</div><div class="small text-muted">L's · Stage 2 · Bondi</div></div></div>
+                    <div class="d-flex align-items-center gap-2 mb-2"><span class="lg-avatar" style="width:30px;height:30px;font-size:.65rem;">OB</span><div><div class="fw-semibold small">Oliver Bennett</div><div class="small text-muted">L's · Stage 2 · Bondi</div></div></div>
                     <div class="row-line"><span class="text-muted">Lessons</span><span class="fw-bold">12</span></div>
-                    <div class="row-line"><span class="text-muted">Last lesson</span><span class="fw-bold">Ela T. (sister)</span></div>
+                    <div class="row-line"><span class="text-muted">Last lesson</span><span class="fw-bold">Maya T. (sister)</span></div>
                 </div>
             </div>
             <div class="col-md-4">
@@ -131,9 +131,9 @@
                 <h5 class="fw-bold">Find anyone in two taps</h5>
                 <p class="text-muted small">Search by name, suburb, stage, or note content. Filter to "test booked this month" or "haven't seen in 3 weeks". Your brain, indexed.</p>
                 <div class="lg-statbox mt-3">
-                    <div class="d-flex align-items-center gap-2 small mb-1"><i class="bi bi-search text-muted"></i> Olivia</div>
-                    <div class="d-flex align-items-center gap-2 small mb-1"><span class="lg-avatar" style="width:24px;height:24px;font-size:.55rem;">OK</span> Olivia Kim · Marrickville</div>
-                    <div class="d-flex align-items-center gap-2 small"><span class="lg-avatar" style="width:24px;height:24px;font-size:.55rem;">OS</span> Olivia Smith · Coogee</div>
+                    <div class="d-flex align-items-center gap-2 small mb-1"><i class="bi bi-search text-muted"></i> Ella</div>
+                    <div class="d-flex align-items-center gap-2 small mb-1"><span class="lg-avatar" style="width:24px;height:24px;font-size:.55rem;">ET</span> Ella Tran · Marrickville</div>
+                    <div class="d-flex align-items-center gap-2 small"><span class="lg-avatar" style="width:24px;height:24px;font-size:.55rem;">EN</span> Ella Nguyen · Coogee</div>
                 </div>
             </div>
         </div>
@@ -174,9 +174,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin · 18 years · Adelaide Hills','"I had 40 learners in a spiral notebook. Now I open a profile on my phone before every lesson and I sound like I\'ve been thinking about them all week. I have."'],
-                ['Skye · 6 years · Sutherland Shire','"I had 50 learners across three years and was forgetting names mid-lesson. Notes + history per learner means I sound like I remember everything. Game-changer."'],
-                ['Jarrod · 9 years · Brisbane North','"Private notes changed my teaching. \'Nervous on highways, dad is pushy\', I read that before every lesson. Learners feel seen. Retention is up."'],
+                ['Daniel · 18 years · Adelaide Hills','"I had 40 learners in a spiral notebook. Now I open a profile on my phone before every lesson and I sound like I\'ve been thinking about them all week. I have."'],
+                ['Harper · 6 years · Sutherland Shire','"I had 50 learners across three years and was forgetting names mid-lesson. Notes + history per learner means I sound like I remember everything. Game-changer."'],
+                ['Travis · 9 years · Brisbane North','"Private notes changed my teaching. \'Nervous on highways, dad is pushy\', I read that before every lesson. Learners feel seen. Retention is up."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

@@ -98,7 +98,7 @@
                     <div class="ni-issue-body">
                         <div class="lbl">This issue</div>
                         <h4 class="fw-bolder">Upselling tactics that lifted avg. booking value 23% this month</h4>
-                        <p class="text-muted mb-0">Plus: NSW test-centre wait times, Dima's weekend schedule, and 2 pricing plays</p>
+                        <p class="text-muted mb-0">Plus: NSW test-centre wait times, Omar's weekend schedule, and 2 pricing plays</p>
                         <hr class="my-4">
                         <div class="lbl">Read by</div>
                         <div class="ni-faces">
@@ -151,7 +151,7 @@
             @foreach([
                 ['bi-lightning-charge','One tactic. Done this month.','Every issue gives you one specific, implementable play, on upsell script, a profile tweak, a pricing move, a follow-up template, tested against real booking data across the network.', ['Upselling scripts that lifted booking value','Profile copy swaps that doubled click-throughs','Post-lesson follow-ups that convert to re-books']],
                 ['bi-bar-chart-line','Pricing + demand intel you can\'t get elsewhere','We see 50,000+ bookings a month across every postcode in Australia. You get the patterns first, before they show up in your own calendar.', ['Average hourly rate shifts by state, by month','Test-centre wait times & demand hotspots','Regulation changes explained in plain English']],
-                ['bi-trophy','Case studies from instructors already winning','Real instructors, real numbers, real playbooks. How Dima hit 35 lessons a week, how Leeanne built consistent income, Peter\'s part-time model, David\'s week-one bookings.', ['Exact schedules & pricing','What they did in week 1 vs month 5','The one thing they\'d do differently']],
+                ['bi-trophy','Case studies from instructors already winning','Real instructors, real numbers, real playbooks. How Omar hit 35 lessons a week, how Rebecca built consistent income, Nathan\'s part-time model, Jacob\'s week-one bookings.', ['Exact schedules & pricing','What they did in week 1 vs month 5','The one thing they\'d do differently']],
             ] as [$ic,$t,$d,$points])
                 <div class="col-md-4">
                     <div class="ni-card">
@@ -189,10 +189,10 @@
                     ['type'=>'photo','tag'=>'Profile','meta'=>'Issue #20 · Feb 2026','title'=>'Fine-tuning service details for better learner engagement','img'=>'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80&auto=format&fit=crop'],
                     ['type'=>'photo','tag'=>'Scheduling','meta'=>'Issue #19 · Jan 2026','title'=>'Maximising your availability: tips to increase your booking rate','img'=>'https://images.unsplash.com/photo-1484981138541-3d074aa97716?w=600&q=80&auto=format&fit=crop'],
                     ['type'=>'photo','tag'=>'Profile','meta'=>'Issue #18 · Dec 2025','title'=>'Crafting an appealing public profile that attracts learners','img'=>'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&q=80&auto=format&fit=crop'],
-                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #17 · Nov 2025','head'=>'Dima generates 35 lessons weekly with Secure Licence','photo'=>'https://i.pravatar.cc/120?img=47'],
-                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #16 · Oct 2025','head'=>'How Leeanne built consistent, reliable income','photo'=>'https://i.pravatar.cc/120?img=45'],
-                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #15 · Sep 2025','head'=>'Peter\'s part-time model: job satisfaction + extra income','photo'=>'https://i.pravatar.cc/120?img=33'],
-                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #14 · Aug 2025','head'=>'David\'s new business received bookings immediately','photo'=>'https://i.pravatar.cc/120?img=68'],
+                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #17 · Nov 2025','head'=>'Omar generates 35 lessons weekly with Secure Licence','photo'=>'https://i.pravatar.cc/120?img=47'],
+                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #16 · Oct 2025','head'=>'How Rebecca built consistent, reliable income','photo'=>'https://i.pravatar.cc/120?img=45'],
+                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #15 · Sep 2025','head'=>'Nathan\'s part-time model: job satisfaction + extra income','photo'=>'https://i.pravatar.cc/120?img=33'],
+                    ['type'=>'cs','tag'=>'Case Study','meta'=>'Issue #14 · Aug 2025','head'=>'Jacob\'s new business received bookings immediately','photo'=>'https://i.pravatar.cc/120?img=68'],
                 ];
             @endphp
             @foreach($issues as $it)
@@ -234,9 +234,9 @@
             playbook and my booking rate jumped 40%. I forward it to two mates the moment it lands now."
         </p>
         <div class="d-flex align-items-center justify-content-center gap-2 mt-3">
-            <span class="ni-ic" style="width:40px;height:40px;border-radius:50%;background:#ffd500;color:#1a1d21;font-size:.8rem;">MK</span>
+            <span class="ni-ic" style="width:40px;height:40px;border-radius:50%;background:#ffd500;color:#1a1d21;font-size:.8rem;">RW</span>
             <div class="text-start">
-                <div class="fw-bold small">Mark K.</div>
+                <div class="fw-bold small">Ryan W.</div>
                 <div class="text-muted small">Driving Instructor · Brisbane · 4 years on Secure Licence</div>
             </div>
         </div>

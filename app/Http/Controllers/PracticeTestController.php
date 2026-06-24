@@ -125,6 +125,45 @@ class PracticeTestController extends Controller
     ];
 
     /**
+     * Default number of questions each state's practice test draws, per section.
+     * These mirror each state's real learner test (NSW DKT = 45, QLD = 30, etc.).
+     * The client can override any of these from the admin panel; overrides are
+     * stored in the `practice_question_counts` site setting (JSON, keyed by state).
+     */
+    private static array $defaultCounts = [
+        'nsw' => ['general' => 15, 'road_safety' => 30], // DKT — 45
+        'vic' => ['general' => 12, 'road_safety' => 20], // LPKT — 32
+        'qld' => ['general' => 10, 'road_safety' => 20], // Road Rules — 30
+        'wa'  => ['general' => 12, 'road_safety' => 18], // RRTT — 30
+        'sa'  => ['general' => 8,  'road_safety' => 42], // LTT — 50
+        'tas' => ['general' => 15, 'road_safety' => 20], // DKT — 35
+        'act' => ['general' => 15, 'road_safety' => 20], // RRKT — 35
+    ];
+
+    /** Expose the state config map (used by the admin counts editor). */
+    public static function states(): array
+    {
+        return self::$states;
+    }
+
+    /**
+     * Effective per-section question counts for a state: admin override if set,
+     * otherwise the state's default. Returns ['general' => int, 'road_safety' => int].
+     */
+    public static function questionCounts(string $state): array
+    {
+        $state = strtolower($state);
+        $defaults = self::$defaultCounts[$state] ?? ['general' => 15, 'road_safety' => 15];
+        $overrides = \App\Models\SiteSetting::get('practice_question_counts', []);
+        $o = is_array($overrides) ? ($overrides[$state] ?? []) : [];
+
+        return [
+            'general'     => (int) ($o['general'] ?? $defaults['general']),
+            'road_safety' => (int) ($o['road_safety'] ?? $defaults['road_safety']),
+        ];
+    }
+
+    /**
      * Sample questions per state (in production, these would come from a database).
      */
     private static function questionsForState(string $stateCode): array
@@ -233,14 +272,23 @@ class PracticeTestController extends Controller
         }
         $config = self::$states[$state];
 
+        // How many questions this state's test draws, per section (admin-editable).
+        $counts = self::questionCounts($state);
+
         $sections = [];
         foreach ([
             \App\Models\PracticeQuestion::SECTION_GENERAL,
             \App\Models\PracticeQuestion::SECTION_ROAD_SAFETY,
         ] as $sectionKey) {
+            $limit = max(0, (int) ($counts[$sectionKey] ?? 0));
+            if ($limit === 0) {
+                continue;
+            }
+
             $qs = \App\Models\PracticeQuestion::active()
                 ->where('section', $sectionKey)
                 ->inRandomOrder()
+                ->take($limit)        // draw only this state's configured number
                 ->get();
 
             if ($qs->isEmpty()) {

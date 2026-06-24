@@ -263,9 +263,9 @@
         <div class="row g-4">
             @php
                 $testimonials = [
-                    ['name' => 'Adriana', 'text' => 'Adriana is really patient and an excellent instructor. She made identifying actions so easy, gave me clear tips and even practical lessons. Would highly recommend Adriana to anyone looking to learn safely.'],
-                    ['name' => 'Sam', 'text' => "Passed on my first attempt and all thanks to my driving instructor who explained with so much teaching with everything to become a good road user. I am also patient and made me really comfortable. I highly recommend."],
-                    ['name' => 'Sheraz', 'text' => "Sheraz is an incredible driving instructor. I highly recommend him. My first driving experience with Sheraz was many years back, I really enjoyed his time and have learnt so much."],
+                    ['name' => 'Grace', 'text' => "Coming back to driving after years off, I was nervous. She was so patient, rebuilt my confidence step by step, and gave me clear tips that actually stuck. Highly recommend."],
+                    ['name' => 'Jake', 'text' => "Passed on my first attempt. My instructor explained everything I needed to become a safe, confident road user and made me feel completely at ease. Couldn't recommend more."],
+                    ['name' => 'Raj', 'text' => "An incredible instructor — I highly recommend him. It had been years since I last drove, but he made the refresher easy and I learnt so much in a short time."],
                 ];
             @endphp
             @foreach($testimonials as $t)

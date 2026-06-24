@@ -45,10 +45,10 @@
             <div class="col-lg-6">
                 <div class="lg-panel">
                     <div class="d-flex align-items-start gap-3 mb-2">
-                        <div class="lg-avatar" style="width:54px;height:54px;font-size:1.1rem;">MK</div>
+                        <div class="lg-avatar" style="width:54px;height:54px;font-size:1.1rem;">DR</div>
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5">Martin K.</span>
+                                <span class="fw-bold fs-5">Daniel R.</span>
                                 <span class="lg-badge new"><i class="bi bi-patch-check-fill"></i> Verified</span>
                             </div>
                             <div class="small text-muted">Gold Coast</div>
@@ -194,9 +194,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Martin K. · 847 lessons · Gold Coast','"My Secure Licence profile looks better than the website I paid a guy $800 to build. Same photo, different layout, the conversion difference was night and day."'],
-                ['Priya S. · 412 lessons · Sydney','"I never had to write the bio. They rang me, asked 15 questions, and two days later a polished profile was live. I would have procrastinated for 6 months."'],
-                ['Angelo D. · 1,240 lessons · Melbourne','"I left a franchise that was running paid Google ads for itself. My Secure Licence listing now outranks those ads in my suburb. I pay nothing for that."'],
+                ['Daniel R. · 847 lessons · Gold Coast','"My Secure Licence profile looks better than the website I paid a guy $800 to build. Same photo, different layout, the conversion difference was night and day."'],
+                ['Aisha N. · 412 lessons · Sydney','"I never had to write the bio. They rang me, asked 15 questions, and two days later a polished profile was live. I would have procrastinated for 6 months."'],
+                ['Lucas P. · 1,240 lessons · Melbourne','"I left a franchise that was running paid Google ads for itself. My Secure Licence listing now outranks those ads in my suburb. I pay nothing for that."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">

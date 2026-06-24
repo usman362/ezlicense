@@ -250,10 +250,10 @@
         <div class="row g-4">
             @php
                 $reviews = [
-                    ['name' => 'Shane',  'text' => "Driving with Shane was an awesome experience. He treated me like family and made me feel happy to be in driving and I learnt the most in lessons. Cheers Shane."],
-                    ['name' => 'Sam',    'text' => "Passed on my first driving test with Sam as my instructor. He's wonderful, kind, patient and made my nerves calm. I have referred a great friend that I am sure will be confident after one lesson. Definitely recommend!"],
-                    ['name' => 'Betty',  'text' => "I learnt so much. Betty was extremely communicative on my first lesson. She has worked with me very kindly and patiently and explained the rules in any way that I could understand. Thanks!"],
-                    ['name' => 'Angela', 'text' => "Fantastic teacher!! I took there was a real Aussie give it your goes!! I would not hesitate to recommend her to anyone. He shows me what I need to know and helps me find my faults. Thank you so much. Highly recommend!"],
+                    ['name' => 'Travis', 'text' => "A genuinely great experience from start to finish. My instructor was relaxed, encouraging, and I picked up more in a handful of lessons than I expected to all year."],
+                    ['name' => 'Noah',   'text' => "Passed my driving test on the first attempt. Kind, patient and great at settling my nerves — I've already recommended them to a friend who's just starting out."],
+                    ['name' => 'Rebecca','text' => "I learnt so much in my very first lesson. Everything was explained clearly and patiently, and the road rules finally started to make sense. Highly recommend."],
+                    ['name' => 'Megan',  'text' => "Fantastic teacher. Really easy to learn with, quick to point out what I needed to work on, and supportive the whole way. I wouldn't hesitate to recommend them to anyone."],
                 ];
             @endphp
             @foreach($reviews as $r)

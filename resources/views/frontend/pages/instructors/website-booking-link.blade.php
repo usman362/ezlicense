@@ -52,7 +52,7 @@
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <span class="lg-avatar" style="width:52px;height:52px;"><i class="bi bi-person-fill"></i></span>
                             <div>
-                                <div class="fw-bold">Sarah K.</div>
+                                <div class="fw-bold">Emma T.</div>
                                 <div class="small text-muted">Driving Instructor</div>
                                 <div class="small"><span class="text-warning">★★★★★</span> <span class="fw-semibold">4.3</span> <span class="text-muted">· 387 reviews</span></div>
                             </div>
@@ -182,8 +182,8 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Ben · 9 years · Brisbane North','"I had zero web presence. Set up the page on a Tuesday lunch break. By the weekend I had 6 bookings from people who Googled my suburb. Still feels like magic."'],
-                ['Chloe · 8 years · Perth West','"I share my Secure Licence profile link on every Insta story and in my email signature. Learners book themselves in. I haven\'t taken a \'what does it cost\' phone call in months."'],
+                ['Lachlan · 9 years · Brisbane North','"I had zero web presence. Set up the page on a Tuesday lunch break. By the weekend I had 6 bookings from people who Googled my suburb. Still feels like magic."'],
+                ['Grace · 8 years · Perth West','"I share my Secure Licence profile link on every Insta story and in my email signature. Learners book themselves in. I haven\'t taken a \'what does it cost\' phone call in months."'],
                 ['Aaron · New instructor · Adelaide Hills','"Brand new, no brand, no clue where to start. The landing page made me look like I\'d been doing this for 10 years. Mums feel safe booking me. Huge unlock."'],
             ] as [$name,$quote])
                 <div class="col-md-4">

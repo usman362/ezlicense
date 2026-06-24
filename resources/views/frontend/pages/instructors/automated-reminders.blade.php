@@ -41,15 +41,15 @@
                     <div class="lg-row align-items-start" style="border-bottom:0;">
                         <span class="lg-avatar" style="background:#1a7f43;color:#fff;"><i class="bi bi-chat-fill"></i></span>
                         <div>
-                            <div class="fw-semibold small">Tobi, Driving Instructor <span class="text-muted fw-normal">· SMS · Now</span></div>
-                            <div class="small text-muted p-2 rounded mt-1" style="background:#f1f3f5;">Hi Olivia 👋 Just a reminder, your 1hr driving lesson is tomorrow (Fri 19 Apr) at 9:00am. I'll pick you up from 14 Waverly St. Reply STOP to cancel. See you there!</div>
+                            <div class="fw-semibold small">Aria, Driving Instructor <span class="text-muted fw-normal">· SMS · Now</span></div>
+                            <div class="small text-muted p-2 rounded mt-1" style="background:#f1f3f5;">Hi Ella 👋 Just a reminder, your 1hr driving lesson is tomorrow (Fri 19 Apr) at 9:00am. I'll pick you up from 14 Waverly St. Reply STOP to cancel. See you there!</div>
                         </div>
                     </div>
                     <div class="lg-row align-items-start" style="border-bottom:0;">
-                        <span class="lg-avatar">JR</span>
+                        <span class="lg-avatar">CF</span>
                         <div>
-                            <div class="fw-semibold small">Jamie Reid <span class="text-muted fw-normal">· jamiereid@example.com · 2 min ago</span></div>
-                            <div class="small text-muted p-2 rounded mt-1" style="background:#f1f3f5;">Hi Olivia, your 1-hour driving lesson is confirmed. I'll pick you up from 14 Waverly St at 9:00am sharp.</div>
+                            <div class="fw-semibold small">Caleb Foster <span class="text-muted fw-normal">· jamiereid@example.com · 2 min ago</span></div>
+                            <div class="small text-muted p-2 rounded mt-1" style="background:#f1f3f5;">Hi Ella, your 1-hour driving lesson is confirmed. I'll pick you up from 14 Waverly St at 9:00am sharp.</div>
                         </div>
                     </div>
                     <div class="mt-2 p-2 rounded small d-flex align-items-center gap-2" style="background:#fff8e1;">
@@ -121,9 +121,9 @@
                 <h5 class="fw-bold">Every event fires automatically</h5>
                 <p class="text-muted small">You literally do nothing. The system knows when a lesson is in 24hr. It sends. Learner replies? You see it in your dashboard.</p>
                 <div class="lg-statbox mt-3">
-                    <div class="d-flex gap-2 small mb-1"><span class="text-muted">9:00am</span> Sent SMS to Olivia K.</div>
-                    <div class="d-flex gap-2 small mb-1"><span class="text-muted">9:00am</span> Sent email to Olivia K.</div>
-                    <div class="d-flex gap-2 small"><span class="text-muted">9:14am</span> Olivia replied "Cheers see you then!"</div>
+                    <div class="d-flex gap-2 small mb-1"><span class="text-muted">9:00am</span> Sent SMS to Ella T.</div>
+                    <div class="d-flex gap-2 small mb-1"><span class="text-muted">9:00am</span> Sent email to Ella T.</div>
+                    <div class="d-flex gap-2 small"><span class="text-muted">9:14am</span> Ella replied "Cheers see you then!"</div>
                 </div>
             </div>
         </div>
@@ -163,9 +163,9 @@
         </div>
         <div class="row g-4">
             @foreach([
-                ['Kasey · 9 years · Adelaide','"I used to spend 45 mins every Sunday night texting reminders. Now I don\'t. My Sundays belong to me again."'],
-                ['Tom · 3 years · Newcastle','"No-shows dropped from 4–5 a month to maybe 1. That\'s literally $400/mo extra income for doing nothing different."'],
-                ['Sofia · New instructor · Canberra','"A mum told me my reminder SMS was the most professional thing she\'d seen from an instructor. I literally do nothing."'],
+                ['Brooke · 9 years · Adelaide','"I used to spend 45 mins every Sunday night texting reminders. Now I don\'t. My Sundays belong to me again."'],
+                ['Jake · 3 years · Newcastle','"No-shows dropped from 4–5 a month to maybe 1. That\'s literally $400/mo extra income for doing nothing different."'],
+                ['Bianca · New instructor · Canberra','"A mum told me my reminder SMS was the most professional thing she\'d seen from an instructor. I literally do nothing."'],
             ] as [$name,$quote])
                 <div class="col-md-4">
                     <div class="lg-card">
