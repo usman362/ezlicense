@@ -47,20 +47,64 @@ class PracticeQuestionSeeder extends Seeder
         ];
 
         // firstOrCreate: only inserts questions that don't already exist (by section + question).
-        // Re-running is a no-op on existing rows — admin edits are never overwritten.
+        // Re-running is a no-op on existing rows — admin edits (incl. state) are never overwritten.
+        //
+        // The 30 generic questions above are universal Australian road rules, so they are
+        // seeded as state = null ("All states / common") — they appear in every state's test.
         $order = 0;
         foreach ($general as [$q, $opts, $correct, $exp]) {
             PracticeQuestion::firstOrCreate(
                 ['section' => PracticeQuestion::SECTION_GENERAL, 'question' => $q],
-                ['options' => $opts, 'correct_index' => $correct, 'explanation' => $exp, 'is_active' => true, 'sort_order' => $order++],
+                ['state' => null, 'options' => $opts, 'correct_index' => $correct, 'explanation' => $exp, 'is_active' => true, 'sort_order' => $order++],
             );
         }
         $order = 0;
         foreach ($roadSafety as [$q, $opts, $correct, $exp]) {
             PracticeQuestion::firstOrCreate(
                 ['section' => PracticeQuestion::SECTION_ROAD_SAFETY, 'question' => $q],
-                ['options' => $opts, 'correct_index' => $correct, 'explanation' => $exp, 'is_active' => true, 'sort_order' => $order++],
+                ['state' => null, 'options' => $opts, 'correct_index' => $correct, 'explanation' => $exp, 'is_active' => true, 'sort_order' => $order++],
             );
+        }
+
+        // ── State-specific sample questions (2 per state) ──────────────────────────
+        // These demonstrate the per-state feature: each appears ONLY in that state's test.
+        // The client will replace/expand these with real state-specific questions.
+        // [name, official handbook, road authority]
+        $stateData = [
+            'nsw' => ['New South Wales',              "Road Users' Handbook",                'Service NSW'],
+            'vic' => ['Victoria',                     'Road to Solo Driving',                'VicRoads'],
+            'qld' => ['Queensland',                   'Your Keys to Driving in Queensland',  'Transport and Main Roads'],
+            'wa'  => ['Western Australia',            'Drive Safe handbook',                 'Department of Transport'],
+            'sa'  => ['South Australia',              "The Driver's Handbook",               'Service SA'],
+            'tas' => ['Tasmania',                     'Tasmanian Driver Handbook',           'Service Tasmania'],
+            'act' => ['Australian Capital Territory', 'ACT Road Rules Handbook',             'Access Canberra'],
+        ];
+        $allHandbooks = array_map(fn ($d) => $d[1], $stateData);
+
+        $i = 0;
+        foreach ($stateData as $slug => [$name, $handbook, $authority]) {
+            // General: which handbook to study (correct answer position rotates so it isn't always first).
+            $distractors = array_values(array_filter($allHandbooks, fn ($h) => $h !== $handbook));
+            $opts = array_slice($distractors, 0, 3);
+            $pos  = $i % 4;
+            array_splice($opts, $pos, 0, [$handbook]);
+
+            PracticeQuestion::firstOrCreate(
+                ['section' => PracticeQuestion::SECTION_GENERAL, 'question' => "Which official handbook should you study for the {$name} learner test?"],
+                ['state' => $slug, 'options' => $opts, 'correct_index' => $pos,
+                 'explanation' => "The {$handbook} is the official study guide for the {$name} learner test.",
+                 'is_active' => true, 'sort_order' => 100 + $i],
+            );
+
+            // Road safety: zero blood-alcohol limit for learners, framed for the state.
+            PracticeQuestion::firstOrCreate(
+                ['section' => PracticeQuestion::SECTION_ROAD_SAFETY, 'question' => "In {$name}, what is the legal blood alcohol limit for a learner driver?"],
+                ['state' => $slug, 'options' => ['0.05', 'Zero (0.00)', '0.02', '0.08'], 'correct_index' => 1,
+                 'explanation' => "Learner drivers must maintain a zero (0.00) blood alcohol concentration in {$name}. The {$name} test is booked through {$authority}.",
+                 'is_active' => true, 'sort_order' => 200 + $i],
+            );
+
+            $i++;
         }
     }
 }

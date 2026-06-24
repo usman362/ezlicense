@@ -50,6 +50,17 @@
                     <h6 class="fw-bold mb-3">Settings</h6>
 
                     <div class="mb-3">
+                        <label class="form-label small fw-semibold">State</label>
+                        <select name="state" class="form-select">
+                            <option value="" @selected(old('state', $question->state)===null || old('state', $question->state)==='')>All states (common)</option>
+                            @foreach(\App\Models\PracticeQuestion::STATES as $slug => $name)
+                                <option value="{{ $slug }}" @selected(old('state', $question->state)===$slug)>{{ $name }} ({{ strtoupper($slug) }})</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted d-block">Pick a state to show this question only in that state's test. "All states" shows it in every state's test.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label small fw-semibold">Section</label>
                         <select name="section" class="form-select">
                             <option value="general" @selected(old('section', $question->section)==='general')>General Knowledge</option>

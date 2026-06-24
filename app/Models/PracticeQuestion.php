@@ -9,8 +9,19 @@ class PracticeQuestion extends Model
     public const SECTION_GENERAL = 'general';
     public const SECTION_ROAD_SAFETY = 'road_safety';
 
+    /** Australian states/territories a question can belong to. Keyed by slug. */
+    public const STATES = [
+        'nsw' => 'New South Wales',
+        'vic' => 'Victoria',
+        'qld' => 'Queensland',
+        'wa'  => 'Western Australia',
+        'sa'  => 'South Australia',
+        'tas' => 'Tasmania',
+        'act' => 'Australian Capital Territory',
+    ];
+
     protected $fillable = [
-        'section', 'question', 'image_path', 'options', 'correct_index',
+        'section', 'state', 'question', 'image_path', 'options', 'correct_index',
         'explanation', 'is_active', 'sort_order',
     ];
 
@@ -46,5 +57,26 @@ class PracticeQuestion extends Model
     public static function sectionLabel(string $section): string
     {
         return $section === self::SECTION_ROAD_SAFETY ? 'Road Safety' : 'General Knowledge';
+    }
+
+    /** Human label for a state slug. NULL/blank = shown in every state's test. */
+    public static function stateLabel(?string $state): string
+    {
+        if (! $state) {
+            return 'All states';
+        }
+        return self::STATES[strtolower($state)] ?? strtoupper($state);
+    }
+
+    /**
+     * Limit to questions used by a given state's test: the state's own questions
+     * plus any marked "All states" (NULL state).
+     */
+    public function scopeForState($q, string $state)
+    {
+        $state = strtolower($state);
+        return $q->where(function ($w) use ($state) {
+            $w->whereNull('state')->orWhere('state', $state);
+        });
     }
 }

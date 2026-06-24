@@ -23,82 +23,47 @@
     </div>
 </div>
 
-{{-- ─── Per-state question counts: each state's test draws a different number ─── --}}
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white d-flex align-items-center justify-content-between" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#stateCountsBody">
-        <div>
-            <strong><i class="bi bi-sliders me-1"></i> Questions per state</strong>
-            <div class="small text-muted">Each state's learner test is a different length (e.g. NSW 45, QLD 30, SA 50). Set how many questions each state's practice test draws.</div>
-        </div>
-        <i class="bi bi-chevron-down"></i>
-    </div>
-    <div class="collapse show" id="stateCountsBody">
-        <div class="card-body">
-            <form method="post" action="{{ route('admin.practice-questions.counts') }}">
-                @csrf
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-3">
-                        <thead>
-                            <tr class="text-muted small text-uppercase">
-                                <th>State / Test</th>
-                                <th style="width:140px;">General Knowledge</th>
-                                <th style="width:140px;">Road Safety</th>
-                                <th style="width:90px;" class="text-end">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($stateCounts as $slug => $s)
-                                <tr>
-                                    <td>
-                                        <span class="fw-semibold">{{ $s['name'] }}</span>
-                                        <span class="badge text-bg-light ms-1">{{ $s['code'] }}</span>
-                                        @if($s['testName'])<div class="small text-muted">{{ $s['testName'] }}</div>@endif
-                                    </td>
-                                    <td>
-                                        <input type="number" min="0" max="200" name="counts[{{ $slug }}][general]"
-                                               value="{{ $s['counts']['general'] }}" class="form-control form-control-sm js-count" data-row="{{ $slug }}">
-                                    </td>
-                                    <td>
-                                        <input type="number" min="0" max="200" name="counts[{{ $slug }}][road_safety]"
-                                               value="{{ $s['counts']['road_safety'] }}" class="form-control form-control-sm js-count" data-row="{{ $slug }}">
-                                    </td>
-                                    <td class="text-end fw-bold" data-total="{{ $slug }}">{{ $s['counts']['general'] + $s['counts']['road_safety'] }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-primary"><i class="bi bi-save me-1"></i> Save question counts</button>
-                    <span class="small text-muted">If a state has fewer questions in the bank than the number set, the test simply uses all available.</span>
-                </div>
-            </form>
-        </div>
-    </div>
+{{-- ─── State filter pills: click a state to see only its questions ─── --}}
+@php
+    $curState = request('state', '');
+    $pills = [
+        '' => 'All',
+        'all' => 'Common',
+    ];
+    foreach (\App\Models\PracticeQuestion::STATES as $slug => $name) {
+        $pills[$slug] = strtoupper($slug);
+    }
+@endphp
+<div class="mb-2 small text-muted fw-semibold text-uppercase" style="letter-spacing:.04em;">Filter by state</div>
+<div class="d-flex flex-wrap gap-2 mb-3">
+    @foreach($pills as $slug => $label)
+        @php
+            $isActive = (string) $curState === (string) $slug;
+            $count = $stateCounts[$slug] ?? 0;
+            $qs = array_filter(['q' => request('q'), 'section' => request('section'), 'state' => $slug === '' ? null : $slug]);
+        @endphp
+        <a href="{{ route('admin.practice-questions.index', $qs) }}"
+           class="btn btn-sm {{ $isActive ? 'btn-warning text-dark fw-semibold' : 'btn-outline-secondary' }}"
+           @if($slug !== '' && $slug !== 'all') title="{{ \App\Models\PracticeQuestion::STATES[$slug] }}" @elseif($slug === 'all') title="Shown in every state's test" @endif>
+            {{ $label }}
+            <span class="badge rounded-pill {{ $isActive ? 'text-bg-dark' : 'text-bg-light' }} ms-1">{{ $count }}</span>
+        </a>
+    @endforeach
 </div>
-<script>
-    // Live-update each state's total as the admin edits the per-section counts.
-    document.querySelectorAll('.js-count').forEach(function (inp) {
-        inp.addEventListener('input', function () {
-            var row = this.dataset.row;
-            var inputs = document.querySelectorAll('.js-count[data-row="' + row + '"]');
-            var total = 0;
-            inputs.forEach(function (i) { total += parseInt(i.value || 0, 10); });
-            var cell = document.querySelector('[data-total="' + row + '"]');
-            if (cell) cell.textContent = total;
-        });
-    });
-</script>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <form method="get" class="d-flex gap-2">
-        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search questions…" style="min-width:240px;">
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <input type="hidden" name="state" value="{{ request('state') }}">
+        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search questions…" style="min-width:220px;">
         <select name="section" class="form-select" style="width:auto;">
             <option value="">All sections</option>
             <option value="general" @selected(request('section')==='general')>General Knowledge</option>
             <option value="road_safety" @selected(request('section')==='road_safety')>Road Safety</option>
         </select>
         <button class="btn btn-outline-secondary">Filter</button>
+        @if(request('q') || request('section') || request('state'))
+            <a href="{{ route('admin.practice-questions.index') }}" class="btn btn-link text-muted">Clear</a>
+        @endif
     </form>
     <a href="{{ route('admin.practice-questions.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Question</a>
 </div>
@@ -111,6 +76,7 @@
                     <tr>
                         <th style="width:50px;">#</th>
                         <th>Question</th>
+                        <th>State</th>
                         <th>Section</th>
                         <th>Img</th>
                         <th>Status</th>
@@ -124,6 +90,13 @@
                             <td>
                                 <div class="fw-semibold">{{ \Illuminate\Support\Str::limit($pq->question, 80) }}</div>
                                 <div class="small text-muted">{{ count($pq->options) }} options · correct: {{ $pq->options[$pq->correct_index] ?? '—' }}</div>
+                            </td>
+                            <td>
+                                @if($pq->state)
+                                    <span class="badge text-bg-warning text-dark">{{ strtoupper($pq->state) }}</span>
+                                @else
+                                    <span class="badge text-bg-light text-muted">All</span>
+                                @endif
                             </td>
                             <td>{{ \App\Models\PracticeQuestion::sectionLabel($pq->section) }}</td>
                             <td>
@@ -157,7 +130,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center text-muted py-4">No questions yet. <a href="{{ route('admin.practice-questions.create') }}">Add one</a>.</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-4">No questions yet. <a href="{{ route('admin.practice-questions.create') }}">Add one</a>.</td></tr>
                     @endforelse
                 </tbody>
             </table>

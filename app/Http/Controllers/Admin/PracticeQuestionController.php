@@ -16,6 +16,9 @@ class PracticeQuestionController extends Controller
         if ($section = $request->query('section')) {
             $q->where('section', $section);
         }
+        if (($state = $request->query('state')) !== null && $state !== '') {
+            $state === 'all' ? $q->whereNull('state') : $q->where('state', $state);
+        }
         if ($search = trim((string) $request->query('q'))) {
             $q->where('question', 'like', "%{$search}%");
         }
@@ -27,48 +30,17 @@ class PracticeQuestionController extends Controller
             'road_safety' => PracticeQuestion::where('section', PracticeQuestion::SECTION_ROAD_SAFETY)->count(),
         ];
 
-        // Per-state question counts (each state's test draws a different number).
-        $stateCounts = [];
-        foreach (\App\Http\Controllers\PracticeTestController::states() as $slug => $cfg) {
-            $stateCounts[$slug] = [
-                'name'     => $cfg['name'],
-                'code'     => $cfg['code'],
-                'testName' => $cfg['testName'] ?? '',
-                'counts'   => \App\Http\Controllers\PracticeTestController::questionCounts($slug),
-            ];
+        // Count of questions per state (for the filter pills): 'all'=common, then each state.
+        $byState = PracticeQuestion::selectRaw('state, COUNT(*) as c')->groupBy('state')->pluck('c', 'state');
+        $stateCounts = [
+            ''    => PracticeQuestion::count(),          // All
+            'all' => $byState->get(null, 0),             // Common (no state)
+        ];
+        foreach (PracticeQuestion::STATES as $slug => $name) {
+            $stateCounts[$slug] = $byState->get($slug, 0);
         }
 
         return view('admin.pages.practice-questions.index', compact('questions', 'stats', 'stateCounts'));
-    }
-
-    /**
-     * Save the per-state question counts (how many questions each state's test draws).
-     */
-    public function updateCounts(Request $request)
-    {
-        $data = $request->validate([
-            'counts'               => ['array'],
-            'counts.*.general'     => ['nullable', 'integer', 'min:0', 'max:200'],
-            'counts.*.road_safety' => ['nullable', 'integer', 'min:0', 'max:200'],
-        ]);
-
-        $clean = [];
-        foreach (($data['counts'] ?? []) as $slug => $vals) {
-            $clean[strtolower($slug)] = [
-                'general'     => (int) ($vals['general'] ?? 0),
-                'road_safety' => (int) ($vals['road_safety'] ?? 0),
-            ];
-        }
-
-        \App\Models\SiteSetting::set(
-            'practice_question_counts',
-            $clean,
-            'practice',
-            'json',
-            'Practice test question counts per state'
-        );
-
-        return back()->with('message', 'Per-state question counts updated.');
     }
 
     public function create()
@@ -120,6 +92,7 @@ class PracticeQuestionController extends Controller
     {
         $validated = $request->validate([
             'section'       => ['required', 'in:general,road_safety'],
+            'state'         => ['nullable', 'in:' . implode(',', array_keys(PracticeQuestion::STATES))],
             'question'      => ['required', 'string', 'max:1000'],
             'options'       => ['required', 'array', 'min:2', 'max:5'],
             'options.*'     => ['nullable', 'string', 'max:255'],
@@ -139,6 +112,7 @@ class PracticeQuestionController extends Controller
 
         $out = [
             'section'       => $validated['section'],
+            'state'         => $validated['state'] ?: null,
             'question'      => $validated['question'],
             'options'       => $options,
             'correct_index' => $correct,
