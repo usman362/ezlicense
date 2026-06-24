@@ -146,7 +146,18 @@
         </div>
     </div>
     @if($logs->hasPages())
-        <div class="card-footer bg-white">{{ $logs->links() }}</div>
+        <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="text-muted small">Showing {{ $logs->firstItem() }}–{{ $logs->lastItem() }} of {{ $logs->total() }}</span>
+            <nav aria-label="Email log pages">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {{ $logs->onFirstPage() ? 'disabled' : '' }}"><a class="page-link" href="{{ $logs->previousPageUrl() ?: '#' }}">&laquo;</a></li>
+                    @for($p = 1; $p <= $logs->lastPage(); $p++)
+                        <li class="page-item {{ $p == $logs->currentPage() ? 'active' : '' }}"><a class="page-link" href="{{ $logs->url($p) }}">{{ $p }}</a></li>
+                    @endfor
+                    <li class="page-item {{ $logs->hasMorePages() ? '' : 'disabled' }}"><a class="page-link" href="{{ $logs->nextPageUrl() ?: '#' }}">&raquo;</a></li>
+                </ul>
+            </nav>
+        </div>
     @endif
 </div>
 

@@ -32,7 +32,7 @@ class EmailLogsController extends Controller
             $query->where('created_at', '>=', now()->subDays($days));
         }
 
-        $logs = $query->paginate(40)->withQueryString();
+        $logs = $query->paginate(15)->withQueryString();
 
         $stats = [
             'total' => EmailLog::count(),
