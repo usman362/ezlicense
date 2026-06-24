@@ -112,11 +112,14 @@ class InboundEmailController extends Controller
         }
 
         try {
+            // Received (inbound) emails use a dedicated endpoint — NOT /emails/{id}
+            // (that one is for sent emails). html_format=data_uri inlines images so
+            // they render in the webmail iframe without serving cid attachments.
             $resp = Http::withToken($apiKey)
                 ->acceptJson()
                 ->timeout(15)
                 ->retry(2, 1500)   // body may be a beat behind the webhook; retry briefly
-                ->get("https://api.resend.com/emails/{$emailId}");
+                ->get("https://api.resend.com/emails/receiving/{$emailId}", ['html_format' => 'data_uri']);
 
             if (! $resp->successful()) {
                 Log::warning("Resend retrieve inbound email {$emailId} failed: {$resp->status()} {$resp->body()}");
