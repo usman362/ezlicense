@@ -325,6 +325,13 @@
                 <a class="nav-link {{ request()->routeIs('admin.feedback*') ? 'active' : '' }}" href="{{ route('admin.feedback.index') }}">
                     <i class="bi bi-chat-left-heart"></i> User Feedback
                 </a>
+                @php $webmailUnread = \App\Models\MailboxMessage::inbound()->unread()->count(); @endphp
+                <a class="nav-link {{ request()->routeIs('admin.webmail*') ? 'active' : '' }}" href="{{ route('admin.webmail.inbox') }}">
+                    <i class="bi bi-envelope-at-fill"></i> Webmail
+                    @if($webmailUnread > 0)
+                        <span class="badge bg-warning text-dark ms-auto" style="font-size:0.7rem">{{ $webmailUnread }}</span>
+                    @endif
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.email-logs*') ? 'active' : '' }}" href="{{ route('admin.email-logs.index') }}">
                     <i class="bi bi-envelope-paper"></i> Email Logs
                 </a>

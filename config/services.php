@@ -22,6 +22,17 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    // Admin webmail (support@) — the mailbox the webmail sends from and receives into.
+    'webmail' => [
+        'address' => env('WEBMAIL_ADDRESS', 'support@securelicence.com'),
+        'name'    => env('WEBMAIL_NAME', 'Secure Licence Support'),
+    ],
+
+    // Shared secret for the inbound-email webhook (set this on your provider's POST URL).
+    'inbound_email' => [
+        'secret' => env('INBOUND_EMAIL_SECRET'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

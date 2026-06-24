@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // instead of CSRF tokens. Exempt it from CSRF middleware.
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
+            'webhooks/inbound-email',
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {

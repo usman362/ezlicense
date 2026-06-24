@@ -95,6 +95,11 @@ Route::get('/privacy-policy', fn () => view('frontend.pages.privacy'))->name('pr
 Route::post('/stripe/webhook', [App\Http\Controllers\PaymentController::class, 'webhook'])
     ->name('stripe.webhook');
 
+// Inbound email webhook — an email-routing provider POSTs incoming mail here.
+// Authenticated by the ?token= shared secret (config services.inbound_email.secret).
+Route::post('/webhooks/inbound-email', [App\Http\Controllers\Webhooks\InboundEmailController::class, 'store'])
+    ->name('webhooks.inbound-email');
+
 Route::middleware('auth')->group(function () {
     Route::get('/pay/{booking}/checkout', [App\Http\Controllers\PaymentController::class, 'checkout'])->name('stripe.checkout');
     Route::get('/pay/{booking}/success',  [App\Http\Controllers\PaymentController::class, 'success'])->name('stripe.success');
@@ -821,6 +826,15 @@ Route::prefix('api')->middleware('web')->group(function () {
 // Admin
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('email-logs', [App\Http\Controllers\Admin\EmailLogsController::class, 'index'])->name('email-logs.index');
+
+    // Webmail (support@) — send + receive, stored in DB
+    Route::get('webmail', [App\Http\Controllers\Admin\WebmailController::class, 'inbox'])->name('webmail.inbox');
+    Route::get('webmail/sent', [App\Http\Controllers\Admin\WebmailController::class, 'sent'])->name('webmail.sent');
+    Route::get('webmail/compose', [App\Http\Controllers\Admin\WebmailController::class, 'compose'])->name('webmail.compose');
+    Route::post('webmail/send', [App\Http\Controllers\Admin\WebmailController::class, 'send'])->name('webmail.send');
+    Route::get('webmail/{message}', [App\Http\Controllers\Admin\WebmailController::class, 'show'])->name('webmail.show');
+    Route::patch('webmail/{message}/toggle-read', [App\Http\Controllers\Admin\WebmailController::class, 'toggleRead'])->name('webmail.toggle-read');
+    Route::delete('webmail/{message}', [App\Http\Controllers\Admin\WebmailController::class, 'destroy'])->name('webmail.destroy');
     Route::get('feedback', [App\Http\Controllers\Admin\FeedbackController::class, 'index'])->name('feedback.index');
     Route::patch('feedback/{feedback}', [App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
     /*
