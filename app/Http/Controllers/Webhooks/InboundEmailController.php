@@ -33,6 +33,14 @@ class InboundEmailController extends Controller
             // Resend (and most webhook providers) wrap the email under a "data" key
             // and may include an event "type". Unwrap it; fall back to the flat payload.
             $eventType = $this->first($payload, ['type']);
+
+            // Only inbound/received emails belong in the Inbox. If "All Events" is
+            // selected on the provider, ignore delivery-status events
+            // (email.sent / delivered / bounced / opened / clicked / delayed / complained).
+            if ($eventType && ! \Illuminate\Support\Str::contains(strtolower($eventType), ['received', 'inbound'])) {
+                return response()->json(['ok' => true, 'ignored' => $eventType]);
+            }
+
             $data = (isset($payload['data']) && is_array($payload['data'])) ? $payload['data'] : $payload;
 
             $fromRaw = $this->first($data, ['from', 'sender', 'From', 'from_email']);
