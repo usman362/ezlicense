@@ -140,12 +140,20 @@
             @endif
 
             <div class="card border-success border-2 shadow-sm mb-3">
-                <div class="card-header bg-success text-white"><strong>Approve application</strong></div>
+                <div class="card-header bg-success text-white"><strong>Approve &amp; send documents link</strong></div>
                 <div class="card-body">
                     <p class="small text-muted">
-                        Approving creates an instructor magic-link invite and emails the applicant a setup link.
-                        They choose their own password — no account exists until they accept.
+                        This emails the applicant a link to set their password and <strong>upload their documents</strong>.
+                        It does <strong>not</strong> activate the account. After they submit documents, you review them
+                        under <em>Instructors</em> and approve there — only then does the account go live.
                     </p>
+                    <div class="small text-muted mb-3">
+                        <span class="badge text-bg-light">1. Approve → docs link</span>
+                        <i class="bi bi-arrow-right"></i>
+                        <span class="badge text-bg-light">2. Applicant submits docs</span>
+                        <i class="bi bi-arrow-right"></i>
+                        <span class="badge text-bg-light">3. You approve docs → live</span>
+                    </div>
                     <form method="post" action="{{ route('admin.instructor-applications.approve', $app) }}">
                         @csrf
                         <div class="mb-3">
@@ -153,8 +161,8 @@
                             <textarea name="admin_notes" rows="2" class="form-control form-control-sm">{{ old('admin_notes', $app->admin_notes) }}</textarea>
                         </div>
                         <button type="submit" class="btn btn-success w-100"
-                                onclick="return confirm('Approve {{ $app->fullName() }}? An onboarding email will be sent.')">
-                            <i class="bi bi-check-circle"></i> Approve & send setup link
+                                onclick="return confirm('Send {{ $app->fullName() }} a link to submit their documents? (This does NOT activate their account — you approve documents afterwards.)')">
+                            <i class="bi bi-check-circle"></i> Approve &amp; send documents link
                         </button>
                     </form>
                 </div>

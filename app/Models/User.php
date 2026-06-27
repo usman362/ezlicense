@@ -201,6 +201,23 @@ class User extends Authenticatable
                 $user->referral_code = self::generateUniqueReferralCode();
             }
         });
+
+        // When a user is deleted, remove ALL their related data so nothing is left orphaned.
+        // Most of it already cascades at the DB level (instructor_profile + its 11 children,
+        // bookings, reviews, coupons, invites, referrals, wallet, vehicles, admin notes about
+        // them). These few tables use nullOnDelete, so we clean them up explicitly here.
+        static::deleting(function (self $user) {
+            foreach ([
+                'user_feedback'    => 'user_id',   // feedback they submitted
+                'support_requests' => 'user_id',   // support tickets they opened
+                'email_logs'       => 'user_id',   // their email log entries
+            ] as $table => $column) {
+                if (\Illuminate\Support\Facades\Schema::hasTable($table)
+                    && \Illuminate\Support\Facades\Schema::hasColumn($table, $column)) {
+                    \Illuminate\Support\Facades\DB::table($table)->where($column, $user->id)->delete();
+                }
+            }
+        });
     }
 
     public static function generateUniqueReferralCode(): string

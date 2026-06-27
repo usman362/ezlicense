@@ -150,11 +150,27 @@ class UsersController extends Controller
             return redirect()->back()->with('error', 'Cannot delete admin users.');
         }
 
-        $name = $user->name;
-        $user->is_active = false;
-        $user->save();
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        }
 
-        return redirect()->back()->with('message', $name . ' has been deactivated.');
+        $name = $user->name;
+
+        // Hard delete — DB foreign-key cascades + the User model's `deleting` event
+        // remove ALL related data (instructor profile, bookings, reviews, payouts,
+        // documents, wallet, feedback, support tickets, etc.). Nothing is left orphaned.
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($user) {
+                $user->delete();
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('User delete failed: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Could not delete user: ' . $e->getMessage());
+        }
+
+        return redirect()->route('admin.users.index')
+            ->with('message', $name . ' and all related data have been permanently deleted.');
     }
 
     // ==================================================================

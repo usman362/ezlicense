@@ -21,13 +21,13 @@ class InstructorApplicationApproved extends Notification
         $a = $this->application;
         $setupUrl = route('instructor.invite.show', ['token' => $this->invite->token]);
         return (new MailMessage)
-            ->subject("Congratulations! Your Secure Licence application is approved 🎉")
+            ->subject("Your Secure Licence application is approved — next step: submit your documents")
             ->greeting("Hi {$a->first_name},")
-            ->line("Great news — your instructor application has been **approved**.")
+            ->line("Good news — your instructor application has been **approved** to move to the next stage.")
             ->line("**Reference:** {$a->reference}")
-            ->line('Click the button below to set your password and finalise your profile. The link is valid for 7 days.')
-            ->action('Set up my account', $setupUrl)
-            ->line('Once your profile is live, learners in your area can start booking with you straight away.')
+            ->line('**Next step — submit your documents.** Click the button below to set your password and **upload your verification documents** (driver licence, instructor licence and WWCC). The link is valid for 7 days.')
+            ->action('Set password & submit documents', $setupUrl)
+            ->line('Once our team has **reviewed and approved your documents**, your profile goes live and learners in your area can start booking with you. Until then your account stays pending.')
             ->line('Questions? Reply to this email or contact us at support@securelicence.com.')
             ->salutation('Welcome aboard — The Secure Licence team');
     }

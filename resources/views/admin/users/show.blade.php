@@ -45,6 +45,16 @@
                         @if($user->last_login_at)
                             <div class="mt-1">Last login: {{ $user->last_login_at->diffForHumans() }}</div>
                         @endif
+                        @if($user->role !== 'admin')
+                            <form method="post" action="{{ route('admin.users.destroy', $user) }}" class="mt-3"
+                                  onsubmit="return confirm('⚠️ PERMANENTLY delete {{ addslashes($user->name) }}?\n\nThis removes ALL their data — bookings, reviews, profile, documents, payouts, wallet, feedback and support tickets.\n\nThis CANNOT be undone.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash3 me-1"></i> Delete user &amp; all data
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>

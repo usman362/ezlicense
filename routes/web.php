@@ -348,6 +348,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/users/{user}/json', [App\Http\Controllers\Admin\UsersController::class, 'showJson'])->name('users.show-json');
     Route::patch('/users/{user}/toggle-active', [App\Http\Controllers\Admin\UsersController::class, 'toggleActive'])->name('users.toggle-active');
     Route::patch('/users/{user}/update-role', [App\Http\Controllers\Admin\UsersController::class, 'updateRole'])->name('users.update-role');
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\UsersController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/notes', [App\Http\Controllers\Admin\UsersController::class, 'storeNote'])->name('users.notes.store');
     Route::delete('/users/notes/{userAdminNote}', [App\Http\Controllers\Admin\UsersController::class, 'deleteNote'])->name('users.notes.destroy');
     Route::patch('/users/notes/{userAdminNote}/toggle-pin', [App\Http\Controllers\Admin\UsersController::class, 'toggleNotePin'])->name('users.notes.toggle-pin');
