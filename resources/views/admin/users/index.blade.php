@@ -75,18 +75,30 @@
                             </td>
                             <td class="small text-muted">{{ $user->created_at->format('d M Y') }}</td>
                             <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-primary btn-sm" title="Open profile">
-                                        <i class="bi bi-person-badge"></i>
-                                    </a>
-                                    @if($user->is_active)
-                                        <button class="btn btn-outline-warning btn-sm deactivate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Deactivate">
-                                            <i class="bi bi-person-slash"></i>
-                                        </button>
-                                    @else
-                                        <button class="btn btn-outline-success btn-sm activate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Activate">
-                                            <i class="bi bi-person-check"></i>
-                                        </button>
+                                <div class="d-inline-flex gap-1 align-items-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-primary btn-sm" title="Open profile">
+                                            <i class="bi bi-person-badge"></i>
+                                        </a>
+                                        @if($user->is_active)
+                                            <button class="btn btn-outline-warning btn-sm deactivate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Deactivate">
+                                                <i class="bi bi-person-slash"></i>
+                                            </button>
+                                        @else
+                                            <button class="btn btn-outline-success btn-sm activate-btn" data-id="{{ $user->id }}" data-name="{{ $user->name }}" title="Activate">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                    @if($user->role !== 'admin')
+                                        <form method="post" action="{{ route('admin.users.destroy', $user) }}" class="d-inline"
+                                              onsubmit="return confirm('⚠️ PERMANENTLY delete {{ addslashes($user->name) }} and ALL their data (bookings, reviews, profile, documents, payouts, feedback, etc.)?\n\nThis cannot be undone.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete user &amp; all data">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
                             </td>
