@@ -19,7 +19,7 @@
                     <div class="mb-3"><label class="form-label">Excerpt</label><textarea name="excerpt" rows="2" class="form-control">{{ old('excerpt', $article->excerpt) }}</textarea></div>
                     <div class="mb-3">
                         <label class="form-label">Content *</label>
-                        <textarea name="content" id="article-content" rows="20" class="form-control" required>{{ old('content', $article->content) }}</textarea>
+                        <textarea name="content" id="article-content" rows="20" class="form-control">{{ old('content', $article->content) }}</textarea>
                     </div>
                     <div class="mb-3"><label class="form-label">Meta description (SEO)</label><textarea name="meta_description" rows="2" class="form-control" maxlength="500">{{ old('meta_description', $article->meta_description) }}</textarea></div>
                 </div>

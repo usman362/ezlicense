@@ -42,7 +42,7 @@
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Message <span class="text-danger">*</span></label>
-                <textarea name="body" id="mail-body" class="form-control" rows="12" required>{{ old('body') }}</textarea>
+                <textarea name="body" id="mail-body" class="form-control" rows="12">{{ old('body') }}</textarea>
             </div>
 
             @if($reply)
@@ -66,6 +66,7 @@
 <script>
 tinymce.init({
     selector: '#mail-body',
+    license_key: 'gpl',
     height: 380,
     menubar: false,
     branding: false,
@@ -76,8 +77,20 @@ tinymce.init({
     content_style: 'body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color:#1a1d21; }',
     relative_urls: false,
     remove_script_host: false,
+    // Keep the hidden textarea in sync as the user types (so the body is never stale).
+    setup: function (editor) {
+        editor.on('change keyup', function () { editor.save(); });
+    },
 });
-// Make sure TinyMCE writes back to the textarea before submit.
-document.querySelector('form').addEventListener('submit', () => tinymce.triggerSave());
+// Write TinyMCE content back to the textarea before submit; block only if truly empty.
+document.querySelector('form').addEventListener('submit', function (e) {
+    tinymce.triggerSave();
+    var body = document.getElementById('mail-body');
+    if (!body.value.replace(/<[^>]*>/g, '').trim()) {
+        e.preventDefault();
+        alert('Please write a message before sending.');
+        if (tinymce.activeEditor) tinymce.activeEditor.focus();
+    }
+});
 </script>
 @endpush
