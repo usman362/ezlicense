@@ -174,6 +174,18 @@
                         <i class="bi bi-slash-circle me-1"></i>Block Instructor
                     </button>
                 @endif
+
+                @if($instructor->user && $instructor->user->role !== 'admin')
+                    <hr>
+                    <form method="POST" action="{{ route('admin.users.destroy', $instructor->user) }}"
+                          onsubmit="return confirm('⚠️ PERMANENTLY delete {{ addslashes($instructor->user->name) }} and ALL their data — profile, documents, bookings, reviews, payouts, service areas, etc.?\n\nThis CANNOT be undone.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                            <i class="bi bi-trash3 me-1"></i>Delete instructor &amp; all data
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
 
