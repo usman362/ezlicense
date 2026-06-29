@@ -18,6 +18,7 @@ class InstructorApplication extends Model
 
     protected $fillable = [
         'reference', 'first_name', 'last_name', 'email', 'phone',
+        'state', 'postcode',
         'years_experience', 'transmission', 'bio', 'suburb_id',
         'lesson_price', 'vehicle_make', 'vehicle_model', 'vehicle_year',
         'documents',

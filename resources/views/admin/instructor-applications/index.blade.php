@@ -74,6 +74,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Location</th>
                         <th>Status</th>
                         <th>Applied</th>
                         <th></th>
@@ -86,6 +87,7 @@
                             <td>{{ $app->fullName() }}</td>
                             <td>{{ $app->email }}</td>
                             <td>{{ $app->phone }}</td>
+                            <td>{{ trim(implode(' ', array_filter([$app->state, $app->postcode]))) ?: '—' }}</td>
                             <td>{!! $app->statusBadge() !!}</td>
                             <td>{{ $app->created_at->format('d M Y H:i') }}</td>
                             <td>
@@ -93,7 +95,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center text-muted py-4">No applications found.</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-4">No applications found.</td></tr>
                     @endforelse
                 </tbody>
             </table>

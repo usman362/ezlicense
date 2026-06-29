@@ -110,20 +110,16 @@ class SupportRequestController extends Controller
             ]);
         }
 
-        $bio = trim($data['message']);
-        $meta = array_filter(['State: ' . ($data['state'] ?? ''), 'Postcode: ' . ($data['postcode'] ?? '')], fn ($p) => ! str_ends_with($p, ': '));
-        if ($meta) {
-            $bio .= "\n\n" . implode(' · ', $meta);
-        }
-
         $app = InstructorApplication::create([
             'first_name'       => $data['first_name'],
             'last_name'        => $data['last_name'],
             'email'            => $email,
             'phone'            => $data['phone'],
+            'state'            => $data['state'] ?? null,
+            'postcode'         => $data['postcode'] ?? null,
             'years_experience' => $data['years_experience'] ?? null,
             'transmission'     => $data['transmission'] ?? null,
-            'bio'              => $bio,
+            'bio'              => trim($data['message']),
             'documents'        => [],
             'status'           => InstructorApplication::STATUS_PENDING,
             'applied_ip'       => $request->ip(),

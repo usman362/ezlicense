@@ -19,16 +19,24 @@ class InstructorApplicationAdminAlert extends Notification
     {
         $a = $this->application;
         $docCount = is_array($a->documents) ? count($a->documents) : 0;
-        return (new MailMessage)
+        $location = trim(implode(' ', array_filter([$a->state, $a->postcode]))) ?: '—';
+
+        $mail = (new MailMessage)
             ->subject("[Instructor application] {$a->reference} — {$a->fullName()}")
             ->greeting('New instructor application')
             ->line("**Reference:** {$a->reference}")
             ->line("**Name:** {$a->fullName()}")
             ->line("**Email:** {$a->email}")
             ->line("**Phone:** {$a->phone}")
+            ->line("**Location:** {$location}")
             ->line("**Experience:** " . ($a->years_experience !== null ? $a->years_experience . ' years' : '—'))
             ->line("**Transmission:** " . ucfirst($a->transmission ?? '—'))
-            ->line("**Documents uploaded:** {$docCount}")
-            ->action('Review application', url('/admin/instructor-applications/' . $a->id));
+            ->line("**Documents uploaded:** {$docCount}");
+
+        if ($a->bio) {
+            $mail->line("**About the applicant:**")->line($a->bio);
+        }
+
+        return $mail->action('Review application', url('/admin/instructor-applications/' . $a->id));
     }
 }

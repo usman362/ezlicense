@@ -41,6 +41,12 @@
                     <dt class="col-sm-4">Phone</dt>
                     <dd class="col-sm-8">{{ $app->phone }}</dd>
 
+                    <dt class="col-sm-4">State</dt>
+                    <dd class="col-sm-8">{{ $app->state ?: '—' }}</dd>
+
+                    <dt class="col-sm-4">Postcode</dt>
+                    <dd class="col-sm-8">{{ $app->postcode ?: '—' }}</dd>
+
                     <dt class="col-sm-4">Experience</dt>
                     <dd class="col-sm-8">{{ $app->years_experience !== null ? $app->years_experience . ' years' : '—' }}</dd>
 
