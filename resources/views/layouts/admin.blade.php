@@ -344,6 +344,17 @@
             <header class="admin-header">
                 <h1 class="h5 mb-0 text-dark">@yield('heading', 'Dashboard')</h1>
                 <div class="d-flex align-items-center gap-3">
+                    @php $headerWebmailUnread = \App\Models\MailboxMessage::inbound()->unread()->count(); @endphp
+                    <a href="{{ route('admin.webmail.inbox') }}" class="text-muted position-relative" title="Webmail inbox" aria-label="Webmail inbox" style="font-size:1.15rem;">
+                        <i class="bi bi-envelope"></i>
+                        @if($headerWebmailUnread > 0)
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger"
+                                  style="top:2px; left:100%; font-size:0.6rem;">
+                                {{ $headerWebmailUnread > 99 ? '99+' : $headerWebmailUnread }}
+                                <span class="visually-hidden">unread emails</span>
+                            </span>
+                        @endif
+                    </a>
                     <div class="dropdown">
                         <a href="#" class="text-muted position-relative" title="Notifications" aria-label="Notifications" style="font-size:1.15rem;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <i class="bi bi-bell"></i>

@@ -136,7 +136,68 @@ class InstructorsController extends Controller
             ['document_id' => $instructorDocument->id, 'status' => $request->input('status')],
         );
 
-        return redirect()->back()->with('message', 'Document ' . $request->input('status') . ' successfully.');
+        // If this approval means ALL required documents are now verified,
+        // auto-verify + activate the instructor and email them.
+        $autoVerified = false;
+        if ($request->input('status') === InstructorDocument::STATUS_VERIFIED) {
+            $autoVerified = $this->maybeAutoVerifyInstructor($instructorDocument->instructorProfile);
+        }
+
+        $msg = $autoVerified
+            ? 'All documents approved — instructor is now verified, active, and has been emailed.'
+            : 'Document ' . $request->input('status') . ' successfully.';
+
+        return redirect()->back()->with('message', $msg);
+    }
+
+    /**
+     * If every required document is now verified, mark the instructor verified +
+     * active and send the approval email. Returns true if it just auto-verified.
+     */
+    protected function maybeAutoVerifyInstructor(?InstructorProfile $profile): bool
+    {
+        if (! $profile || $profile->verification_status === 'verified') {
+            return false;
+        }
+
+        $requiredTypes = [
+            InstructorDocument::TYPE_DRIVERS_LICENCE,
+            InstructorDocument::TYPE_INSTRUCTOR_LICENCE,
+            InstructorDocument::TYPE_WWCC,
+        ];
+
+        $docs = $profile->documents()->get();
+
+        // Every required type must be present, and NO document may be pending/rejected.
+        $hasAllTypes = collect($requiredTypes)->every(fn ($t) => $docs->contains('type', $t));
+        $allVerified = $docs->isNotEmpty()
+            && $docs->every(fn ($d) => $d->status === InstructorDocument::STATUS_VERIFIED);
+
+        if (! $hasAllTypes || ! $allVerified) {
+            return false;
+        }
+
+        $profile->update([
+            'verification_status' => 'verified',
+            'is_active'           => true,
+        ]);
+
+        InstructorAuditLog::record(
+            $profile->id,
+            Auth::id(),
+            'verification_verified',
+            'All documents approved — instructor auto-verified and activated.',
+            null,
+            ['verification_status' => 'verified'],
+        );
+
+        try {
+            $profile->user?->notify(new InstructorVerificationUpdated('verified'));
+        } catch (\Throwable $e) {
+            Log::warning('Auto-verify instructor email failed: ' . $e->getMessage());
+        }
+
+        return true;
     }
 
     public function show(InstructorProfile $instructorProfile)
