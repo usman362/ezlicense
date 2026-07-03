@@ -45,7 +45,7 @@ class InstructorSignupAdminAlert extends Notification
         }
 
         return $msg
-            ->line('Please verify their license, vehicle, and WWCC documents before activating their profile.')
+            ->line('Please verify their licence, vehicle and WWCC documents before activating their profile.')
             ->salutation('— Secure Licence System');
     }
 

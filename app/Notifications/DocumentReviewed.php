@@ -34,24 +34,24 @@ class DocumentReviewed extends Notification
 
         if ($isApproved) {
             return (new MailMessage)
-                ->subject('✓ Your ' . $docTypeLabel . ' has been approved')
+                ->subject('Your ' . $docTypeLabel . ' has been verified')
                 ->greeting('Hi ' . $notifiable->name . ',')
-                ->line('Good news! Your **' . $docTypeLabel . '** has been verified and approved by our admin team.')
-                ->when($this->reviewerNotes, fn ($m) => $m->line('**Note from admin:** ' . $this->reviewerNotes))
-                ->action('View Your Documents', url('/instructor/settings/documents'))
-                ->line('You\'re one step closer to a fully active instructor profile. Keep up the great work!')
-                ->salutation('— The Secure Licence Team');
+                ->line('Good news — your **' . $docTypeLabel . '** has been reviewed and verified by our team.')
+                ->when($this->reviewerNotes, fn ($m) => $m->line('**Note from our team:** ' . $this->reviewerNotes))
+                ->action('View your documents', url('/instructor/settings/documents'))
+                ->line('That\'s one more step towards a fully active instructor profile. Once all of your documents are verified, your profile will go live automatically.')
+                ->salutation('Kind regards, The Secure Licence Team');
         }
 
         return (new MailMessage)
-            ->subject('Action needed: Your ' . $docTypeLabel . ' was not approved')
+            ->subject('Action needed: your ' . $docTypeLabel . ' wasn\'t approved')
             ->greeting('Hi ' . $notifiable->name . ',')
-            ->line('We\'ve reviewed your **' . $docTypeLabel . '** but it couldn\'t be approved at this time.')
+            ->line('We\'ve reviewed your **' . $docTypeLabel . '**, but unfortunately we weren\'t able to approve it at this stage.')
             ->when($this->reviewerNotes, fn ($m) => $m->line('**Reason:** ' . $this->reviewerNotes))
-            ->line('Please re-upload a valid version so we can complete your verification.')
-            ->action('Re-upload Document', url('/instructor/settings/documents'))
-            ->line('If you think this is a mistake or need help, please contact our support team.')
-            ->salutation('— The Secure Licence Team');
+            ->line('Please re-upload a valid, clear copy so we can finish verifying your account.')
+            ->action('Re-upload document', url('/instructor/settings/documents'))
+            ->line('If you think this is a mistake or you need a hand, please contact our support team.')
+            ->salutation('Kind regards, The Secure Licence Team');
     }
 
     public function toArray($notifiable): array

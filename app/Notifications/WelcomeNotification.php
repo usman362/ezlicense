@@ -38,10 +38,10 @@ class WelcomeNotification extends Notification
                 ->line('• Book lessons online in real-time')
                 ->line('• Track your progress and manage bookings');
         } elseif ($isInstructor) {
-            $msg->line('Your instructor profile is being reviewed by our team. Once approved, you\'ll be able to receive bookings from learners.')
-                ->action('Complete Your Profile', url('/instructor/dashboard'))
-                ->line('**Next steps:**')
-                ->line('• Upload your instructor license and vehicle documents')
+            $msg->line('Your instructor profile is being reviewed by our team. Once your documents are verified and your profile is approved, you\'ll be able to receive bookings from learners.')
+                ->action('Complete your profile', url('/instructor/dashboard'))
+                ->line('**Next steps**')
+                ->line('• Submit your documents — driver\'s licence, driving instructor licence and Working with Children Check (WWCC)')
                 ->line('• Set your service areas and availability')
                 ->line('• Add your banking details for payouts');
         } else {

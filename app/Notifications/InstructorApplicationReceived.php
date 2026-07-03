@@ -22,16 +22,15 @@ class InstructorApplicationReceived extends Notification
     {
         $a = $this->application;
         return (new MailMessage)
-            ->subject("Application received — {$a->reference}")
+            ->subject("We've received your application — {$a->reference}")
             ->greeting("Hi {$a->first_name},")
-            ->line("Thanks for applying to become a Secure Licence instructor.")
+            ->line("Thank you for applying to become a Secure Licence driving instructor. We've received your application and our team will review it within **2 business days**.")
             ->line("**Your reference:** {$a->reference}")
-            ->line("Our team will review your documents within **2 business days**. You'll receive another email with the outcome.")
-            ->line("**What happens next?**")
-            ->line('1. We verify your driver licence and instructor certificate against Australian standards.')
-            ->line('2. If approved, you\'ll get a one-click setup link to choose your password and complete your profile.')
-            ->line('3. Once your profile is live, learners can book lessons with you.')
-            ->line('If we need any extra information, we\'ll reach out by email or phone.')
-            ->salutation('Thanks — The Secure Licence team');
+            ->line("**What happens next**")
+            ->line('1. Our team reviews your application.')
+            ->line('2. If your application is approved, we\'ll email you a secure link to set your password and **submit your documents** — your driver\'s licence, driving instructor licence and Working with Children Check (WWCC).')
+            ->line('3. Once we\'ve reviewed and verified your documents, your profile goes live and learners in your area can start booking lessons with you.')
+            ->line('There\'s nothing you need to do right now — we\'ll be in touch by email with the outcome. If we need any further information, we\'ll contact you by email or phone.')
+            ->salutation('Kind regards, The Secure Licence Team');
     }
 }
