@@ -46,6 +46,30 @@ class LoginController extends Controller
     }
 
     /**
+     * Reject deactivated or temporarily-blocked accounts right after they
+     * authenticate — log them straight back out with a clear message.
+     */
+    protected function authenticated(\Illuminate\Http\Request $request, $user)
+    {
+        $blocked = $user->blocked_until && $user->blocked_until->isFuture();
+        if (! $user->is_active || $blocked) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $message = $blocked
+                ? 'Your account is temporarily suspended. Please try again later or contact support.'
+                : 'This account has been deactivated. Please contact support if you think this is a mistake.';
+
+            return redirect()->route('login')->withErrors([
+                $this->username() => $message,
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
      * Create a new controller instance.
      *
      * @return void

@@ -761,7 +761,7 @@ Route::prefix('api')->middleware('web')->group(function () {
             Route::post('wallet/add-credit', [App\Http\Controllers\Learner\WalletController::class, 'addCredit'])->name('wallet.add-credit');
         });
 
-        Route::middleware('role:instructor')->prefix('instructor')->name('api.instructor.')->group(function () {
+        Route::middleware(['role:instructor', 'instructor.onboarded'])->prefix('instructor')->name('api.instructor.')->group(function () {
             Route::get('profile', [InstructorDashboard::class, 'profile'])->name('profile');
             Route::put('profile', [InstructorDashboard::class, 'updateProfile'])->name('profile.update');
             Route::post('profile/photo', [InstructorDashboard::class, 'uploadProfilePhoto'])->name('profile.photo');

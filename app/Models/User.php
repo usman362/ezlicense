@@ -207,6 +207,25 @@ class User extends Authenticatable
         // bookings, reviews, coupons, invites, referrals, wallet, vehicles, admin notes about
         // them). These few tables use nullOnDelete, so we clean them up explicitly here.
         static::deleting(function (self $user) {
+            // Payout items reference bookings with restrictOnDelete — if we let the
+            // bookings cascade first, the DB rejects the delete with an FK error. So
+            // remove payout items for this user's bookings (as learner OR instructor),
+            // plus the user's own instructor payouts, BEFORE the cascade runs.
+            $bookingIds = \App\Models\Booking::where('learner_id', $user->id)
+                ->orWhere('instructor_id', $user->id)->pluck('id');
+            if ($bookingIds->isNotEmpty() && \Illuminate\Support\Facades\Schema::hasTable('instructor_payout_items')) {
+                \Illuminate\Support\Facades\DB::table('instructor_payout_items')->whereIn('booking_id', $bookingIds)->delete();
+            }
+            if ($user->instructorProfile && \Illuminate\Support\Facades\Schema::hasTable('instructor_payouts')) {
+                $payoutIds = \Illuminate\Support\Facades\DB::table('instructor_payouts')
+                    ->where('instructor_profile_id', $user->instructorProfile->id)->pluck('id');
+                if ($payoutIds->isNotEmpty()) {
+                    \Illuminate\Support\Facades\DB::table('instructor_payout_items')->whereIn('payout_id', $payoutIds)->delete();
+                    \Illuminate\Support\Facades\DB::table('instructor_payouts')->whereIn('id', $payoutIds)->delete();
+                }
+            }
+
+            // These few tables use nullOnDelete, so clean them up explicitly (no orphans).
             foreach ([
                 'user_feedback'    => 'user_id',   // feedback they submitted
                 'support_requests' => 'user_id',   // support tickets they opened

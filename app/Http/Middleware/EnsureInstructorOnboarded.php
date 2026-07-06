@@ -30,6 +30,10 @@ class EnsureInstructorOnboarded
     protected array $allowedWhileUploadingDocs = [
         'instructor.settings.personal-details',
         'instructor.settings.documents',
+        // API endpoints the onboarding pages call to load/submit documents + profile.
+        'api.instructor.profile',
+        'api.instructor.documents.index',
+        'api.instructor.documents.store',
     ];
 
     /**
@@ -39,6 +43,9 @@ class EnsureInstructorOnboarded
     protected array $allowedWhileWaiting = [
         'instructor.settings.personal-details',
         'instructor.settings.documents',
+        'api.instructor.profile',
+        'api.instructor.documents.index',
+        'api.instructor.documents.store',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -78,20 +85,35 @@ class EnsureInstructorOnboarded
             if (in_array($currentRoute, $this->allowedWhileUploadingDocs, true)) {
                 return $next($request);
             }
-            return redirect()->route('instructor.settings.documents')
+            return $this->deny($request, redirect()->route('instructor.settings.documents')
                 ->with('onboarding_notice', $status === 'rejected'
                     ? 'Your documents need attention before you can accept bookings. Please review the admin\'s feedback below and re-upload.'
-                    : 'Welcome! Please upload your verification documents to start accepting bookings.');
+                    : 'Welcome! Please upload your verification documents to start accepting bookings.'));
         }
 
         if ($status === 'documents_submitted') {
             if (in_array($currentRoute, $this->allowedWhileWaiting, true)) {
                 return $next($request);
             }
-            return redirect()->route('instructor.onboarding.pending');
+            return $this->deny($request, redirect()->route('instructor.onboarding.pending'));
         }
 
         // Fallback (e.g. unknown status) — send to docs page
-        return redirect()->route('instructor.settings.documents');
+        return $this->deny($request, redirect()->route('instructor.settings.documents'));
+    }
+
+    /**
+     * API/AJAX requests get a JSON 403 (a redirect would break a fetch());
+     * normal browser requests get the redirect.
+     */
+    protected function deny(Request $request, Response $redirect): Response
+    {
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'message' => 'Your instructor account is not verified yet. Please complete verification before using this feature.',
+            ], 403);
+        }
+
+        return $redirect;
     }
 }

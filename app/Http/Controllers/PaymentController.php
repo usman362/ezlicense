@@ -57,6 +57,13 @@ class PaymentController extends Controller
      */
     public function success(Request $request, Booking $booking)
     {
+        // IDOR guard: a signed-in user may only view their own booking (admins any).
+        // Guest checkout (no auth, learner_id null) still works via the Stripe redirect.
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && ! $user->isAdmin() && (int) $user->id !== (int) $booking->learner_id) {
+            abort(403);
+        }
+
         $sessionId = $request->query('session_id');
 
         // Optional verification — handles ALL bookings in the session (not just the one
@@ -92,6 +99,11 @@ class PaymentController extends Controller
      */
     public function cancel(Booking $booking)
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && ! $user->isAdmin() && (int) $user->id !== (int) $booking->learner_id) {
+            abort(403);
+        }
+
         return view('payment.cancel', [
             'booking' => $booking->fresh(),
         ]);
@@ -257,7 +269,7 @@ class PaymentController extends Controller
                 $recipient->notify(new BookingConfirmed($fresh));
                 $recipient->notify(new PaymentReceipt(
                     bookings: [$fresh],
-                    totalCharged: (float) $booking->amount,
+                    totalCharged: (float) $booking->amount + (float) $booking->platform_fee + (float) $booking->processing_fee,
                     paymentMethod: 'card',
                     transactionRef: $paymentIntentId,
                 ));

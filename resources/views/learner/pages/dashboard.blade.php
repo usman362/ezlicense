@@ -86,7 +86,7 @@
                             <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 64px; height: 48px; background: #fff; border: 1px solid var(--sl-gray-200); flex-shrink: 0;"><i class="bi bi-car-front-fill" style="color: var(--sl-primary-600); font-size: 1.25rem;"></i></div>
                             <div class="small flex-grow-1">
                                 <div class="fw-semibold" id="instructor-vehicle">—</div>
-                                <div class="text-muted" id="instructor-vehicle-details">5-star ANCAP · Dual controls fitted</div>
+                                <div class="text-muted" id="instructor-vehicle-details">Dual controls fitted</div>
                             </div>
                         </div>
                         <div class="mt-3 text-end">

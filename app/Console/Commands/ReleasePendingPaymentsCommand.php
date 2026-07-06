@@ -57,10 +57,10 @@ class ReleasePendingPaymentsCommand extends Command
             ->whereNull('payment_held_at')
             ->whereNull('cancelled_at')
             ->whereNull('refunded_at')
-            ->whereNotNull('lesson_completed_at')
-            ->where('lesson_completed_at', '<=', $threshold);
+            ->whereNotNull('lesson_ended_at')
+            ->where('lesson_ended_at', '<=', $threshold);
 
-        // Fall back to scheduled_at if lesson_completed_at is null
+        // Fall back to scheduled_at if lesson_ended_at is null
         $query2 = Booking::query()
             ->where('status', Booking::STATUS_COMPLETED)
             ->where('payment_status', Booking::PAYMENT_PAID)
@@ -68,7 +68,7 @@ class ReleasePendingPaymentsCommand extends Command
             ->whereNull('payment_held_at')
             ->whereNull('cancelled_at')
             ->whereNull('refunded_at')
-            ->whereNull('lesson_completed_at')
+            ->whereNull('lesson_ended_at')
             ->where('scheduled_at', '<=', $threshold);
 
         $bookings = $query->get()->merge($query2->get());
@@ -87,7 +87,7 @@ class ReleasePendingPaymentsCommand extends Command
                     '#' . $b->id,
                     $b->instructor?->name ?? '—',
                     $b->learner?->name ?? '—',
-                    optional($b->lesson_completed_at ?: $b->scheduled_at)->format('j M, H:i'),
+                    optional($b->lesson_ended_at ?: $b->scheduled_at)->format('j M, H:i'),
                     '$' . number_format((float) $b->amount, 2),
                 ])->all()
             );

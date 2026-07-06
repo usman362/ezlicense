@@ -72,7 +72,9 @@ class BookingController extends Controller
         $now = now();
         if ($user->isInstructor() && in_array($tab, ['upcoming', 'pending', 'history'], true)) {
             if ($tab === 'upcoming') {
-                $query->whereIn('status', [Booking::STATUS_CONFIRMED, Booking::STATUS_PROPOSED])
+                // Confirmed only — unaccepted proposals live in the Pending tab, so
+                // they must not also appear here (otherwise a proposal shows twice).
+                $query->where('status', Booking::STATUS_CONFIRMED)
                     ->where('scheduled_at', '>', $now)
                     ->orderBy('scheduled_at', 'asc');
             } elseif ($tab === 'pending') {
@@ -211,11 +213,13 @@ class BookingController extends Controller
 
         $booking = DB::transaction(function () use ($request, $user, $profile, $scheduledAt, $amount, $duration) {
             $bookingAmount = $amount ?? 0;
-            $feePercent = (float) SiteSetting::get('platform_fee_percent', 4);
-            $platformFee = round($bookingAmount * $feePercent / 100, 2);
+            // Flat fee model (matches Learner\BookingController + FeeCalculator):
+            // learner pays lesson price + $5 service + $2 processing; the instructor
+            // is paid the FULL lesson price (fees are charged on top, not deducted).
             $serviceFee = (float) SiteSetting::get('platform_service_fee', 5.00);
             $processingFee = (float) SiteSetting::get('payment_processing_fee', 2.00);
-            $instructorNet = max(round($bookingAmount - $serviceFee - $processingFee, 2), 0);
+            $platformFee = $serviceFee;
+            $instructorNet = $bookingAmount > 0 ? round($bookingAmount, 2) : 0;
 
             $paymentMethod = $request->input('payment_method', 'card');
 
@@ -241,6 +245,7 @@ class BookingController extends Controller
                 'duration_minutes' => $duration,
                 'amount' => $bookingAmount,
                 'platform_fee' => $platformFee,
+                'processing_fee' => $processingFee,
                 'instructor_net_amount' => $instructorNet,
                 'test_pre_booked' => $request->boolean('test_pre_booked'),
                 'status' => $initialStatus,

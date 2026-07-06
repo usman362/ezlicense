@@ -185,7 +185,6 @@
                                 </div>
                                 <div>
                                     <div class="fw-bold">{{ trim(implode(' ', array_filter([$instructorProfile->vehicle_make, $instructorProfile->vehicle_model, $instructorProfile->vehicle_year]))) ?: 'Vehicle' }}</div>
-                                    <div class="small text-muted">5-star ANCAP rating</div>
                                     <div class="small text-muted">Dual controls fitted</div>
                                 </div>
                             </div>

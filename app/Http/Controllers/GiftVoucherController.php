@@ -69,6 +69,13 @@ class GiftVoucherController extends Controller
      */
     public function confirmPayment(Request $request, GiftVoucher $giftVoucher): JsonResponse
     {
+        // Only the purchaser (or an admin) may confirm/activate their own voucher —
+        // otherwise any authenticated user could activate any pending voucher for free.
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (! $user || ((int) $giftVoucher->purchaser_id !== (int) $user->id && ! $user->isAdmin())) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
         if ($giftVoucher->status !== GiftVoucher::STATUS_PENDING) {
             return response()->json(['message' => 'Voucher is not pending payment.'], 422);
         }

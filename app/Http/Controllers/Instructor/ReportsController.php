@@ -96,7 +96,7 @@ class ReportsController extends Controller
                 'scheduled_at' => $b->scheduled_at->format('j M Y, H:i'),
                 'gross' => (float) $b->amount,
                 'fees' => $feePerBooking,
-                'payout' => (float) ($b->instructor_net_amount ?? max($b->amount - $feePerBooking, 0)),
+                'payout' => (float) ($b->instructor_net_amount ?? $b->amount),
                 'lesson_id' => '#'.$b->id,
             ]);
 
@@ -117,17 +117,13 @@ class ReportsController extends Controller
             'every_four_weeks'  => $now->copy()->subWeeks(4)->startOfWeek(),
             default             => $now->copy()->subWeeks(2)->startOfWeek(),
         };
-        $nextPayoutAmountGross = (float) Booking::where('instructor_id', $instructorId)
+        // Instructor is paid their FULL lesson price (fees are charged to the learner
+        // on top). Sum instructor_net_amount, falling back to the gross price for legacy rows.
+        $nextPayoutAmount = (float) Booking::where('instructor_id', $instructorId)
             ->where('status', Booking::STATUS_COMPLETED)
             ->where('scheduled_at', '>=', $lastPayoutDate)
             ->where('scheduled_at', '<=', $now)
-            ->sum('amount');
-        $nextPayoutBookingCount = Booking::where('instructor_id', $instructorId)
-            ->where('status', Booking::STATUS_COMPLETED)
-            ->where('scheduled_at', '>=', $lastPayoutDate)
-            ->where('scheduled_at', '<=', $now)
-            ->count();
-        $nextPayoutAmount = max($nextPayoutAmountGross - ($feePerBooking * $nextPayoutBookingCount), 0);
+            ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(instructor_net_amount, amount)'));
 
         // Previous payout: the period before lastPayoutDate
         $prevPayoutStart = match ($payoutFreq) {
@@ -135,17 +131,11 @@ class ReportsController extends Controller
             'every_four_weeks'  => $lastPayoutDate->copy()->subWeeks(4),
             default             => $lastPayoutDate->copy()->subWeeks(2),
         };
-        $prevGross = (float) Booking::where('instructor_id', $instructorId)
+        $previousPayoutAmount = (float) Booking::where('instructor_id', $instructorId)
             ->where('status', Booking::STATUS_COMPLETED)
             ->where('scheduled_at', '>=', $prevPayoutStart)
             ->where('scheduled_at', '<', $lastPayoutDate)
-            ->sum('amount');
-        $prevCount = Booking::where('instructor_id', $instructorId)
-            ->where('status', Booking::STATUS_COMPLETED)
-            ->where('scheduled_at', '>=', $prevPayoutStart)
-            ->where('scheduled_at', '<', $lastPayoutDate)
-            ->count();
-        $previousPayoutAmount = max($prevGross - ($feePerBooking * $prevCount), 0);
+            ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(instructor_net_amount, amount)'));
 
         // Credits held: from learner wallets with bookings to this instructor
         $creditsHeld = (float) Booking::where('instructor_id', $instructorId)

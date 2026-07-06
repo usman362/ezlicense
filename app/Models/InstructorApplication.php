@@ -76,12 +76,15 @@ class InstructorApplication extends Model
 
     public function statusBadge(): string
     {
-        return match ($this->status) {
+        $color = match ($this->status) {
             self::STATUS_PENDING      => 'warning',
             self::STATUS_UNDER_REVIEW => 'info',
             self::STATUS_APPROVED     => 'success',
             self::STATUS_REJECTED     => 'danger',
             default                   => 'secondary',
         };
+        $label = ucfirst(str_replace('_', ' ', (string) $this->status));
+
+        return '<span class="badge text-bg-' . $color . '">' . e($label) . '</span>';
     }
 }

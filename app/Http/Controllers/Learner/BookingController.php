@@ -525,14 +525,19 @@ class BookingController extends Controller
 
         $couponDiscount = (float) $result['discount'];
         $afterDiscount = max(0, $preCouponTotal - $couponDiscount);
-        $feePercent = (float) ($order['fee_percent'] ?? \App\Models\SiteSetting::get('platform_fee_percent', 4));
-        $fee = round($afterDiscount * $feePercent / 100, 2);
-        $total = $afterDiscount + $fee;
+        // Recompute fees with the flat model (service + processing) — must match how
+        // the order was originally built and how the final charge is calculated.
+        $lessonCount = (int) ($order['lesson_count'] ?? 1);
+        $fees = (new \App\Services\FeeCalculator())->calculate($afterDiscount, $lessonCount);
+        $fee = $fees['platform_fee_total'];
+        $total = $fees['total'];
 
         $order['coupon_code'] = $result['coupon']->code;
         $order['coupon_discount'] = $couponDiscount;
         $order['after_discount'] = $afterDiscount;
         $order['fee'] = $fee;
+        $order['service_fee_total'] = $fees['service_fee_total'];
+        $order['processing_fee_total'] = $fees['processing_fee_total'];
         $order['total'] = $total;
         session(['learner_booking_order' => $order]);
 
@@ -564,14 +569,18 @@ class BookingController extends Controller
         $testPrice = (float) ($order['test_package_price'] ?? 0);
         $referralDiscount = (float) ($order['referral_discount'] ?? 0);
         $afterDiscount = max(0, $itemsSubtotal - $bulkDiscount + $testPrice - $referralDiscount);
-        $feePercent = (float) ($order['fee_percent'] ?? \App\Models\SiteSetting::get('platform_fee_percent', 4));
-        $fee = round($afterDiscount * $feePercent / 100, 2);
-        $total = $afterDiscount + $fee;
+        // Recompute fees with the flat model (service + processing) to match the order build.
+        $lessonCount = (int) ($order['lesson_count'] ?? 1);
+        $fees = (new \App\Services\FeeCalculator())->calculate($afterDiscount, $lessonCount);
+        $fee = $fees['platform_fee_total'];
+        $total = $fees['total'];
 
         $order['coupon_code'] = null;
         $order['coupon_discount'] = 0;
         $order['after_discount'] = $afterDiscount;
         $order['fee'] = $fee;
+        $order['service_fee_total'] = $fees['service_fee_total'];
+        $order['processing_fee_total'] = $fees['processing_fee_total'];
         $order['total'] = $total;
         session(['learner_booking_order' => $order]);
 

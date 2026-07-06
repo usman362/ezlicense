@@ -48,6 +48,12 @@ class BookingProposalController extends Controller
 
         $created = [];
         foreach ($request->input('proposals') as $p) {
+            // Only allow proposing to an active LEARNER account — not admins, other
+            // instructors, or deactivated users (prevents arbitrary-target abuse).
+            $learner = User::find($p['learner_id']);
+            if (! $learner || $learner->role !== User::ROLE_LEARNER || ! $learner->is_active) {
+                continue;
+            }
             $scheduledAt = Carbon::parse($p['scheduled_at']);
             $duration = $p['duration_minutes'] ?? $profile->lesson_duration_minutes ?? 60;
             $slots = $this->availabilityService->getAvailableSlots($profile, $scheduledAt->format('Y-m-d'));
@@ -81,10 +87,7 @@ class BookingProposalController extends Controller
 
             // Notify the learner about the proposal
             try {
-                $learner = User::find($p['learner_id']);
-                if ($learner) {
-                    $learner->notify(new BookingProposed($booking, Auth::user()->name));
-                }
+                $learner->notify(new BookingProposed($booking, Auth::user()->name));
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Proposal notification failed: ' . $e->getMessage());
             }

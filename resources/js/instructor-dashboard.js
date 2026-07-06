@@ -27,7 +27,6 @@ async function loadProfile() {
   form.vehicle_make.value = data.vehicle_make || '';
   form.vehicle_model.value = data.vehicle_model || '';
   form.vehicle_year.value = data.vehicle_year || '';
-  form.vehicle_safety_rating.value = data.vehicle_safety_rating || '';
   form.lesson_price.value = data.lesson_price ?? '';
   form.test_package_price.value = data.test_package_price ?? '';
   form.offers_test_package.checked = data.offers_test_package ?? false;
@@ -46,7 +45,6 @@ document.getElementById('profile-form')?.addEventListener('submit', async (e) =>
       vehicle_make: form.vehicle_make.value || null,
       vehicle_model: form.vehicle_model.value || null,
       vehicle_year: form.vehicle_year.value ? parseInt(form.vehicle_year.value, 10) : null,
-      vehicle_safety_rating: form.vehicle_safety_rating.value || null,
       lesson_price: parseFloat(form.lesson_price.value) || 0,
       test_package_price: form.test_package_price.value ? parseFloat(form.test_package_price.value) : null,
       offers_test_package: form.offers_test_package.checked,

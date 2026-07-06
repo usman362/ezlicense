@@ -152,7 +152,7 @@ class InstructorApplicationController extends Controller
             $ext = $file->getClientOriginalExtension() ?: $file->guessExtension() ?: 'bin';
             $path = $folder . '/' . $field . '.' . $ext;
             try {
-                Storage::disk('spaces')->put($path, file_get_contents($file->getRealPath()), 'public');
+                Storage::disk('spaces')->put($path, file_get_contents($file->getRealPath()), 'private');
                 $documents[$field] = $path;
             } catch (\Throwable $e) {
                 Log::warning("Instructor application doc upload failed ($field): " . $e->getMessage());

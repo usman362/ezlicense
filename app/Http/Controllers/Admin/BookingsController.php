@@ -104,13 +104,23 @@ class BookingsController extends Controller
             return back()->withErrors(['amount' => 'This booking is already fully refunded.']);
         }
 
-        $amount    = round((float) $data['amount'], 2);
-        $isFull    = $amount >= (float) $booking->amount;
+        $amount           = round((float) $data['amount'], 2);
+        $alreadyRefunded  = round((float) $booking->refund_amount, 2);
+        $newTotalRefund   = round($alreadyRefunded + $amount, 2);
+
+        // Cap the cumulative refund at the amount charged — no over-refunding.
+        if ($newTotalRefund > (float) $booking->amount) {
+            $remaining = round((float) $booking->amount - $alreadyRefunded, 2);
+            return back()->withErrors(['amount' =>
+                'Refund exceeds the amount charged. At most $' . number_format(max($remaining, 0), 2) . ' can still be refunded.']);
+        }
+
+        $isFull    = $newTotalRefund >= (float) $booking->amount;
         $method    = $data['method'];
         $alsoCancel= ! empty($data['also_cancel']);
 
         try {
-            DB::transaction(function () use ($booking, $amount, $method, $data, $alsoCancel, $isFull) {
+            DB::transaction(function () use ($booking, $amount, $newTotalRefund, $method, $data, $alsoCancel, $isFull) {
                 // 1) Wallet credit (if applicable)
                 if ($method === 'wallet') {
                     $wallet = LearnerWallet::firstOrCreate(
@@ -147,7 +157,7 @@ class BookingsController extends Controller
 
                 // 2) Update the booking
                 $booking->update([
-                    'refund_amount'         => $amount,
+                    'refund_amount'         => $newTotalRefund,
                     'refund_method'         => $method,
                     'refund_reason'         => $data['reason'],
                     'refund_reference'      => $data['reference'] ?? null,

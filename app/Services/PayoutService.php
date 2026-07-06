@@ -92,7 +92,10 @@ class PayoutService
             foreach ($instructorBookings as $booking) {
                 $gross = (float) $booking->amount;
                 $gstOnFees = $gstRegistered ? round($totalFeePerBooking * (float) \App\Models\SiteSetting::get('gst_rate_percent', 10) / (100 + (float) \App\Models\SiteSetting::get('gst_rate_percent', 10)), 2) : 0;
-                $net = max(round($gross - $totalFeePerBooking, 2), 0);
+                // Instructor is paid their FULL lesson price — platform fees are charged
+                // to the learner on top, NOT deducted from the payout. Fall back to the
+                // gross price for any legacy row that predates instructor_net_amount.
+                $net = max(round((float) ($booking->instructor_net_amount ?? $gross), 2), 0);
 
                 $grossTotal += $gross;
                 $serviceTotal += $serviceFee;

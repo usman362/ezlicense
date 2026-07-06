@@ -63,7 +63,7 @@
                             <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#fff;border:1px solid var(--sl-gray-200);flex-shrink:0;"><i class="bi bi-car-front-fill" style="font-size:1.4rem;color:var(--sl-primary-600);"></i></div>
                             <div class="small flex-grow-1 min-w-0">
                                 <div class="fw-semibold text-truncate">{{ $vehicle ?: 'Vehicle' }}</div>
-                                <div class="text-muted">{{ ucfirst($profile->transmission ?? 'Auto') }} · 5-star ANCAP · Dual controls</div>
+                                <div class="text-muted">{{ ucfirst($profile->transmission ?? 'Auto') }} · Dual controls</div>
                             </div>
                         </div>
                     </div>
