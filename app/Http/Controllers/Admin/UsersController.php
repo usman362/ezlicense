@@ -138,7 +138,21 @@ class UsersController extends Controller
     public function updateRole(Request $request, User $user)
     {
         $request->validate(['role' => 'required|in:learner,instructor,admin']);
-        $user->role = $request->input('role');
+        $newRole = $request->input('role');
+
+        // Guard against admin lockout: you can't change your own role, and you can't
+        // demote the last remaining admin.
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'You cannot change your own role.');
+        }
+        if ($user->isAdmin() && $newRole !== User::ROLE_ADMIN) {
+            $otherAdmins = User::where('role', User::ROLE_ADMIN)->where('id', '!=', $user->id)->count();
+            if ($otherAdmins === 0) {
+                return redirect()->back()->with('error', 'Cannot change the role of the last remaining admin.');
+            }
+        }
+
+        $user->role = $newRole;
         $user->save();
 
         return redirect()->back()->with('message', $user->name . '\'s role updated to ' . ucfirst($user->role) . '.');

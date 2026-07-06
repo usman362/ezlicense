@@ -61,6 +61,12 @@ class BookingAvailabilityService
         $earliestAllowed = now()->copy()->addHours($minNoticeHours);
 
         // ── Existing bookings on this day (used for travel buffer & clustering) ──
+        // An unpaid card checkout holds its slot as PROPOSED. If the learner abandons
+        // Stripe, that hold would otherwise block the slot forever — so we stop counting
+        // a PROPOSED + still-unpaid booking as busy once it's older than the hold window.
+        $holdMinutes = (int) \App\Models\SiteSetting::get('proposed_hold_minutes', 60);
+        $staleBefore = now()->copy()->subMinutes(max(1, $holdMinutes));
+
         $bookings = Booking::where('instructor_id', $instructor->user_id)
             ->whereDate('scheduled_at', $date)
             ->whereIn('status', [
@@ -70,6 +76,12 @@ class BookingAvailabilityService
                 Booking::STATUS_INSTRUCTOR_ARRIVED,
                 Booking::STATUS_IN_PROGRESS,
             ])
+            ->where(function ($q) use ($staleBefore) {
+                // Keep the slot busy unless it's an abandoned (unpaid, proposed, old) hold.
+                $q->where('status', '!=', Booking::STATUS_PROPOSED)
+                  ->orWhere('payment_status', '!=', Booking::PAYMENT_PENDING)
+                  ->orWhere('created_at', '>=', $staleBefore);
+            })
             ->get(['scheduled_at', 'duration_minutes']);
 
         // Each booking becomes a busy window inflated by travel buffer on both sides.

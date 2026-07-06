@@ -127,6 +127,21 @@ class InstructorsController extends Controller
 
         $instructorDocument->update($data);
 
+        // Tell the instructor their document was approved / rejected.
+        $reviewedInstructor = $instructorDocument->instructorProfile?->user;
+        if ($reviewedInstructor) {
+            try {
+                $outcome = $request->input('status') === 'verified' ? 'approved' : 'rejected';
+                $reviewedInstructor->notify(new \App\Notifications\DocumentReviewed(
+                    $instructorDocument,
+                    $outcome,
+                    $request->input('admin_notes') ?: null,
+                ));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('DocumentReviewed notification failed: ' . $e->getMessage());
+            }
+        }
+
         InstructorAuditLog::record(
             $instructorDocument->instructor_profile_id,
             Auth::id(),

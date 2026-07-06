@@ -876,6 +876,7 @@ class BookingController extends Controller
             'instructor_payout_id' => $b->instructor_payout_id,
             'test_pre_booked' => $b->test_pre_booked,
             'status' => $b->status,
+            'proposal_expires_at' => $b->proposal_expires_at?->toIso8601String(),
             'payment_method' => $b->payment_method,
             // Smart inference: completed=paid, cancelled=refunded, otherwise use stored value (or pending)
             'payment_status' => match (true) {

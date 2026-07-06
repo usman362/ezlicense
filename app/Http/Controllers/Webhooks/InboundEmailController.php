@@ -22,9 +22,13 @@ class InboundEmailController extends Controller
 {
     public function store(Request $request)
     {
-        // Shared-secret check (only enforced if a secret is configured).
+        // Shared-secret check. If a secret is configured it is enforced; if it is NOT
+        // configured we accept but log loudly, because an unsecured endpoint lets anyone
+        // inject messages into the admin inbox. Set INBOUND_EMAIL_SECRET to close this.
         $secret = config('services.inbound_email.secret');
-        if ($secret && ! hash_equals((string) $secret, (string) $request->query('token', $request->header('X-Webhook-Token')))) {
+        if (empty($secret)) {
+            Log::warning('Inbound email webhook accepted WITHOUT a shared secret — set INBOUND_EMAIL_SECRET (services.inbound_email.secret) to secure this endpoint.');
+        } elseif (! hash_equals((string) $secret, (string) $request->query('token', $request->header('X-Webhook-Token')))) {
             return response()->json(['error' => 'Invalid token'], 403);
         }
 

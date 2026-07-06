@@ -103,12 +103,20 @@ class PracticeQuestionController extends Controller
             'remove_image'  => ['nullable', 'boolean'],
         ]);
 
-        // Drop empty options, re-index, and keep the correct answer pointing at the right option.
-        $options = array_values(array_filter($validated['options'], fn ($o) => trim((string) $o) !== ''));
+        // Remember which option the admin marked correct BEFORE dropping blanks, so the
+        // index still points at the right answer after empty options are removed/re-indexed.
+        $rawOptions = array_values($validated['options']);
+        $correctRaw = (int) $validated['correct_index'];
+        $correctValue = $rawOptions[$correctRaw] ?? null;
+
+        $options = array_values(array_filter($rawOptions, fn ($o) => trim((string) $o) !== ''));
         abort_if(count($options) < 2, 422, 'At least two options are required.');
 
-        $correct = (int) $validated['correct_index'];
-        $correct = min($correct, count($options) - 1);
+        // Locate the marked answer in the filtered list; if it was itself blank, default to first.
+        $correct = array_search($correctValue, $options, true);
+        if ($correct === false) {
+            $correct = 0;
+        }
 
         $out = [
             'section'       => $validated['section'],

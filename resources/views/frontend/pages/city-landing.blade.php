@@ -346,7 +346,7 @@
                         </div>
                     @endforeach
                 </div>
-                <a href="#" class="btn btn-warning fw-bold mt-3"><i class="bi bi-arrow-right me-1"></i>Read More FAQs</a>
+                <a href="{{ route('faqs.index') }}" class="btn btn-warning fw-bold mt-3"><i class="bi bi-arrow-right me-1"></i>Read More FAQs</a>
             </div>
         </div>
     </div>

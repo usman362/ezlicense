@@ -129,10 +129,12 @@ class DocumentsController extends Controller
                 return response()->json(['message' => 'Please upload at least one file.'], 422);
             }
         } else {
-            $path = null;
-            if ($request->hasFile('file')) {
-                $path = $request->file('file')->store($dir, $storeOpts);
+            // A document must have an actual file — otherwise a fileless (unverifiable)
+            // WWCC row would be created and wrongly count toward "documents submitted".
+            if (! $request->hasFile('file')) {
+                return response()->json(['message' => 'Please upload the document file.'], 422);
             }
+            $path = $request->file('file')->store($dir, $storeOpts);
             $profile->update(['wwcc_number' => $request->input('wwcc_number') ?: $profile->wwcc_number]);
             InstructorDocument::create([
                 'instructor_profile_id' => $profile->id,

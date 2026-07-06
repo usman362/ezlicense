@@ -830,10 +830,10 @@ class BookingController extends Controller
                         $referrerWallet->save();
                         LearnerTransaction::create([
                             'user_id' => $user->referred_by_user_id,
-                            'type' => 'credit',
+                            'type' => LearnerTransaction::TYPE_CREDIT_PURCHASE,
                             'amount' => $credit,
                             'description' => 'Referral reward: ' . ($user->name ?? 'a friend') . ' completed first booking',
-                            'reference' => 'REF-' . $user->id . '-' . now()->format('YmdHis'),
+                            'balance_after' => $referrerWallet->balance,
                         ]);
                     }
                 } catch (\Throwable $e) {

@@ -29,7 +29,7 @@ class DocumentReviewed extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $docTypeLabel = $this->prettyDocType($this->document->document_type ?? 'document');
+        $docTypeLabel = $this->prettyDocType($this->document->type ?? 'document');
         $isApproved = $this->outcome === 'approved';
 
         if ($isApproved) {
@@ -56,7 +56,7 @@ class DocumentReviewed extends Notification
 
     public function toArray($notifiable): array
     {
-        $docTypeLabel = $this->prettyDocType($this->document->document_type ?? 'document');
+        $docTypeLabel = $this->prettyDocType($this->document->type ?? 'document');
         $isApproved = $this->outcome === 'approved';
 
         return [
@@ -66,7 +66,7 @@ class DocumentReviewed extends Notification
                 ? 'Your ' . $docTypeLabel . ' was verified successfully.'
                 : 'Your ' . $docTypeLabel . ' was not approved. ' . ($this->reviewerNotes ?: 'Please re-upload.'),
             'document_id' => $this->document->id,
-            'document_type' => $this->document->document_type,
+            'document_type' => $this->document->type,
             'outcome' => $this->outcome,
         ];
     }
