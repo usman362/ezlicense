@@ -124,14 +124,14 @@ class DashboardController extends Controller
             'service_manual_no_vehicle' => ['boolean'],
             'notification_email_marketing' => ['boolean'],
             'notification_sms_marketing' => ['boolean'],
-            'transmission' => ['required', Rule::in(['auto', 'manual', 'both'])],
+            'transmission' => ['nullable', Rule::in(['auto', 'manual', 'both'])],
             'vehicle_make' => ['nullable', 'string', 'max:100'],
             'vehicle_model' => ['nullable', 'string', 'max:100'],
             'vehicle_year' => ['nullable', 'integer', 'min:1990', 'max:2100'],
             'vehicle_safety_rating' => ['nullable', 'string', 'max:50'],
             'wwcc_number' => ['nullable', 'string', 'max:50'],
             'accreditation_details' => ['nullable', 'string', 'max:1000'],
-            'lesson_price' => ['required', 'numeric', 'min:0'],
+            'lesson_price' => ['nullable', 'numeric', 'min:0'],
             'test_package_price' => ['nullable', 'numeric', 'min:0'],
             'lesson_price_private' => ['nullable', 'numeric', 'min:0'],
             'test_package_price_private' => ['nullable', 'numeric', 'min:0'],
@@ -330,7 +330,10 @@ class DashboardController extends Controller
         ];
         $validated = $request->validate($rules);
 
-        $update = array_filter($validated, fn ($v) => $v !== null);
+        // Save every field that was actually submitted — including empty/null, so an
+        // instructor can clear a previously-set billing field. Fields the form didn't
+        // send aren't in $validated, so they stay untouched.
+        $update = $validated;
         if ($canEditBank && isset($validated['bank_account_number']) && $validated['bank_account_number'] !== '') {
             $update['bank_details_submitted_at'] = now();
         }

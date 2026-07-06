@@ -860,6 +860,7 @@ class BookingController extends Controller
             'instructor' => $b->instructor ? ['id' => $b->instructor->id, 'name' => $b->instructor->name] : null,
             'instructor_profile_id' => $b->instructor_profile_id,
             'suburb' => $b->suburb ? ['id' => $b->suburb->id, 'name' => $b->suburb->name, 'postcode' => $b->suburb->postcode, 'state_code' => $b->suburb->state?->code, 'location' => $location] : null,
+            'address_line' => $b->address_line,
             'type' => $b->type,
             'transmission' => $b->transmission,
             'scheduled_at' => $b->scheduled_at->toIso8601String(),

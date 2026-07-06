@@ -422,6 +422,20 @@
                     <p class="mb-0 mt-1" id="reschedule-notify-text">The learner will be notified that the current booking is cancelled and can either accept or decline the new booking proposal.</p>
                 </div>
 
+                {{-- 24-hour emergency reason (shown + required only when the booking starts within 24 hours) --}}
+                <div class="mb-3" id="reschedule-24hr-reason-wrap" style="display:none;">
+                    <div class="alert alert-warning small mb-2">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        This booking starts within 24 hours. Instructors can only reschedule within 24 hours for an emergency.
+                    </div>
+                    <label class="form-label fw-semibold">Emergency reason <span class="text-danger">*</span></label>
+                    <select class="form-select" id="reschedule-reason-code">
+                        <option value="">Select an emergency reason</option>
+                        <option value="illness_family_emergency">Illness / Family Emergency</option>
+                        <option value="car_trouble">Car trouble</option>
+                    </select>
+                </div>
+
                 {{-- Old booking (struck through) --}}
                 <div class="card border-danger mb-3" id="reschedule-old-booking">
                     <div class="card-body" id="reschedule-old-details">Loading...</div>
@@ -664,7 +678,8 @@
     list.innerHTML = order.map(function(g) {
       return '<div class="bk-group-label"><span>' + g + '</span><span class="bk-group-count">' + groups[g].length + '</span></div>' +
         groups[g].map(function(b) {
-          var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
+          var __sub = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '');
+      var location = [b.address_line, __sub].filter(Boolean).join(', ') || '—';
           var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
           var learnerPhone = (b.learner && b.learner.phone) ? esc(b.learner.phone) : '';
           var statusBadge = b.status === 'confirmed'
@@ -738,7 +753,8 @@
     empty.style.display = 'none';
     list.style.display = 'block';
     list.innerHTML = items.map(function(b) {
-      var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
+      var __sub = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '');
+      var location = [b.address_line, __sub].filter(Boolean).join(', ') || '—';
       var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
       var learnerPhone = (b.learner && b.learner.phone) ? esc(b.learner.phone) : '';
       var phoneHtml = learnerPhone
@@ -836,7 +852,8 @@
       else if (ps === 'failed')   payBadge = '<span class="bk-pay bk-pay-failed"><i class="bi bi-x-lg"></i>Failed</span>';
       else if (ps === 'pending')  payBadge = '<span class="bk-pay bk-pay-pending"><i class="bi bi-clock"></i>Pending</span>';
 
-      var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
+      var __sub = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '');
+      var location = [b.address_line, __sub].filter(Boolean).join(', ') || '—';
       var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
       return '<tr>' +
         '<td class="bk-history-id">#' + b.id + '</td>' +
@@ -961,7 +978,8 @@
         var b = res.data || res;
         activeBooking = b;
         var statusClass = b.status === 'cancelled' ? 'bg-danger' : (b.status === 'confirmed' ? 'bg-success' : (b.status === 'proposed' ? 'bg-warning' : 'bg-secondary'));
-        var location = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '—');
+        var __sub = (b.suburb && b.suburb.location) ? b.suburb.location : (b.suburb ? (b.suburb.name + ' ' + (b.suburb.postcode || '')) : '');
+      var location = [b.address_line, __sub].filter(Boolean).join(', ') || '—';
 
         var html = '<h4 class="fw-bold mb-3">Booking #' + b.id + '</h4>';
 
@@ -1126,6 +1144,10 @@
 
   // ——— Reschedule Booking Modal ———
   function openRescheduleModal(booking) {
+    // Ensure the within-24h hint exists (needed to require an emergency reason).
+    if (typeof booking.is_within_24_hours === 'undefined' && booking.scheduled_at) {
+      booking.is_within_24_hours = ((new Date(booking.scheduled_at).getTime() - Date.now()) / 36e5) < 24;
+    }
     activeBooking = booking;
     document.getElementById('reschedule-date').value = '';
     document.getElementById('reschedule-time').innerHTML = '<option value="">Select a date first</option>';
@@ -1136,7 +1158,13 @@
     document.getElementById('reschedule-error').style.display = 'none';
     document.getElementById('reschedule-propose-btn').textContent = 'Propose Booking →';
 
-    var location = (booking.suburb && booking.suburb.location) ? booking.suburb.location : (booking.suburb ? (booking.suburb.name + ' ' + (booking.suburb.postcode || '')) : '—');
+    // Within 24 hours → an emergency reason is required to reschedule.
+    var reasonCode = document.getElementById('reschedule-reason-code');
+    if (reasonCode) reasonCode.value = '';
+    document.getElementById('reschedule-24hr-reason-wrap').style.display = booking.is_within_24_hours ? 'block' : 'none';
+
+    var __sub = (booking.suburb && booking.suburb.location) ? booking.suburb.location : (booking.suburb ? (booking.suburb.name + ' ' + (booking.suburb.postcode || '')) : '');
+    var location = [booking.address_line, __sub].filter(Boolean).join(', ') || '—';
     var learnerName = booking.learner ? booking.learner.name : '—';
     var learnerPhone = (booking.learner && booking.learner.phone) ? booking.learner.phone : '';
 
@@ -1185,8 +1213,11 @@
           sel.disabled = true;
           return;
         }
+        var rsDur = (activeBooking && activeBooking.duration_minutes) ? activeBooking.duration_minutes : 60;
         sel.innerHTML = '<option value="">Select a time</option>' + slots.map(function(s) {
-          return '<option value="' + esc(s.datetime || s.time) + '">' + esc(s.time) + '</option>';
+          var iso = (s.datetime || '').replace(' ', 'T');
+          var label = iso ? timeRange(iso, rsDur) : s.time;   // e.g. "11:00 am – 12:00 pm"
+          return '<option value="' + esc(s.datetime || s.time) + '">' + esc(label) + '</option>';
         }).join('');
         sel.disabled = false;
         updateRescheduleBtnState();
@@ -1196,11 +1227,15 @@
 
   document.getElementById('reschedule-time').addEventListener('change', updateRescheduleBtnState);
   document.getElementById('reschedule-policy-check').addEventListener('change', updateRescheduleBtnState);
+  document.getElementById('reschedule-reason-code').addEventListener('change', updateRescheduleBtnState);
 
   function updateRescheduleBtnState() {
     var hasTime = document.getElementById('reschedule-time').value !== '';
     var hasPolicy = document.getElementById('reschedule-policy-check').checked;
-    document.getElementById('reschedule-propose-btn').disabled = !(hasTime && hasPolicy);
+    // If the booking is within 24 hours, an emergency reason is also required.
+    var within24 = activeBooking && activeBooking.is_within_24_hours;
+    var hasReason = !within24 || document.getElementById('reschedule-reason-code').value !== '';
+    document.getElementById('reschedule-propose-btn').disabled = !(hasTime && hasPolicy && hasReason);
   }
 
   // Discard reschedule
@@ -1218,6 +1253,7 @@
 
     var payload = {
       scheduled_at: document.getElementById('reschedule-time').value,
+      cancellation_reason_code: document.getElementById('reschedule-reason-code').value || null,
       cancellation_message: document.getElementById('reschedule-message').value,
       cancellation_policy_accepted: true
     };

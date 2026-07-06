@@ -43,7 +43,7 @@
     } else {
       empty.style.display = 'none';
       tbody.innerHTML = subs.map(function (s) {
-        return '<tr><td>' + escapeHtml(s.submission_date) + '</td><td>' + escapeHtml(s.status) + '</td><td>' + escapeHtml(s.document) + '</td></tr>';
+        return '<tr><td>' + escapeHtml(s.submission_date) + '</td><td>' + escapeHtml(s.document) + '</td><td>' + escapeHtml(s.status) + '</td></tr>';
       }).join('');
     }
   }

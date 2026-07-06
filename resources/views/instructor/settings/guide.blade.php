@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <h6 class="fw-bold mb-1">Add Your Vehicle</h6>
-                    <p class="text-muted small mb-1">Enter your vehicle details (make, model, year, safety rating) and upload a photo of your car. Learners like to know what they'll be driving!</p>
+                    <p class="text-muted small mb-1">Enter your vehicle details (make, model, year) and upload a photo of your car. Learners like to know what they'll be driving!</p>
                     <a href="{{ route('instructor.settings.vehicle') }}" class="btn btn-sm btn-outline-primary">Go to Vehicle <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>

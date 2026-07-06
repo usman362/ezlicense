@@ -165,6 +165,18 @@
                 <td colspan="3" class="r">Subtotal</td>
                 <td class="r">${{ number_format($receipt['subtotal'], 2) }}</td>
             </tr>
+            @if(!empty($receipt['platform_fee']))
+                <tr>
+                    <td colspan="3" class="r muted">Service fee</td>
+                    <td class="r muted">${{ number_format($receipt['platform_fee'], 2) }}</td>
+                </tr>
+            @endif
+            @if(!empty($receipt['processing_fee']))
+                <tr>
+                    <td colspan="3" class="r muted">Processing fee</td>
+                    <td class="r muted">${{ number_format($receipt['processing_fee'], 2) }}</td>
+                </tr>
+            @endif
             @if(!empty($receipt['gst_amount']))
                 <tr>
                     <td colspan="3" class="r muted">GST (included)</td>

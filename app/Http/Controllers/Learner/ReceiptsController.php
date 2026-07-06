@@ -49,10 +49,11 @@ class ReceiptsController extends Controller
 
         $bookings = $query->orderByDesc('scheduled_at')->paginate(15)->withQueryString();
 
-        // Add aggregate stats for the header
+        // Add aggregate stats for the header — total the learner actually paid
+        // (lesson price + service fee + processing fee), not just the lesson price.
         $totalPaid = (float) Booking::where('learner_id', $user->id)
             ->where('payment_status', Booking::PAYMENT_PAID)
-            ->sum('amount');
+            ->sum(\Illuminate\Support\Facades\DB::raw('amount + COALESCE(platform_fee, 0) + COALESCE(processing_fee, 0)'));
         $totalRefunded = (float) Booking::where('learner_id', $user->id)
             ->whereNotNull('refund_amount')
             ->sum('refund_amount');
@@ -102,13 +103,16 @@ class ReceiptsController extends Controller
         // Status interpretation
         [$statusLabel, $statusClass, $docTitle] = $this->resolveStatus($b);
 
-        // Money calc
-        $amount = (float) $b->amount;
+        // Money calc — the learner pays the lesson price PLUS the platform's
+        // service + processing fees. The receipt total must reflect that.
+        $amount = (float) $b->amount;                       // lesson price (goes to the instructor)
+        $platformFee = (float) ($b->platform_fee ?? 0);     // service fee
+        $processingFee = (float) ($b->processing_fee ?? 0); // card processing fee
         $couponDiscount = (float) ($b->coupon_discount_amount ?? 0);
         $subtotal = max(0, $amount - $couponDiscount);
-        // We treat the listed amount as GST-inclusive (Australia 10%)
-        $gstAmount = round($subtotal - ($subtotal / 1.1), 2);
-        $totalPaid = $subtotal;
+        $totalPaid = round($subtotal + $platformFee + $processingFee, 2);
+        // We treat the total as GST-inclusive (Australia 10%)
+        $gstAmount = round($totalPaid - ($totalPaid / 1.1), 2);
         $refundAmount = (float) ($b->refund_amount ?? 0);
         $cancellationFee = $refundAmount > 0 ? max(0, $totalPaid - $refundAmount) : 0;
         $netToLearner = $refundAmount;
@@ -154,6 +158,8 @@ class ReceiptsController extends Controller
 
             // Money
             'amount'                    => $amount,
+            'platform_fee'              => $platformFee,
+            'processing_fee'            => $processingFee,
             'coupon_code'               => $b->coupon_code,
             'coupon_discount'           => $couponDiscount,
             'subtotal'                  => $subtotal,

@@ -95,39 +95,41 @@ async function load() {
 const profilePhotoInput = document.getElementById('profile-photo-input');
 const profilePhotoUploadBtn = document.getElementById('profile-photo-upload-btn');
 
-profilePhotoInput?.addEventListener('change', () => {
-  if (profilePhotoInput.files.length > 0) {
-    profilePhotoUploadBtn.classList.remove('d-none');
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = (e) => showProfilePhoto(e.target.result);
-    reader.readAsDataURL(profilePhotoInput.files[0]);
-  } else {
-    profilePhotoUploadBtn.classList.add('d-none');
-  }
-});
-
-profilePhotoUploadBtn?.addEventListener('click', async () => {
-  const file = profilePhotoInput.files[0];
+async function uploadProfilePhotoNow(file) {
   if (!file) return;
   const msg = document.getElementById('profile-photo-message');
-  profilePhotoUploadBtn.disabled = true;
-  profilePhotoUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+  if (msg) { msg.textContent = 'Uploading…'; msg.className = 'small ms-2 text-muted'; }
+  if (profilePhotoUploadBtn) {
+    profilePhotoUploadBtn.disabled = true;
+    profilePhotoUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+  }
   try {
     const result = await uploadInstructorProfilePhoto(file);
     showProfilePhoto(result.profile_photo_url);
-    msg.textContent = 'Photo uploaded!';
-    msg.className = 'small ms-2 text-success';
-    profilePhotoUploadBtn.classList.add('d-none');
+    if (msg) { msg.textContent = 'Photo uploaded!'; msg.className = 'small ms-2 text-success'; }
+    if (profilePhotoUploadBtn) profilePhotoUploadBtn.classList.add('d-none');
     profilePhotoInput.value = '';
   } catch (err) {
-    msg.textContent = err.response?.data?.message || 'Upload failed.';
-    msg.className = 'small ms-2 text-danger';
+    if (msg) { msg.textContent = err.response?.data?.message || 'Upload failed.'; msg.className = 'small ms-2 text-danger'; }
   } finally {
-    profilePhotoUploadBtn.disabled = false;
-    profilePhotoUploadBtn.innerHTML = '<i class="bi bi-upload me-1"></i>Upload Photo';
+    if (profilePhotoUploadBtn) {
+      profilePhotoUploadBtn.disabled = false;
+      profilePhotoUploadBtn.innerHTML = '<i class="bi bi-upload me-1"></i>Upload Photo';
+    }
+  }
+}
+
+profilePhotoInput?.addEventListener('change', () => {
+  if (profilePhotoInput.files.length > 0) {
+    // Show preview immediately, then upload straight away (no separate button click needed).
+    const reader = new FileReader();
+    reader.onload = (e) => showProfilePhoto(e.target.result);
+    reader.readAsDataURL(profilePhotoInput.files[0]);
+    uploadProfilePhotoNow(profilePhotoInput.files[0]);
   }
 });
+
+profilePhotoUploadBtn?.addEventListener('click', () => uploadProfilePhotoNow(profilePhotoInput.files[0]));
 
 document.getElementById('profile-copy-link')?.addEventListener('click', () => {
   const input = document.getElementById('profile-link-input');

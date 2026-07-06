@@ -9,7 +9,7 @@
 @include('instructor.settings.partials.header', [
     'current'     => 'vehicle',
     'title'       => 'Vehicle Details',
-    'description' => 'Your driving school car — make, model, transmission, photo and safety rating shown to learners.',
+    'description' => 'Your driving school car — make, model, transmission and photo shown to learners.',
 ])
 
 <div class="card border-0 shadow-sm">
@@ -45,18 +45,6 @@
                         @for($y = (int)date('Y'); $y >= 1990; $y--)
                             <option value="{{ $y }}">{{ $y }}</option>
                         @endfor
-                    </select>
-                </div>
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <label class="form-label">ANCAP safety rating <span class="text-danger">*</span></label>
-                    <select name="vehicle_safety_rating" id="vehicle-safety-rating" class="form-select">
-                        <option value="">Select rating</option>
-                        <option value="5 Stars">5 Stars</option>
-                        <option value="4 Stars">4 Stars</option>
-                        <option value="3 Stars">3 Stars</option>
-                        <option value="2 Stars">2 Stars</option>
-                        <option value="1 Star">1 Star</option>
-                        <option value="Not rated">Not rated</option>
                     </select>
                 </div>
             </div>

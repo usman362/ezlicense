@@ -5,9 +5,52 @@ namespace App\Http\Controllers;
 use App\Models\Suburb;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SuburbController extends Controller
 {
+    /**
+     * Full street-address autocomplete for booking pickup locations.
+     *
+     * Proxies OpenStreetMap Nominatim **server-side** (the browser can't set a
+     * User-Agent, so direct browser calls get blocked/CORS-failed — this is why
+     * the address box was stuck on "Searching addresses…"). Results are cached
+     * and returned in Nominatim's native shape, which the front-end already parses.
+     */
+    public function addressSearch(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->query('q', ''));
+        if (mb_strlen($q) < 3) {
+            return response()->json([]);
+        }
+
+        $results = Cache::remember('addr_search:' . md5(strtolower($q)), now()->addDay(), function () use ($q) {
+            try {
+                $resp = Http::withHeaders([
+                    // Nominatim's usage policy REQUIRES an identifying User-Agent.
+                    'User-Agent' => 'SecureLicence/1.0 (+https://securelicence.com; support@securelicence.com)',
+                    'Accept'     => 'application/json',
+                ])->timeout(8)->get('https://nominatim.openstreetmap.org/search', [
+                    'q'              => $q,
+                    'format'         => 'json',
+                    'addressdetails' => 1,
+                    'countrycodes'   => 'au',
+                    'limit'          => 6,
+                ]);
+
+                return ($resp->successful() && is_array($resp->json())) ? $resp->json() : [];
+            } catch (\Throwable $e) {
+                Log::warning('Address search (Nominatim) failed: ' . $e->getMessage());
+
+                return [];
+            }
+        });
+
+        return response()->json($results);
+    }
+
     /**
      * Autocomplete suburbs by name or postcode (for search box).
      * When searching by postcode, uses radius-based lookup to catch

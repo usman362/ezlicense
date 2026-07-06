@@ -219,7 +219,7 @@
                     <input type="file" class="form-control" name="back_file" accept=".jpg,.jpeg,.png,.pdf">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Expiration Date</label>
+                    <label class="form-label">Expiry Date</label>
                     <input type="date" class="form-control" name="expires_at">
                 </div>
             </div>
@@ -253,7 +253,7 @@
                     <input type="file" class="form-control" name="back_file" accept=".jpg,.jpeg,.png,.pdf">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Expiration Date</label>
+                    <label class="form-label">Expiry Date</label>
                     <input type="date" class="form-control" name="expires_at">
                 </div>
             </div>

@@ -1068,10 +1068,11 @@
     });
 
     function fetchOsmPredictions(q) {
-      var url = 'https://nominatim.openstreetmap.org/search'
-        + '?q=' + encodeURIComponent(q)
-        + '&format=json&addressdetails=1&countrycodes=au&limit=6';
-      fetch(url, { headers: { 'Accept': 'application/json' } })
+      // Server-side proxy (SuburbController@addressSearch) — reliable, unlike calling
+      // Nominatim directly from the browser (which gets blocked / CORS-failed).
+      fetch('/api/address/search?q=' + encodeURIComponent(q), {
+        headers: { 'Accept': 'application/json' },
+      })
         .then(function(r) { return r.json(); })
         .then(function(items) { renderOsm(Array.isArray(items) ? items : []); })
         .catch(function() {

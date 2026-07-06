@@ -47,7 +47,6 @@ async function load() {
   const makeSelect = document.getElementById('vehicle-make');
   const modelSelect = document.getElementById('vehicle-model');
   const yearSelect = document.getElementById('vehicle-year');
-  const safetySelect = document.getElementById('vehicle-safety-rating');
 
   const currentMake = profileData.vehicle_make || '';
   const currentModel = profileData.vehicle_model || '';
@@ -57,7 +56,6 @@ async function load() {
 
   form.transmission.value = profileData.transmission || 'both';
   if (yearSelect) yearSelect.value = profileData.vehicle_year || '';
-  if (safetySelect) safetySelect.value = profileData.vehicle_safety_rating || '';
 
   // Show existing vehicle photo
   showVehiclePhoto(profileData.vehicle_photo_url);
@@ -72,39 +70,41 @@ async function load() {
 const vehiclePhotoInput = document.getElementById('vehicle-photo-input');
 const vehiclePhotoUploadBtn = document.getElementById('vehicle-photo-upload-btn');
 
-vehiclePhotoInput?.addEventListener('change', () => {
-  if (vehiclePhotoInput.files.length > 0) {
-    vehiclePhotoUploadBtn.classList.remove('d-none');
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = (e) => showVehiclePhoto(e.target.result);
-    reader.readAsDataURL(vehiclePhotoInput.files[0]);
-  } else {
-    vehiclePhotoUploadBtn.classList.add('d-none');
-  }
-});
-
-vehiclePhotoUploadBtn?.addEventListener('click', async () => {
-  const file = vehiclePhotoInput.files[0];
+async function uploadVehiclePhotoNow(file) {
   if (!file) return;
   const msg = document.getElementById('vehicle-photo-message');
-  vehiclePhotoUploadBtn.disabled = true;
-  vehiclePhotoUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+  if (msg) { msg.textContent = 'Uploading…'; msg.className = 'small ms-2 text-muted'; }
+  if (vehiclePhotoUploadBtn) {
+    vehiclePhotoUploadBtn.disabled = true;
+    vehiclePhotoUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+  }
   try {
     const result = await uploadInstructorVehiclePhoto(file);
     showVehiclePhoto(result.vehicle_photo_url);
-    msg.textContent = 'Photo uploaded!';
-    msg.className = 'small ms-2 text-success';
-    vehiclePhotoUploadBtn.classList.add('d-none');
+    if (msg) { msg.textContent = 'Photo uploaded!'; msg.className = 'small ms-2 text-success'; }
+    if (vehiclePhotoUploadBtn) vehiclePhotoUploadBtn.classList.add('d-none');
     vehiclePhotoInput.value = '';
   } catch (err) {
-    msg.textContent = err.response?.data?.message || 'Upload failed.';
-    msg.className = 'small ms-2 text-danger';
+    if (msg) { msg.textContent = err.response?.data?.message || 'Upload failed.'; msg.className = 'small ms-2 text-danger'; }
   } finally {
-    vehiclePhotoUploadBtn.disabled = false;
-    vehiclePhotoUploadBtn.innerHTML = '<i class="bi bi-upload me-1"></i>Upload Photo';
+    if (vehiclePhotoUploadBtn) {
+      vehiclePhotoUploadBtn.disabled = false;
+      vehiclePhotoUploadBtn.innerHTML = '<i class="bi bi-upload me-1"></i>Upload Photo';
+    }
+  }
+}
+
+vehiclePhotoInput?.addEventListener('change', () => {
+  if (vehiclePhotoInput.files.length > 0) {
+    // Show preview immediately, then upload straight away (no separate button click needed).
+    const reader = new FileReader();
+    reader.onload = (e) => showVehiclePhoto(e.target.result);
+    reader.readAsDataURL(vehiclePhotoInput.files[0]);
+    uploadVehiclePhotoNow(vehiclePhotoInput.files[0]);
   }
 });
+
+vehiclePhotoUploadBtn?.addEventListener('click', () => uploadVehiclePhotoNow(vehiclePhotoInput.files[0]));
 
 document.getElementById('vehicle-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -119,7 +119,6 @@ document.getElementById('vehicle-form')?.addEventListener('submit', async (e) =>
       vehicle_make: form.vehicle_make.value || null,
       vehicle_model: form.vehicle_model.value || null,
       vehicle_year: form.vehicle_year.value ? parseInt(form.vehicle_year.value, 10) : null,
-      vehicle_safety_rating: form.vehicle_safety_rating.value || null,
     });
     msg.textContent = 'Saved.';
     msg.className = 'me-3 align-self-center text-success';
