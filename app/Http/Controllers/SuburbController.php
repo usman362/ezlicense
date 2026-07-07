@@ -28,27 +28,89 @@ class SuburbController extends Controller
 
         $results = Cache::remember('addr_search:' . md5(strtolower($q)), now()->addDay(), function () use ($q) {
             try {
+                // Photon (komoot) is an autocomplete-optimised geocoder that — unlike
+                // Nominatim — does not block datacenter/cloud IPs, so it works from the
+                // production server. bbox biases results to Australia.
                 $resp = Http::withHeaders([
-                    // Nominatim's usage policy REQUIRES an identifying User-Agent.
                     'User-Agent' => 'SecureLicence/1.0 (+https://securelicence.com; support@securelicence.com)',
                     'Accept'     => 'application/json',
-                ])->timeout(8)->get('https://nominatim.openstreetmap.org/search', [
-                    'q'              => $q,
-                    'format'         => 'json',
-                    'addressdetails' => 1,
-                    'countrycodes'   => 'au',
-                    'limit'          => 6,
+                ])->timeout(8)->get('https://photon.komoot.io/api/', [
+                    'q'     => $q,
+                    'limit' => 8,
+                    'lang'  => 'en',
+                    // Australia bounding box: minLon,minLat,maxLon,maxLat
+                    'bbox'  => '112.9,-43.7,153.7,-10.6',
                 ]);
 
-                return ($resp->successful() && is_array($resp->json())) ? $resp->json() : [];
+                if (! $resp->successful() || ! is_array($resp->json('features'))) {
+                    return [];
+                }
+
+                return $this->mapPhotonResults($resp->json('features'));
             } catch (\Throwable $e) {
-                Log::warning('Address search (Nominatim) failed: ' . $e->getMessage());
+                Log::warning('Address search (Photon) failed: ' . $e->getMessage());
 
                 return [];
             }
         });
 
         return response()->json($results);
+    }
+
+    /**
+     * Convert Photon GeoJSON features into the Nominatim-compatible shape the
+     * booking page's autocomplete already consumes (address.{house_number,road,
+     * suburb,...}, display_name, lat, lon) — so no frontend change is needed.
+     * Non-Australian results are dropped.
+     *
+     * @param  array<int, array<string, mixed>>  $features
+     * @return array<int, array<string, mixed>>
+     */
+    private function mapPhotonResults(array $features): array
+    {
+        $stateCodes = [
+            'new south wales' => 'NSW', 'victoria' => 'VIC', 'queensland' => 'QLD',
+            'south australia' => 'SA', 'western australia' => 'WA', 'tasmania' => 'TAS',
+            'northern territory' => 'NT', 'australian capital territory' => 'ACT',
+        ];
+
+        $out = [];
+        foreach ($features as $f) {
+            $p = $f['properties'] ?? [];
+            if (strtoupper((string) ($p['countrycode'] ?? '')) !== 'AU') {
+                continue; // keep Australian addresses only
+            }
+
+            $coords = $f['geometry']['coordinates'] ?? [null, null];
+            $suburb = $p['district'] ?? ($p['city'] ?? ($p['locality'] ?? null));
+            $stateName = (string) ($p['state'] ?? '');
+            $stateCode = $stateCodes[strtolower($stateName)] ?? null;
+
+            $street = trim(((string) ($p['housenumber'] ?? '')) . ' ' . ((string) ($p['street'] ?? $p['name'] ?? '')));
+            $displayName = implode(', ', array_filter([
+                $street !== '' ? $street : ($p['name'] ?? null),
+                $suburb,
+                $stateName,
+                $p['postcode'] ?? null,
+            ]));
+
+            $out[] = [
+                'display_name' => $displayName,
+                'lat' => isset($coords[1]) ? (string) $coords[1] : null,
+                'lon' => isset($coords[0]) ? (string) $coords[0] : null,
+                'address' => array_filter([
+                    'house_number'     => $p['housenumber'] ?? null,
+                    'road'             => $p['street'] ?? null,
+                    'suburb'           => $suburb,
+                    'city'             => $p['city'] ?? null,
+                    'state'            => $stateName ?: null,
+                    'postcode'         => $p['postcode'] ?? null,
+                    'ISO3166-2-lvl4'   => $stateCode ? 'AU-' . $stateCode : null,
+                ], fn ($v) => $v !== null && $v !== ''),
+            ];
+        }
+
+        return $out;
     }
 
     /**
