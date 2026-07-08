@@ -829,6 +829,7 @@
     var sessionToken = null;
     var autocompleteService = null;
     var placesService = null;
+    var searchRequestId = 0;
 
     function escapeHtml(s) {
       return String(s || '').replace(/[&<>"']/g, function(c) {
@@ -836,16 +837,39 @@
       });
     }
 
-    function getServices() {
-      if (typeof google === 'undefined' || !google.maps || !google.maps.places) return false;
-      if (!autocompleteService) {
-        autocompleteService = new google.maps.places.AutocompleteService();
-        // PlacesService needs a DOM element host (Google's quirk)
-        var hostDiv = document.createElement('div');
-        placesService = new google.maps.places.PlacesService(hostDiv);
-        sessionToken = new google.maps.places.AutocompleteSessionToken();
-      }
-      return true;
+    // Google Maps loads with loading=async — legacy google.maps.places may be
+    // undefined until importLibrary('places') resolves. Never block the UI on it.
+    function ensureGooglePlaces() {
+      return new Promise(function(resolve) {
+        var attempts = 0;
+        function initFromLib(placesLib) {
+          if (!autocompleteService) {
+            autocompleteService = new placesLib.AutocompleteService();
+            var hostDiv = document.createElement('div');
+            placesService = new placesLib.PlacesService(hostDiv);
+            sessionToken = new placesLib.AutocompleteSessionToken();
+          }
+          resolve(true);
+        }
+        function tick() {
+          if (typeof google === 'undefined' || !google.maps) {
+            if (++attempts > 40) { resolve(false); return; }
+            setTimeout(tick, 100);
+            return;
+          }
+          if (typeof google.maps.importLibrary === 'function') {
+            google.maps.importLibrary('places').then(initFromLib).catch(function() { resolve(false); });
+            return;
+          }
+          if (!google.maps.places) {
+            if (++attempts > 40) { resolve(false); return; }
+            setTimeout(tick, 100);
+            return;
+          }
+          initFromLib(google.maps.places);
+        }
+        tick();
+      });
     }
 
     // Parse a Google PlaceResult into our normalized address fields
@@ -1016,67 +1040,102 @@
       }
     }
 
+    function showAddressLoading() {
+      dropdown.innerHTML = '<div class="suburb-ac-loading"><span class="spinner-border spinner-border-sm me-1"></span>Searching addresses...</div>';
+      dropdown.classList.add('show');
+    }
+
+    function fetchGooglePredictions(q, requestId) {
+      var settled = false;
+      // If Google never calls back (common with async loader / API key issues), fall back.
+      var fallbackTimer = setTimeout(function() {
+        if (!settled && requestId === searchRequestId) {
+          settled = true;
+          fetchOsmPredictions(q, requestId);
+        }
+      }, 4000);
+
+      ensureGooglePlaces().then(function(ok) {
+        if (settled || requestId !== searchRequestId) return;
+        if (!ok || !autocompleteService) {
+          settled = true;
+          clearTimeout(fallbackTimer);
+          fetchOsmPredictions(q, requestId);
+          return;
+        }
+        autocompleteService.getPlacePredictions({
+          input: q,
+          componentRestrictions: { country: 'au' },
+          types: ['address'],
+          sessionToken: sessionToken,
+        }, function(predictions, status) {
+          if (settled || requestId !== searchRequestId) return;
+          settled = true;
+          clearTimeout(fallbackTimer);
+          var placesStatus = google.maps.places.PlacesServiceStatus;
+          if (status === placesStatus.ZERO_RESULTS) {
+            render([]);
+            return;
+          }
+          if (status !== placesStatus.OK) {
+            fetchOsmPredictions(q, requestId);
+            return;
+          }
+          render(predictions || []);
+        });
+      }).catch(function() {
+        if (settled || requestId !== searchRequestId) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
+        fetchOsmPredictions(q, requestId);
+      });
+    }
+
     input.addEventListener('input', function() {
       var q = input.value.trim();
       if (q.length < 3) { dropdown.classList.remove('show'); return; }
 
-      dropdown.innerHTML = '<div class="suburb-ac-loading"><span class="spinner-border spinner-border-sm me-1"></span>Searching addresses...</div>';
-      dropdown.classList.add('show');
-
+      showAddressLoading();
       clearTimeout(debounceTimer);
 
-      // ── Branch: Google Places (preferred) vs OpenStreetMap (fallback) ──
-      if (window.__googleMapsConfigured) {
-        debounceTimer = setTimeout(function() {
-          // Google library loads async — wait up to ~3s for it to become available
-          var attempts = 0;
-          function tryFetch() {
-            if (!getServices()) {
-              attempts++;
-              if (attempts > 30) {
-                // Google never loaded — fall back to OSM so user isn't blocked
-                fetchOsmPredictions(q);
-                return;
-              }
-              setTimeout(tryFetch, 100);
-              return;
-            }
-            autocompleteService.getPlacePredictions({
-              input: q,
-              componentRestrictions: { country: 'au' },
-              types: ['address'],
-              sessionToken: sessionToken,
-            }, function(predictions, status) {
-              if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                render([]);
-                return;
-              }
-              if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                // Quota exceeded / billing issue / referrer mismatch — fall back to OSM
-                fetchOsmPredictions(q);
-                return;
-              }
-              render(predictions || []);
-            });
-          }
-          tryFetch();
-        }, 200);
-      } else {
-        // No Google key configured — use OSM (slower debounce respects 1 req/sec policy)
-        debounceTimer = setTimeout(function() { fetchOsmPredictions(q); }, 350);
-      }
+      var requestId = ++searchRequestId;
+      var delay = window.__googleMapsConfigured ? 200 : 350;
+
+      debounceTimer = setTimeout(function() {
+        if (window.__googleMapsConfigured) {
+          fetchGooglePredictions(q, requestId);
+        } else {
+          fetchOsmPredictions(q, requestId);
+        }
+      }, delay);
     });
 
-    function fetchOsmPredictions(q) {
+    function fetchOsmPredictions(q, requestId) {
+      requestId = requestId || searchRequestId;
       // Server-side proxy (SuburbController@addressSearch) — reliable, unlike calling
       // Nominatim directly from the browser (which gets blocked / CORS-failed).
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timeoutId = controller ? setTimeout(function() { controller.abort(); }, 12000) : null;
+
       fetch('/api/address/search?q=' + encodeURIComponent(q), {
-        headers: { 'Accept': 'application/json' },
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+        signal: controller ? controller.signal : undefined,
       })
-        .then(function(r) { return r.json(); })
-        .then(function(items) { renderOsm(Array.isArray(items) ? items : []); })
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(items) {
+          if (requestId !== searchRequestId) return;
+          renderOsm(Array.isArray(items) ? items : []);
+        })
         .catch(function() {
+          if (requestId !== searchRequestId) return;
           dropdown.innerHTML = '<div class="suburb-ac-empty text-danger">Search failed — please try again</div>';
+        })
+        .finally(function() {
+          if (timeoutId) clearTimeout(timeoutId);
         });
     }
 

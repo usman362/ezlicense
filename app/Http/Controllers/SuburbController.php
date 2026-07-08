@@ -26,35 +26,53 @@ class SuburbController extends Controller
             return response()->json([]);
         }
 
-        $results = Cache::remember('addr_search:' . md5(strtolower($q)), now()->addDay(), function () use ($q) {
-            try {
-                // Photon (komoot) is an autocomplete-optimised geocoder that — unlike
-                // Nominatim — does not block datacenter/cloud IPs, so it works from the
-                // production server. bbox biases results to Australia.
-                $resp = Http::withHeaders([
-                    'User-Agent' => 'SecureLicence/1.0 (+https://securelicence.com; support@securelicence.com)',
-                    'Accept'     => 'application/json',
-                ])->timeout(8)->get('https://photon.komoot.io/api/', [
-                    'q'     => $q,
-                    'limit' => 8,
-                    'lang'  => 'en',
-                    // Australia bounding box: minLon,minLat,maxLon,maxLat
-                    'bbox'  => '112.9,-43.7,153.7,-10.6',
-                ]);
+        $cacheKey = 'addr_search:' . md5(strtolower($q));
 
-                if (! $resp->successful() || ! is_array($resp->json('features'))) {
-                    return [];
-                }
+        if (Cache::has($cacheKey)) {
+            return response()->json(Cache::get($cacheKey));
+        }
 
-                return $this->mapPhotonResults($resp->json('features'));
-            } catch (\Throwable $e) {
-                Log::warning('Address search (Photon) failed: ' . $e->getMessage());
+        $results = $this->fetchAddressResults($q);
 
-                return [];
-            }
-        });
+        Cache::put(
+            $cacheKey,
+            $results,
+            empty($results) ? now()->addMinutes(10) : now()->addDay()
+        );
 
         return response()->json($results);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function fetchAddressResults(string $q): array
+    {
+        try {
+            // Photon (komoot) is an autocomplete-optimised geocoder that — unlike
+            // Nominatim — does not block datacenter/cloud IPs, so it works from the
+            // production server. bbox biases results to Australia.
+            $resp = Http::withHeaders([
+                'User-Agent' => 'SecureLicence/1.0 (+https://securelicence.com; support@securelicence.com)',
+                'Accept'     => 'application/json',
+            ])->timeout(8)->get('https://photon.komoot.io/api/', [
+                'q'     => $q,
+                'limit' => 8,
+                'lang'  => 'en',
+                // Australia bounding box: minLon,minLat,maxLon,maxLat
+                'bbox'  => '112.9,-43.7,153.7,-10.6',
+            ]);
+
+            if (! $resp->successful() || ! is_array($resp->json('features'))) {
+                return [];
+            }
+
+            return $this->mapPhotonResults($resp->json('features'));
+        } catch (\Throwable $e) {
+            Log::warning('Address search (Photon) failed: ' . $e->getMessage());
+
+            return [];
+        }
     }
 
     /**
