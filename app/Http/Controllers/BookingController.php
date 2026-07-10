@@ -8,7 +8,9 @@ use App\Models\SiteSetting;
 use App\Models\User;
 use App\Notifications\AdminBookingAlert;
 use App\Notifications\BookingCancelled;
+use App\Notifications\BookingConfirmed;
 use App\Notifications\BookingProposed;
+use App\Notifications\PaymentReceipt;
 use App\Notifications\InstructorArrived;
 use App\Notifications\InstructorNewBooking;
 use App\Notifications\LessonConfirmationRequest;
@@ -271,6 +273,24 @@ class BookingController extends Controller
         }
 
         // Wallet / free booking → notify everyone now.
+        // Learner: booking confirmation + (for paid wallet bookings) a payment receipt.
+        try {
+            $learner = User::find($booking->learner_id);
+            if ($learner) {
+                $learner->notify(new BookingConfirmed($booking));
+                if ((float) $booking->amount > 0) {
+                    $learner->notify(new PaymentReceipt(
+                        bookings: [$booking],
+                        totalCharged: (float) $booking->amount + (float) $booking->platform_fee + (float) $booking->processing_fee,
+                        paymentMethod: $booking->payment_method ?? 'wallet',
+                        transactionRef: null,
+                    ));
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Learner booking confirmation failed: ' . $e->getMessage());
+        }
+
         try {
             $instructor = User::find($booking->instructor_id);
             if ($instructor) {
