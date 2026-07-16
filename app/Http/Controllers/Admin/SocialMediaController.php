@@ -58,23 +58,32 @@ class SocialMediaController extends Controller
             'admin_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $wasPosted = $socialMedium->status === SocialMediaSubmission::STATUS_POSTED;
+        $prevStatus = $socialMedium->status;
+        $newStatus  = $data['status'];
 
         $socialMedium->update([
-            'status'              => $data['status'],
+            'status'              => $newStatus,
             'admin_notes'         => $data['admin_notes'] ?? $socialMedium->admin_notes,
             'reviewed_by_user_id' => Auth::id(),
-            'posted_at'           => $data['status'] === SocialMediaSubmission::STATUS_POSTED
+            'posted_at'           => $newStatus === SocialMediaSubmission::STATUS_POSTED
                                         ? ($socialMedium->posted_at ?? now())
                                         : $socialMedium->posted_at,
         ]);
 
-        // Newly marked "posted" → let the instructor know their win is live.
-        if (! $wasPosted && $data['status'] === SocialMediaSubmission::STATUS_POSTED && $socialMedium->instructor) {
-            try {
-                $socialMedium->instructor->notify(new \App\Notifications\SocialMediaSubmissionPosted($socialMedium));
-            } catch (\Throwable $e) {
-                Log::warning('Social media posted notification failed: ' . $e->getMessage());
+        // Keep the instructor in the loop when their submission is approved or posted
+        // (only on the first transition into each state, so we don't spam re-saves).
+        if ($socialMedium->instructor && $newStatus !== $prevStatus) {
+            $notification = match ($newStatus) {
+                SocialMediaSubmission::STATUS_APPROVED => new \App\Notifications\SocialMediaSubmissionApproved($socialMedium),
+                SocialMediaSubmission::STATUS_POSTED   => new \App\Notifications\SocialMediaSubmissionPosted($socialMedium),
+                default                                => null,
+            };
+            if ($notification) {
+                try {
+                    $socialMedium->instructor->notify($notification);
+                } catch (\Throwable $e) {
+                    Log::warning('Social media status notification failed: ' . $e->getMessage());
+                }
             }
         }
 
