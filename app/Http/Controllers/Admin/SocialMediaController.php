@@ -58,6 +58,8 @@ class SocialMediaController extends Controller
             'admin_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
+        $wasPosted = $socialMedium->status === SocialMediaSubmission::STATUS_POSTED;
+
         $socialMedium->update([
             'status'              => $data['status'],
             'admin_notes'         => $data['admin_notes'] ?? $socialMedium->admin_notes,
@@ -66,6 +68,15 @@ class SocialMediaController extends Controller
                                         ? ($socialMedium->posted_at ?? now())
                                         : $socialMedium->posted_at,
         ]);
+
+        // Newly marked "posted" → let the instructor know their win is live.
+        if (! $wasPosted && $data['status'] === SocialMediaSubmission::STATUS_POSTED && $socialMedium->instructor) {
+            try {
+                $socialMedium->instructor->notify(new \App\Notifications\SocialMediaSubmissionPosted($socialMedium));
+            } catch (\Throwable $e) {
+                Log::warning('Social media posted notification failed: ' . $e->getMessage());
+            }
+        }
 
         return back()->with('message', 'Submission updated.');
     }

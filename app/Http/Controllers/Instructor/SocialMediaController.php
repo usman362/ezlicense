@@ -81,7 +81,12 @@ class SocialMediaController extends Controller
             'status'                => SocialMediaSubmission::STATUS_PENDING,
         ]);
 
-        // Alert admins that new marketing material is ready to review/post.
+        // Confirmation to the instructor + alert admins that new material is ready.
+        try {
+            $user->notify(new \App\Notifications\SocialMediaSubmissionReceived($submission));
+        } catch (\Throwable $e) {
+            Log::warning('Social media instructor confirmation failed: ' . $e->getMessage());
+        }
         try {
             foreach (User::where('role', User::ROLE_ADMIN)->get() as $admin) {
                 $admin->notify(new NewSocialMediaSubmission($submission));
