@@ -48,7 +48,11 @@
         </div>
 
         @if($message->body_html)
-            <iframe sandbox="allow-same-origin" style="width:100%;min-height:420px;border:0;" srcdoc="{{ $message->body_html }}"></iframe>
+            {{-- Inject a <base target="_blank"> so links/buttons inside the email open in a
+                 new tab, and allow the sandboxed iframe to open (and escape) popups —
+                 otherwise action buttons do nothing. No allow-scripts (email JS stays disabled). --}}
+            @php $webmailBody = '<base target="_blank">' . $message->body_html; @endphp
+            <iframe sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:100%;min-height:420px;border:0;" srcdoc="{{ $webmailBody }}"></iframe>
         @elseif($message->body_text)
             <pre style="white-space:pre-wrap;font-family:inherit;font-size:.95rem;margin:0;">{{ $message->body_text }}</pre>
         @else
