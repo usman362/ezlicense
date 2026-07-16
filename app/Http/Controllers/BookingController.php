@@ -83,8 +83,16 @@ class BookingController extends Controller
                 $query->where('status', Booking::STATUS_PROPOSED)
                     ->orderBy('scheduled_at', 'asc');
             } else {
-                $query->whereIn('status', [Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED])
-                    ->orderBy('scheduled_at', 'desc');
+                // History = completed + cancelled. An optional ?status= filter narrows it
+                // to just one — done server-side so it works across ALL pages, not just
+                // the page currently loaded.
+                $historyFilter = $request->input('status');
+                if (in_array($historyFilter, [Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED], true)) {
+                    $query->where('status', $historyFilter);
+                } else {
+                    $query->whereIn('status', [Booking::STATUS_COMPLETED, Booking::STATUS_CANCELLED]);
+                }
+                $query->orderBy('scheduled_at', 'desc');
             }
         } elseif ($user->isLearner() && in_array($tab, ['upcoming', 'pending', 'history'], true)) {
             if ($tab === 'upcoming') {

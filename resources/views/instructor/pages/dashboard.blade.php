@@ -823,13 +823,12 @@
     loading.style.display = 'none';
     var items = data.data || [];
 
-    // Total count badge is the full count (not filtered)
-    setTabCount('history', data.total);
-
-    // Client-side filter on the page we have
-    if (historyFilter !== 'all') {
-      items = items.filter(function(b) { return (b.status || '').toLowerCase() === historyFilter; });
+    // Keep the tab badge showing the FULL history count (only refresh it when the
+    // unfiltered list is loaded, so the "Completed"/"Cancelled" filters don't shrink it).
+    if (historyFilter === 'all') {
+      setTabCount('history', data.total);
     }
+    // Filtering is now done server-side (?status=) so it works across all pages.
 
     if (items.length === 0) {
       wrap.style.display = 'none';
@@ -874,7 +873,8 @@
     document.getElementById('history-loading').style.display = 'block';
     document.getElementById('history-wrap').style.display = 'none';
     document.getElementById('history-empty').style.display = 'none';
-    fetch('/api/bookings?tab=history&page=' + page + '&per_page=' + perPageState.history, opts)
+    var statusParam = (historyFilter && historyFilter !== 'all') ? '&status=' + historyFilter : '';
+    fetch('/api/bookings?tab=history&page=' + page + '&per_page=' + perPageState.history + statusParam, opts)
       .then(function(r) { return r.json(); })
       .then(function(data) { renderHistory(data); })
       .catch(function() {
