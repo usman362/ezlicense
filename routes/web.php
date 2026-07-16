@@ -599,6 +599,11 @@ Route::middleware(['auth', 'role:instructor', 'instructor.onboarded'])->prefix('
     Route::get('/statements', [App\Http\Controllers\Instructor\StatementsController::class, 'index'])->name('statements');
     Route::get('/statements/{key}', [App\Http\Controllers\Instructor\StatementsController::class, 'show'])->name('statements.show')->where('key', '\d{4}-\d{2}-\d{2}');
     Route::get('/statements/{key}/download', [App\Http\Controllers\Instructor\StatementsController::class, 'download'])->name('statements.download')->where('key', '\d{4}-\d{2}-\d{2}');
+
+    // ── Marketing / Social Media (learner test-pass testimonials) ──
+    Route::get('/social-media', [App\Http\Controllers\Instructor\SocialMediaController::class, 'index'])->name('social-media');
+    Route::post('/social-media', [App\Http\Controllers\Instructor\SocialMediaController::class, 'store'])->name('social-media.store');
+    Route::delete('/social-media/{submission}', [App\Http\Controllers\Instructor\SocialMediaController::class, 'destroy'])->name('social-media.destroy');
     Route::get('/notifications', function (\Illuminate\Http\Request $request) {
         $user = auth()->user();
         $tab = $request->query('tab', 'notifications'); // notifications | proposals
@@ -839,6 +844,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('webmail/{message}', [App\Http\Controllers\Admin\WebmailController::class, 'destroy'])->name('webmail.destroy');
     Route::get('feedback', [App\Http\Controllers\Admin\FeedbackController::class, 'index'])->name('feedback.index');
     Route::patch('feedback/{feedback}', [App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
+
+    // ── Social Media submissions (instructor marketing material) ──
+    Route::get('social-media', [App\Http\Controllers\Admin\SocialMediaController::class, 'index'])->name('social-media.index');
+    Route::get('social-media/{socialMedium}', [App\Http\Controllers\Admin\SocialMediaController::class, 'show'])->name('social-media.show');
+    Route::patch('social-media/{socialMedium}/status', [App\Http\Controllers\Admin\SocialMediaController::class, 'updateStatus'])->name('social-media.update-status');
+    Route::delete('social-media/{socialMedium}', [App\Http\Controllers\Admin\SocialMediaController::class, 'destroy'])->name('social-media.destroy');
     /*
     | ──────────────────────────────────────────────────────────────────
     | DISABLED for Phase 1 launch — Service Providers & Categories.

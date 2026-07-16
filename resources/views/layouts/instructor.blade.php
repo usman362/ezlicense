@@ -325,6 +325,10 @@
                     <i class="bi bi-receipt-cutoff"></i>
                     <span>Statements</span>
                 </a>
+                <a class="nav-link {{ request()->routeIs('instructor.social-media*') ? 'active' : '' }}" href="{{ route('instructor.social-media') }}">
+                    <i class="bi bi-megaphone"></i>
+                    <span>Marketing</span>
+                </a>
 
                 <div class="nav-divider"></div>
                 <div class="nav-section-label">Settings</div>

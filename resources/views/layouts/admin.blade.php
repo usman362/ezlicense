@@ -325,6 +325,13 @@
                 <a class="nav-link {{ request()->routeIs('admin.feedback*') ? 'active' : '' }}" href="{{ route('admin.feedback.index') }}">
                     <i class="bi bi-chat-left-heart"></i> User Feedback
                 </a>
+                @php $smPending = \App\Models\SocialMediaSubmission::where('status', 'pending')->count(); @endphp
+                <a class="nav-link {{ request()->routeIs('admin.social-media*') ? 'active' : '' }}" href="{{ route('admin.social-media.index') }}">
+                    <i class="bi bi-megaphone"></i> Social Media
+                    @if($smPending > 0)
+                        <span class="badge bg-warning text-dark ms-auto" style="font-size:0.7rem">{{ $smPending }}</span>
+                    @endif
+                </a>
                 @php $webmailUnread = \App\Models\MailboxMessage::inbound()->unread()->count(); @endphp
                 <a class="nav-link {{ request()->routeIs('admin.webmail*') ? 'active' : '' }}" href="{{ route('admin.webmail.inbox') }}">
                     <i class="bi bi-envelope-at-fill"></i> Webmail
