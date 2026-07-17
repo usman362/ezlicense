@@ -682,9 +682,16 @@
       var location = [b.address_line, __sub].filter(Boolean).join(', ') || '—';
           var learnerName = (b.learner && b.learner.name) ? esc(b.learner.name) : '—';
           var learnerPhone = (b.learner && b.learner.phone) ? esc(b.learner.phone) : '';
-          var statusBadge = b.status === 'confirmed'
-            ? '<span class="bk-status bk-status-confirmed"><i class="bi bi-check-circle-fill"></i>Confirmed</span>'
-            : '<span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>' + esc((b.status || '').toUpperCase()) + '</span>';
+          var statusBadge;
+          if (b.status === 'confirmed') {
+            statusBadge = '<span class="bk-status bk-status-confirmed"><i class="bi bi-check-circle-fill"></i>Confirmed</span>';
+          } else if (b.status === 'instructor_arrived') {
+            statusBadge = '<span class="bk-status bk-status-confirmed"><i class="bi bi-geo-alt-fill"></i>Arrived</span>';
+          } else if (b.status === 'in_progress') {
+            statusBadge = '<span class="bk-status bk-status-confirmed"><i class="bi bi-play-circle-fill"></i>In progress</span>';
+          } else {
+            statusBadge = '<span class="bk-status bk-status-pending"><i class="bi bi-hourglass-split"></i>' + esc((b.status || '').toUpperCase()) + '</span>';
+          }
           var phoneHtml = learnerPhone
             ? '<a href="tel:' + learnerPhone + '" class="bk-card-meta-link"><i class="bi bi-telephone-fill"></i>' + learnerPhone + '</a>'
             : '';
@@ -983,6 +990,15 @@
 
         var html = '<h4 class="fw-bold mb-3">Booking #' + b.id + '</h4>';
 
+        // ── Lesson lifecycle action (confirmed → arrived → in progress → completed) ──
+        if (b.status === 'confirmed') {
+          html += '<button class="btn btn-success w-100 fw-bold mb-3" id="detail-arrived-btn"><i class="bi bi-geo-alt-fill me-1"></i>Mark as Arrived</button>';
+        } else if (b.status === 'instructor_arrived') {
+          html += '<button class="btn btn-primary w-100 fw-bold mb-3" id="detail-start-btn"><i class="bi bi-play-fill me-1"></i>Start Lesson</button>';
+        } else if (b.status === 'in_progress') {
+          html += '<button class="btn btn-dark w-100 fw-bold mb-3" id="detail-end-btn"><i class="bi bi-check2-circle me-1"></i>End Lesson &amp; Mark Complete</button>';
+        }
+
         // Modify booking dropdown (matching live site)
         if (b.can_cancel || b.can_reschedule) {
           html += '<div class="dropdown mb-3">' +
@@ -1041,8 +1057,45 @@
             openRescheduleModal(b);
           });
         }
+
+        // Lesson lifecycle buttons
+        var arrivedBtn = document.getElementById('detail-arrived-btn');
+        if (arrivedBtn) arrivedBtn.addEventListener('click', function() { doLifecycle(b.id, 'arrived', 'POST', this); });
+        var startBtn = document.getElementById('detail-start-btn');
+        if (startBtn) startBtn.addEventListener('click', function() { doLifecycle(b.id, 'start-lesson', 'POST', this); });
+        var endBtn = document.getElementById('detail-end-btn');
+        if (endBtn) endBtn.addEventListener('click', function() {
+          if (!confirm('Mark this lesson as completed? The learner will be asked to confirm and payment will be finalised.')) return;
+          doLifecycle(b.id, 'end-lesson', 'POST', this);
+        });
       })
       .catch(function() { body.innerHTML = '<p class="text-danger">Failed to load booking details.</p>'; });
+  }
+
+  // POST a lesson-lifecycle action (arrived / start-lesson / end-lesson), then refresh.
+  function doLifecycle(bookingId, path, method, btn) {
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Working…'; }
+    fetch('/api/bookings/' + bookingId + '/' + path, {
+      method: method,
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf || '', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin'
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, d: d }; }); })
+    .then(function(res) {
+      if (res.ok) {
+        // Refresh the detail modal (shows the next-stage button) and the lists/counts.
+        showBookingDetail(bookingId);
+        loadSummary(); loadUpcoming(1); loadHistory(1);
+      } else {
+        alert((res.d && res.d.message) ? res.d.message : 'Action failed.');
+        if (btn) { btn.disabled = false; }
+        showBookingDetail(bookingId);
+      }
+    })
+    .catch(function() {
+      alert('Action failed. Please try again.');
+      if (btn) { btn.disabled = false; }
+    });
   }
 
   // ── Public helper: called from the instructor calendar popover ──

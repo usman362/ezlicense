@@ -74,10 +74,19 @@ class BookingController extends Controller
         $now = now();
         if ($user->isInstructor() && in_array($tab, ['upcoming', 'pending', 'history'], true)) {
             if ($tab === 'upcoming') {
-                // Confirmed only — unaccepted proposals live in the Pending tab, so
-                // they must not also appear here (otherwise a proposal shows twice).
-                $query->where('status', Booking::STATUS_CONFIRMED)
-                    ->where('scheduled_at', '>', $now)
+                // Confirmed + active lessons (arrived / in-progress) so the instructor can
+                // run the lesson lifecycle (mark arrived → start → complete). Proposals are
+                // excluded — they live in the Pending tab. Confirmed lessons stay visible for
+                // a 24h grace window after their start so a late "mark complete" still works.
+                $query->whereIn('status', [
+                        Booking::STATUS_CONFIRMED,
+                        Booking::STATUS_INSTRUCTOR_ARRIVED,
+                        Booking::STATUS_IN_PROGRESS,
+                    ])
+                    ->where(function ($q) use ($now) {
+                        $q->where('scheduled_at', '>', $now->copy()->subDay())
+                          ->orWhereIn('status', [Booking::STATUS_INSTRUCTOR_ARRIVED, Booking::STATUS_IN_PROGRESS]);
+                    })
                     ->orderBy('scheduled_at', 'asc');
             } elseif ($tab === 'pending') {
                 $query->where('status', Booking::STATUS_PROPOSED)
